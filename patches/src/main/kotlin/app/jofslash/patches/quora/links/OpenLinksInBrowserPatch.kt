@@ -1,6 +1,7 @@
 package app.jofslash.patches.quora.links
 
 import app.jofslash.patches.quora.shared.Constants.COMPATIBILITY_QUORA
+import app.jofslash.patches.quora.shared.registerSetting
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLabels
 import app.morphe.patcher.patch.bytecodePatch
@@ -25,6 +26,7 @@ val openLinksInBrowserPatch = bytecodePatch(
     extendWith("extensions/extension.mpe")
 
     execute {
+        registerSetting("openLinksInBrowser", "Open links in browser")
         StartCustomTabFingerprint.method.addInstructionsWithLabels(
             0,
             """

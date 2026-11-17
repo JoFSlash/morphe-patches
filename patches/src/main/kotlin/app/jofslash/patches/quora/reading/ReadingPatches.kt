@@ -3,6 +3,7 @@ package app.jofslash.patches.quora.reading
 import app.jofslash.patches.quora.ads.InterceptRequestFingerprint
 import app.jofslash.patches.quora.ads.PageFinishedFingerprint
 import app.jofslash.patches.quora.shared.Constants.COMPATIBILITY_QUORA
+import app.jofslash.patches.quora.shared.registerSetting
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
@@ -162,11 +163,17 @@ val hideAskButtonPatch = bytecodePatch(
     extendWith("extensions/extension.mpe")
 
     execute {
-        ShouldShowAskButtonFingerprint.method.addInstructions(
+        registerSetting("hideAskButton", "Hide Ask button")
+        ShouldShowAskButtonFingerprint.method.addInstructionsWithLabels(
             0,
             """
+                invoke-static { }, Lapp/jofslash/extension/quora/NativeTweaksPatch;->hideAskButton()Z
+                move-result v0
+                if-eqz v0, :show
                 const/4 v0, 0x0
                 return v0
+                :show
+                nop
             """
         )
         PageFinishedFingerprint.method.addInstruction(

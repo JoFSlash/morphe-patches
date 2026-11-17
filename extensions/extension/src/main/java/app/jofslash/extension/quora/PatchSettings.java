@@ -22,7 +22,7 @@ import java.util.Map;
 
 /**
  * Turns the page patches on and off while the app runs, and edits the filter lists.
- * Opened by long-pressing the Home tab. Patches that change the app itself stay as patched.
+ * Opened by long-pressing the Home tab. Privacy patches can't be switched off here.
  */
 @SuppressWarnings("unused")
 public final class PatchSettings {
@@ -53,6 +53,23 @@ public final class PatchSettings {
         }
         SharedPreferences prefs = prefs(webView);
         return prefs == null || prefs.getBoolean(key, true);
+    }
+
+    /**
+     * Called when the tab bar is set up, once for each native patch that can be switched at run time,
+     * so the dialog lists it before the patch first acts.
+     */
+    public static void register(String key, String name) {
+        synchronized (PATCHES) {
+            if (!PATCHES.containsKey(key)) PATCHES.put(key, name);
+        }
+    }
+
+    /**
+     * For native patches: whether the patch is switched on (the default).
+     */
+    public static boolean on(String key) {
+        return isOn(key);
     }
 
     /**
@@ -118,6 +135,8 @@ public final class PatchSettings {
                     for (int i = 0; i < keys.size(); i++) editor.putBoolean(keys.get(i), checked[i]);
                     editor.apply();
                     reload();
+                    Toast.makeText(activity, "Saved. Changes to tabs, gestures and text size apply after restarting the app.",
+                            Toast.LENGTH_LONG).show();
                 })
                 .setNegativeButton("Cancel", null);
         if (!TEXTS.isEmpty()) builder.setNeutralButton("Filters", (dialog, which) -> showTexts(activity, prefs));
@@ -175,6 +194,7 @@ public final class PatchSettings {
      */
     public static boolean isOn(String key) {
         Context context = appContext;
+        if (context == null) context = appContext = currentApplication();
         if (context == null) return true;
         try {
             return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(key, true);
@@ -184,6 +204,15 @@ public final class PatchSettings {
     }
 
     private static volatile Context appContext;
+
+    /** The app's context before any view exists, for example in the push notification service. */
+    private static Context currentApplication() {
+        try {
+            return (Context) Class.forName("android.app.ActivityThread").getMethod("currentApplication").invoke(null);
+        } catch (Throwable ex) {
+            return null;
+        }
+    }
 
     private static SharedPreferences prefs(View view) {
         try {
