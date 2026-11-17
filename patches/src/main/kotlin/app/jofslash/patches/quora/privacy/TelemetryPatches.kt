@@ -8,6 +8,9 @@ import app.morphe.patcher.patch.bytecodePatch
 
 private const val EXTENSION_CLASS = "Lapp/jofslash/extension/quora/BlockTelemetryPatch;"
 
+// QUtil.makeTagName returns the class's simple name.
+private const val HEARTBEAT_TAG = "QHeartbeatWorker"
+
 // Every call to Quora's /api/do_action_POST goes through here.
 internal object CallApiFingerprint : Fingerprint(
     definingClass = "Lcom/quora/android/networking/QNetworkCalls;",
@@ -34,6 +37,36 @@ internal object LogChargingStatusChangedFingerprint : Fingerprint(
     returnType = "V",
     parameters = listOf("Landroid/content/Context;"),
 )
+
+// Schedules the daily heartbeat job. It only reports whether notifications are enabled.
+internal object ScheduleHeartbeatFingerprint : Fingerprint(
+    definingClass = "Lcom/quora/android/networking/QHeartbeatWorker\$Companion;",
+    name = "scheduleHeartbeat",
+    returnType = "V",
+    parameters = listOf("Landroid/content/Context;"),
+)
+
+// What the daily job runs.
+internal object PerformHeartbeatFingerprint : Fingerprint(
+    definingClass = "Lcom/quora/android/networking/QHeartbeatWorker\$Companion;",
+    name = "performHeartbeat",
+    returnType = "V",
+    parameters = listOf(),
+)
+
+/**
+ * Smali that cancels the unique WorkManager job named [tag] with the Context in p1, then returns.
+ * Cancelling covers a job an unpatched install already scheduled.
+ */
+private fun cancelJobAndReturn(tag: String) = """
+    if-eqz p1, :done
+    invoke-static { p1 }, Landroidx/work/WorkManager;->getInstance(Landroid/content/Context;)Landroidx/work/WorkManager;
+    move-result-object v0
+    const-string v1, "$tag"
+    invoke-virtual { v0, v1 }, Landroidx/work/WorkManager;->cancelUniqueWork(Ljava/lang/String;)Landroidx/work/Operation;
+    :done
+    return-void
+"""
 
 @Suppress("unused")
 val blockAppTelemetryPatch = bytecodePatch(
@@ -64,27 +97,21 @@ val blockAppTelemetryPatch = bytecodePatch(
 }
 
 @Suppress("unused")
-val disableChargingTrackingPatch = bytecodePatch(
-    name = "Disable charging tracking",
-    description = "Stops the hourly job that tells Quora whether your phone is charging.",
+val disableTrackingJobsPatch = bytecodePatch(
+    name = "Disable tracking jobs",
+    description = "Stops the background jobs that tell Quora every hour whether your phone is charging " +
+            "and every day whether notifications are on.",
     default = true
 ) {
     compatibleWith(COMPATIBILITY_QUORA)
 
     execute {
-        // Cancel the job if an unpatched install already scheduled it, and don't schedule it again.
-        ScheduleChargingStatusLogFingerprint.method.addInstructions(
-            0,
-            """
-                invoke-static { p1 }, Landroidx/work/WorkManager;->getInstance(Landroid/content/Context;)Landroidx/work/WorkManager;
-                move-result-object v0
-                const-string v1, "QChargingStatusWorker"
-                invoke-virtual { v0, v1 }, Landroidx/work/WorkManager;->cancelUniqueWork(Ljava/lang/String;)Landroidx/work/Operation;
-                return-void
-            """
-        )
+        // Cancel the jobs instead of scheduling them.
+        ScheduleChargingStatusLogFingerprint.method.addInstructionsWithLabels(0, cancelJobAndReturn("QChargingStatusWorker"))
+        ScheduleHeartbeatFingerprint.method.addInstructionsWithLabels(0, cancelJobAndReturn(HEARTBEAT_TAG))
 
-        // In case the job still runs once before it is cancelled.
+        // In case a job still runs once before it is cancelled.
         LogChargingStatusChangedFingerprint.method.addInstructions(0, "return-void")
+        PerformHeartbeatFingerprint.method.addInstructions(0, "return-void")
     }
 }
