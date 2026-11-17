@@ -7,8 +7,17 @@ Patches for [Quora](https://play.google.com/store/apps/details?id=com.quora.andr
 
 ## ❓ About
 
-- **Remove ads**: hides promoted answers, sponsored posts and Google ads in the feed and on question pages, and blocks requests to ad servers.
-- **Disable analytics**: turns off Firebase Analytics, Crashlytics, Firebase Performance and Facebook app events, and stops the advertising ID from being collected.
+- **Privacy and tracking** (on by default): removes ads, turns off analytics and telemetry,
+  blocks web trackers, the advertising ID, clipboard reading and WebView debugging,
+  stops the background tracking jobs and cleans tracking parameters from shared links.
+- **Feed and answers** (optional): hides Quora+ answers and promotions, AI answers and Poe,
+  related and suggested questions, Spaces suggestions, counts and the downvote button.
+  Also turns off video autoplay, enables text selection and changes the text size.
+- **App**: turns off the update, rating and notification prompts (on by default), and optionally
+  the Google sign-in prompts. Hides tabs and badges, picks the start tab, opens links in your
+  browser, and turns off vibration and tab prefetching.
+
+See the full list below or on the [website](https://jofslash.github.io/quora-patches/).
 
 Tested with Quora 3.2.42 and 3.2.30 from [APKMirror](https://www.apkmirror.com/apk/quora-inc/quora/) (APKM bundle).
 

@@ -74,3 +74,20 @@ val hideBadgesPatch = blockWebMessagesPatch(
     default = false,
     messages = listOf("UPDATE_BADGE_PROPERTIES", "UPDATE_HOME_TAB_BADGE"),
 )
+
+@Suppress("unused")
+val disableSignInPromptsPatch = blockWebMessagesPatch(
+    name = "Disable sign-in prompts",
+    description = "Stops Google's \"Save password?\" and automatic Google sign-in prompts. " +
+            "You can still sign in with the buttons on the login page.",
+    default = false,
+    messages = listOf("SAVE_CREDENTIALS", "AUTO_LOGIN_WITH_GOOGLE_ACCOUNT"),
+)
+
+@Suppress("unused")
+val disableTabPrefetchingPatch = blockWebMessagesPatch(
+    name = "Disable tab prefetching",
+    description = "Saves data by loading the other tabs only when you open them.",
+    default = false,
+    messages = listOf("PREFETCH_TABS"),
+)
