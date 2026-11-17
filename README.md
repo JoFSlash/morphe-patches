@@ -83,9 +83,9 @@ No root needed. The patched app is signed with a different key, which is why the
 Generated from the latest release, with each patch's options and supported versions.
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.2.0](https://github.com/JoFSlash/quora-patches/releases/tag/v1.2.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;46 patches total
+> **[v1.3.0-dev.1](https://github.com/JoFSlash/quora-patches/releases/tag/v1.3.0-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;48 patches total
 <details open>
-<summary>📦 Quora&nbsp;&nbsp;•&nbsp;&nbsp;46 patches</summary>
+<summary>📦 Quora&nbsp;&nbsp;•&nbsp;&nbsp;48 patches</summary>
 <br>
 
 **Package name:** `com.quora.android`
@@ -139,7 +139,9 @@ Generated from the latest release, with each patch's options and supported versi
 | [Hide tabs](#hide-tabs) | Removes the tabs you pick from the bottom bar. Home always stays. | • Hide Following tab<br>• Hide Answer tab<br>• Hide Spaces tab<br>• Hide Notifications tab |
 | [Keep screen on](#keep-screen-on) | Keeps the screen from turning off while a page is open. |  |
 | [Open links in browser](#open-links-in-browser) | Opens links to other websites in your default browser instead of an in-app browser tab. |  |
+| [Patch settings](#patch-settings) | Long-press the Home tab to switch the page patches on and off and edit the filters, without patching again. |  |
 | [Remove ads](#remove-ads) | Hides promoted answers, sponsored posts and Google ads in the feed and on question pages, and blocks requests to ad servers. |  |
+| [Save images](#save-images) | Long-press an image you opened full screen to save it to Pictures/Quora. |  |
 | [Spoof installer](#spoof-installer) | Reports Google Play as the app installer, so Quora does not treat the patched app as installed from an unknown source. |  |
 | [Start tab](#start-tab) | Opens the app on the tab you pick instead of Home. | • Start tab |
 | [Text size](#text-size) | Makes the text on every page larger or smaller. | • Text size |
