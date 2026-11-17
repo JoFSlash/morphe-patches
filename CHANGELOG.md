@@ -1,3 +1,17 @@
+## [1.2.0-dev.2](https://github.com/JoFSlash/quora-patches/compare/v1.2.0-dev.1...v1.2.0-dev.2) (2026-11-17)
+
+### ✨ New Features
+
+* Add "Block app telemetry" and "Disable charging tracking" patches ([8451973](https://github.com/JoFSlash/quora-patches/commit/84519737ea8f5a015c4c8bcf8a1eba853ade8cae))
+
+## [1.2.0-dev.1](https://github.com/JoFSlash/quora-patches/compare/v1.1.0...v1.2.0-dev.1) (2026-11-17)
+
+### ✨ New Features
+
+* Add "Clean shared links", "Disable notification prompt", "Hide Spaces tab", "Hide Poe" and "Hide counts" patches ([503d0a6](https://github.com/JoFSlash/quora-patches/commit/503d0a6ec2a26c68a7b29d79b91781abda10e59f))
+* Add "Spoof installer" patch ([e5d296e](https://github.com/JoFSlash/quora-patches/commit/e5d296e3ef5577d661c2fa4c1496caf288a38f22))
+* Add privacy, tab, text size, vibration and badge patches ([8d84f72](https://github.com/JoFSlash/quora-patches/commit/8d84f720da2c69eb6f96eb0c327f28e792d7b1ba))
+
 ## [1.1.0](https://github.com/JoFSlash/quora-patches/compare/v1.0.1...v1.1.0) (2026-11-17)
 
 ### ✨ New Features
