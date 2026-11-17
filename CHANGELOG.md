@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/JoFSlash/quora-patches/compare/v1.2.0...v1.3.0) (2026-11-17)
+
+### ✨ New Features
+
+* Add "Patch settings" and "Save images", build pull requests ([310a2d2](https://github.com/JoFSlash/quora-patches/commit/310a2d2b3a8f20e5b90efa2fa5dc370a5b22dd0a))
+
 ## [1.3.0-dev.1](https://github.com/JoFSlash/quora-patches/compare/v1.2.0...v1.3.0-dev.1) (2026-11-17)
 
 ### ✨ New Features
