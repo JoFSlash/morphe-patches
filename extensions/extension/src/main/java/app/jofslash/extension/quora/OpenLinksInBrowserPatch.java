@@ -16,7 +16,7 @@ public final class OpenLinksInBrowserPatch {
      * @return True if the link was opened in the browser, false to fall back to the in-app tab.
      */
     public static boolean openInBrowser(Context context, String url) {
-        if (context == null || url == null) return false;
+        if (context == null || url == null || !PatchSettings.on("openLinksInBrowser")) return false;
         try {
             Uri uri = Uri.parse(url);
             String host = uri.getHost();

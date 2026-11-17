@@ -27,8 +27,11 @@ public final class CleanLinksPatch {
      *
      * @return The text with tracking parameters removed from every Quora link in it.
      */
-    public static String cleanText(String text) {
-        if (text == null || text.isEmpty()) return text;
+    public static String cleanText(CharSequence value) {
+        // The copy-link handler keeps the URL in a CharSequence register, so take the wider type.
+        if (value == null) return null;
+        String text = value.toString();
+        if (text.isEmpty()) return text;
         try {
             Matcher matcher = URL.matcher(text);
             StringBuffer result = new StringBuffer();

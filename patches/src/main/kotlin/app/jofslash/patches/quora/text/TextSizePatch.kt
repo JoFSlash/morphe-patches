@@ -1,6 +1,7 @@
 package app.jofslash.patches.quora.text
 
 import app.jofslash.patches.quora.shared.Constants.COMPATIBILITY_QUORA
+import app.jofslash.patches.quora.shared.registerSetting
 import app.jofslash.patches.quora.video.InitWebViewFingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.PatchException
@@ -38,6 +39,7 @@ val textSizePatch = bytecodePatch(
     execute {
         val percent = textSize.value!!
         if (percent !in 50..300) throw PatchException("Text size must be between 50 and 300 percent")
+        registerSetting("textSize", "Text size")
 
         // p1 is the QWebView being set up.
         InitWebViewFingerprint.method.addInstructions(

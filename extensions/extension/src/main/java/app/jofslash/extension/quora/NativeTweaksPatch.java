@@ -62,6 +62,15 @@ public final class NativeTweaksPatch {
     }
 
     /**
+     * Injection point: start of QMessageBroadcaster.handle.
+     *
+     * @return True if the message is the one named and the patch with this key is switched on.
+     */
+    public static boolean isBlockedMessage(Object message, String name, String key) {
+        return isMessage(message, name) && PatchSettings.on(key);
+    }
+
+    /**
      * Injection point: start of QTabBar.createTabList.
      *
      * @param names Comma separated QTab names, such as "SPACES,FOLLOWING".
@@ -82,7 +91,7 @@ public final class NativeTweaksPatch {
      * Injection point: QTabBar.createTabList, after the last tab is added.
      */
     public static void removeHiddenTabs(List<?> tabs) {
-        if (tabs == null) return;
+        if (tabs == null || !PatchSettings.on("hideTabs")) return;
         try {
             Set<String> hidden = hiddenTabs;
             Iterator<?> it = tabs.iterator();
@@ -104,7 +113,7 @@ public final class NativeTweaksPatch {
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static Object startTab(Object current, String name) {
-        if (!(current instanceof Enum) || name == null) return current;
+        if (!(current instanceof Enum) || name == null || !PatchSettings.on("startTab")) return current;
         try {
             if (hiddenTabs.contains(name)) return current;
             return Enum.valueOf((Class) ((Enum<?>) current).getDeclaringClass(), name);
@@ -121,7 +130,7 @@ public final class NativeTweaksPatch {
      * or the digest channel.
      */
     public static boolean isPromotionalNotification(Map<?, ?> extras) {
-        if (extras == null) return false;
+        if (extras == null || !PatchSettings.on("blockPromotionalNotifications")) return false;
         try {
             Object type = extras.get("push_type");
             Object channel = extras.get("channel");
@@ -148,10 +157,38 @@ public final class NativeTweaksPatch {
     }
 
     /**
+     * Injection point: start of QSwipeRefreshLayout.setEnabled.
+     */
+    public static boolean pullToRefreshEnabled(boolean enabled) {
+        return enabled && !PatchSettings.on("disablePullToRefresh");
+    }
+
+    /**
+     * Injection point: start of SwitcherViewPager.shouldPage.
+     */
+    public static boolean swipeBetweenFeedsDisabled() {
+        return PatchSettings.on("disableSwipeBetweenFeeds");
+    }
+
+    /**
+     * Injection point: start of QNavBar.getShouldShowAskButton.
+     */
+    public static boolean hideAskButton() {
+        return PatchSettings.on("hideAskButton");
+    }
+
+    /**
+     * Injection point: QWebViewController.initWebView, the setMediaPlaybackRequiresUserGesture argument.
+     */
+    public static boolean requireGestureForMedia(boolean requested) {
+        return PatchSettings.on("disableVideoAutoplay") || requested;
+    }
+
+    /**
      * Injection point: start of QWebViewController.initWebView.
      */
     public static void applyTextZoom(WebView webView, int percent) {
-        if (webView == null || percent <= 0) return;
+        if (webView == null || percent <= 0 || !PatchSettings.on("textSize")) return;
         try {
             webView.getSettings().setTextZoom(percent);
         } catch (Exception ex) {

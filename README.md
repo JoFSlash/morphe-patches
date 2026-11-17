@@ -83,7 +83,7 @@ No root needed. The patched app is signed with a different key, which is why the
 Generated from the latest release, with each patch's options and supported versions.
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.3.0](https://github.com/JoFSlash/quora-patches/releases/tag/v1.3.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;48 patches total
+> **[v1.3.1-dev.1](https://github.com/JoFSlash/quora-patches/releases/tag/v1.3.1-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;48 patches total
 <details open>
 <summary>📦 Quora&nbsp;&nbsp;•&nbsp;&nbsp;48 patches</summary>
 <br>

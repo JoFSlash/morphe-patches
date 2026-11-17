@@ -1,6 +1,7 @@
 package app.jofslash.patches.quora.app
 
 import app.jofslash.patches.quora.shared.Constants.COMPATIBILITY_QUORA
+import app.jofslash.patches.quora.shared.registerSetting
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
@@ -34,6 +35,7 @@ val blockPromotionalNotificationsPatch = bytecodePatch(
     extendWith("extensions/extension.mpe")
 
     execute {
+        registerSetting("blockPromotionalNotifications", "Block promotional notifications")
         // p1 is the message's data.
         UpdateNotificationsFingerprint.method.addInstructionsWithLabels(
             0,
@@ -74,6 +76,8 @@ val disableSwipeGesturesPatch = bytecodePatch(
 ) {
     compatibleWith(COMPATIBILITY_QUORA)
 
+    extendWith("extensions/extension.mpe")
+
     val pullToRefresh = booleanOption(
         key = "disablePullToRefresh",
         default = true,
@@ -90,14 +94,27 @@ val disableSwipeGesturesPatch = bytecodePatch(
             throw PatchException("Pick at least one gesture to turn off")
         }
         if (pullToRefresh.value == true) {
-            SwipeRefreshSetEnabledFingerprint.method.addInstruction(0, "const/4 p1, 0x0")
-        }
-        if (swipeBetweenFeeds.value == true) {
-            SwitcherShouldPageFingerprint.method.addInstructions(
+            registerSetting("disablePullToRefresh", "Disable pull to refresh")
+            SwipeRefreshSetEnabledFingerprint.method.addInstructions(
                 0,
                 """
+                    invoke-static { p1 }, $EXTENSION_CLASS->pullToRefreshEnabled(Z)Z
+                    move-result p1
+                """
+            )
+        }
+        if (swipeBetweenFeeds.value == true) {
+            registerSetting("disableSwipeBetweenFeeds", "Disable swiping between feeds")
+            SwitcherShouldPageFingerprint.method.addInstructionsWithLabels(
+                0,
+                """
+                    invoke-static { }, $EXTENSION_CLASS->swipeBetweenFeedsDisabled()Z
+                    move-result v0
+                    if-eqz v0, :page
                     const/4 v0, 0x0
                     return v0
+                    :page
+                    nop
                 """
             )
         }
