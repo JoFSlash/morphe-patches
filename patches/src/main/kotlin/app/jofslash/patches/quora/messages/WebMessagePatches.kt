@@ -1,0 +1,76 @@
+package app.jofslash.patches.quora.messages
+
+import app.jofslash.patches.quora.shared.Constants.COMPATIBILITY_QUORA
+import app.morphe.patcher.Fingerprint
+import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLabels
+import app.morphe.patcher.patch.bytecodePatch
+
+private const val EXTENSION_CLASS = "Lapp/jofslash/extension/quora/NativeTweaksPatch;"
+
+// Every message Quora's pages send to the app goes through here.
+internal object HandleMessageFingerprint : Fingerprint(
+    definingClass = "Lcom/quora/android/messages/QMessageBroadcaster;",
+    name = "handle",
+    returnType = "V",
+    parameters = listOf(
+        "Lcom/quora/android/messages/MessageDict;",
+        "Lorg/json/JSONObject;",
+        "Lcom/quora/android/fragments/qwvf/QWebViewController;",
+    ),
+)
+
+/**
+ * A patch that drops the named page messages (MessageDict names) before the app handles them.
+ */
+private fun blockWebMessagesPatch(name: String, description: String, default: Boolean, messages: List<String>) =
+    bytecodePatch(
+        name = name,
+        description = description,
+        default = default
+    ) {
+        compatibleWith(COMPATIBILITY_QUORA)
+
+        extendWith("extensions/extension.mpe")
+
+        execute {
+            // p1 is the message.
+            messages.forEachIndexed { i, message ->
+                HandleMessageFingerprint.method.addInstructionsWithLabels(
+                    0,
+                    """
+                        const-string v0, "$message"
+                        invoke-static { p1, v0 }, $EXTENSION_CLASS->isMessage(Ljava/lang/Object;Ljava/lang/String;)Z
+                        move-result v0
+                        if-eqz v0, :handle_$i
+                        return-void
+                        :handle_$i
+                        nop
+                    """
+                )
+            }
+        }
+    }
+
+@Suppress("unused")
+val blockTrackingLogsPatch = blockWebMessagesPatch(
+    name = "Block tracking logs",
+    description = "Stops Quora's pages from passing performance and sign-up tracking events to the app.",
+    default = true,
+    messages = listOf("LOG_PERF_EVENT", "LOG_SIGNUP_FOR_TRACKING"),
+)
+
+@Suppress("unused")
+val disableVibrationPatch = blockWebMessagesPatch(
+    name = "Disable vibration",
+    description = "Stops the app from vibrating when you tap buttons such as upvote.",
+    default = false,
+    messages = listOf("HAPTIC_VIBRATION"),
+)
+
+@Suppress("unused")
+val hideBadgesPatch = blockWebMessagesPatch(
+    name = "Hide badges",
+    description = "Hides the red dots and counts on the bottom bar tabs.",
+    default = false,
+    messages = listOf("UPDATE_BADGE_PROPERTIES", "UPDATE_HOME_TAB_BADGE"),
+)
