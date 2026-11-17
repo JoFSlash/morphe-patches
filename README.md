@@ -23,9 +23,9 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.1.0-dev.1](https://github.com/JoFSlash/quora-patches/releases/tag/v1.1.0-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;6 patches total
+> **[v1.1.0-dev.2](https://github.com/JoFSlash/quora-patches/releases/tag/v1.1.0-dev.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;15 patches total
 <details open>
-<summary>📦 Quora&nbsp;&nbsp;•&nbsp;&nbsp;6 patches</summary>
+<summary>📦 Quora&nbsp;&nbsp;•&nbsp;&nbsp;15 patches</summary>
 <br>
 
 **Package name:** `com.quora.android`
@@ -41,6 +41,15 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 | [Disable analytics](#disable-analytics) | Turns off Firebase Analytics, Crashlytics, Firebase Performance and Facebook app events, and stops the advertising ID from being collected. |  |
 | [Disable rating prompts](#disable-rating-prompts) | Stops the app from asking you to rate it on Google Play. |  |
 | [Disable update prompts](#disable-update-prompts) | Stops the app from showing the Google Play update screen. |  |
+| [Disable video autoplay](#disable-video-autoplay) | Videos in the feed and in answers only play when you tap them. |  |
+| [Enable text selection](#enable-text-selection) | Lets you select and copy text on every page. |  |
+| [Hide AI answers](#hide-ai-answers) | Hides answers written by Poe bots. |  |
+| [Hide Quora+ answers](#hide-quora-answers) | Hides answers and posts that can only be read with a Quora+ subscription. |  |
+| [Hide Quora+ promotions](#hide-quora-promotions) | Hides buttons that ask you to try or join Quora+. |  |
+| [Hide Spaces suggestions](#hide-spaces-suggestions) | Hides the Spaces you might like suggestions in the feed. |  |
+| [Hide downvote button](#hide-downvote-button) | Hides the downvote button on answers and posts. |  |
+| [Hide related questions](#hide-related-questions) | Hides the related questions lists on question pages. |  |
+| [Hide suggested questions](#hide-suggested-questions) | Hides the questions for you to answer in the feed. |  |
 | [Open links in browser](#open-links-in-browser) | Opens links to other websites in your default browser instead of an in-app browser tab. |  |
 | [Remove ads](#remove-ads) | Hides promoted answers, sponsored posts and Google ads in the feed and on question pages, and blocks requests to ad servers. |  |
 
