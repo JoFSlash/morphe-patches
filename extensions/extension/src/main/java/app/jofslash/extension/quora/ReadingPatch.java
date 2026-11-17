@@ -84,19 +84,15 @@ public final class ReadingPatch {
     // ---------------------------------------------------------------- reading
 
     /**
-     * Injection point: start of QWebViewClient.onPageFinished. Opens "(more)" on answers as they load.
+     * Injection point: start of QWebViewClient.onPageFinished. Shows the whole answer preview in the feed.
      */
     public static void expandAnswers(WebView webView) {
         if (!PatchSettings.active(webView, "expandAnswers", "Expand answers")) return;
-        evaluate(webView, "(function(){"
-                + "if(window.__jofslashExpand)return;window.__jofslashExpand=1;"
-                + "function run(){document.querySelectorAll('.qt_read_more,.puppeteer_test_read_more_button').forEach(function(b){"
-                + "if(b.hasAttribute('data-jofslash-expanded'))return;b.setAttribute('data-jofslash-expanded','');"
-                + "if(b.closest('a[href]'))return;"
-                + "try{b.click();}catch(e){}"
-                + "});}"
-                + observe("run")
-                + "})();", "expand answers");
+        // "Read more" opens the full answer in a new view in the app, so it is not clicked.
+        // The feed holds a longer preview than the three lines it shows; show all of it.
+        injectCss(webView, "jofslash-expand",
+                ANSWER_TEXT + " [class*=\"qu-truncateLines--\"]{-webkit-line-clamp:unset !important;"
+                        + "line-clamp:unset !important;max-height:none !important;}");
     }
 
     /**
@@ -197,7 +193,11 @@ public final class ReadingPatch {
         if (!PatchSettings.active(webView, "dataSaver", "Data saver")) return;
         injectCss(webView, "jofslash-data-saver",
                 "img[data-jofslash-tap]{min-width:72px;min-height:56px;background:rgba(128,128,128,.22) !important;"
-                        + "cursor:pointer;object-fit:contain;}");
+                        + "cursor:pointer;object-fit:contain;}"
+                        // Pictures drawn as a CSS background (post images in the feed).
+                        + "[data-jofslash-bgtap]{background-color:rgba(128,128,128,.22) !important;position:relative;cursor:pointer;}"
+                        + "[data-jofslash-bgtap]::after{content:\"Tap to load image\";position:absolute;left:12px;top:10px;"
+                        + "font:15px/1.3 sans-serif;opacity:.75;}");
         evaluate(webView, "(function(){"
                 + "if(window.__jofslashData)return;window.__jofslashData=1;"
                 + "var cdn=/(^|\\.)quoracdn\\.net$/;"
@@ -205,13 +205,24 @@ public final class ReadingPatch {
                 + "try{if(!cdn.test(new URL(img.currentSrc||img.src).hostname))return;}catch(e){return;}"
                 + "if(img.complete&&img.naturalWidth>0)return;"
                 // Only images in answers and feed items become tap targets; blocked decorations are hidden.
-                + "if(!img.closest('" + ANSWER_TEXT + "," + UNITS + ",.q-text')){img.style.setProperty('visibility','hidden','important');return;}"
+                + "var src=img.currentSrc||img.src;"
+                // Profile photos and Space icons are small; tapping them opens the profile, so just hide them.
+                + "if(/thumb|profile_default/.test(src)||!img.closest('" + ANSWER_TEXT + "," + UNITS + ",.q-text')){img.style.setProperty('visibility','hidden','important');return;}"
                 + "img.setAttribute('data-jofslash-tap','');img.alt=img.alt||'Tap to load image';"
                 + "img.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();"
                 + "var u=new URL(img.currentSrc||img.src);u.searchParams.set('" + LOAD_PARAM + "','1');"
                 + "img.removeAttribute('srcset');img.src=u.toString();img.removeAttribute('data-jofslash-tap');},{capture:true,once:true});}"
+                + "function bg(el){if(el.hasAttribute('data-jofslash-bgtap')||el.hasAttribute('data-jofslash-bgdone'))return;"
+                + "var m=(el.getAttribute('style')||'').match(/url\\([\"']?([^\"')]*quoracdn\\.net[^\"')]*)[\"']?\\)/);if(!m)return;"
+                + "if(/thumb|profile_default/.test(m[1]))return;"
+                + "el.setAttribute('data-jofslash-bgtap','');"
+                + "el.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();"
+                + "var u=new URL(m[1],location.href);u.searchParams.set('" + LOAD_PARAM + "','1');"
+                + "el.style.backgroundImage='url(\"'+u.toString()+'\")';"
+                + "el.removeAttribute('data-jofslash-bgtap');el.setAttribute('data-jofslash-bgdone','');},{capture:true,once:true});}"
                 + "function run(){document.querySelectorAll('img').forEach(function(img){"
-                + "if(img.complete)mark(img);else img.addEventListener('error',function(){mark(img);},{once:true});});}"
+                + "if(img.complete)mark(img);else img.addEventListener('error',function(){mark(img);},{once:true});});"
+                + "document.querySelectorAll('[style*=\"quoracdn.net\"]').forEach(bg);}"
                 + observe("run")
                 + "})();", "data saver");
     }
