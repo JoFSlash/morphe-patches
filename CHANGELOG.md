@@ -1,3 +1,9 @@
+## [1.2.0-dev.2](https://github.com/JoFSlash/quora-patches/compare/v1.2.0-dev.1...v1.2.0-dev.2) (2026-11-17)
+
+### ✨ New Features
+
+* Add "Block app telemetry" and "Disable charging tracking" patches ([8451973](https://github.com/JoFSlash/quora-patches/commit/84519737ea8f5a015c4c8bcf8a1eba853ade8cae))
+
 ## [1.2.0-dev.1](https://github.com/JoFSlash/quora-patches/compare/v1.1.0...v1.2.0-dev.1) (2026-11-17)
 
 ### ✨ New Features
