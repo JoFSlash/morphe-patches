@@ -1,35 +1,74 @@
-# 🧩 JoFSlash Patches
+<p align="center">
+  <a href="https://jofslash.github.io/quora-patches/"><img src=".github/assets/banner.jpg" alt="Quora without ads or tracking: a board of the patches in this bundle" width="100%"></a>
+</p>
 
-Patches for [Quora](https://play.google.com/store/apps/details?id=com.quora.android) for use with [Morphe](https://morphe.software).
+# Quora Patches for Morphe
 
-🌐 Website: https://jofslash.github.io/quora-patches/  
-📲 Get Morphe Manager from the official site: https://morphe.software
+**33 free patches for the [Quora](https://play.google.com/store/apps/details?id=com.quora.android) Android app**, applied with [Morphe](https://morphe.software).
+They remove the ads, stop the app from tracking you, and let you hide the parts of Quora you don't want.
+The privacy patches are on by default; the rest are yours to pick.
 
-## ❓ About
+<a href="https://morphe.software/add-source?github=JoFSlash/quora-patches"><img src=".github/assets/add-to-morphe.svg" alt="Add to Morphe" height="48"></a>
 
-- **Privacy and tracking** (on by default): removes ads, turns off analytics and telemetry,
-  blocks web trackers, the advertising ID, clipboard reading and WebView debugging,
-  stops the background tracking jobs and cleans tracking parameters from shared links.
-- **Feed and answers** (optional): hides Quora+ answers and promotions, AI answers and Poe,
-  related and suggested questions, Spaces suggestions, counts and the downvote button.
-  Also turns off video autoplay, enables text selection and changes the text size.
-- **App**: turns off the update, rating and notification prompts (on by default), and optionally
-  the Google sign-in prompts. Hides tabs and badges, picks the start tab, opens links in your
-  browser, and turns off vibration and tab prefetching.
+🌐 [Website](https://jofslash.github.io/quora-patches/) · 📦 [Releases](https://github.com/JoFSlash/quora-patches/releases) · 🐞 [Report a problem](https://github.com/JoFSlash/quora-patches/issues/new/choose)
 
-See the full list below or on the [website](https://jofslash.github.io/quora-patches/).
+## 🛡️ Privacy and tracking
 
-Tested with Quora 3.2.42 and 3.2.30 from [APKMirror](https://www.apkmirror.com/apk/quora-inc/quora/) (APKM bundle).
+On by default. They change nothing you see.
 
-### How to use these patches
+| Patch | What it does |
+| --- | --- |
+| **Remove ads** | Hides promoted answers, sponsored posts and Google ads, and blocks requests to ad servers. |
+| **Disable analytics** | Turns off Firebase Analytics, Crashlytics, Firebase Performance and Facebook app events. |
+| **Block web trackers** | Blocks third-party analytics and tracking requests from Quora's pages. |
+| **Block app telemetry** | Drops the app's own usage logs: reading time, tab presses, experiments, app speed, errors. |
+| **Block tracking logs** | Stops the pages passing performance and sign-up tracking events to the app. |
+| **Disable tracking jobs** | Stops the hourly charging-status job and the daily notifications-status job. |
+| **Block advertising ID** | Stops the app sending your advertising ID and Android ID to Quora. |
+| **Block clipboard reading** | Pages can no longer read what you copied. Pasting still works. |
+| **Disable WebView debugging** | The app turns this on for every page; the patch turns it off. |
+| **Clean shared links** | Removes tracking parameters from links you copy or share. |
+| **Spoof installer** | Reports Google Play as the installer. |
 
-Click the button below, or manually add this repo url to Morphe Manager: https://github.com/JoFSlash/quora-patches
+## 📰 Feed and answers
 
-<a href="https://morphe.software/add-source?github=JoFSlash/quora-patches">
-  <img src=".github/assets/add-to-morphe.svg" alt="Add to Morphe" height="48">
-</a>
+Off by default, because they change what Quora shows you.
 
-## 🩹 Patches list
+| Patch | What it does |
+| --- | --- |
+| **Hide Quora+ answers** · **Hide Quora+ promotions** | Hides paywalled answers and the "Try Quora+" buttons. |
+| **Hide AI answers** · **Hide Poe** | Hides answers by Poe bots and the links to Poe and the assistant. |
+| **Hide related questions** · **Hide suggested questions** · **Hide Spaces suggestions** | Hides those lists and feed units. |
+| **Hide counts** · **Hide downvote button** | Hides upvote, view and share counts, and the downvote button. |
+| **Disable video autoplay** | Videos play only when you tap them. |
+| **Enable text selection** | Lets you select and copy text on every page. |
+| **Text size** | Larger or smaller text, 85–150% (option). |
+
+## 📱 The app
+
+The three prompt patches are on by default; the rest are optional.
+
+| Patch | What it does |
+| --- | --- |
+| **Disable update prompts** · **Disable rating prompts** · **Disable notification prompt** | No Play Store update screen, no rating requests, no notification permission prompt. |
+| **Disable sign-in prompts** | No "Save password?" or automatic Google sign-in. |
+| **Hide tabs** · **Start tab** | Remove bottom bar tabs and pick the one the app opens on (options). |
+| **Hide badges** | Hides the red dots and counts on the tabs. |
+| **Open links in browser** | Opens other websites in your browser instead of an in-app tab. |
+| **Disable vibration** · **Disable tab prefetching** | No vibration on taps; other tabs load only when opened. |
+
+## 📲 Install
+
+1. Install [Morphe Manager](https://morphe.software).
+2. Tap **[Add to Morphe](https://morphe.software/add-source?github=JoFSlash/quora-patches)**, or add `https://github.com/JoFSlash/quora-patches` as a patch source.
+3. Pick Quora. Morphe downloads a supported version (3.2.42 or 3.2.30 from [APKMirror](https://www.apkmirror.com/apk/quora-inc/quora/)) and applies the patches you ticked.
+4. Uninstall the Play Store Quora, then install the patched app and sign in.
+
+No root needed. The patched app is signed with a different key, which is why the Play Store version has to go first.
+
+## 🩹 Full patch list
+
+Generated from the latest release, with each patch's options and supported versions.
 
 <!-- PATCHES_START EXPANDED -->
 > **[v1.2.0-dev.2](https://github.com/JoFSlash/quora-patches/releases/tag/v1.2.0-dev.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;31 patches total
