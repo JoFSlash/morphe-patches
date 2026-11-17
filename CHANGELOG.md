@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/JoFSlash/quora-patches/compare/v1.3.0...v1.3.1) (2026-11-17)
+
+### 🐛 Bug Fixes
+
+* Data saver shows tap targets only for answer and feed images ([e95f4e9](https://github.com/JoFSlash/quora-patches/commit/e95f4e9525b796b027306c10d6a4a96b5eca41da))
+* Stop "Clean shared links" from crashing the app on start ([5809add](https://github.com/JoFSlash/quora-patches/commit/5809addd6641bb495015a6eeb3c9f058ddad49da))
+
 ## [1.3.1-dev.1](https://github.com/JoFSlash/quora-patches/compare/v1.3.0...v1.3.1-dev.1) (2026-11-17)
 
 ### 🐛 Bug Fixes
