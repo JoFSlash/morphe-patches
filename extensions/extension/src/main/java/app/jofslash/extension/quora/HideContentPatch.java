@@ -71,24 +71,66 @@ public final class HideContentPatch {
             + "user-select:text !important;"
             + "-webkit-touch-callout:default !important;}";
 
-    // Hides "Try Quora+" style buttons. Their markup has no stable class, so match the label.
-    private static final String QUORA_PLUS_PROMOTIONS_SCRIPT = "(function(){"
-            + "if(window.__jofslashQuoraPlusPromotions)return;"
-            + "window.__jofslashQuoraPlusPromotions=true;"
-            + "var re=/^(try|join|subscribe to|get|start free trial of) quora\\+$/i;"
-            + "function hide(){"
-            + "var c=document.querySelectorAll('a,button,[role=\"button\"]');"
-            + "for(var i=0;i<c.length;i++){var e=c[i];"
-            + "if(e.hasAttribute('data-jofslash-hidden'))continue;"
-            + "var t=(e.getAttribute('aria-label')||e.textContent||'').trim();"
-            + "if(re.test(t)){e.setAttribute('data-jofslash-hidden','');e.style.setProperty('display','none','important');}"
-            + "}}"
-            + "hide();"
-            + "var p=false;"
-            + "new MutationObserver(function(){if(p)return;p=true;"
-            + "setTimeout(function(){p=false;hide();},300);})"
-            + ".observe(document.documentElement,{childList:true,subtree:true});"
+    // "Try Quora+" style buttons. Their markup has no stable class, so match the label.
+    private static final String QUORA_PLUS_PROMOTIONS_SCRIPT = hideByLabelScript("QuoraPlusPromotions",
+            "^(try|join|subscribe to|get|start free trial of) quora\\+$");
+
+    // Links and buttons that open Poe or Quora's AI assistant.
+    private static final String POE_SELECTORS = "a[href*=\"poe.com\"]";
+    private static final String POE_SCRIPT = hideByLabelScript("Poe",
+            "^(poe|try poe|open in poe|chat with poe|ask poe|continue in poe|ask assistant|assistant)$");
+
+    // Vote, view and share counts. Like the buttons above, they only have generated class names,
+    // so match the text: a number inside a vote or share button, or a "1.2K views" style label.
+    private static final String COUNTS_SCRIPT = "(function(){"
+            + "if(window.__jofslashCounts)return;"
+            + "window.__jofslashCounts=true;"
+            + "var num=/^[\\d.,]+\\s*[KMB]?$/i;"
+            + "var label=/^(view\\s+)?[\\d.,]+\\s*[KMB]?\\s+(views?|upvotes?|shares?|followers?)$/i;"
+            + "var buttons='.puppeteer_test_votable_upvote_button,.puppeteer_test_votable_downvote_button,"
+            + "button[aria-label^=\"Upvote\"],button[aria-label^=\"Share\"],[role=\"button\"][aria-label^=\"Share\"]';"
+            + "function hide(e){e.setAttribute('data-jofslash-hidden','');e.style.setProperty('display','none','important');}"
+            + "function run(){"
+            + "var b=document.querySelectorAll(buttons);"
+            + "for(var i=0;i<b.length;i++){var s=b[i].querySelectorAll('span,div');"
+            + "for(var j=0;j<s.length;j++){var e=s[j];"
+            + "if(e.children.length||e.hasAttribute('data-jofslash-hidden'))continue;"
+            + "if(num.test((e.textContent||'').trim()))hide(e);}}"
+            + "var t=document.querySelectorAll('span,div,a');"
+            + "for(var k=0;k<t.length;k++){var f=t[k];"
+            + "if(f.children.length||f.hasAttribute('data-jofslash-hidden'))continue;"
+            + "if(label.test((f.textContent||'').trim()))hide(f);}"
+            + "}"
+            + observeScript("run")
             + "})();";
+
+    private static String hideByLabelScript(String name, String regex) {
+        return "(function(){"
+                + "if(window.__jofslash" + name + ")return;"
+                + "window.__jofslash" + name + "=true;"
+                + "var re=/" + regex + "/i;"
+                + "function run(){"
+                + "var c=document.querySelectorAll('a,button,[role=\"button\"]');"
+                + "for(var i=0;i<c.length;i++){var e=c[i];"
+                + "if(e.hasAttribute('data-jofslash-hidden'))continue;"
+                + "var t=(e.getAttribute('aria-label')||e.textContent||'').trim();"
+                + "if(re.test(t)){e.setAttribute('data-jofslash-hidden','');e.style.setProperty('display','none','important');}"
+                + "}}"
+                + observeScript("run")
+                + "})();";
+    }
+
+    /**
+     * Runs the function now and again, at most every 300 ms, whenever the page changes,
+     * such as when more feed items load while scrolling.
+     */
+    private static String observeScript(String function) {
+        return function + "();"
+                + "var p=false;"
+                + "new MutationObserver(function(){if(p)return;p=true;"
+                + "setTimeout(function(){p=false;" + function + "();},300);})"
+                + ".observe(document.documentElement,{childList:true,subtree:true});";
+    }
 
     /**
      * Injection point: start of QWebViewClient.onPageFinished.
@@ -123,6 +165,21 @@ public final class HideContentPatch {
      */
     public static void hideQuoraPlusPromotions(WebView webView) {
         evaluate(webView, QUORA_PLUS_PROMOTIONS_SCRIPT, "Quora+ promotions");
+    }
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished.
+     */
+    public static void hidePoe(WebView webView) {
+        injectStyle(webView, "jofslash-hide-poe", POE_SELECTORS);
+        evaluate(webView, POE_SCRIPT, "Poe buttons");
+    }
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished.
+     */
+    public static void hideCounts(WebView webView) {
+        evaluate(webView, COUNTS_SCRIPT, "counts");
     }
 
     /**
