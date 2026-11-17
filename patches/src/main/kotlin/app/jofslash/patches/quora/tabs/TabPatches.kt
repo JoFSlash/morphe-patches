@@ -1,6 +1,7 @@
 package app.jofslash.patches.quora.tabs
 
 import app.jofslash.patches.quora.shared.Constants.COMPATIBILITY_QUORA
+import app.jofslash.patches.quora.shared.registerSetting
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
@@ -56,6 +57,7 @@ val hideTabsPatch = bytecodePatch(
     }
 
     execute {
+        registerSetting("hideTabs", "Hide tabs")
         val hidden = tabs.filter { (_, option) -> option.value == true }.joinToString(",") { it.first }
 
         CreateTabListFingerprint.method.apply {
@@ -110,6 +112,7 @@ val startTabPatch = bytecodePatch(
     )
 
     execute {
+        registerSetting("startTab", "Start tab")
         // setupTabs selects selectedTabType once the tabs are created, so set it first.
         SetupTabsFingerprint.method.addInstructions(
             0,

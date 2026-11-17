@@ -1,8 +1,9 @@
 package app.jofslash.patches.quora.video
 
 import app.jofslash.patches.quora.shared.Constants.COMPATIBILITY_QUORA
+import app.jofslash.patches.quora.shared.registerSetting
 import app.morphe.patcher.Fingerprint
-import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
+import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.extensions.InstructionExtensions.getInstruction
 import app.morphe.patcher.methodCall
 import app.morphe.patcher.patch.bytecodePatch
@@ -28,14 +29,23 @@ val disableVideoAutoplayPatch = bytecodePatch(
 ) {
     compatibleWith(COMPATIBILITY_QUORA)
 
+    extendWith("extensions/extension.mpe")
+
     execute {
+        registerSetting("disableVideoAutoplay", "Disable video autoplay")
         // Quora calls WebSettings.setMediaPlaybackRequiresUserGesture(false), which lets pages
         // start videos on their own. Pass true instead.
         InitWebViewFingerprint.let {
             it.method.apply {
                 val index = it.instructionMatches.first().index
                 val register = getInstruction<FiveRegisterInstruction>(index).registerD
-                addInstruction(index, "const/4 v$register, 0x1")
+                addInstructions(
+                    index,
+                    """
+                        invoke-static { v$register }, Lapp/jofslash/extension/quora/NativeTweaksPatch;->requireGestureForMedia(Z)Z
+                        move-result v$register
+                    """
+                )
             }
         }
     }

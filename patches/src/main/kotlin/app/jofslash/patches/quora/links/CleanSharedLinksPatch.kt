@@ -54,7 +54,7 @@ val cleanSharedLinksPatch = bytecodePatch(
                 addInstructions(
                     index,
                     """
-                        invoke-static { v$register }, $EXTENSION_CLASS->cleanText(Ljava/lang/String;)Ljava/lang/String;
+                        invoke-static { v$register }, $EXTENSION_CLASS->cleanText(Ljava/lang/CharSequence;)Ljava/lang/String;
                         move-result-object v$register
                     """
                 )

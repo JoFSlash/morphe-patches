@@ -198,6 +198,8 @@ public final class ReadingPatch {
                 + "function mark(img){if(img.hasAttribute('data-jofslash-tap'))return;"
                 + "try{if(!cdn.test(new URL(img.currentSrc||img.src).hostname))return;}catch(e){return;}"
                 + "if(img.complete&&img.naturalWidth>0)return;"
+                // Only images in answers and feed items become tap targets; blocked decorations are hidden.
+                + "if(!img.closest('" + ANSWER_TEXT + "," + UNITS + "')){img.style.setProperty('visibility','hidden','important');return;}"
                 + "img.setAttribute('data-jofslash-tap','');img.alt=img.alt||'Tap to load image';"
                 + "img.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();"
                 + "var u=new URL(img.currentSrc||img.src);u.searchParams.set('" + LOAD_PARAM + "','1');"
