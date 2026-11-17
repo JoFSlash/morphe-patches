@@ -23,9 +23,9 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 ## 🩹 Patches list
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.2.0-dev.1](https://github.com/JoFSlash/quora-patches/releases/tag/v1.2.0-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;29 patches total
+> **[v1.2.0-dev.2](https://github.com/JoFSlash/quora-patches/releases/tag/v1.2.0-dev.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;31 patches total
 <details open>
-<summary>📦 Quora&nbsp;&nbsp;•&nbsp;&nbsp;29 patches</summary>
+<summary>📦 Quora&nbsp;&nbsp;•&nbsp;&nbsp;31 patches</summary>
 <br>
 
 **Package name:** `com.quora.android`
@@ -38,12 +38,14 @@ Click the button below, or manually add this repo url to Morphe Manager: https:/
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
 | [Block advertising ID](#block-advertising-id) | Stops the app from sending your advertising ID and Android ID to Quora. |  |
+| [Block app telemetry](#block-app-telemetry) | Stops the app from sending usage logs to Quora, such as reading time, tab presses, experiments, app speed and errors. |  |
 | [Block clipboard reading](#block-clipboard-reading) | Stops Quora's pages from reading what you copied. Pasting with the keyboard still works. |  |
 | [Block tracking logs](#block-tracking-logs) | Stops Quora's pages from passing performance and sign-up tracking events to the app. |  |
 | [Block web trackers](#block-web-trackers) | Blocks requests from Quora pages to third-party analytics and tracking services. |  |
 | [Clean shared links](#clean-shared-links) | Removes tracking parameters from Quora links you copy or share. |  |
 | [Disable WebView debugging](#disable-webview-debugging) | Stops the app from letting a connected computer inspect its pages, which would show your account's cookies. |  |
 | [Disable analytics](#disable-analytics) | Turns off Firebase Analytics, Crashlytics, Firebase Performance and Facebook app events, and stops the advertising ID from being collected. |  |
+| [Disable charging tracking](#disable-charging-tracking) | Stops the hourly job that tells Quora whether your phone is charging. |  |
 | [Disable notification prompt](#disable-notification-prompt) | Stops the app from asking for permission to show notifications. You can still turn notifications on in Android's settings. |  |
 | [Disable rating prompts](#disable-rating-prompts) | Stops the app from asking you to rate it on Google Play. |  |
 | [Disable update prompts](#disable-update-prompts) | Stops the app from showing the Google Play update screen. |  |
