@@ -22,6 +22,9 @@ public final class ReadingPatch {
 
     private static final String ANSWER_TEXT = ".puppeteer_test_answer_content";
 
+    // Paragraphs of answers and posts, also in the answer and post modals, which have no answer_content class.
+    private static final String PARAGRAPH = "p.q-text";
+
     /** The query parameter the page adds to an image the reader tapped, so the request is let through. */
     private static final String LOAD_PARAM = "jofslash_load";
 
@@ -121,7 +124,8 @@ public final class ReadingPatch {
      */
     public static void hideAskButton(WebView webView) {
         if (!PatchSettings.active(webView, "hideAskButton", "Hide Ask button")) return;
-        injectCss(webView, "jofslash-hide-ask", ".puppeteer_test_add_question_button{display:none !important;}");
+        injectCss(webView, "jofslash-hide-ask", ".puppeteer_test_add_question_button,.puppeteer_test_ask_question_prompt,"
+                + "[class*=\"dom_annotate_multifeed_bundle_AskQuestionPromptBundle\"]{display:none !important;}");
     }
 
     /**
@@ -151,8 +155,9 @@ public final class ReadingPatch {
     public static void comfortableReading(WebView webView) {
         if (!PatchSettings.active(webView, "comfortableReading", "Comfortable reading")) return;
         injectCss(webView, "jofslash-reading",
-                ANSWER_TEXT + "," + ANSWER_TEXT + " .q-text{line-height:1.75 !important;letter-spacing:.005em;}"
-                        + ANSWER_TEXT + " p," + ANSWER_TEXT + " .q-text.qu-display--block{margin-bottom:.8em !important;}");
+                ANSWER_TEXT + "," + ANSWER_TEXT + " .q-text," + PARAGRAPH
+                        + "{line-height:1.75 !important;letter-spacing:.005em;}"
+                        + ANSWER_TEXT + " p," + PARAGRAPH + "{margin-bottom:.8em !important;}");
     }
 
     /**
@@ -166,7 +171,8 @@ public final class ReadingPatch {
                 ? "Georgia,\"Noto Serif\",\"Droid Serif\",serif"
                 : "Roboto,\"Noto Sans\",\"Helvetica Neue\",Arial,sans-serif";
         injectCss(webView, "jofslash-font",
-                ANSWER_TEXT + "," + ANSWER_TEXT + " *:not(code):not(pre):not(kbd){font-family:" + family + " !important;}");
+                ANSWER_TEXT + "," + ANSWER_TEXT + " *:not(code):not(pre):not(kbd)," + PARAGRAPH + "," + PARAGRAPH
+                        + " *:not(code):not(pre):not(kbd){font-family:" + family + " !important;}");
     }
 
     /**
@@ -199,7 +205,7 @@ public final class ReadingPatch {
                 + "try{if(!cdn.test(new URL(img.currentSrc||img.src).hostname))return;}catch(e){return;}"
                 + "if(img.complete&&img.naturalWidth>0)return;"
                 // Only images in answers and feed items become tap targets; blocked decorations are hidden.
-                + "if(!img.closest('" + ANSWER_TEXT + "," + UNITS + "')){img.style.setProperty('visibility','hidden','important');return;}"
+                + "if(!img.closest('" + ANSWER_TEXT + "," + UNITS + ",.q-text')){img.style.setProperty('visibility','hidden','important');return;}"
                 + "img.setAttribute('data-jofslash-tap','');img.alt=img.alt||'Tap to load image';"
                 + "img.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();"
                 + "var u=new URL(img.currentSrc||img.src);u.searchParams.set('" + LOAD_PARAM + "','1');"
