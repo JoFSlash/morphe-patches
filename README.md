@@ -81,9 +81,9 @@ No root needed. The patched app is signed with a different key, which is why the
 Generated from the latest release, with each patch's options and supported versions.
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.2.0-dev.2](https://github.com/JoFSlash/quora-patches/releases/tag/v1.2.0-dev.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;31 patches total
+> **[v1.2.0](https://github.com/JoFSlash/quora-patches/releases/tag/v1.2.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;46 patches total
 <details open>
-<summary>📦 Quora&nbsp;&nbsp;•&nbsp;&nbsp;31 patches</summary>
+<summary>📦 Quora&nbsp;&nbsp;•&nbsp;&nbsp;46 patches</summary>
 <br>
 
 **Package name:** `com.quora.android`
@@ -95,22 +95,35 @@ Generated from the latest release, with each patch's options and supported versi
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
+| [AMOLED dark mode](#amoled-dark-mode) | Uses a pure black background when Quora's dark theme is on. |  |
+| [Answer font](#answer-font) | Sets answers in a serif or a sans-serif font of your phone. | • Font |
+| [Block Branch tracking](#block-branch-tracking) | Turns on Branch's "disable tracking" mode and turns off its debug mode. Branch tracks where installs come from. Quora's quora.app.link links may open with less detail. |  |
 | [Block advertising ID](#block-advertising-id) | Stops the app from sending your advertising ID and Android ID to Quora. |  |
 | [Block app telemetry](#block-app-telemetry) | Stops the app from sending usage logs to Quora, such as reading time, tab presses, experiments, app speed and errors. |  |
+| [Block authors and Spaces](#block-authors-and-spaces) | Hides answers and posts by the people and Spaces you pick. | • Authors and Spaces |
 | [Block clipboard reading](#block-clipboard-reading) | Stops Quora's pages from reading what you copied. Pasting with the keyboard still works. |  |
+| [Block promotional notifications](#block-promotional-notifications) | Drops digest and promotional push notifications. Replies, comments and other notifications about you still arrive. |  |
 | [Block tracking logs](#block-tracking-logs) | Stops Quora's pages from passing performance and sign-up tracking events to the app. |  |
 | [Block web trackers](#block-web-trackers) | Blocks requests from Quora pages to third-party analytics and tracking services. |  |
 | [Clean shared links](#clean-shared-links) | Removes tracking parameters from Quora links you copy or share. |  |
+| [Comfortable reading](#comfortable-reading) | More space between the lines and paragraphs of answers. |  |
+| [Data saver](#data-saver) | Images load only when you tap them. |  |
 | [Disable WebView debugging](#disable-webview-debugging) | Stops the app from letting a connected computer inspect its pages, which would show your account's cookies. |  |
-| [Disable analytics](#disable-analytics) | Turns off Firebase Analytics, Crashlytics, Firebase Performance and Facebook app events, and stops the advertising ID from being collected. |  |
-| [Disable charging tracking](#disable-charging-tracking) | Stops the hourly job that tells Quora whether your phone is charging. |  |
+| [Disable analytics](#disable-analytics) | Turns off Firebase Analytics, Crashlytics, Firebase Performance and Facebook app events, and their advertising ID collection. |  |
 | [Disable notification prompt](#disable-notification-prompt) | Stops the app from asking for permission to show notifications. You can still turn notifications on in Android's settings. |  |
 | [Disable rating prompts](#disable-rating-prompts) | Stops the app from asking you to rate it on Google Play. |  |
+| [Disable sign-in prompts](#disable-sign-in-prompts) | Stops Google's "Save password?" and automatic Google sign-in prompts. You can still sign in with the buttons on the login page. |  |
+| [Disable swipe gestures](#disable-swipe-gestures) | Turns off pulling down to refresh and swiping sideways between feeds, so a page doesn't reload or change while you read. | • Disable pull to refresh<br>• Disable swiping between feeds |
+| [Disable tab prefetching](#disable-tab-prefetching) | Saves data by loading the other tabs only when you open them. |  |
+| [Disable tracking jobs](#disable-tracking-jobs) | Stops the background jobs that tell Quora every hour whether your phone is charging and every day whether notifications are on. |  |
 | [Disable update prompts](#disable-update-prompts) | Stops the app from showing the Google Play update screen. |  |
 | [Disable vibration](#disable-vibration) | Stops the app from vibrating when you tap buttons such as upvote. |  |
 | [Disable video autoplay](#disable-video-autoplay) | Videos in the feed and in answers only play when you tap them. |  |
 | [Enable text selection](#enable-text-selection) | Lets you select and copy text on every page. |  |
+| [Expand answers](#expand-answers) | Opens shortened answers in full, so you don't have to tap "(more)". |  |
+| [Filter keywords](#filter-keywords) | Hides answers, posts and questions that mention words you pick. | • Keywords |
 | [Hide AI answers](#hide-ai-answers) | Hides answers written by Poe bots. |  |
+| [Hide Ask button](#hide-ask-button) | Hides the button for asking a question in the top bar and on pages. |  |
 | [Hide Poe](#hide-poe) | Hides links and buttons that open Poe or Quora's AI assistant. |  |
 | [Hide Quora+ answers](#hide-quora-answers) | Hides answers and posts that can only be read with a Quora+ subscription. |  |
 | [Hide Quora+ promotions](#hide-quora-promotions) | Hides buttons that ask you to try or join Quora+. |  |
@@ -118,9 +131,11 @@ Generated from the latest release, with each patch's options and supported versi
 | [Hide badges](#hide-badges) | Hides the red dots and counts on the bottom bar tabs. |  |
 | [Hide counts](#hide-counts) | Hides upvote, view and share counts on answers and posts. |  |
 | [Hide downvote button](#hide-downvote-button) | Hides the downvote button on answers and posts. |  |
+| [Hide people suggestions](#hide-people-suggestions) | Hides "People you may know" and other people to follow in the feed. |  |
 | [Hide related questions](#hide-related-questions) | Hides the related questions lists on question pages. |  |
 | [Hide suggested questions](#hide-suggested-questions) | Hides the questions for you to answer in the feed. |  |
 | [Hide tabs](#hide-tabs) | Removes the tabs you pick from the bottom bar. Home always stays. | • Hide Following tab<br>• Hide Answer tab<br>• Hide Spaces tab<br>• Hide Notifications tab |
+| [Keep screen on](#keep-screen-on) | Keeps the screen from turning off while a page is open. |  |
 | [Open links in browser](#open-links-in-browser) | Opens links to other websites in your default browser instead of an in-app browser tab. |  |
 | [Remove ads](#remove-ads) | Hides promoted answers, sponsored posts and Google ads in the feed and on question pages, and blocks requests to ad servers. |  |
 | [Spoof installer](#spoof-installer) | Reports Google Play as the app installer, so Quora does not treat the patched app as installed from an unknown source. |  |
