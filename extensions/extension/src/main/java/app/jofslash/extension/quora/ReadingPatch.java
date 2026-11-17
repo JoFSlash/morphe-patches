@@ -33,6 +33,8 @@ public final class ReadingPatch {
      * @param words Comma separated words or phrases. Feed items and answers containing one are hidden.
      */
     public static void filterKeywords(WebView webView, String words) {
+        if (!PatchSettings.active(webView, "filterKeywords", "Filter keywords")) return;
+        words = PatchSettings.text(webView, "keywords", "Keywords", words);
         String list = jsonList(words);
         if (list.equals("[]")) return;
         evaluate(webView, "(function(){"
@@ -54,6 +56,8 @@ public final class ReadingPatch {
      * @param names Comma separated author names or Space names, as Quora shows them.
      */
     public static void blockAuthors(WebView webView, String names) {
+        if (!PatchSettings.active(webView, "blockAuthors", "Block authors and Spaces")) return;
+        names = PatchSettings.text(webView, "authors", "Authors and Spaces", names);
         String list = jsonList(names);
         if (list.equals("[]")) return;
         evaluate(webView, "(function(){"
@@ -80,6 +84,7 @@ public final class ReadingPatch {
      * Injection point: start of QWebViewClient.onPageFinished. Opens "(more)" on answers as they load.
      */
     public static void expandAnswers(WebView webView) {
+        if (!PatchSettings.active(webView, "expandAnswers", "Expand answers")) return;
         evaluate(webView, "(function(){"
                 + "if(window.__jofslashExpand)return;window.__jofslashExpand=1;"
                 + "function run(){document.querySelectorAll('.qt_read_more,.puppeteer_test_read_more_button').forEach(function(b){"
@@ -95,6 +100,7 @@ public final class ReadingPatch {
      * Injection point: start of QWebViewClient.onPageFinished.
      */
     public static void hidePeopleSuggestions(WebView webView) {
+        if (!PatchSettings.active(webView, "hidePeopleSuggestions", "Hide people suggestions")) return;
         injectCss(webView, "jofslash-hide-people",
                 "[class*=\"dom_annotate_multifeed_bundle_\"][class*=\"SuggestionsBundle\"]:not([class*=\"Tribe\"])"
                         + "{display:none !important;}");
@@ -114,6 +120,7 @@ public final class ReadingPatch {
      * Injection point: start of QWebViewClient.onPageFinished. The page's own "Add question" button.
      */
     public static void hideAskButton(WebView webView) {
+        if (!PatchSettings.active(webView, "hideAskButton", "Hide Ask button")) return;
         injectCss(webView, "jofslash-hide-ask", ".puppeteer_test_add_question_button{display:none !important;}");
     }
 
@@ -121,6 +128,7 @@ public final class ReadingPatch {
      * Injection point: start of QWebViewClient.onPageFinished. Only applies while Quora's dark theme is on.
      */
     public static void amoledDark(WebView webView) {
+        if (!PatchSettings.active(webView, "amoledDark", "AMOLED dark mode")) return;
         if (webView != null) {
             try {
                 // The WebView shows its own background before the page paints.
@@ -141,6 +149,7 @@ public final class ReadingPatch {
      * Injection point: start of QWebViewClient.onPageFinished.
      */
     public static void comfortableReading(WebView webView) {
+        if (!PatchSettings.active(webView, "comfortableReading", "Comfortable reading")) return;
         injectCss(webView, "jofslash-reading",
                 ANSWER_TEXT + "," + ANSWER_TEXT + " .q-text{line-height:1.75 !important;letter-spacing:.005em;}"
                         + ANSWER_TEXT + " p," + ANSWER_TEXT + " .q-text.qu-display--block{margin-bottom:.8em !important;}");
@@ -152,6 +161,7 @@ public final class ReadingPatch {
      * @param font "serif" or "sans".
      */
     public static void answerFont(WebView webView, String font) {
+        if (!PatchSettings.active(webView, "answerFont", "Answer font")) return;
         String family = "serif".equals(font)
                 ? "Georgia,\"Noto Serif\",\"Droid Serif\",serif"
                 : "Roboto,\"Noto Sans\",\"Helvetica Neue\",Arial,sans-serif";
@@ -163,6 +173,7 @@ public final class ReadingPatch {
      * Injection point: start of QWebViewClient.onPageFinished.
      */
     public static void keepScreenOn(WebView webView) {
+        if (!PatchSettings.active(webView, "keepScreenOn", "Keep screen on")) return;
         if (webView == null) return;
         try {
             webView.setKeepScreenOn(true);
@@ -177,6 +188,7 @@ public final class ReadingPatch {
      * Injection point: start of QWebViewClient.onPageFinished. Blocked images become tap targets.
      */
     public static void dataSaverPage(WebView webView) {
+        if (!PatchSettings.active(webView, "dataSaver", "Data saver")) return;
         injectCss(webView, "jofslash-data-saver",
                 "img[data-jofslash-tap]{min-width:72px;min-height:56px;background:rgba(128,128,128,.22) !important;"
                         + "cursor:pointer;object-fit:contain;}");
@@ -203,7 +215,7 @@ public final class ReadingPatch {
      */
     public static WebResourceResponse blockImage(WebResourceRequest request) {
         try {
-            if (request == null || request.isForMainFrame()) return null;
+            if (request == null || request.isForMainFrame() || !PatchSettings.isOn("dataSaver")) return null;
             Uri uri = request.getUrl();
             String host = uri.getHost();
             if (host == null) return null;
