@@ -4,7 +4,7 @@
 
 # Quora Patches for Morphe
 
-**33 free patches for the [Quora](https://play.google.com/store/apps/details?id=com.quora.android) Android app**, applied with [Morphe](https://morphe.software).
+**46 free patches for the [Quora](https://play.google.com/store/apps/details?id=com.quora.android) Android app**, applied with [Morphe](https://morphe.software).
 They remove the ads, stop the app from tracking you, and let you hide the parts of Quora you don't want.
 The privacy patches are on by default; the rest are yours to pick.
 
@@ -29,6 +29,7 @@ On by default. They change nothing you see.
 | **Disable WebView debugging** | The app turns this on for every page; the patch turns it off. |
 | **Clean shared links** | Removes tracking parameters from links you copy or share. |
 | **Spoof installer** | Reports Google Play as the installer. |
+| **Block Branch tracking** *(optional)* | Puts Branch, the install-tracking SDK, in its "disable tracking" mode. |
 
 ## 📰 Feed and answers
 
@@ -43,6 +44,12 @@ Off by default, because they change what Quora shows you.
 | **Disable video autoplay** | Videos play only when you tap them. |
 | **Enable text selection** | Lets you select and copy text on every page. |
 | **Text size** | Larger or smaller text, 85–150% (option). |
+| **Filter keywords** · **Block authors and Spaces** | Hides answers and posts that mention your words, or come from people and Spaces you list (options). |
+| **Expand answers** | Opens shortened answers in full, no "(more)" tap. |
+| **Hide people suggestions** | Hides "People you may know" in the feed. |
+| **Comfortable reading** · **Answer font** | More line spacing; answers in a serif or sans-serif font (option). |
+| **AMOLED dark mode** | Pure black background with Quora's dark theme. |
+| **Data saver** | Images load only when you tap them. |
 
 ## 📱 The app
 
@@ -56,6 +63,9 @@ The three prompt patches are on by default; the rest are optional.
 | **Hide badges** | Hides the red dots and counts on the tabs. |
 | **Open links in browser** | Opens other websites in your browser instead of an in-app tab. |
 | **Disable vibration** · **Disable tab prefetching** | No vibration on taps; other tabs load only when opened. |
+| **Block promotional notifications** | Drops digests and promotions; notifications about you still arrive. |
+| **Disable swipe gestures** | No pull to refresh or sideways swiping between feeds (options). |
+| **Hide Ask button** · **Keep screen on** | No Ask button; the screen stays on while you read. |
 
 ## 📲 Install
 
