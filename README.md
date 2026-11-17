@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://jofslash.github.io/quora-patches/"><img src=".github/assets/banner.jpg" alt="Quora without ads or tracking: a board of the patches in this bundle" width="100%"></a>
+  <img src=".github/assets/banner.jpg" alt="Quora without ads or tracking: a board of the patches in this bundle" width="100%">
 </p>
 
 # Quora Patches for Morphe
@@ -10,7 +10,7 @@ The privacy patches are on by default; the rest are yours to pick.
 
 <a href="https://morphe.software/add-source?github=JoFSlash/quora-patches"><img src=".github/assets/add-to-morphe.svg" alt="Add to Morphe" height="48"></a>
 
-🌐 [Website](https://jofslash.github.io/quora-patches/) · 📦 [Releases](https://github.com/JoFSlash/quora-patches/releases) · 🐞 [Report a problem](https://github.com/JoFSlash/quora-patches/issues/new/choose)
+📦 [Releases](https://github.com/JoFSlash/quora-patches/releases) · 🐞 [Report a problem](https://github.com/JoFSlash/quora-patches/issues/new/choose)
 
 ## 🛡️ Privacy and tracking
 
