@@ -4,7 +4,7 @@
 
 # Quora Patches for Morphe
 
-**46 free patches for the [Quora](https://play.google.com/store/apps/details?id=com.quora.android) Android app**, applied with [Morphe](https://morphe.software).
+**48 free patches for the [Quora](https://play.google.com/store/apps/details?id=com.quora.android) Android app**, applied with [Morphe](https://morphe.software).
 They remove the ads, stop the app from tracking you, and let you hide the parts of Quora you don't want.
 The privacy patches are on by default; the rest are yours to pick.
 
@@ -66,6 +66,8 @@ The three prompt patches are on by default; the rest are optional.
 | **Block promotional notifications** | Drops digests and promotions; notifications about you still arrive. |
 | **Disable swipe gestures** | No pull to refresh or sideways swiping between feeds (options). |
 | **Hide Ask button** · **Keep screen on** | No Ask button; the screen stays on while you read. |
+| **Save images** | Long-press an image opened full screen to save it to Pictures/Quora. |
+| **Patch settings** | Long-press the **Home** tab to switch page patches on and off and edit the filters, without patching again. |
 
 ## 📲 Install
 
