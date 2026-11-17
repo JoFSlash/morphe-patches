@@ -156,6 +156,8 @@ Requires JDK 21 and a GitHub token with `read:packages` (see the [Morphe docs](h
 
 The bundle is written to `patches/build/libs/patches-*.mpp`.
 
+Want to fix or add a patch? See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## 📜 License
 
 These patches are licensed under the [GNU General Public License v3.0](LICENSE). See [NOTICE](NOTICE).
