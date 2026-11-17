@@ -31,6 +31,7 @@ public final class HideContentPatch {
      * Injection point: start of QWebViewClient.onPageFinished.
      */
     public static void hideQuoraPlusAnswers(WebView webView) {
+        if (!PatchSettings.active(webView, "hideQuoraPlusAnswers", "Hide Quora+ answers")) return;
         injectStyle(webView, "jofslash-hide-quora-plus", QUORA_PLUS_SELECTORS);
     }
 
@@ -38,6 +39,7 @@ public final class HideContentPatch {
      * Injection point: start of QWebViewClient.onPageFinished.
      */
     public static void hideRelatedQuestions(WebView webView) {
+        if (!PatchSettings.active(webView, "hideRelatedQuestions", "Hide related questions")) return;
         injectStyle(webView, "jofslash-hide-related-questions", RELATED_QUESTIONS_SELECTORS);
     }
 
@@ -45,6 +47,7 @@ public final class HideContentPatch {
      * Injection point: start of QWebViewClient.onPageFinished.
      */
     public static void hideSpacesSuggestions(WebView webView) {
+        if (!PatchSettings.active(webView, "hideSpacesSuggestions", "Hide Spaces suggestions")) return;
         injectStyle(webView, "jofslash-hide-spaces-suggestions", SPACES_SUGGESTIONS_SELECTORS);
     }
 
@@ -136,6 +139,7 @@ public final class HideContentPatch {
      * Injection point: start of QWebViewClient.onPageFinished.
      */
     public static void hideAiAnswers(WebView webView) {
+        if (!PatchSettings.active(webView, "hideAiAnswers", "Hide AI answers")) return;
         injectStyle(webView, "jofslash-hide-ai-answers", AI_ANSWERS_SELECTORS);
     }
 
@@ -143,6 +147,7 @@ public final class HideContentPatch {
      * Injection point: start of QWebViewClient.onPageFinished.
      */
     public static void hideSuggestedQuestions(WebView webView) {
+        if (!PatchSettings.active(webView, "hideSuggestedQuestions", "Hide suggested questions")) return;
         injectStyle(webView, "jofslash-hide-suggested-questions", SUGGESTED_QUESTIONS_SELECTORS);
     }
 
@@ -150,6 +155,7 @@ public final class HideContentPatch {
      * Injection point: start of QWebViewClient.onPageFinished.
      */
     public static void hideDownvoteButton(WebView webView) {
+        if (!PatchSettings.active(webView, "hideDownvoteButton", "Hide downvote button")) return;
         injectStyle(webView, "jofslash-hide-downvote", DOWNVOTE_SELECTORS);
     }
 
@@ -157,6 +163,7 @@ public final class HideContentPatch {
      * Injection point: start of QWebViewClient.onPageFinished.
      */
     public static void enableTextSelection(WebView webView) {
+        if (!PatchSettings.active(webView, "enableTextSelection", "Enable text selection")) return;
         injectCss(webView, "jofslash-text-selection", TEXT_SELECTION_CSS);
     }
 
@@ -164,6 +171,7 @@ public final class HideContentPatch {
      * Injection point: start of QWebViewClient.onPageFinished.
      */
     public static void hideQuoraPlusPromotions(WebView webView) {
+        if (!PatchSettings.active(webView, "hideQuoraPlusPromotions", "Hide Quora+ promotions")) return;
         evaluate(webView, QUORA_PLUS_PROMOTIONS_SCRIPT, "Quora+ promotions");
     }
 
@@ -171,6 +179,7 @@ public final class HideContentPatch {
      * Injection point: start of QWebViewClient.onPageFinished.
      */
     public static void hidePoe(WebView webView) {
+        if (!PatchSettings.active(webView, "hidePoe", "Hide Poe")) return;
         injectStyle(webView, "jofslash-hide-poe", POE_SELECTORS);
         evaluate(webView, POE_SCRIPT, "Poe buttons");
     }
@@ -179,6 +188,7 @@ public final class HideContentPatch {
      * Injection point: start of QWebViewClient.onPageFinished.
      */
     public static void hideCounts(WebView webView) {
+        if (!PatchSettings.active(webView, "hideCounts", "Hide counts")) return;
         evaluate(webView, COUNTS_SCRIPT, "counts");
     }
 
