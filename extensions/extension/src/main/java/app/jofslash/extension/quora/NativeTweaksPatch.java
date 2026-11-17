@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings("unused")
@@ -110,6 +111,39 @@ public final class NativeTweaksPatch {
         } catch (Exception ex) {
             Log.e(TAG, "Failed to set start tab " + name, ex);
             return current;
+        }
+    }
+
+    /**
+     * Injection point: start of FCMIntentService.updateNotifications.
+     *
+     * @return True for digests and promotions: push_type 2 (QNotification.PROMO_PUSH_TYPE)
+     * or the digest channel.
+     */
+    public static boolean isPromotionalNotification(Map<?, ?> extras) {
+        if (extras == null) return false;
+        try {
+            Object type = extras.get("push_type");
+            Object channel = extras.get("channel");
+            return "2".equals(type == null ? null : String.valueOf(type).trim())
+                    || "channel_digest".equals(channel == null ? null : String.valueOf(channel).trim());
+        } catch (Exception ex) {
+            Log.e(TAG, "Failed to check notification", ex);
+            return false;
+        }
+    }
+
+    /**
+     * Injection point: Quora.onCreate, right after Branch.getAutoInstance. Branch then stops
+     * collecting and sending identifiers; links still open.
+     */
+    public static void disableBranchTracking() {
+        try {
+            Class<?> branch = Class.forName("io.branch.referral.Branch");
+            Object instance = branch.getMethod("getInstance").invoke(null);
+            if (instance != null) branch.getMethod("disableTracking", boolean.class).invoke(instance, true);
+        } catch (Throwable ex) {
+            Log.e(TAG, "Failed to turn off Branch tracking", ex);
         }
     }
 
