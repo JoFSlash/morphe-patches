@@ -100,7 +100,12 @@ public final class HideContentPatch {
             + "for(var i=0;i<b.length;i++){var s=b[i].querySelectorAll('span,div');"
             + "for(var j=0;j<s.length;j++){var e=s[j];"
             + "if(e.children.length||e.hasAttribute('data-jofslash-hidden'))continue;"
-            + "if(num.test((e.textContent||'').trim()))hide(e);}}"
+            // Also hide the outermost wrapper holding only the count: its ::before draws the "·".
+            + "if(num.test((e.textContent||'').trim())){var w=e;"
+            // Stop below anything holding the button's icon.
+            + "while(w.parentElement&&w.parentElement!==b[i]&&num.test((w.parentElement.textContent||'').trim())"
+            + "&&!w.parentElement.querySelector('svg,img'))w=w.parentElement;"
+            + "hide(w);}}}"
             + "var t=document.querySelectorAll('span,div,a');"
             + "for(var k=0;k<t.length;k++){var f=t[k];"
             + "if(f.children.length||f.hasAttribute('data-jofslash-hidden'))continue;"
@@ -175,6 +180,22 @@ public final class HideContentPatch {
     public static void hideQuoraPlusPromotions(WebView webView) {
         if (!PatchSettings.active(webView, "hideQuoraPlusPromotions", "Hide Quora+ promotions")) return;
         evaluate(webView, QUORA_PLUS_PROMOTIONS_SCRIPT, "Quora+ promotions");
+    }
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Hides the feed's "Update Available"
+     * card. It has no stable class, so it is found by its title and button.
+     */
+    public static void hideUpdateCard(WebView webView) {
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashUpdateCard)return;window.__jofslashUpdateCard=1;"
+                + "function run(){var t=[].slice.call(document.querySelectorAll('div,span')).filter(function(e){"
+                + "return !e.children.length&&(e.textContent||'').trim()==='Update Available';});"
+                + "t.forEach(function(e){for(var p=e.parentElement;p&&p!==document.body;p=p.parentElement){"
+                + "if(/Download Update/.test(p.textContent||'')){if(p.getBoundingClientRect().height<600){"
+                + "p.setAttribute('data-jofslash-hidden','');p.style.setProperty('display','none','important');}return;}}});}"
+                + observeScript("run")
+                + "})();", "update card");
     }
 
     /**
