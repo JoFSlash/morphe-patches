@@ -78,6 +78,20 @@ val hideDownvoteButtonPatch = pageScriptPatch(
 )
 
 @Suppress("unused")
+val hidePoePatch = pageScriptPatch(
+    name = "Hide Poe",
+    description = "Hides links and buttons that open Poe or Quora's AI assistant.",
+    extensionMethod = "hidePoe",
+)
+
+@Suppress("unused")
+val hideCountsPatch = pageScriptPatch(
+    name = "Hide counts",
+    description = "Hides upvote, view and share counts on answers and posts.",
+    extensionMethod = "hideCounts",
+)
+
+@Suppress("unused")
 val enableTextSelectionPatch = pageScriptPatch(
     name = "Enable text selection",
     description = "Lets you select and copy text on every page.",
