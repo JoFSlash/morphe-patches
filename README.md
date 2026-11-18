@@ -86,9 +86,9 @@ No root needed. The patched app is signed with a different key, which is why the
 Generated from the latest release, with each patch's options and supported versions.
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.3.3](https://github.com/JoFSlash/quora-patches/releases/tag/v1.3.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;48 patches total
+> **[v1.4.0](https://github.com/JoFSlash/quora-patches/releases/tag/v1.4.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;51 patches total
 <details open>
-<summary>📦 Quora&nbsp;&nbsp;•&nbsp;&nbsp;48 patches</summary>
+<summary>📦 Quora&nbsp;&nbsp;•&nbsp;&nbsp;51 patches</summary>
 <br>
 
 **Package name:** `com.quora.android`
@@ -134,12 +134,15 @@ Generated from the latest release, with each patch's options and supported versi
 | [Hide Quora+ promotions](#hide-quora-promotions) | Hides buttons that ask you to try or join Quora+. |  |
 | [Hide Spaces suggestions](#hide-spaces-suggestions) | Hides the Spaces you might like suggestions in the feed. |  |
 | [Hide badges](#hide-badges) | Hides the red dots and counts on the bottom bar tabs. |  |
+| [Hide comment previews](#hide-comment-previews) | Hides the "123 comments from … and more" row under answers. Comments still open from the comment button. |  |
 | [Hide counts](#hide-counts) | Hides upvote, view and share counts on answers and posts. |  |
 | [Hide downvote button](#hide-downvote-button) | Hides the downvote button on answers and posts. |  |
 | [Hide people suggestions](#hide-people-suggestions) | Hides "People you may know" and other people to follow in the feed. |  |
 | [Hide related questions](#hide-related-questions) | Hides the related questions lists on question pages. |  |
+| [Hide seen items](#hide-seen-items) | Dims or hides feed items you already opened when the feed shows them again. The list of opened items stays on your phone. | • Seen items |
 | [Hide suggested questions](#hide-suggested-questions) | Hides the questions for you to answer in the feed. |  |
 | [Hide tabs](#hide-tabs) | Removes the tabs you pick from the bottom bar. Home always stays. | • Hide Following tab<br>• Hide Answer tab<br>• Hide Spaces tab<br>• Hide Notifications tab |
+| [Keep place on return](#keep-place-on-return) | Keeps open answers and your place in the feed when you come back to the app, instead of closing them and reloading the feed. |  |
 | [Keep screen on](#keep-screen-on) | Keeps the screen from turning off while a page is open. |  |
 | [Open links in browser](#open-links-in-browser) | Opens links to other websites in your default browser instead of an in-app browser tab. |  |
 | [Patch settings](#patch-settings) | Long-press the Home tab to switch the page patches on and off and edit the filters, without patching again. |  |

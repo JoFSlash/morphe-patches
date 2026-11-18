@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/JoFSlash/quora-patches/compare/v1.3.3...v1.4.0) (2026-11-18)
+
+### ✨ New Features
+
+* Hide seen items, Hide comment previews and Keep place on return ([83fd07a](https://github.com/JoFSlash/quora-patches/commit/83fd07ac7ddde9da8ba89a49351db4cf3b25d105))
+
 ## [1.3.3](https://github.com/JoFSlash/quora-patches/compare/v1.3.2...v1.3.3) (2026-11-18)
 
 ### 🐛 Bug Fixes
