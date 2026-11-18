@@ -183,6 +183,14 @@ public final class NativeTweaksPatch {
     }
 
     /**
+     * Injection point: start of AppRefreshHelper.Companion.onResume. After some time in the
+     * background Quora closes open answers and reloads the feed; this skips that.
+     */
+    public static boolean keepPlaceOnReturn() {
+        return PatchSettings.on("keepPlaceOnReturn");
+    }
+
+    /**
      * Injection point: start of QNavBar.getShouldShowAskButton.
      */
     public static boolean hideAskButton() {
