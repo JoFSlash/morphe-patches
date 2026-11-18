@@ -86,7 +86,7 @@ No root needed. The patched app is signed with a different key, which is why the
 Generated from the latest release, with each patch's options and supported versions.
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.4.0](https://github.com/JoFSlash/quora-patches/releases/tag/v1.4.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;51 patches total
+> **[v1.5.0](https://github.com/JoFSlash/quora-patches/releases/tag/v1.5.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;51 patches total
 <details open>
 <summary>📦 Quora&nbsp;&nbsp;•&nbsp;&nbsp;51 patches</summary>
 <br>
@@ -112,7 +112,7 @@ Generated from the latest release, with each patch's options and supported versi
 | [Block web trackers](#block-web-trackers) | Blocks requests from Quora pages to third-party analytics and tracking services. |  |
 | [Clean shared links](#clean-shared-links) | Removes tracking parameters from Quora links you copy or share. |  |
 | [Comfortable reading](#comfortable-reading) | More space between the lines and paragraphs of answers. |  |
-| [Data saver](#data-saver) | Images load only when you tap them. |  |
+| [Data saver](#data-saver) | Images load only when you tap them. By default only on mobile data; on Wi-Fi they load as usual. | • Load images on Wi-Fi |
 | [Disable WebView debugging](#disable-webview-debugging) | Stops the app from letting a connected computer inspect its pages, which would show your account's cookies. |  |
 | [Disable analytics](#disable-analytics) | Turns off Firebase Analytics, Crashlytics, Firebase Performance and Facebook app events, and their advertising ID collection. |  |
 | [Disable notification prompt](#disable-notification-prompt) | Stops the app from asking to show notifications, both its own prompt and Android's. You can still turn notifications on in Android's settings. |  |
