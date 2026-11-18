@@ -81,6 +81,45 @@ public final class ReadingPatch {
                 + "})();", "author filter");
     }
 
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Remembers the feed items you tap and
+     * dims or hides them when the feed shows them again. The list stays in the app's own storage.
+     *
+     * @param mode "dim" or "hide".
+     */
+    public static void hideSeen(WebView webView, String mode) {
+        if (!PatchSettings.active(webView, "hideSeen", "Hide seen items")) return;
+        boolean hide = "hide".equals(mode);
+        injectCss(webView, "jofslash-seen", "[data-jofslash-seen]{opacity:.45 !important;}");
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashSeen)return;window.__jofslashSeen=1;"
+                + "var KEY='jofslash_seen',HIDE=" + hide + ",SEL='[class*=\"dom_annotate_multifeed_bundle_\"]';"
+                + "var list;try{list=JSON.parse(localStorage.getItem(KEY)||'[]');}catch(e){list=[];}"
+                + "if(!Array.isArray(list))list=[];"
+                + "var seen={};list.forEach(function(k){seen[k]=1;});"
+                // The author or Space and the question or post title: stable while counts and dates change.
+                + "function text(e){return e?(e.textContent||'').replace(/\\s+/g,' ').trim():'';}"
+                // The first named profile link (the avatar link has no text), or the Space of a post.
+                + "function key(u){var a='',b='',i,l=u.querySelectorAll('.puppeteer_test_tribe_name,a[href*=\"/profile/\"]');"
+                + "for(i=0;i<l.length&&!a;i++)a=text(l[i]).slice(0,60);"
+                + "var q=u.querySelector('.puppeteer_test_question_title');if(q)b=text(q);"
+                // Posts have no question: take the first longer text that is not the author or Space name.
+                + "else{var t=u.querySelectorAll('.q-text');for(i=0;i<t.length&&!b;i++){if(t[i].querySelector('.q-text'))continue;"
+                + "var s=text(t[i]);if(s.length>=20&&(!a||s.indexOf(a)!==0)&&!/^Posted by/.test(s))b=s;}}"
+                + "b=b.slice(0,100);return !a||b.length<8?'':a+'|'+b;}"
+                + "function remember(k){if(!k||seen[k])return;seen[k]=1;list.push(k);"
+                + "if(list.length>2000)list=list.slice(-2000);try{localStorage.setItem(KEY,JSON.stringify(list));}catch(e){}}"
+                + "window.addEventListener('click',function(ev){var u=ev.target&&ev.target.closest&&ev.target.closest(SEL);"
+                + "if(!u)return;var k=key(u);if(!k)return;remember(k);u.setAttribute('data-jofslash-seen','');},true);"
+                + "function run(){document.querySelectorAll(SEL).forEach(function(u){"
+                + "if(u.hasAttribute('data-jofslash-seen-checked'))return;var k=key(u);if(!k)return;"
+                + "u.setAttribute('data-jofslash-seen-checked','');if(!seen[k])return;"
+                + "if(HIDE){u.setAttribute('data-jofslash-filtered','');u.style.setProperty('display','none','important');}"
+                + "else u.setAttribute('data-jofslash-seen','');});}"
+                + observe("run")
+                + "})();", "seen items");
+    }
+
     // ---------------------------------------------------------------- reading
 
     /**
