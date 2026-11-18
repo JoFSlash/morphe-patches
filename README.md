@@ -74,7 +74,7 @@ The three prompt patches are on by default; the rest are optional.
 | **Hide Ask button** · **Keep screen on** | No Ask button; the screen stays on while you read. |
 | **Keep place on return** | Coming back to the app keeps the open answer and your place in the feed instead of reloading it. |
 | **Save images** | Long-press an image opened full screen to save it to Pictures/Quora. |
-| **Patch settings** | Long-press the **Home** tab to switch page patches on and off and edit the filters, without patching again. It also warns when Quora changes its pages and some patches stop working. |
+| **Patch settings** | Long-press the **Home** tab to switch page patches on and off and edit the filters, without patching again. It also warns when Quora changes its pages and some patches stop working, and backs up your settings as text. |
 
 ## 📲 Install
 

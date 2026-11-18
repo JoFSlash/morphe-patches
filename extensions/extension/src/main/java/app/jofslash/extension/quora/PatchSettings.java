@@ -171,7 +171,9 @@ public final class PatchSettings {
                             Toast.LENGTH_LONG).show();
                 })
                 .setNegativeButton("Cancel", null);
+        // Backup sits in the Filters dialog; without filters it takes this button's place.
         if (!TEXTS.isEmpty()) builder.setNeutralButton("Filters", (dialog, which) -> showTexts(activity, prefs));
+        else builder.setNeutralButton("Backup", (dialog, which) -> showBackup(activity, prefs));
         builder.show();
     }
 
@@ -232,6 +234,68 @@ public final class PatchSettings {
                     reload();
                 })
                 .setNegativeButton("Cancel", null)
+                .setNeutralButton("Backup", (dialog, which) -> showBackup(activity, prefs))
+                .show();
+    }
+
+    /**
+     * All switches and filters as one line of text: copy it to keep it, or paste one to restore it,
+     * for example after patching a reinstalled app. The page check's own values are left out.
+     */
+    private static void showBackup(Activity activity, SharedPreferences prefs) {
+        org.json.JSONObject json = new org.json.JSONObject();
+        try {
+            for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
+                String key = entry.getKey();
+                if (key.startsWith("check_") || key.startsWith("hint_")) continue;
+                json.put(key, entry.getValue());
+            }
+        } catch (Exception ex) {
+            Log.e(TAG, "Failed to write the backup", ex);
+        }
+        int pad = (int) (20 * activity.getResources().getDisplayMetrics().density);
+        LinearLayout layout = new LinearLayout(activity);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(pad, pad / 2, pad, 0);
+        TextView help = new TextView(activity);
+        help.setText("Copy this text to keep your settings. To restore them, paste a saved text here and tap Restore.");
+        layout.addView(help);
+        EditText field = new EditText(activity);
+        field.setText(json.toString());
+        field.setTextIsSelectable(true);
+        field.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        layout.addView(field);
+
+        new AlertDialog.Builder(activity)
+                .setTitle("Backup")
+                .setView(layout)
+                .setPositiveButton("Restore", (dialog, which) -> {
+                    try {
+                        org.json.JSONObject saved = new org.json.JSONObject(field.getText().toString().trim());
+                        SharedPreferences.Editor editor = prefs.edit();
+                        java.util.Iterator<String> keys = saved.keys();
+                        while (keys.hasNext()) {
+                            String key = keys.next();
+                            Object value = saved.get(key);
+                            if (value instanceof Boolean) editor.putBoolean(key, (Boolean) value);
+                            else if (value instanceof String) editor.putString(key, (String) value);
+                        }
+                        editor.apply();
+                        reload();
+                        Toast.makeText(activity, "Settings restored.", Toast.LENGTH_SHORT).show();
+                    } catch (Exception ex) {
+                        Toast.makeText(activity, "That is not a saved settings text.", Toast.LENGTH_LONG).show();
+                    }
+                })
+                .setNeutralButton("Copy", (dialog, which) -> {
+                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager)
+                            activity.getSystemService(Context.CLIPBOARD_SERVICE);
+                    if (clipboard != null) {
+                        clipboard.setPrimaryClip(android.content.ClipData.newPlainText("Quora patches", json.toString()));
+                        Toast.makeText(activity, "Copied.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Close", null)
                 .show();
     }
 
