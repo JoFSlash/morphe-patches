@@ -8,7 +8,7 @@ The privacy patches are on by default. Everything else is off until you pick it.
 
 <p>
   <img src=".github/assets/settings-entry.jpg" alt="Quora's settings page with a Morphe section" width="270">
-  <img src=".github/assets/patch-settings.jpg" alt="The patch settings dialog" width="270">
+  <img src=".github/assets/patch-settings.jpg" alt="The Quora patches settings page" width="270">
 </p>
 
 ## Install
@@ -25,7 +25,7 @@ The privacy patches are on by default. Everything else is off until you pick it.
 ## Changing patches later
 
 Most patches can be switched on and off in the app without patching again: open **Settings > Morphe > Quora
-patches**, or long-press the **Home** tab. The same dialog edits the keyword and author filters, backs up your
+patches**, or long-press the **Home** tab. The same page has a search field, edits the keyword and author filters, backs up your
 settings as text, and tells you when Quora has changed its pages in a way that breaks some patches.
 
 ## Patches
@@ -121,7 +121,7 @@ The app around the pages: prompts, tabs, notifications, gestures.
 ## Known issues
 
 - Most patches work on Quora's web pages, which can change without a new app version. When that happens,
-  a patch stops working without any error. The page check in the settings dialog catches the common cases.
+  a patch stops working without any error. The page check on the settings page catches the common cases.
 - With Data saver, tapping an image placeholder in the feed opens the post instead of loading the image.
   The image loads when you tap it there.
 - Hide Quora+ answers and Hide surveys haven't been tried on a real paywalled answer or survey yet.
