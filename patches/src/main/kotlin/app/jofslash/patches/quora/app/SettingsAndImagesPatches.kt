@@ -22,6 +22,7 @@ val patchSettingsPatch = bytecodePatch(
             "without patching again.",
     default = true
 ) {
+    category("App")
     compatibleWith(COMPATIBILITY_QUORA)
 
     extendWith("extensions/extension.mpe")
@@ -59,6 +60,7 @@ val saveImagesPatch = bytecodePatch(
     description = "Long-press an image you opened full screen to save it to Pictures/Quora.",
     default = true
 ) {
+    category("Reading")
     compatibleWith(COMPATIBILITY_QUORA)
 
     extendWith("extensions/extension.mpe")
