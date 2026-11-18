@@ -24,3 +24,6 @@ javac -nowarn -d "$work/classes" -cp "$android_jar" \
 native() { if command -v cygpath >/dev/null 2>&1; then cygpath -w "$1"; else echo "$1"; fi; }
 java -cp "$(native "$work/classes")${sep}$(native "$android_jar")" GenerateScripts "$(native "$work/scripts")"
 node "$here/test.js" "$work/scripts"
+# The DOM checks need jsdom, kept in this folder's own package.
+[ -d "$here/node_modules/jsdom" ] || (cd "$here" && npm ci --silent --no-audit --no-fund)
+node "$here/dom-test.js" "$(native "$work/scripts")"
