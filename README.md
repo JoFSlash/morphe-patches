@@ -6,11 +6,6 @@ AI answers, Quora+ paywalls, suggestions, counts, old answers and so on.
 
 The privacy patches are on by default. Everything else is off until you pick it.
 
-<p>
-  <img src=".github/assets/settings-entry.jpg" alt="Quora's settings page with a Morphe section" width="270">
-  <img src=".github/assets/patch-settings.jpg" alt="The Quora patches settings page" width="270">
-</p>
-
 ## Install
 
 1. Install Morphe Manager from [morphe.software](https://morphe.software).
