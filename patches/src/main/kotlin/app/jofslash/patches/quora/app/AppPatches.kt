@@ -30,6 +30,7 @@ val blockPromotionalNotificationsPatch = bytecodePatch(
             "notifications about you still arrive.",
     default = false
 ) {
+    category("App")
     compatibleWith(COMPATIBILITY_QUORA)
 
     extendWith("extensions/extension.mpe")
@@ -74,6 +75,7 @@ val disableSwipeGesturesPatch = bytecodePatch(
             "so a page doesn't reload or change while you read.",
     default = false
 ) {
+    category("App")
     compatibleWith(COMPATIBILITY_QUORA)
 
     extendWith("extensions/extension.mpe")
@@ -147,6 +149,7 @@ val blockBranchTrackingPatch = bytecodePatch(
             "Branch tracks where installs come from. Quora's quora.app.link links may open with less detail.",
     default = false
 ) {
+    category("Privacy")
     compatibleWith(COMPATIBILITY_QUORA)
 
     extendWith("extensions/extension.mpe")
@@ -179,6 +182,7 @@ val keepPlaceOnReturnPatch = bytecodePatch(
             "instead of closing them and reloading the feed.",
     default = false
 ) {
+    category("App")
     compatibleWith(COMPATIBILITY_QUORA)
 
     extendWith("extensions/extension.mpe")

@@ -1,5 +1,8 @@
 package app.jofslash.extension.quora;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.util.Log;
 import android.webkit.WebResourceRequest;
@@ -241,6 +244,7 @@ public final class ReadingPatch {
      */
     public static void dataSaverPage(WebView webView) {
         if (!PatchSettings.active(webView, "dataSaver", "Data saver")) return;
+        if (loadOnThisNetwork()) return;
         injectCss(webView, "jofslash-data-saver",
                 "img[data-jofslash-tap]{min-width:72px;min-height:56px;background:rgba(128,128,128,.22) !important;"
                         + "cursor:pointer;object-fit:contain;}"
@@ -290,6 +294,7 @@ public final class ReadingPatch {
     public static WebResourceResponse blockImage(WebResourceRequest request) {
         try {
             if (request == null || request.isForMainFrame() || !PatchSettings.isOn("dataSaver")) return null;
+            if (loadOnThisNetwork()) return null;
             Uri uri = request.getUrl();
             String host = uri.getHost();
             if (host == null) return null;
@@ -309,6 +314,25 @@ public final class ReadingPatch {
             return null;
         }
     }
+
+    /**
+     * With the "Load images on Wi-Fi" option, images load as usual unless the connection is metered,
+     * such as mobile data or a phone's hotspot.
+     */
+    @SuppressLint("MissingPermission") // Quora declares ACCESS_NETWORK_STATE.
+    private static boolean loadOnThisNetwork() {
+        if (!PatchSettings.isRegistered(WIFI_KEY) || !PatchSettings.isOn(WIFI_KEY)) return false;
+        try {
+            Context context = PatchSettings.context();
+            if (context == null) return false;
+            ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            return manager != null && manager.getActiveNetwork() != null && !manager.isActiveNetworkMetered();
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    private static final String WIFI_KEY = "dataSaverOnWifi";
 
     // ---------------------------------------------------------------- helpers
 
