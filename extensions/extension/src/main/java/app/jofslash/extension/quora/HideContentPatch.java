@@ -88,17 +88,24 @@ public final class HideContentPatch {
     private static final String COUNTS_SCRIPT = "(function(){"
             + "if(window.__jofslashCounts)return;"
             + "window.__jofslashCounts=true;"
-            + "var num=/^[\\d.,]+\\s*[KMB]?$/i;"
+            // A count, or the "·" between a button's label and its count.
+            + "var num=/^([\\d.,]+\\s*[KMB]?|\\u00b7)$/i;"
             + "var label=/^(view\\s+)?[\\d.,]+\\s*[KMB]?\\s+(views?|upvotes?|shares?|followers?)$/i;"
             + "var buttons='.puppeteer_test_votable_upvote_button,.puppeteer_test_votable_downvote_button,"
-            + "button[aria-label^=\"Upvote\"],button[aria-label^=\"Share\"],[role=\"button\"][aria-label^=\"Share\"]';"
+            + "button[aria-label^=\"Upvote\"],button[aria-label^=\"Share\"],[role=\"button\"][aria-label^=\"Share\"],"
+            + ".dom_annotate_answer_action_bar_comment,.dom_annotate_answer_action_bar_share';"
             + "function hide(e){e.setAttribute('data-jofslash-hidden','');e.style.setProperty('display','none','important');}"
             + "function run(){"
             + "var b=document.querySelectorAll(buttons);"
             + "for(var i=0;i<b.length;i++){var s=b[i].querySelectorAll('span,div');"
             + "for(var j=0;j<s.length;j++){var e=s[j];"
             + "if(e.children.length||e.hasAttribute('data-jofslash-hidden'))continue;"
-            + "if(num.test((e.textContent||'').trim()))hide(e);}}"
+            // Also hide the outermost wrapper holding only the count: its ::before draws the "·".
+            + "if(num.test((e.textContent||'').trim())){var w=e;"
+            // Stop below anything holding the button's icon.
+            + "while(w.parentElement&&w.parentElement!==b[i]&&num.test((w.parentElement.textContent||'').trim())"
+            + "&&!w.parentElement.querySelector('svg,img'))w=w.parentElement;"
+            + "hide(w);}}}"
             + "var t=document.querySelectorAll('span,div,a');"
             + "for(var k=0;k<t.length;k++){var f=t[k];"
             + "if(f.children.length||f.hasAttribute('data-jofslash-hidden'))continue;"
@@ -173,6 +180,22 @@ public final class HideContentPatch {
     public static void hideQuoraPlusPromotions(WebView webView) {
         if (!PatchSettings.active(webView, "hideQuoraPlusPromotions", "Hide Quora+ promotions")) return;
         evaluate(webView, QUORA_PLUS_PROMOTIONS_SCRIPT, "Quora+ promotions");
+    }
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Hides the feed's "Update Available"
+     * card. It has no stable class, so it is found by its title and button.
+     */
+    public static void hideUpdateCard(WebView webView) {
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashUpdateCard)return;window.__jofslashUpdateCard=1;"
+                + "function run(){var t=[].slice.call(document.querySelectorAll('div,span')).filter(function(e){"
+                + "return !e.children.length&&(e.textContent||'').trim()==='Update Available';});"
+                + "t.forEach(function(e){for(var p=e.parentElement;p&&p!==document.body;p=p.parentElement){"
+                + "if(/Download Update/.test(p.textContent||'')){if(p.getBoundingClientRect().height<600){"
+                + "p.setAttribute('data-jofslash-hidden','');p.style.setProperty('display','none','important');}return;}}});}"
+                + observeScript("run")
+                + "})();", "update card");
     }
 
     /**
