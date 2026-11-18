@@ -123,6 +123,39 @@ public final class ReadingPatch {
                 + "})();", "seen items");
     }
 
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Hides feed items and answers older than
+     * the given number of years, read from the date Quora shows ("6y", or "Mar 3, 2019").
+     *
+     * @param years Whole years, such as "3".
+     */
+    public static void hideOldAnswers(WebView webView, String years) {
+        if (!PatchSettings.active(webView, "hideOldAnswers", "Hide old answers")) return;
+        int limit;
+        try {
+            limit = Integer.parseInt(years == null ? "" : years.trim());
+        } catch (NumberFormatException ex) {
+            return;
+        }
+        if (limit < 1) return;
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashOld)return;window.__jofslashOld=1;"
+                + "var LIMIT=" + limit + ",now=new Date().getFullYear();"
+                + "function age(t){var m=t.match(/^(\\d+)y$/);if(m)return +m[1];"
+                + "m=t.match(/^[A-Z][a-z]{2} \\d{1,2}, (\\d{4})$/);if(m)return now-(+m[1]);return 0;}"
+                + "function run(){document.querySelectorAll('" + UNITS + "').forEach(function(u){"
+                + "if(u.hasAttribute('data-jofslash-age'))return;"
+                // The first date in the item is its own; later ones belong to comments or shares.
+                + "var links=u.querySelectorAll('a.answer_timestamp,a.puppeteer_test_link');var t='';"
+                + "for(var i=0;i<links.length&&!t;i++){var s=(links[i].textContent||'').trim();"
+                + "if(/^(\\d+[smhdwy]|[A-Z][a-z]{2} \\d{1,2}(, \\d{4})?|Mon|Tue|Wed|Thu|Fri|Sat|Sun)$/.test(s))t=s;}"
+                + "if(!t)return;u.setAttribute('data-jofslash-age',t);"
+                + "if(age(t)>=LIMIT){u.setAttribute('data-jofslash-filtered','');u.style.setProperty('display','none','important');}"
+                + "});}"
+                + observe("run")
+                + "})();", "old answers");
+    }
+
     // ---------------------------------------------------------------- reading
 
     /**
