@@ -1,5 +1,6 @@
 package app.jofslash.patches.quora.app
 
+import app.jofslash.patches.quora.ads.PageFinishedFingerprint
 import app.jofslash.patches.quora.shared.Constants.COMPATIBILITY_QUORA
 import app.jofslash.patches.quora.tabs.SetupTabsFingerprint
 import app.morphe.patcher.Fingerprint
@@ -19,7 +20,7 @@ private const val TAB_BAR = "Lcom/quora/android/controls/QTabBar;"
 val patchSettingsPatch = bytecodePatch(
     name = "Patch settings",
     description = "Long-press the Home tab to switch the page patches on and off and edit the filters, " +
-            "without patching again.",
+            "without patching again. It also tells you when Quora changes its pages so that some patches stop working.",
     default = true
 ) {
     category("App")
@@ -44,6 +45,11 @@ val patchSettingsPatch = bytecodePatch(
                 """
             )
         }
+        // Notices when Quora changes its feed so that page patches stop working, and says so here.
+        PageFinishedFingerprint.method.addInstruction(
+            0,
+            "invoke-static { p1 }, Lapp/jofslash/extension/quora/PageCheck;->onPageFinished(Landroid/webkit/WebView;)V"
+        )
     }
 }
 
