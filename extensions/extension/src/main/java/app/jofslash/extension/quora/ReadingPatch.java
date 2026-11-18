@@ -1,5 +1,6 @@
 package app.jofslash.extension.quora;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -318,6 +319,7 @@ public final class ReadingPatch {
      * With the "Load images on Wi-Fi" option, images load as usual unless the connection is metered,
      * such as mobile data or a phone's hotspot.
      */
+    @SuppressLint("MissingPermission") // Quora declares ACCESS_NETWORK_STATE.
     private static boolean loadOnThisNetwork() {
         if (!PatchSettings.isRegistered(WIFI_KEY) || !PatchSettings.isOn(WIFI_KEY)) return false;
         try {
