@@ -22,6 +22,13 @@ public class View {
     public void setPadding(int left, int top, int right, int bottom) {
     }
 
+    public void setAlpha(float alpha) {
+    }
+
+    public boolean postDelayed(Runnable action, long delayMillis) {
+        return true;
+    }
+
     public interface OnLongClickListener {
         boolean onLongClick(View v);
     }
