@@ -27,6 +27,7 @@ val disableVideoAutoplayPatch = bytecodePatch(
     description = "Videos in the feed and in answers only play when you tap them.",
     default = false
 ) {
+    category("Reading")
     compatibleWith(COMPATIBILITY_QUORA)
 
     extendWith("extensions/extension.mpe")

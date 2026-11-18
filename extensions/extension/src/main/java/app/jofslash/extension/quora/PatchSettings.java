@@ -69,6 +69,20 @@ public final class PatchSettings {
         }
     }
 
+    /** Whether a native patch registered this key, that is, whether it was included when patching. */
+    public static boolean isRegistered(String key) {
+        synchronized (PATCHES) {
+            return PATCHES.containsKey(key);
+        }
+    }
+
+    /** The app's context, also before any page has loaded. */
+    public static Context context() {
+        Context context = appContext;
+        if (context == null) context = appContext = currentApplication();
+        return context;
+    }
+
     /**
      * For native patches: whether the patch is switched on (the default).
      */
