@@ -53,7 +53,8 @@ for category in categories:
     group = sorted((p for p in patches if (p.get("category") or "Other") == category), key=lambda p: p["name"].lower())
     if not group:
         continue
-    lines += [f"### {category}", ""]
+    # Each group folds, so the list doesn't push the rest of the README down.
+    lines += ["<details>", f"<summary><b>{category}</b> ({len(group)})</summary>", ""]
     if category in INTRO:
         lines += [INTRO[category], ""]
     lines += ["| Patch | Default | What it does |", "| --- | --- | --- |"]
@@ -63,7 +64,7 @@ for category in categories:
         if options:
             desc += " Options: " + ", ".join(cell(o) for o in options) + "."
         lines.append(f"| {cell(p['name'])} | {'on' if p.get('default') else 'off'} | {desc} |")
-    lines.append("")
+    lines += ["", "</details>", ""]
 
 generated = "\n".join(lines).rstrip()
 
