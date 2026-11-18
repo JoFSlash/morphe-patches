@@ -54,7 +54,7 @@ names some patches rely on, it names those patches.
 
 ## Pull requests
 
-- Target the `dev` branch. Merging `dev` into `main` makes a stable release.
+- Target the `main` branch. Every merge into `main` with a `feat` or `fix` commit makes a release.
 - Use [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:` and so
   on); the release notes and version numbers are generated from them.
 - Describe what you tested and on which Quora version.

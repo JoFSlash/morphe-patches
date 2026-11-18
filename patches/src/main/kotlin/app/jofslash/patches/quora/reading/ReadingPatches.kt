@@ -4,6 +4,7 @@ import app.jofslash.patches.quora.ads.InterceptRequestFingerprint
 import app.jofslash.patches.quora.ads.PageFinishedFingerprint
 import app.jofslash.patches.quora.shared.Constants.COMPATIBILITY_QUORA
 import app.jofslash.patches.quora.shared.registerSetting
+import app.jofslash.patches.quora.video.InitWebViewFingerprint
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
@@ -150,6 +151,30 @@ val expandAnswersPatch = readingPatch(
     description = "Opens shortened answers on question pages, and shows the whole answer preview in the feed.",
     extensionMethod = "expandAnswers",
 )
+
+@Suppress("unused")
+val copyAnswerTextPatch = bytecodePatch(
+    name = "Copy answer text",
+    description = "Adds a Copy button next to Share under answers and posts. It copies their text without formatting.",
+    default = false
+) {
+    category("Reading")
+    compatibleWith(COMPATIBILITY_QUORA)
+
+    extendWith("extensions/extension.mpe")
+
+    execute {
+        PageFinishedFingerprint.method.addInstruction(
+            0,
+            "invoke-static { p1 }, $EXTENSION_CLASS->copyAnswerText(Landroid/webkit/WebView;)V"
+        )
+        // The button hands the text to the app, which puts it on the clipboard.
+        InitWebViewFingerprint.method.addInstruction(
+            0,
+            "invoke-static { p1 }, Lapp/jofslash/extension/quora/PatchSettings;->bind(Landroid/webkit/WebView;)V"
+        )
+    }
+}
 
 @Suppress("unused")
 val hidePeopleSuggestionsPatch = readingPatch(
