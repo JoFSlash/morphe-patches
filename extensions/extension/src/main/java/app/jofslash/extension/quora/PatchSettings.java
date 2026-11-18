@@ -118,88 +118,103 @@ public final class PatchSettings {
                 show(v.getContext());
                 return true;
             });
+            showHintOnce(home);
         } catch (Exception ex) {
             Log.e(TAG, "Failed to attach the patch settings", ex);
         }
     }
 
+    /**
+     * Injection point: start of QWebViewController.initWebView. Lets the "Quora patches" entry on
+     * Quora's settings page open this dialog. The only thing a page can do with it is open the dialog.
+     */
+    public static void bind(WebView webView) {
+        if (webView == null) return;
+        try {
+            webView.addJavascriptInterface(new Bridge(webView), "JoFSlashPatches");
+        } catch (Exception ex) {
+            Log.e(TAG, "Failed to add the settings bridge", ex);
+        }
+    }
+
+    private static final class Bridge {
+        private final java.lang.ref.WeakReference<WebView> webView;
+
+        Bridge(WebView webView) {
+            this.webView = new java.lang.ref.WeakReference<>(webView);
+        }
+
+        @android.webkit.JavascriptInterface
+        public void openSettings() {
+            WebView view = webView.get();
+            if (view != null) view.post(() -> show(view.getContext()));
+        }
+    }
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Adds a "Morphe" section with a
+     * "Quora patches" entry to Quora's settings page, made from a copy of one of its own sections.
+     */
+    public static void settingsEntry(WebView webView) {
+        if (webView == null) return;
+        String url = webView.getUrl();
+        if (url == null || !url.matches("https://www\\.quora\\.com/settings/?(\\?.*)?")) return;
+        webView.evaluateJavascript("(function(){"
+                + "if(window.__jofslashEntry)return;window.__jofslashEntry=1;"
+                + "function leaf(t){var l=document.querySelectorAll('.q-text');for(var i=0;i<l.length;i++)"
+                + "if(!l[i].children.length&&l[i].textContent.trim()===t)return l[i];return null;}"
+                + "function add(){if(document.getElementById('jofslash-entry'))return;"
+                // The "Quora+ & Space Subscriptions" section: a header and one row.
+                + "var row=leaf('Subscriptions & Billing');if(!row)return;"
+                + "var section=row.closest('.qu-gutterBottom');if(!section||!section.parentElement)return;"
+                + "var copy=section.cloneNode(true);copy.id='jofslash-entry';"
+                + "var texts=copy.querySelectorAll('.q-text');var header=null,item=null;"
+                + "for(var i=0;i<texts.length;i++){var t=texts[i].textContent.trim();"
+                + "if(t==='Quora+ & Space Subscriptions')header=texts[i];if(t==='Subscriptions & Billing')item=texts[i];}"
+                + "if(!header||!item)return;header.textContent='Morphe';item.textContent='Quora patches';"
+                + "copy.querySelector('[role=\"listitem\"]').addEventListener('click',function(ev){"
+                + "ev.preventDefault();ev.stopPropagation();"
+                + "if(window.JoFSlashPatches)window.JoFSlashPatches.openSettings();},true);"
+                + "section.parentElement.insertBefore(copy,section.nextSibling);}"
+                + "add();new MutationObserver(add).observe(document.documentElement,{childList:true,subtree:true});"
+                + "})();", null);
+    }
+
+    /** Long-pressing Home is hard to discover, so the first start after patching says so once. */
+    private static void showHintOnce(View home) {
+        // The app's context: the activity may be replaced while the app starts, which cancels its toasts.
+        Context context = home.getContext().getApplicationContext();
+        SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        if (prefs.getBoolean("hint_shown", false)) return;
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            Toast.makeText(context, "Quora patches: change them in Settings > Morphe, or long-press the Home tab.",
+                    Toast.LENGTH_LONG).show();
+            prefs.edit().putBoolean("hint_shown", true).apply();
+        }, 6000);
+    }
+
     private static void show(Context context) {
         Activity activity = activity(context);
         if (activity == null) return;
-        SharedPreferences prefs = activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-
-        final List<String> keys;
-        final String[] names;
-        final boolean[] checked;
-        synchronized (PATCHES) {
-            keys = new ArrayList<>(PATCHES.keySet());
-            names = new String[keys.size()];
-            checked = new boolean[keys.size()];
-            for (int i = 0; i < keys.size(); i++) {
-                names[i] = PATCHES.get(keys.get(i));
-                checked[i] = prefs.getBoolean(keys.get(i), true);
-            }
-        }
-        if (keys.isEmpty() && TEXTS.isEmpty()) {
-            Toast.makeText(activity, "Open a page first, then long-press Home again.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity)
-                .setTitle("Quora patches")
-                .setMultiChoiceItems(names, checked, (dialog, which, isChecked) -> checked[which] = isChecked)
-                .setPositiveButton("Save", (dialog, which) -> {
-                    SharedPreferences.Editor editor = prefs.edit();
-                    for (int i = 0; i < keys.size(); i++) editor.putBoolean(keys.get(i), checked[i]);
-                    editor.apply();
-                    reload();
-                    Toast.makeText(activity, "Saved. Changes to tabs, gestures and text size apply after restarting the app.",
-                            Toast.LENGTH_LONG).show();
-                })
-                .setNegativeButton("Cancel", null);
-        if (!TEXTS.isEmpty()) builder.setNeutralButton("Filters", (dialog, which) -> showTexts(activity, prefs));
-        builder.show();
+        SettingsPage.open(activity, activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE));
     }
 
-    private static void showTexts(Activity activity, SharedPreferences prefs) {
-        LinearLayout layout = new LinearLayout(activity);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        int pad = (int) (20 * activity.getResources().getDisplayMetrics().density);
-        layout.setPadding(pad, pad / 2, pad, 0);
-
-        final Map<String, EditText> fields = new LinkedHashMap<>();
-        synchronized (TEXTS) {
-            for (Map.Entry<String, String[]> entry : TEXTS.entrySet()) {
-                TextView label = new TextView(activity);
-                label.setText(entry.getValue()[0]);
-                label.setPadding(0, pad / 2, 0, 0);
-                layout.addView(label);
-                EditText field = new EditText(activity);
-                field.setHint("Separate with commas");
-                field.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-                field.setText(prefs.getString(entry.getKey(), entry.getValue()[1]));
-                layout.addView(field);
-                fields.put(entry.getKey(), field);
-            }
+    /** The switches that can be changed, key to name, in the order they first ran. */
+    static Map<String, String> switches() {
+        synchronized (PATCHES) {
+            return new LinkedHashMap<>(PATCHES);
         }
+    }
 
-        new AlertDialog.Builder(activity)
-                .setTitle("Filters")
-                .setView(layout)
-                .setPositiveButton("Save", (dialog, which) -> {
-                    SharedPreferences.Editor editor = prefs.edit();
-                    for (Map.Entry<String, EditText> f : fields.entrySet()) {
-                        editor.putString(f.getKey(), f.getValue().getText().toString().trim());
-                    }
-                    editor.apply();
-                    reload();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+    /** The filter fields: key to {name, value baked in when patching}. */
+    static Map<String, String[]> texts() {
+        synchronized (TEXTS) {
+            return new LinkedHashMap<>(TEXTS);
+        }
     }
 
     /** Page patches are added when a page loads, so reloading the app's pages applies the new settings. */
-    private static void reload() {
+    static void reload() {
         List<WebView> webViews;
         synchronized (WEB_VIEWS) {
             webViews = new ArrayList<>(WEB_VIEWS.keySet());
