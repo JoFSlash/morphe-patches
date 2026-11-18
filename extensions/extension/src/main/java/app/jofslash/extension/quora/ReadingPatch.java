@@ -93,6 +93,17 @@ public final class ReadingPatch {
         injectCss(webView, "jofslash-expand",
                 ANSWER_TEXT + " [class*=\"qu-truncateLines--\"]{-webkit-line-clamp:unset !important;"
                         + "line-clamp:unset !important;max-height:none !important;}");
+        // On question pages "Continue Reading" opens the answer in place, so it is clicked there.
+        // It has no stable class, so it is found by its text, and never in the feed, where "Read more" opens a new view.
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashExpand)return;window.__jofslashExpand=1;"
+                + "function run(){document.querySelectorAll('div,span').forEach(function(e){"
+                + "if(e.children.length||e.hasAttribute('data-jofslash-expanded'))return;"
+                + "if(!/^Continue Reading/.test((e.textContent||'').trim())||e.textContent.trim().length>20)return;"
+                + "if(e.closest('[class*=\"dom_annotate_multifeed_bundle_\"]'))return;"
+                + "e.setAttribute('data-jofslash-expanded','');try{e.click();}catch(x){}});}"
+                + observe("run")
+                + "})();", "expand answers");
     }
 
     /**
@@ -208,18 +219,20 @@ public final class ReadingPatch {
                 + "var src=img.currentSrc||img.src;"
                 // Profile photos and Space icons are small; tapping them opens the profile, so just hide them.
                 + "if(/thumb|profile_default/.test(src)||!img.closest('" + ANSWER_TEXT + "," + UNITS + ",.q-text')){img.style.setProperty('visibility','hidden','important');return;}"
-                + "img.setAttribute('data-jofslash-tap','');img.alt=img.alt||'Tap to load image';"
-                + "img.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();"
-                + "var u=new URL(img.currentSrc||img.src);u.searchParams.set('" + LOAD_PARAM + "','1');"
-                + "img.removeAttribute('srcset');img.src=u.toString();img.removeAttribute('data-jofslash-tap');},{capture:true,once:true});}"
+                + "img.setAttribute('data-jofslash-tap','');img.alt=img.alt||'Tap to load image';}"
                 + "function bg(el){if(el.hasAttribute('data-jofslash-bgtap')||el.hasAttribute('data-jofslash-bgdone'))return;"
                 + "var m=(el.getAttribute('style')||'').match(/url\\([\"']?([^\"')]*quoracdn\\.net[^\"')]*)[\"']?\\)/);if(!m)return;"
                 + "if(/thumb|profile_default/.test(m[1]))return;"
-                + "el.setAttribute('data-jofslash-bgtap','');"
-                + "el.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();"
-                + "var u=new URL(m[1],location.href);u.searchParams.set('" + LOAD_PARAM + "','1');"
-                + "el.style.backgroundImage='url(\"'+u.toString()+'\")';"
-                + "el.removeAttribute('data-jofslash-bgtap');el.setAttribute('data-jofslash-bgdone','');},{capture:true,once:true});}"
+                + "el.setAttribute('data-jofslash-bgtap',m[1]);}"
+                // One listener on the window, in the capture phase, so it runs before Quora's own
+                // handlers, which would open the post instead of loading the picture.
+                + "function load(url){var u=new URL(url,location.href);u.searchParams.set('" + LOAD_PARAM + "','1');return u.toString();}"
+                + "window.addEventListener('click',function(ev){"
+                + "var t=ev.target&&ev.target.closest&&ev.target.closest('img[data-jofslash-tap],[data-jofslash-bgtap]');if(!t)return;"
+                + "ev.preventDefault();ev.stopPropagation();ev.stopImmediatePropagation();"
+                + "if(t.tagName==='IMG'){t.removeAttribute('srcset');t.src=load(t.currentSrc||t.src);t.removeAttribute('data-jofslash-tap');}"
+                + "else{t.style.backgroundImage='url(\"'+load(t.getAttribute('data-jofslash-bgtap'))+'\")';"
+                + "t.removeAttribute('data-jofslash-bgtap');t.setAttribute('data-jofslash-bgdone','');}},true);"
                 + "function run(){document.querySelectorAll('img').forEach(function(img){"
                 + "if(img.complete)mark(img);else img.addEventListener('error',function(){mark(img);},{once:true});});"
                 + "document.querySelectorAll('[style*=\"quoracdn.net\"]').forEach(bg);}"
