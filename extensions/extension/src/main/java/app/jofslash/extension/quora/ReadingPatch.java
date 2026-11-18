@@ -212,6 +212,8 @@ public final class ReadingPatch {
         evaluate(webView, "(function(){"
                 + "if(window.__jofslashData)return;window.__jofslashData=1;"
                 + "var cdn=/(^|\\.)quoracdn\\.net$/;"
+                + "var LABEL='data:image/svg+xml,'+encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"320\" height=\"64\">"
+                + "<text x=\"16\" y=\"38\" font-family=\"sans-serif\" font-size=\"18\" fill=\"#8a8a8a\">Tap to load image</text></svg>');"
                 + "function mark(img){if(img.hasAttribute('data-jofslash-tap'))return;"
                 + "try{if(!cdn.test(new URL(img.currentSrc||img.src).hostname))return;}catch(e){return;}"
                 + "if(img.complete&&img.naturalWidth>0)return;"
@@ -219,7 +221,8 @@ public final class ReadingPatch {
                 + "var src=img.currentSrc||img.src;"
                 // Profile photos and Space icons are small; tapping them opens the profile, so just hide them.
                 + "if(/thumb|profile_default/.test(src)||!img.closest('" + ANSWER_TEXT + "," + UNITS + ",.q-text')){img.style.setProperty('visibility','hidden','important');return;}"
-                + "img.setAttribute('data-jofslash-tap','');img.alt=img.alt||'Tap to load image';}"
+                // Show a label instead of the browser's broken image icon; keep the real address for the tap.
+                + "img.setAttribute('data-jofslash-tap',src);img.removeAttribute('srcset');img.src=LABEL;}"
                 + "function bg(el){if(el.hasAttribute('data-jofslash-bgtap')||el.hasAttribute('data-jofslash-bgdone'))return;"
                 + "var m=(el.getAttribute('style')||'').match(/url\\([\"']?([^\"')]*quoracdn\\.net[^\"')]*)[\"']?\\)/);if(!m)return;"
                 + "if(/thumb|profile_default/.test(m[1]))return;"
@@ -230,7 +233,7 @@ public final class ReadingPatch {
                 + "window.addEventListener('click',function(ev){"
                 + "var t=ev.target&&ev.target.closest&&ev.target.closest('img[data-jofslash-tap],[data-jofslash-bgtap]');if(!t)return;"
                 + "ev.preventDefault();ev.stopPropagation();ev.stopImmediatePropagation();"
-                + "if(t.tagName==='IMG'){t.removeAttribute('srcset');t.src=load(t.currentSrc||t.src);t.removeAttribute('data-jofslash-tap');}"
+                + "if(t.tagName==='IMG'){t.src=load(t.getAttribute('data-jofslash-tap'));t.removeAttribute('data-jofslash-tap');}"
                 + "else{t.style.backgroundImage='url(\"'+load(t.getAttribute('data-jofslash-bgtap'))+'\")';"
                 + "t.removeAttribute('data-jofslash-bgtap');t.setAttribute('data-jofslash-bgdone','');}},true);"
                 + "function run(){document.querySelectorAll('img').forEach(function(img){"
@@ -255,6 +258,8 @@ public final class ReadingPatch {
             if (!host.equals("quoracdn.net") && !host.endsWith(".quoracdn.net")) return null;
             if (uri.getQueryParameter(LOAD_PARAM) != null) return null;
             String path = uri.getPath() == null ? "" : uri.getPath().toLowerCase();
+            // Profile photos and Space icons ("main-thumb-…") are a few KB each; let them load.
+            if (path.contains("main-thumb")) return null;
             boolean image = path.contains("qimg") || path.contains("thumb")
                     || path.matches(".*\\.(jpe?g|png|gif|webp|avif)$");
             if (!image) return null;

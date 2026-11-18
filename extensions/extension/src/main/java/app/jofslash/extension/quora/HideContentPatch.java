@@ -93,8 +93,20 @@ public final class HideContentPatch {
             + "var label=/^(view\\s+)?[\\d.,]+\\s*[KMB]?\\s+(views?|upvotes?|shares?|followers?)$/i;"
             + "var buttons='.puppeteer_test_votable_upvote_button,.puppeteer_test_votable_downvote_button,"
             + "button[aria-label^=\"Upvote\"],button[aria-label^=\"Share\"],[role=\"button\"][aria-label^=\"Share\"],"
-            + ".dom_annotate_answer_action_bar_comment,.dom_annotate_answer_action_bar_share';"
+            + ".dom_annotate_answer_action_bar_comment,.dom_annotate_answer_action_bar_share,"
+            // Compact counts next to an icon, as in "Featured In" boxes.
+            + "[aria-label$=\" upvote\"],[aria-label$=\" upvotes\"],[aria-label$=\" comment\"],[aria-label$=\" comments\"],"
+            + "[aria-label$=\" share\"],[aria-label$=\" shares\"]';"
             + "function hide(e){e.setAttribute('data-jofslash-hidden','');e.style.setProperty('display','none','important');}"
+            // The outermost wrapper holding only this text; its ::before may draw a "·".
+            + "function outer(e){var t=(e.textContent||'').trim();"
+            + "while(e.parentElement&&e.parentElement!==document.body&&(e.parentElement.textContent||'').trim()===t"
+            + "&&!e.parentElement.querySelector('svg,img'))e=e.parentElement;return e;}"
+            // Hides wrappers left with nothing to show, such as the span whose ::before draws the "·".
+            + "function gone(e){if(e.hasAttribute('data-jofslash-hidden'))return true;var c=e.childNodes;"
+            + "for(var i=0;i<c.length;i++){var n=c[i];if(n.nodeType===3){if(n.textContent.trim())return false;}"
+            + "else if(n.nodeType===1&&!gone(n)&&getComputedStyle(n).display!=='none')return false;}return true;}"
+            + "function up(p,stop){while(p&&p!==stop&&!p.querySelector('svg,img')&&gone(p)){hide(p);p=p.parentElement;}}"
             + "function run(){"
             + "var b=document.querySelectorAll(buttons);"
             + "for(var i=0;i<b.length;i++){var s=b[i].querySelectorAll('span,div');"
@@ -105,11 +117,11 @@ public final class HideContentPatch {
             // Stop below anything holding the button's icon.
             + "while(w.parentElement&&w.parentElement!==b[i]&&num.test((w.parentElement.textContent||'').trim())"
             + "&&!w.parentElement.querySelector('svg,img'))w=w.parentElement;"
-            + "hide(w);}}}"
+            + "hide(w);up(w.parentElement,b[i]);}}}"
             + "var t=document.querySelectorAll('span,div,a');"
             + "for(var k=0;k<t.length;k++){var f=t[k];"
             + "if(f.children.length||f.hasAttribute('data-jofslash-hidden'))continue;"
-            + "if(label.test((f.textContent||'').trim()))hide(f);}"
+            + "if(label.test((f.textContent||'').trim()))hide(outer(f));}"
             + "}"
             + observeScript("run")
             + "})();";
