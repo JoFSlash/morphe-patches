@@ -31,7 +31,7 @@ settings as text, and tells you when Quora has changed its pages in a way that b
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.4.0, 56 patches. Supported Quora versions: 3.2.42, 3.2.30.
+Version 1.6.0, 56 patches. Supported Quora versions: 3.2.42, 3.2.30.
 
 ### Privacy
 
@@ -39,16 +39,16 @@ On by default. They stop data collection and change nothing you see.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
-| Block Branch tracking | off | Turns on Branch's "disable tracking" mode and turns off its debug mode. Branch tracks where installs come from. Quora's quora.app.link links may open with less detail. |
 | Block advertising ID | on | Stops the app from sending your advertising ID and Android ID to Quora. |
 | Block app telemetry | on | Stops the app from sending usage logs to Quora, such as reading time, tab presses, experiments, app speed and errors. |
+| Block Branch tracking | off | Turns on Branch's "disable tracking" mode and turns off its debug mode. Branch tracks where installs come from. Quora's quora.app.link links may open with less detail. |
 | Block clipboard reading | on | Stops Quora's pages from reading what you copied. Pasting with the keyboard still works. |
 | Block tracking logs | on | Stops Quora's pages from passing performance and sign-up tracking events to the app. |
 | Block web trackers | on | Blocks requests from Quora pages to third-party analytics and tracking services. |
 | Clean shared links | on | Removes tracking parameters from Quora links you copy or share. |
-| Disable WebView debugging | on | Stops the app from letting a connected computer inspect its pages, which would show your account's cookies. |
 | Disable analytics | on | Turns off Firebase Analytics, Crashlytics, Firebase Performance and Facebook app events, and their advertising ID collection. |
 | Disable tracking jobs | on | Stops the background jobs that tell Quora every hour whether your phone is charging and every day whether notifications are on. |
+| Disable WebView debugging | on | Stops the app from letting a connected computer inspect its pages, which would show your account's cookies. |
 | Remove ads | on | Hides promoted answers, sponsored posts and Google ads in the feed and on question pages, and blocks requests to ad servers. |
 | Spoof installer | on | Reports Google Play as the app installer, so Quora does not treat the patched app as installed from an unknown source. |
 
@@ -61,20 +61,20 @@ What the feed and question pages show.
 | Block authors and Spaces | off | Hides answers and posts by the people and Spaces you pick. Options: Authors and Spaces. |
 | Filter keywords | off | Hides answers, posts and questions that mention words you pick. Options: Keywords. |
 | Hide AI answers | off | Hides answers written by Poe bots. |
-| Hide Follow buttons | off | Hides the small "Follow" next to author and Space names. Profiles and Space pages keep theirs. |
-| Hide Poe | off | Hides links and buttons that open Poe or Quora's AI assistant. |
-| Hide Quora+ answers | off | Hides answers and posts that can only be read with a Quora+ subscription. |
-| Hide Quora+ promotions | off | Hides buttons that ask you to try or join Quora+. |
-| Hide Spaces posts | off | Hides posts from Spaces in the feed, so it shows answers to questions only. |
-| Hide Spaces suggestions | off | Hides the Spaces you might like suggestions in the feed. |
 | Hide comment previews | off | Hides the "123 comments from … and more" row under answers. Comments still open from the comment button. |
 | Hide counts | off | Hides upvote, view and share counts on answers and posts. |
 | Hide credentials | off | Hides the line under authors' names, such as "Lives in Vienna", and "Upvoted by" lines. The date stays. |
 | Hide downvote button | off | Hides the downvote button on answers and posts. |
+| Hide Follow buttons | off | Hides the small "Follow" next to author and Space names. Profiles and Space pages keep theirs. |
 | Hide old answers | off | Hides answers and posts older than the number of years you pick, in the feed and on question pages. Options: Older than. |
 | Hide people suggestions | off | Hides "People you may know" and other people to follow in the feed. |
+| Hide Poe | off | Hides links and buttons that open Poe or Quora's AI assistant. |
+| Hide Quora+ answers | off | Hides answers and posts that can only be read with a Quora+ subscription. |
+| Hide Quora+ promotions | off | Hides buttons that ask you to try or join Quora+. |
 | Hide related questions | off | Hides the related questions lists on question pages. |
 | Hide seen items | off | Dims or hides feed items you already opened when the feed shows them again. The list of opened items stays on your phone. Options: Seen items. |
+| Hide Spaces posts | off | Hides posts from Spaces in the feed, so it shows answers to questions only. |
+| Hide Spaces suggestions | off | Hides the Spaces you might like suggestions in the feed. |
 | Hide suggested questions | off | Hides the questions for you to answer in the feed. |
 | Hide surveys | off | Hides Quora's surveys in the feed, such as "How satisfied are you with your home feed?". |
 

@@ -1,3 +1,14 @@
+## [1.6.0](https://github.com/JoFSlash/quora-patches/compare/v1.5.0...v1.6.0) (2026-11-18)
+
+### New features
+
+* Back up and restore the patch settings as text ([3a019ff](https://github.com/JoFSlash/quora-patches/commit/3a019fff4fedcac0bf2762e062b0e5da2f45428f))
+* Group the patch settings by category, with a line about each switch ([1d83927](https://github.com/JoFSlash/quora-patches/commit/1d83927ccfd1b7af60d6f58582787cbc3de6b146))
+* Hide old answers, Hide Spaces posts, Hide credentials, Hide Follow buttons, Hide surveys ([d3b504c](https://github.com/JoFSlash/quora-patches/commit/d3b504cba2626064704a2988db7d04712bc48e26))
+* Open the patch settings as a page with search, in the style of Quora's settings ([80a7d57](https://github.com/JoFSlash/quora-patches/commit/80a7d574bd4f5b9c0fdaa99947b32a25285328e2))
+* Open the patch settings from Quora's settings page ([9a08fd7](https://github.com/JoFSlash/quora-patches/commit/9a08fd78c909c11d9425f0c6405b88146599a025))
+* Page check in Patch settings, a hint on first start, and a script to check new Quora versions ([5a95bc9](https://github.com/JoFSlash/quora-patches/commit/5a95bc9568fb96f26b10209c7e18e58bfe5f21d1))
+
 ## [1.5.0](https://github.com/JoFSlash/quora-patches/compare/v1.4.0...v1.5.0) (2026-11-18)
 
 ### New features
