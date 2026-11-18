@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Writes the patch list in README.md from patches-list.json, between the
-<!-- PATCHES_START --> and <!-- PATCHES_END --> markers, grouped by category.
+<!-- PATCHES_START --> and <!-- PATCHES_END --> markers, grouped by category,
+and the supported Quora versions between <!-- VERSIONS_START --> and <!-- VERSIONS_END -->.
 
 python3 generate_patches_readme.py <owner/repo> <branch> [patches-list.json] [README.md]
 """
@@ -78,5 +79,11 @@ if not start or end not in readme:
 
 readme = re.sub(r"<!-- PATCHES_START[^>]*-->.*?<!-- PATCHES_END -->",
                 lambda m: f"<!-- PATCHES_START -->\n{generated}\n{end}", readme, flags=re.DOTALL)
+
+# The supported versions in the intro, if the README has the markers for them.
+if versions:
+    spoken = versions[0] if len(versions) == 1 else ", ".join(versions[:-1]) + " and " + versions[-1]
+    readme = re.sub(r"<!-- VERSIONS_START -->.*?<!-- VERSIONS_END -->",
+                    lambda m: f"<!-- VERSIONS_START -->{spoken}<!-- VERSIONS_END -->", readme, flags=re.DOTALL)
 readme_path.write_text(readme, encoding="utf-8")
 print(f"Wrote {len(patches)} patches for {repo} v{version} into {readme_path}")

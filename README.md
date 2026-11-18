@@ -1,9 +1,14 @@
 # Quora patches for Morphe
 
+[![Latest release](https://img.shields.io/github/v/release/JoFSlash/quora-patches?label=release)](https://github.com/JoFSlash/quora-patches/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/JoFSlash/quora-patches/total)](https://github.com/JoFSlash/quora-patches/releases)
+[![License](https://img.shields.io/github/license/JoFSlash/quora-patches)](LICENSE)
+
 Patches for the [Quora](https://play.google.com/store/apps/details?id=com.quora.android) Android app, applied with
 [Morphe](https://morphe.software). They remove ads and tracking, and let you hide the parts of Quora you don't use:
 AI answers, Quora+ paywalls, suggestions, counts, old answers and so on.
 
+Works with Quora <!-- VERSIONS_START -->3.2.42 and 3.2.30<!-- VERSIONS_END -->. No root needed.
 The privacy patches are on by default. Everything else is off until you pick it.
 
 ## Install
@@ -12,9 +17,10 @@ The privacy patches are on by default. Everything else is off until you pick it.
 2. Add this repository as a patch source: open
    [this link](https://morphe.software/add-source?github=JoFSlash/quora-patches) on your phone, or add
    `https://github.com/JoFSlash/quora-patches` under sources in Morphe Manager.
-3. Download a supported version of Quora ([listed under Patches](#patches)) as an APKM file from
-   [APKMirror](https://www.apkmirror.com/apk/quora-inc/quora/), pick it in Morphe Manager, then pick the patches
-   you want.
+3. Download a supported version of Quora as an APKM file from APKMirror:
+   [3.2.42](https://www.apkmirror.com/apk/quora-inc/quora/quora-the-knowledge-platform-3-2-42-release/) (newest) or
+   [3.2.30](https://www.apkmirror.com/apk/quora-inc/quora/quora-3-2-30-release/). Other versions won't work.
+   Pick the file in Morphe Manager, then pick the patches you want.
 4. Uninstall the Play Store version before installing the patched one. It is signed with a different key,
    so Android won't install it over the original. Uninstalling signs you out, so sign in again in the patched
    app. No root needed.
@@ -136,6 +142,28 @@ The app around the pages: prompts, tabs, notifications, gestures.
 
 </details>
 <!-- PATCHES_END -->
+
+## FAQ
+
+**What is Morphe?**
+An app that patches other Android apps on your phone: you give it the original app, pick patches, and it builds a
+changed copy. These patches are one source you add to it.
+
+**Why do I have to uninstall the Play Store version?**
+The patched app is signed with a different key than Quora's, and Android won't install an app over one with a
+different signature. The same is why the patched app doesn't update from the Play Store.
+
+**Can my Quora account get banned for this?**
+Nobody has reported it. The patches change what the app shows and what it sends, they don't post, vote or do anything
+in your name. Still, it's a modified app, so there's no guarantee.
+
+**Is it safe?**
+All the code is in this repository, and the patch files in the releases are built from it by GitHub Actions.
+The patches don't send anything anywhere; the privacy ones only stop the app from sending things.
+
+**A patch stopped working.**
+Quora probably changed its pages. Check the warning on the settings page (long-press the Home tab), then
+[open an issue](https://github.com/JoFSlash/quora-patches/issues/new/choose) with the Quora version and the patch.
 
 ## Known issues
 
