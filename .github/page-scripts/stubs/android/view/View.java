@@ -33,6 +33,13 @@ public class View {
         return true;
     }
 
+    public void setOnClickListener(OnClickListener listener) {
+    }
+
+    public interface OnClickListener {
+        void onClick(View v);
+    }
+
     public interface OnLongClickListener {
         boolean onLongClick(View v);
     }
