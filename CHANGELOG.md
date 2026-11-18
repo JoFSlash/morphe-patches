@@ -1,3 +1,9 @@
+## [1.7.0](https://github.com/JoFSlash/quora-patches/compare/v1.6.0...v1.7.0) (2026-11-18)
+
+### New features
+
+* Change patch options in the settings, and Copy answer text ([dd8bf39](https://github.com/JoFSlash/quora-patches/commit/dd8bf39853ead2a4dee7e207c791ffe073e46164))
+
 ## [1.6.0](https://github.com/JoFSlash/quora-patches/compare/v1.5.0...v1.6.0) (2026-11-18)
 
 ### New features

@@ -27,7 +27,7 @@ settings as text, and tells you when Quora has changed its pages in a way that b
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.6.0, 56 patches. Supported Quora versions: 3.2.42, 3.2.30.
+Version 1.7.0, 57 patches. Supported Quora versions: 3.2.42, 3.2.30.
 
 ### Privacy
 
@@ -83,6 +83,7 @@ How answers look and load.
 | AMOLED dark mode | off | Uses a pure black background when Quora's dark theme is on. |
 | Answer font | off | Sets answers in a serif or a sans-serif font of your phone. Options: Font. |
 | Comfortable reading | off | More space between the lines and paragraphs of answers. |
+| Copy answer text | off | Adds a Copy button next to Share under answers and posts. It copies their text without formatting. |
 | Data saver | off | Images load only when you tap them. By default only on mobile data; on Wi-Fi they load as usual. Options: Load images on Wi-Fi. |
 | Disable video autoplay | off | Videos in the feed and in answers only play when you tap them. |
 | Enable text selection | off | Lets you select and copy text on every page. |
