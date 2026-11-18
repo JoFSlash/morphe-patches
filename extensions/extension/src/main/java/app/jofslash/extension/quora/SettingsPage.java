@@ -78,6 +78,7 @@ final class SettingsPage {
     private void main(SharedPreferences prefs) {
         Map<String, String> switches = PatchSettings.switches();
         Map<String, String[]> texts = PatchSettings.texts();
+        Map<String, PatchSettings.Choice> choices = PatchSettings.choices();
         LinearLayout content = column();
         Set<String> changed = new HashSet<>();
 
@@ -96,6 +97,9 @@ final class SettingsPage {
                 if (!category.equals(SettingsCatalog.category(key))) continue;
                 if (box == null) box = section(category);
                 add(box, switchRow(prefs, key, switches.get(key), SettingsCatalog.help(key), changed));
+                for (PatchSettings.Choice choice : choices.values()) {
+                    if (key.equals(choice.parent)) add(box, choiceRow(prefs, choice, changed));
+                }
             }
             if (box != null) content.addView(box);
         }
@@ -204,7 +208,7 @@ final class SettingsPage {
     // ------------------------------------------------------------------ frame
 
     /** A full screen window with a top bar; back (the arrow or the system back) closes it. */
-    private void show(String title, View content, Runnable onClose) {
+    private Dialog show(String title, View content, Runnable onClose) {
         Dialog dialog = new Dialog(activity, dark
                 ? android.R.style.Theme_Material_NoActionBar
                 : android.R.style.Theme_Material_Light_NoActionBar);
@@ -271,6 +275,7 @@ final class SettingsPage {
             }
         }
         dialog.show();
+        return dialog;
     }
 
     // ------------------------------------------------------------------ rows
@@ -319,6 +324,57 @@ final class SettingsPage {
         return row;
     }
 
+    /** An option of the patch above it, such as "Older than: 3 years"; opens a page to pick another value. */
+    private View choiceRow(SharedPreferences prefs, PatchSettings.Choice choice, Set<String> changed) {
+        String value = prefs.getString("opt_" + choice.key, choice.patched);
+        View row = linkRow(choice.name, choice.summary(value), null);
+        row.setPadding(dp(32), row.getPaddingTop(), row.getPaddingRight(), row.getPaddingBottom());
+        TextView summary = (TextView) ((LinearLayout) ((LinearLayout) row).getChildAt(0)).getChildAt(1);
+        row.setOnClickListener((v) -> pick(prefs, choice, summary, changed));
+        return row;
+    }
+
+    /** A page listing an option's values: tap one, or tick several for options that take more than one. */
+    private void pick(SharedPreferences prefs, PatchSettings.Choice choice, TextView summary, Set<String> changed) {
+        String current = prefs.getString("opt_" + choice.key, choice.patched);
+        Set<String> picked = new HashSet<>(Arrays.asList(current.split(",")));
+        LinearLayout content = column();
+        LinearLayout box = section(null);
+        Dialog[] page = new Dialog[1];
+        for (int i = 0; i < choice.values.length; i++) {
+            String value = choice.values[i];
+            android.widget.CompoundButton mark = choice.multi
+                    ? new android.widget.CheckBox(activity) : new android.widget.RadioButton(activity);
+            mark.setChecked(picked.contains(value));
+            mark.setButtonTintList(ColorStateList.valueOf(accent));
+            mark.setClickable(false);
+            LinearLayout row = row(choice.labels[i], null);
+            row.addView(mark);
+            row.setOnClickListener((v) -> {
+                if (choice.multi) {
+                    if (!picked.remove(value)) picked.add(value);
+                    mark.setChecked(picked.contains(value));
+                    List<String> ordered = new ArrayList<>();
+                    for (String option : choice.values) if (picked.contains(option)) ordered.add(option);
+                    save(prefs, choice, android.text.TextUtils.join(",", ordered), summary, changed);
+                } else {
+                    save(prefs, choice, value, summary, changed);
+                    if (page[0] != null) page[0].dismiss();
+                }
+            });
+            add(box, row);
+        }
+        content.addView(box);
+        page[0] = show(choice.name, content, null);
+    }
+
+    private void save(SharedPreferences prefs, PatchSettings.Choice choice, String value, TextView summary,
+                      Set<String> changed) {
+        prefs.edit().putString("opt_" + choice.key, value).apply();
+        summary.setText(choice.summary(value));
+        changed.add(choice.parent);
+    }
+
     private View linkRow(String name, String help, Runnable action) {
         LinearLayout row = row(name, help);
         TextView chevron = new TextView(activity);
@@ -326,7 +382,7 @@ final class SettingsPage {
         chevron.setTextSize(26);
         chevron.setTextColor(secondary);
         row.addView(chevron);
-        row.setOnClickListener((v) -> action.run());
+        if (action != null) row.setOnClickListener((v) -> action.run());
         return row;
     }
 

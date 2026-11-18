@@ -19,8 +19,9 @@ The privacy patches are on by default. Everything else is off until you pick it.
 
 ## Changing patches later
 
-Most patches can be switched on and off in the app without patching again: open **Settings > Morphe > Quora
-patches**, or long-press the **Home** tab. The same page has a search field, edits the keyword and author filters, backs up your
+Most patches and their options (text size, tabs, font, how old is too old) can be changed in the app without patching
+again: open **Settings > Morphe > Quora patches**, or long-press the **Home** tab. The same page has a search field,
+edits the keyword and author filters, backs up your
 settings as text, and tells you when Quora has changed its pages in a way that breaks some patches.
 
 ## Patches

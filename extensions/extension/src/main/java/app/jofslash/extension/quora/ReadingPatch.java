@@ -92,6 +92,8 @@ public final class ReadingPatch {
      */
     public static void hideSeen(WebView webView, String mode) {
         if (!PatchSettings.active(webView, "hideSeen", "Hide seen items")) return;
+        mode = PatchSettings.choice("hideSeen", "seenMode", "Seen items", mode,
+                new String[]{"Dim", "Hide"}, new String[]{"dim", "hide"}, false);
         boolean hide = "hide".equals(mode);
         injectCss(webView, "jofslash-seen", "[data-jofslash-seen]{opacity:.45 !important;}");
         evaluate(webView, "(function(){"
@@ -131,6 +133,9 @@ public final class ReadingPatch {
      */
     public static void hideOldAnswers(WebView webView, String years) {
         if (!PatchSettings.active(webView, "hideOldAnswers", "Hide old answers")) return;
+        years = PatchSettings.choice("hideOldAnswers", "maxAge", "Older than", years,
+                new String[]{"1 year", "2 years", "3 years", "5 years", "10 years"},
+                new String[]{"1", "2", "3", "5", "10"}, false);
         int limit;
         try {
             limit = Integer.parseInt(years == null ? "" : years.trim());
@@ -147,13 +152,51 @@ public final class ReadingPatch {
                 + "if(u.hasAttribute('data-jofslash-age'))return;"
                 // The first date in the item is its own; later ones belong to comments or shares.
                 + "var links=u.querySelectorAll('a.answer_timestamp,a.puppeteer_test_link');var t='';"
-                + "for(var i=0;i<links.length&&!t;i++){var s=(links[i].textContent||'').trim();"
+                // An edited answer shows "Updated 6y".
+                + "for(var i=0;i<links.length&&!t;i++){var s=(links[i].textContent||'').trim().replace(/^Updated /,'');"
                 + "if(/^(\\d+[smhdwy]|[A-Z][a-z]{2} \\d{1,2}(, \\d{4})?|Mon|Tue|Wed|Thu|Fri|Sat|Sun)$/.test(s))t=s;}"
                 + "if(!t)return;u.setAttribute('data-jofslash-age',t);"
                 + "if(age(t)>=LIMIT){u.setAttribute('data-jofslash-filtered','');u.style.setProperty('display','none','important');}"
                 + "});}"
                 + observe("run")
                 + "})();", "old answers");
+    }
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Adds a Copy button after Share under
+     * answers and posts; it copies their text without formatting.
+     */
+    public static void copyAnswerText(WebView webView) {
+        if (!PatchSettings.active(webView, "copyAnswerText", "Copy answer text")) return;
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashCopy)return;window.__jofslashCopy=1;"
+                + "var ICON='<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\">"
+                + "<g class=\"icon_svg-stroke\" stroke=\"#666\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\">"
+                + "<rect x=\"8.5\" y=\"8.5\" width=\"11\" height=\"12\" rx=\"2\"></rect>"
+                + "<path d=\"M15.5 8.5V6a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2\"></path></g></svg>';"
+                // The answer's text: the answer content in the feed, or the block holding its paragraphs.
+                + "function text(bar){for(var a=bar.parentElement;a&&a!==document.body;a=a.parentElement){"
+                + "var c=a.querySelector('" + ANSWER_TEXT + "');if(c)return c.innerText;"
+                + "var p=a.querySelector('p.q-text');if(p){var box=p.closest('div.q-text')||p.parentElement;return box.innerText;}}"
+                + "return '';}"
+                + "function copy(t){t=(t||'').trim();if(!t)return;"
+                + "if(window.JoFSlashPatches&&window.JoFSlashPatches.copyText)window.JoFSlashPatches.copyText(t);"
+                + "else if(navigator.clipboard)navigator.clipboard.writeText(t);}"
+                + "function run(){document.querySelectorAll('.dom_annotate_answer_action_bar_share').forEach(function(s){"
+                + "if(s.hasAttribute('data-jofslash-copy'))return;s.setAttribute('data-jofslash-copy','');"
+                + "var item=s.parentElement&&s.parentElement.children.length===1?s.parentElement:s;"
+                // The copy must not count as a Share button, or it would be copied again.
+                + "var b=item.cloneNode(true);b.setAttribute('data-jofslash-copy','');"
+                + "[b].concat([].slice.call(b.querySelectorAll('*'))).forEach(function(e){"
+                + "e.classList.remove('dom_annotate_answer_action_bar_share','puppeteer_test_answer_quora_share_button','sprig_share_button');});"
+                + "var svg=b.querySelector('svg');if(!svg)return;svg.outerHTML=ICON;"
+                // The share count, if any, doesn't belong to Copy.
+                + "b.querySelectorAll('.q-text').forEach(function(e){e.remove();});"
+                + "var btn=b.querySelector('button')||b;btn.setAttribute('aria-label','Copy text');"
+                + "b.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();copy(text(item));},true);"
+                + "item.parentElement.insertBefore(b,item.nextSibling);});}"
+                + observe("run")
+                + "})();", "copy answer text");
     }
 
     // ---------------------------------------------------------------- reading
@@ -249,6 +292,8 @@ public final class ReadingPatch {
      */
     public static void answerFont(WebView webView, String font) {
         if (!PatchSettings.active(webView, "answerFont", "Answer font")) return;
+        font = PatchSettings.choice("answerFont", "answerFontStyle", "Font", font,
+                new String[]{"Serif", "Sans-serif"}, new String[]{"serif", "sans"}, false);
         String family = "serif".equals(font)
                 ? "Georgia,\"Noto Serif\",\"Droid Serif\",serif"
                 : "Roboto,\"Noto Sans\",\"Helvetica Neue\",Arial,sans-serif";
