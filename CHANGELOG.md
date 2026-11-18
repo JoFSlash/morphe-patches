@@ -1,3 +1,13 @@
+## [1.5.0](https://github.com/JoFSlash/quora-patches/compare/v1.4.0...v1.5.0) (2026-11-18)
+
+### ✨ New Features
+
+* Patch categories, Data saver loads images on Wi-Fi, new banner ([76def81](https://github.com/JoFSlash/quora-patches/commit/76def814c7a99941665ef55d5c78d939ef2cadfc))
+
+### 🐛 Bug Fixes
+
+* Let lint pass on the network check ([a63acc2](https://github.com/JoFSlash/quora-patches/commit/a63acc2a283cc8a38a4b1b816665f3264ec745c9))
+
 ## [1.4.0](https://github.com/JoFSlash/quora-patches/compare/v1.3.3...v1.4.0) (2026-11-18)
 
 ### ✨ New Features
