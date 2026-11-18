@@ -213,7 +213,7 @@ val hideAskButtonPatch = bytecodePatch(
 @Suppress("unused")
 val dataSaverPatch = bytecodePatch(
     name = "Data saver",
-    description = "Images load only when you tap them.",
+    description = "Images load only when you tap them. By default only on mobile data; on Wi-Fi they load as usual.",
     default = false
 ) {
     category("Reading")

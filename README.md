@@ -51,7 +51,7 @@ Off by default, because they change what Quora shows you.
 | **Hide comment previews** | Hides the "123 comments from … and more" row under answers. |
 | **Comfortable reading** · **Answer font** | More line spacing; answers in a serif or sans-serif font (option). |
 | **AMOLED dark mode** | Pure black background with Quora's dark theme. |
-| **Data saver** | Images load only when you tap them. |
+| **Data saver** | Images load only when you tap them, on mobile data only by default (option). |
 
 ## 📱 The app
 
