@@ -25,6 +25,10 @@ public class View {
     public void setAlpha(float alpha) {
     }
 
+    public boolean post(Runnable action) {
+        return true;
+    }
+
     public boolean postDelayed(Runnable action, long delayMillis) {
         return true;
     }
