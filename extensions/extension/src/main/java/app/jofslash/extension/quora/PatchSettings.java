@@ -149,6 +149,24 @@ public final class PatchSettings {
             WebView view = webView.get();
             if (view != null) view.post(() -> show(view.getContext()));
         }
+
+        /** For Copy answer text: puts the answer's text on the clipboard. */
+        @android.webkit.JavascriptInterface
+        public void copyText(String text) {
+            WebView view = webView.get();
+            if (view == null || text == null) return;
+            view.post(() -> {
+                try {
+                    Context context = view.getContext();
+                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager)
+                            context.getSystemService(Context.CLIPBOARD_SERVICE);
+                    clipboard.setPrimaryClip(android.content.ClipData.newPlainText("Quora answer", text));
+                    Toast.makeText(context, "Answer copied", Toast.LENGTH_SHORT).show();
+                } catch (Exception ex) {
+                    Log.e(TAG, "Failed to copy the answer", ex);
+                }
+            });
+        }
     }
 
     /**
@@ -197,6 +215,64 @@ public final class PatchSettings {
         Activity activity = activity(context);
         if (activity == null) return;
         SettingsPage.open(activity, activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE));
+    }
+
+    /** Options that can be changed in the settings: key to {@link Choice}. */
+    private static final Map<String, Choice> CHOICES = new LinkedHashMap<>();
+
+    /** One option of a patch, such as the text size, with the values it can take. */
+    static final class Choice {
+        final String parent, key, name, patched;
+        final String[] labels, values;
+        final boolean multi;
+
+        Choice(String parent, String key, String name, String patched, String[] labels, String[] values, boolean multi) {
+            this.parent = parent;
+            this.key = key;
+            this.name = name;
+            this.patched = patched;
+            this.labels = labels;
+            this.values = values;
+            this.multi = multi;
+        }
+
+        /** The labels of the values picked, for the row in the settings. */
+        String summary(String value) {
+            List<String> picked = new ArrayList<>();
+            List<String> chosen = java.util.Arrays.asList((value == null ? "" : value).split(","));
+            for (int i = 0; i < values.length; i++) if (chosen.contains(values[i])) picked.add(labels[i]);
+            return picked.isEmpty() ? (multi ? "None" : value) : android.text.TextUtils.join(", ", picked);
+        }
+    }
+
+    /**
+     * Called by patches with an option that can also be changed in the settings.
+     *
+     * @param parent  The key of the patch's switch; the option shows under it.
+     * @param patched The value chosen when patching, used until one is picked in the settings.
+     * @param multi   Whether several values can be picked; they are kept separated by commas.
+     * @return The value picked in the settings, or the one chosen when patching.
+     */
+    static String choice(String parent, String key, String name, String patched,
+                         String[] labels, String[] values, boolean multi) {
+        synchronized (CHOICES) {
+            if (!CHOICES.containsKey(key)) {
+                CHOICES.put(key, new Choice(parent, key, name, patched == null ? "" : patched, labels, values, multi));
+            }
+        }
+        Context context = context();
+        if (context == null) return patched;
+        try {
+            return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("opt_" + key, patched);
+        } catch (Exception ex) {
+            return patched;
+        }
+    }
+
+    static Map<String, Choice> choices() {
+        synchronized (CHOICES) {
+            return new LinkedHashMap<>(CHOICES);
+        }
     }
 
     /** The switches that can be changed, key to name, in the order they first ran. */

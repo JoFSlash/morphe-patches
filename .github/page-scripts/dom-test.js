@@ -76,8 +76,8 @@ expect('hideFollowButtons-0.js', `${unit('a', '6y')}
 
 // Hide old answers (3 years): 6y and a dated 2019 answer go; 1y and this year's stay.
 expect('hideOldAnswers-0.js', [unit('old', '6y'), unit('new', '1y'), unit('dated', 'Mar 3, 2019'),
-  unit('recent', 'Aug 28'), unit('fresh', '47m')].join(''), [
-  ['#old', true], ['#dated', true], ['#new', false], ['#recent', false], ['#fresh', false],
+  unit('recent', 'Aug 28'), unit('fresh', '47m'), unit('edited', 'Updated 6y')].join(''), [
+  ['#old', true], ['#dated', true], ['#new', false], ['#recent', false], ['#fresh', false], ['#edited', true],
 ]);
 
 // Hide comment previews: the "N comments from … and more" row goes, the answer stays.
