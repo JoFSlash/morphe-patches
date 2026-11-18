@@ -124,6 +124,62 @@ public final class PatchSettings {
         }
     }
 
+    /**
+     * Injection point: start of QWebViewController.initWebView. Lets the "Quora patches" entry on
+     * Quora's settings page open this dialog. The only thing a page can do with it is open the dialog.
+     */
+    public static void bind(WebView webView) {
+        if (webView == null) return;
+        try {
+            webView.addJavascriptInterface(new Bridge(webView), "JoFSlashPatches");
+        } catch (Exception ex) {
+            Log.e(TAG, "Failed to add the settings bridge", ex);
+        }
+    }
+
+    private static final class Bridge {
+        private final java.lang.ref.WeakReference<WebView> webView;
+
+        Bridge(WebView webView) {
+            this.webView = new java.lang.ref.WeakReference<>(webView);
+        }
+
+        @android.webkit.JavascriptInterface
+        public void openSettings() {
+            WebView view = webView.get();
+            if (view != null) view.post(() -> show(view.getContext()));
+        }
+    }
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Adds a "Morphe" section with a
+     * "Quora patches" entry to Quora's settings page, made from a copy of one of its own sections.
+     */
+    public static void settingsEntry(WebView webView) {
+        if (webView == null) return;
+        String url = webView.getUrl();
+        if (url == null || !url.matches("https://www\\.quora\\.com/settings/?(\\?.*)?")) return;
+        webView.evaluateJavascript("(function(){"
+                + "if(window.__jofslashEntry)return;window.__jofslashEntry=1;"
+                + "function leaf(t){var l=document.querySelectorAll('.q-text');for(var i=0;i<l.length;i++)"
+                + "if(!l[i].children.length&&l[i].textContent.trim()===t)return l[i];return null;}"
+                + "function add(){if(document.getElementById('jofslash-entry'))return;"
+                // The "Quora+ & Space Subscriptions" section: a header and one row.
+                + "var row=leaf('Subscriptions & Billing');if(!row)return;"
+                + "var section=row.closest('.qu-gutterBottom');if(!section||!section.parentElement)return;"
+                + "var copy=section.cloneNode(true);copy.id='jofslash-entry';"
+                + "var texts=copy.querySelectorAll('.q-text');var header=null,item=null;"
+                + "for(var i=0;i<texts.length;i++){var t=texts[i].textContent.trim();"
+                + "if(t==='Quora+ & Space Subscriptions')header=texts[i];if(t==='Subscriptions & Billing')item=texts[i];}"
+                + "if(!header||!item)return;header.textContent='Morphe';item.textContent='Quora patches';"
+                + "copy.querySelector('[role=\"listitem\"]').addEventListener('click',function(ev){"
+                + "ev.preventDefault();ev.stopPropagation();"
+                + "if(window.JoFSlashPatches)window.JoFSlashPatches.openSettings();},true);"
+                + "section.parentElement.insertBefore(copy,section.nextSibling);}"
+                + "add();new MutationObserver(add).observe(document.documentElement,{childList:true,subtree:true});"
+                + "})();", null);
+    }
+
     /** Long-pressing Home is hard to discover, so the first start after patching says so once. */
     private static void showHintOnce(View home) {
         // The app's context: the activity may be replaced while the app starts, which cancels its toasts.
@@ -131,7 +187,7 @@ public final class PatchSettings {
         SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         if (prefs.getBoolean("hint_shown", false)) return;
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            Toast.makeText(context, "Quora patches: long-press the Home tab to change them.",
+            Toast.makeText(context, "Quora patches: change them in Settings > Morphe, or long-press the Home tab.",
                     Toast.LENGTH_LONG).show();
             prefs.edit().putBoolean("hint_shown", true).apply();
         }, 6000);

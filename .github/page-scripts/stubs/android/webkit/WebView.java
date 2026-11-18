@@ -17,4 +17,7 @@ public class WebView extends android.view.View {
     public String getUrl() {
         return null;
     }
+
+    public void addJavascriptInterface(Object object, String name) {
+    }
 }
