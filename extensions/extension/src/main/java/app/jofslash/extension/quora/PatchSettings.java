@@ -118,9 +118,23 @@ public final class PatchSettings {
                 show(v.getContext());
                 return true;
             });
+            showHintOnce(home);
         } catch (Exception ex) {
             Log.e(TAG, "Failed to attach the patch settings", ex);
         }
+    }
+
+    /** Long-pressing Home is hard to discover, so the first start after patching says so once. */
+    private static void showHintOnce(View home) {
+        // The app's context: the activity may be replaced while the app starts, which cancels its toasts.
+        Context context = home.getContext().getApplicationContext();
+        SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        if (prefs.getBoolean("hint_shown", false)) return;
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            Toast.makeText(context, "Quora patches: long-press the Home tab to change them.",
+                    Toast.LENGTH_LONG).show();
+            prefs.edit().putBoolean("hint_shown", true).apply();
+        }, 6000);
     }
 
     private static void show(Context context) {
@@ -146,7 +160,7 @@ public final class PatchSettings {
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity)
-                .setTitle("Quora patches")
+                .setCustomTitle(title(activity, PageCheck.status(prefs)))
                 .setMultiChoiceItems(names, checked, (dialog, which, isChecked) -> checked[which] = isChecked)
                 .setPositiveButton("Save", (dialog, which) -> {
                     SharedPreferences.Editor editor = prefs.edit();
@@ -159,6 +173,29 @@ public final class PatchSettings {
                 .setNegativeButton("Cancel", null);
         if (!TEXTS.isEmpty()) builder.setNeutralButton("Filters", (dialog, which) -> showTexts(activity, prefs));
         builder.show();
+    }
+
+    /** "Quora patches" with the page check's result under it. */
+    private static View title(Activity activity, String status) {
+        float density = activity.getResources().getDisplayMetrics().density;
+        int pad = (int) (24 * density);
+        LinearLayout layout = new LinearLayout(activity);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(pad, pad, pad, (int) (8 * density));
+        TextView title = new TextView(activity);
+        title.setText("Quora patches");
+        title.setTextSize(20);
+        title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        layout.addView(title);
+        if (status != null) {
+            TextView line = new TextView(activity);
+            line.setText(status);
+            line.setTextSize(13);
+            line.setAlpha(0.75f);
+            line.setPadding(0, (int) (6 * density), 0, 0);
+            layout.addView(line);
+        }
+        return layout;
     }
 
     private static void showTexts(Activity activity, SharedPreferences prefs) {
