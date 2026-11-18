@@ -40,6 +40,18 @@ patching again: open **Settings > Morphe > Quora patches**, or long-press the **
 search field, edits the keyword and author filters, backs up your settings as text, and tells you when Quora has
 changed its pages in a way that breaks some patches.
 
+## Where to start
+
+Not sure what to pick? The privacy patches are already on. These are a good first set on top of them:
+
+- Hide AI answers
+- Hide Quora+ answers and Hide Quora+ promotions
+- Hide suggested questions and Hide people suggestions
+- Disable video autoplay
+- Keep place on return
+
+Everything else can wait until something bothers you.
+
 ## Patches
 
 <!-- PATCHES_START -->
@@ -160,6 +172,11 @@ in your name. Still, it's a modified app, so there's no guarantee.
 **Is it safe?**
 All the code is in this repository, and the patch files in the releases are built from it by GitHub Actions.
 The patches don't send anything anywhere; the privacy ones only stop the app from sending things.
+
+**Quora links open in the browser instead of the app.**
+Android checks that an app opening quora.com links is signed by Quora, and the patched app isn't. Turn it on by
+hand: Android's Settings > Apps > Quora > Open by default > Open supported links, and add the links it lists.
+The exact names differ a bit between phones.
 
 **A patch stopped working.**
 Quora probably changed its pages. Check the warning on the settings page (long-press the Home tab), then
