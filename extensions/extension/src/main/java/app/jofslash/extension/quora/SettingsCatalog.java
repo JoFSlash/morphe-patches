@@ -30,7 +30,7 @@ final class SettingsCatalog {
         add("hidePeopleSuggestions", "Feed", "\"People you may know\".");
         add("hideSpacesPosts", "Feed", "Posts from Spaces, so the feed shows answers only.");
         add("hideSeen", "Feed", "Items you already opened, when they come back.");
-        add("hideOldAnswers", "Feed", "Answers older than the years picked when patching.");
+        add("hideOldAnswers", "Feed", "Answers older than the years set below.");
         add("filterKeywords", "Feed", "Items that mention your keywords (see Filters).");
         add("blockAuthors", "Feed", "Items from the people and Spaces in Filters.");
         add("hideCounts", "Feed", "Upvote, view, comment and share numbers.");
@@ -40,19 +40,20 @@ final class SettingsCatalog {
         add("hideFollowButtons", "Feed", "The small Follow next to names.");
         add("hideSurveys", "Feed", "\"How satisfied are you…\" boxes.");
 
+        add("copyAnswerText", "Reading", "A Copy button next to Share under answers.");
         add("expandAnswers", "Reading", "Shortened answers open in full.");
         add("comfortableReading", "Reading", "More space between lines and paragraphs.");
-        add("answerFont", "Reading", "Answers in the font picked when patching.");
+        add("answerFont", "Reading", "Answers in the font set below.");
         add("amoledDark", "Reading", "Pure black with Quora's dark theme.");
-        add("textSize", "Reading", "Text size picked when patching. Applies after a restart.");
+        add("textSize", "Reading", "Text at the size set below. Applies after a restart.");
         add("enableTextSelection", "Reading", "Select and copy text anywhere.");
         add("dataSaver", "Reading", "Images load when you tap them.");
         add("dataSaverOnWifi", "Reading", "With Data saver, images still load on Wi-Fi.");
         add("disableVideoAutoplay", "Reading", "Videos play only when you tap them.");
         add("keepScreenOn", "Reading", "The screen stays on while a page is open.");
 
-        add("hideTabs", "App", "Removes the tabs picked when patching. Applies after a restart.");
-        add("startTab", "App", "Opens on the tab picked when patching. Applies after a restart.");
+        add("hideTabs", "App", "Removes the tabs set below. Applies after a restart.");
+        add("startTab", "App", "Opens on the tab set below. Applies after a restart.");
         add("hideBadges", "App", "Red dots and numbers on the tabs.");
         add("hideAskButton", "App", "The Ask button in the top bar.");
         add("openLinksInBrowser", "App", "Other websites open in your browser.");
