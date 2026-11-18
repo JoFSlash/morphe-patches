@@ -196,237 +196,25 @@ public final class PatchSettings {
     private static void show(Context context) {
         Activity activity = activity(context);
         if (activity == null) return;
-        SharedPreferences prefs = activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        SettingsPage.open(activity, activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE));
+    }
 
-        final List<String> keys;
-        final String[] names;
-        final boolean[] checked;
+    /** The switches that can be changed, key to name, in the order they first ran. */
+    static Map<String, String> switches() {
         synchronized (PATCHES) {
-            keys = new ArrayList<>(PATCHES.keySet());
-            names = new String[keys.size()];
-            checked = new boolean[keys.size()];
-            for (int i = 0; i < keys.size(); i++) {
-                names[i] = PATCHES.get(keys.get(i));
-                checked[i] = prefs.getBoolean(keys.get(i), true);
-            }
+            return new LinkedHashMap<>(PATCHES);
         }
-        if (keys.isEmpty() && TEXTS.isEmpty()) {
-            Toast.makeText(activity, "Open a page first, then long-press Home again.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity)
-                .setCustomTitle(title(activity, PageCheck.status(prefs)))
-                .setView(switches(activity, keys, names, checked))
-                .setPositiveButton("Save", (dialog, which) -> {
-                    SharedPreferences.Editor editor = prefs.edit();
-                    for (int i = 0; i < keys.size(); i++) editor.putBoolean(keys.get(i), checked[i]);
-                    editor.apply();
-                    reload();
-                    Toast.makeText(activity, "Saved. Changes to tabs, gestures and text size apply after restarting the app.",
-                            Toast.LENGTH_LONG).show();
-                })
-                .setNegativeButton("Cancel", null);
-        // Backup sits in the Filters dialog; without filters it takes this button's place.
-        if (!TEXTS.isEmpty()) builder.setNeutralButton("Filters", (dialog, which) -> showTexts(activity, prefs));
-        else builder.setNeutralButton("Backup", (dialog, which) -> showBackup(activity, prefs));
-        builder.show();
     }
 
-    /**
-     * The switches, grouped under Privacy, Feed, Reading and App, each with one line about it.
-     * Tapping a row flips its switch; [checked] holds the result until Save.
-     */
-    private static View switches(Activity activity, List<String> keys, String[] names, boolean[] checked) {
-        float density = activity.getResources().getDisplayMetrics().density;
-        int pad = (int) (24 * density);
-        LinearLayout list = new LinearLayout(activity);
-        list.setOrientation(LinearLayout.VERTICAL);
-        list.setPadding(0, 0, 0, (int) (8 * density));
-
-        // Alphabetical within each group, not in the order the patches first ran.
-        List<Integer> order = new ArrayList<>();
-        for (int i = 0; i < keys.size(); i++) order.add(i);
-        order.sort((a, b) -> String.CASE_INSENSITIVE_ORDER.compare(names[a], names[b]));
-
-        for (String category : SettingsCatalog.CATEGORIES) {
-            boolean first = true;
-            for (int i : order) {
-                String key = keys.get(i);
-                if (!category.equals(SettingsCatalog.category(key))) continue;
-                if (first) {
-                    TextView header = new TextView(activity);
-                    header.setText(category);
-                    header.setTextSize(14);
-                    header.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-                    header.setTextColor(0xFFB92B27);
-                    header.setPadding(pad, (int) (18 * density), pad, (int) (4 * density));
-                    list.addView(header);
-                    first = false;
-                }
-                list.addView(row(activity, names[i], SettingsCatalog.help(key), checked, i, pad, density));
-            }
-        }
-
-        android.widget.ScrollView scroll = new android.widget.ScrollView(activity);
-        scroll.addView(list);
-        return scroll;
-    }
-
-    private static View row(Activity activity, String name, String help, boolean[] checked, int index,
-                            int pad, float density) {
-        LinearLayout row = new LinearLayout(activity);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setGravity(android.view.Gravity.CENTER_VERTICAL);
-        row.setPadding(pad, (int) (8 * density), (int) (16 * density), (int) (8 * density));
-
-        LinearLayout texts = new LinearLayout(activity);
-        texts.setOrientation(LinearLayout.VERTICAL);
-        TextView title = new TextView(activity);
-        title.setText(name);
-        title.setTextSize(16);
-        texts.addView(title);
-        if (help != null) {
-            TextView line = new TextView(activity);
-            line.setText(help);
-            line.setTextSize(13);
-            line.setAlpha(0.7f);
-            texts.addView(line);
-        }
-        row.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-
-        android.widget.Switch toggle = new android.widget.Switch(activity);
-        toggle.setChecked(checked[index]);
-        toggle.setOnCheckedChangeListener((button, isChecked) -> checked[index] = isChecked);
-        row.addView(toggle);
-        row.setOnClickListener((v) -> toggle.toggle());
-        return row;
-    }
-
-    /** "Quora patches" with the page check's result under it. */
-    private static View title(Activity activity, String status) {
-        float density = activity.getResources().getDisplayMetrics().density;
-        int pad = (int) (24 * density);
-        LinearLayout layout = new LinearLayout(activity);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(pad, pad, pad, (int) (8 * density));
-        TextView title = new TextView(activity);
-        title.setText("Quora patches");
-        title.setTextSize(20);
-        title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-        layout.addView(title);
-        if (status != null) {
-            TextView line = new TextView(activity);
-            line.setText(status);
-            line.setTextSize(13);
-            line.setAlpha(0.75f);
-            line.setPadding(0, (int) (6 * density), 0, 0);
-            layout.addView(line);
-        }
-        return layout;
-    }
-
-    private static void showTexts(Activity activity, SharedPreferences prefs) {
-        LinearLayout layout = new LinearLayout(activity);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        int pad = (int) (20 * activity.getResources().getDisplayMetrics().density);
-        layout.setPadding(pad, pad / 2, pad, 0);
-
-        final Map<String, EditText> fields = new LinkedHashMap<>();
+    /** The filter fields: key to {name, value baked in when patching}. */
+    static Map<String, String[]> texts() {
         synchronized (TEXTS) {
-            for (Map.Entry<String, String[]> entry : TEXTS.entrySet()) {
-                TextView label = new TextView(activity);
-                label.setText(entry.getValue()[0]);
-                label.setPadding(0, pad / 2, 0, 0);
-                layout.addView(label);
-                EditText field = new EditText(activity);
-                field.setHint("Separate with commas");
-                field.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-                field.setText(prefs.getString(entry.getKey(), entry.getValue()[1]));
-                layout.addView(field);
-                fields.put(entry.getKey(), field);
-            }
+            return new LinkedHashMap<>(TEXTS);
         }
-
-        new AlertDialog.Builder(activity)
-                .setTitle("Filters")
-                .setView(layout)
-                .setPositiveButton("Save", (dialog, which) -> {
-                    SharedPreferences.Editor editor = prefs.edit();
-                    for (Map.Entry<String, EditText> f : fields.entrySet()) {
-                        editor.putString(f.getKey(), f.getValue().getText().toString().trim());
-                    }
-                    editor.apply();
-                    reload();
-                })
-                .setNegativeButton("Cancel", null)
-                .setNeutralButton("Backup", (dialog, which) -> showBackup(activity, prefs))
-                .show();
-    }
-
-    /**
-     * All switches and filters as one line of text: copy it to keep it, or paste one to restore it,
-     * for example after patching a reinstalled app. The page check's own values are left out.
-     */
-    private static void showBackup(Activity activity, SharedPreferences prefs) {
-        org.json.JSONObject json = new org.json.JSONObject();
-        try {
-            for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
-                String key = entry.getKey();
-                if (key.startsWith("check_") || key.startsWith("hint_")) continue;
-                json.put(key, entry.getValue());
-            }
-        } catch (Exception ex) {
-            Log.e(TAG, "Failed to write the backup", ex);
-        }
-        int pad = (int) (20 * activity.getResources().getDisplayMetrics().density);
-        LinearLayout layout = new LinearLayout(activity);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(pad, pad / 2, pad, 0);
-        TextView help = new TextView(activity);
-        help.setText("Copy this text to keep your settings. To restore them, paste a saved text here and tap Restore.");
-        layout.addView(help);
-        EditText field = new EditText(activity);
-        field.setText(json.toString());
-        field.setTextIsSelectable(true);
-        field.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-        layout.addView(field);
-
-        new AlertDialog.Builder(activity)
-                .setTitle("Backup")
-                .setView(layout)
-                .setPositiveButton("Restore", (dialog, which) -> {
-                    try {
-                        org.json.JSONObject saved = new org.json.JSONObject(field.getText().toString().trim());
-                        SharedPreferences.Editor editor = prefs.edit();
-                        java.util.Iterator<String> keys = saved.keys();
-                        while (keys.hasNext()) {
-                            String key = keys.next();
-                            Object value = saved.get(key);
-                            if (value instanceof Boolean) editor.putBoolean(key, (Boolean) value);
-                            else if (value instanceof String) editor.putString(key, (String) value);
-                        }
-                        editor.apply();
-                        reload();
-                        Toast.makeText(activity, "Settings restored.", Toast.LENGTH_SHORT).show();
-                    } catch (Exception ex) {
-                        Toast.makeText(activity, "That is not a saved settings text.", Toast.LENGTH_LONG).show();
-                    }
-                })
-                .setNeutralButton("Copy", (dialog, which) -> {
-                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager)
-                            activity.getSystemService(Context.CLIPBOARD_SERVICE);
-                    if (clipboard != null) {
-                        clipboard.setPrimaryClip(android.content.ClipData.newPlainText("Quora patches", json.toString()));
-                        Toast.makeText(activity, "Copied.", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton("Close", null)
-                .show();
     }
 
     /** Page patches are added when a page loads, so reloading the app's pages applies the new settings. */
-    private static void reload() {
+    static void reload() {
         List<WebView> webViews;
         synchronized (WEB_VIEWS) {
             webViews = new ArrayList<>(WEB_VIEWS.keySet());
