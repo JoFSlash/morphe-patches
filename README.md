@@ -19,17 +19,18 @@ The privacy patches are on by default. Everything else is off until you pick it.
 
 ## Changing patches later
 
-Most patches and their options (text size, tabs, font, how old is too old) can be changed in the app without patching
-again: open **Settings > Morphe > Quora patches**, or long-press the **Home** tab. The same page has a search field,
-edits the keyword and author filters, backs up your
-settings as text, and tells you when Quora has changed its pages in a way that breaks some patches.
+Most patches and their options (text size, tabs, font, how old is too old) can be changed in the app without
+patching again: open **Settings > Morphe > Quora patches**, or long-press the **Home** tab. The same page has a
+search field, edits the keyword and author filters, backs up your settings as text, and tells you when Quora has
+changed its pages in a way that breaks some patches.
 
 ## Patches
 
 <!-- PATCHES_START -->
 Version 1.7.0, 57 patches. Supported Quora versions: 3.2.42, 3.2.30.
 
-### Privacy
+<details>
+<summary><b>Privacy</b> (12)</summary>
 
 On by default. They stop data collection and change nothing you see.
 
@@ -48,7 +49,10 @@ On by default. They stop data collection and change nothing you see.
 | Remove ads | on | Hides promoted answers, sponsored posts and Google ads in the feed and on question pages, and blocks requests to ad servers. |
 | Spoof installer | on | Reports Google Play as the app installer, so Quora does not treat the patched app as installed from an unknown source. |
 
-### Feed
+</details>
+
+<details>
+<summary><b>Feed</b> (19)</summary>
 
 What the feed and question pages show.
 
@@ -74,7 +78,10 @@ What the feed and question pages show.
 | Hide suggested questions | off | Hides the questions for you to answer in the feed. |
 | Hide surveys | off | Hides Quora's surveys in the feed, such as "How satisfied are you with your home feed?". |
 
-### Reading
+</details>
+
+<details>
+<summary><b>Reading</b> (11)</summary>
 
 How answers look and load.
 
@@ -92,7 +99,10 @@ How answers look and load.
 | Save images | on | Long-press an image you opened full screen to save it to Pictures/Quora. |
 | Text size | off | Makes the text on every page larger or smaller. Options: Text size. |
 
-### App
+</details>
+
+<details>
+<summary><b>App</b> (15)</summary>
 
 The app around the pages: prompts, tabs, notifications, gestures.
 
@@ -113,6 +123,8 @@ The app around the pages: prompts, tabs, notifications, gestures.
 | Open links in browser | off | Opens links to other websites in your default browser instead of an in-app browser tab. |
 | Patch settings | on | Long-press the Home tab, or open Settings > Morphe > Quora patches, to switch the page patches on and off and edit the filters, without patching again. It also tells you when Quora changes its pages so that some patches stop working. |
 | Start tab | off | Opens the app on the tab you pick instead of Home. Options: Start tab. |
+
+</details>
 <!-- PATCHES_END -->
 
 ## Known issues
