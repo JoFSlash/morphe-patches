@@ -112,7 +112,7 @@ val answerFontPatch = readingOptionPatch(
 @Suppress("unused")
 val expandAnswersPatch = readingPatch(
     name = "Expand answers",
-    description = "Shows the whole answer preview in the feed instead of three lines.",
+    description = "Opens shortened answers on question pages, and shows the whole answer preview in the feed.",
     extensionMethod = "expandAnswers",
 )
 
