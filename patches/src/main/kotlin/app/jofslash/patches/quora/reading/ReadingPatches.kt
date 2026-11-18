@@ -98,6 +98,19 @@ val blockAuthorsPatch = readingOptionPatch(
 )
 
 @Suppress("unused")
+val hideSeenItemsPatch = readingOptionPatch(
+    name = "Hide seen items",
+    description = "Dims or hides feed items you already opened when the feed shows them again. " +
+            "The list of opened items stays on your phone.",
+    extensionMethod = "hideSeen",
+    optionKey = "seenMode",
+    optionTitle = "Seen items",
+    optionDescription = "Whether items you already opened are dimmed or hidden.",
+    optionDefault = "dim",
+    optionValues = mapOf("Dim" to "dim", "Hide" to "hide"),
+)
+
+@Suppress("unused")
 val answerFontPatch = readingOptionPatch(
     name = "Answer font",
     description = "Sets answers in a serif or a sans-serif font of your phone.",

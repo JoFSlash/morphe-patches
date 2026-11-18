@@ -4,7 +4,7 @@
 
 # Quora Patches for Morphe
 
-**48 free patches for the [Quora](https://play.google.com/store/apps/details?id=com.quora.android) Android app**, applied with [Morphe](https://morphe.software).
+**51 free patches for the [Quora](https://play.google.com/store/apps/details?id=com.quora.android) Android app**, applied with [Morphe](https://morphe.software).
 They remove the ads, stop the app from tracking you, and let you hide the parts of Quora you don't want.
 The privacy patches are on by default; the rest are yours to pick.
 
@@ -47,6 +47,8 @@ Off by default, because they change what Quora shows you.
 | **Filter keywords** · **Block authors and Spaces** | Hides answers and posts that mention your words, or come from people and Spaces you list (options). |
 | **Expand answers** | Opens shortened answers in full, no "(more)" tap. |
 | **Hide people suggestions** | Hides "People you may know" in the feed. |
+| **Hide seen items** | Dims or hides feed items you already opened when they show up again (option). |
+| **Hide comment previews** | Hides the "123 comments from … and more" row under answers. |
 | **Comfortable reading** · **Answer font** | More line spacing; answers in a serif or sans-serif font (option). |
 | **AMOLED dark mode** | Pure black background with Quora's dark theme. |
 | **Data saver** | Images load only when you tap them. |
@@ -66,6 +68,7 @@ The three prompt patches are on by default; the rest are optional.
 | **Block promotional notifications** | Drops digests and promotions; notifications about you still arrive. |
 | **Disable swipe gestures** | No pull to refresh or sideways swiping between feeds (options). |
 | **Hide Ask button** · **Keep screen on** | No Ask button; the screen stays on while you read. |
+| **Keep place on return** | Coming back to the app keeps the open answer and your place in the feed instead of reloading it. |
 | **Save images** | Long-press an image opened full screen to save it to Pictures/Quora. |
 | **Patch settings** | Long-press the **Home** tab to switch page patches on and off and edit the filters, without patching again. |
 

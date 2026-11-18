@@ -163,3 +163,38 @@ val blockBranchTrackingPatch = bytecodePatch(
         BranchDebugModeFingerprint.method.addInstructions(0, "return-void")
     }
 }
+
+// Runs when the app comes back from the background. After a while away, Quora closes open
+// answers and reloads the feed from here.
+internal object AppRefreshOnResumeFingerprint : Fingerprint(
+    definingClass = "Lcom/quora/android/components/activities/AppRefreshHelper\$Companion;",
+    name = "onResume",
+    returnType = "V",
+)
+
+@Suppress("unused")
+val keepPlaceOnReturnPatch = bytecodePatch(
+    name = "Keep place on return",
+    description = "Keeps open answers and your place in the feed when you come back to the app, " +
+            "instead of closing them and reloading the feed.",
+    default = false
+) {
+    compatibleWith(COMPATIBILITY_QUORA)
+
+    extendWith("extensions/extension.mpe")
+
+    execute {
+        registerSetting("keepPlaceOnReturn", "Keep place on return")
+        AppRefreshOnResumeFingerprint.method.addInstructionsWithLabels(
+            0,
+            """
+                invoke-static { }, $EXTENSION_CLASS->keepPlaceOnReturn()Z
+                move-result v0
+                if-eqz v0, :refresh
+                return-void
+                :refresh
+                nop
+            """
+        )
+    }
+}

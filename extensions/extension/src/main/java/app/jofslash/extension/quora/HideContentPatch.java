@@ -227,6 +227,29 @@ public final class HideContentPatch {
         evaluate(webView, COUNTS_SCRIPT, "counts");
     }
 
+    // The "823 comments from Jane Doe and more" row under an answer. It has no stable class, so it is
+    // found by its text and hidden with its wrappers. Comments still open from the comment button.
+    private static final String COMMENT_PREVIEWS_SCRIPT = "(function(){"
+            + "if(window.__jofslashComments)return;window.__jofslashComments=1;"
+            + "var re=/^[\\d.,]+\\s*[KMB]?\\s+comments?\\s+from\\s.+\\sand more$/i;"
+            + "function flat(e){return (e.textContent||'').replace(/\\s+/g,' ').trim();}"
+            + "function run(){document.querySelectorAll('div').forEach(function(d){"
+            + "if(d.hasAttribute('data-jofslash-hidden'))return;"
+            + "var t=flat(d);if(t.length>160||!re.test(t))return;"
+            + "for(var i=0;i<d.children.length;i++)if(re.test(flat(d.children[i])))return;"
+            + "var w=d;while(w.parentElement&&w.parentElement!==document.body&&flat(w.parentElement)===t)w=w.parentElement;"
+            + "w.setAttribute('data-jofslash-hidden','');w.style.setProperty('display','none','important');});}"
+            + observeScript("run")
+            + "})();";
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished.
+     */
+    public static void hideCommentPreviews(WebView webView) {
+        if (!PatchSettings.active(webView, "hideCommentPreviews", "Hide comment previews")) return;
+        evaluate(webView, COMMENT_PREVIEWS_SCRIPT, "comment previews");
+    }
+
     /**
      * A Quora+ answer shows the start of the text cut off, with a "continue reading" overlay
      * next to it. Requiring both keeps answers with other overlays, such as videos, visible.
