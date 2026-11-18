@@ -97,3 +97,10 @@ val enableTextSelectionPatch = pageScriptPatch(
     description = "Lets you select and copy text on every page.",
     extensionMethod = "enableTextSelection",
 )
+
+@Suppress("unused")
+val hideCommentPreviewsPatch = pageScriptPatch(
+    name = "Hide comment previews",
+    description = "Hides the \"123 comments from … and more\" row under answers. Comments still open from the comment button.",
+    extensionMethod = "hideCommentPreviews",
+)
