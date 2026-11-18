@@ -1,3 +1,9 @@
+## [1.3.3](https://github.com/JoFSlash/quora-patches/compare/v1.3.2...v1.3.3) (2026-11-18)
+
+### 🐛 Bug Fixes
+
+* Show profile photos with Data saver, hide leftover counts and dots ([76751b1](https://github.com/JoFSlash/quora-patches/commit/76751b11e09c5b4dc15d1f02c064433705eb802b))
+
 ## [1.3.2](https://github.com/JoFSlash/quora-patches/compare/v1.3.1...v1.3.2) (2026-11-18)
 
 ### 🐛 Bug Fixes
