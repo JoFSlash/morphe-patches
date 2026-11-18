@@ -118,6 +118,19 @@ val hideSeenItemsPatch = readingOptionPatch(
 )
 
 @Suppress("unused")
+val hideOldAnswersPatch = readingOptionPatch(
+    name = "Hide old answers",
+    patchCategory = "Feed",
+    description = "Hides answers and posts older than the number of years you pick, in the feed and on question pages.",
+    extensionMethod = "hideOldAnswers",
+    optionKey = "maxAge",
+    optionTitle = "Older than",
+    optionDescription = "Answers and posts at least this many years old are hidden.",
+    optionDefault = "3",
+    optionValues = mapOf("1 year" to "1", "2 years" to "2", "3 years" to "3", "5 years" to "5", "10 years" to "10"),
+)
+
+@Suppress("unused")
 val answerFontPatch = readingOptionPatch(
     name = "Answer font",
     patchCategory = "Reading",
