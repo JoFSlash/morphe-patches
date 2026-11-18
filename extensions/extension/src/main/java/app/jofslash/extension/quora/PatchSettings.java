@@ -217,7 +217,7 @@ public final class PatchSettings {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity)
                 .setCustomTitle(title(activity, PageCheck.status(prefs)))
-                .setMultiChoiceItems(names, checked, (dialog, which, isChecked) -> checked[which] = isChecked)
+                .setView(switches(activity, keys, names, checked))
                 .setPositiveButton("Save", (dialog, which) -> {
                     SharedPreferences.Editor editor = prefs.edit();
                     for (int i = 0; i < keys.size(); i++) editor.putBoolean(keys.get(i), checked[i]);
@@ -231,6 +231,76 @@ public final class PatchSettings {
         if (!TEXTS.isEmpty()) builder.setNeutralButton("Filters", (dialog, which) -> showTexts(activity, prefs));
         else builder.setNeutralButton("Backup", (dialog, which) -> showBackup(activity, prefs));
         builder.show();
+    }
+
+    /**
+     * The switches, grouped under Privacy, Feed, Reading and App, each with one line about it.
+     * Tapping a row flips its switch; [checked] holds the result until Save.
+     */
+    private static View switches(Activity activity, List<String> keys, String[] names, boolean[] checked) {
+        float density = activity.getResources().getDisplayMetrics().density;
+        int pad = (int) (24 * density);
+        LinearLayout list = new LinearLayout(activity);
+        list.setOrientation(LinearLayout.VERTICAL);
+        list.setPadding(0, 0, 0, (int) (8 * density));
+
+        // Alphabetical within each group, not in the order the patches first ran.
+        List<Integer> order = new ArrayList<>();
+        for (int i = 0; i < keys.size(); i++) order.add(i);
+        order.sort((a, b) -> String.CASE_INSENSITIVE_ORDER.compare(names[a], names[b]));
+
+        for (String category : SettingsCatalog.CATEGORIES) {
+            boolean first = true;
+            for (int i : order) {
+                String key = keys.get(i);
+                if (!category.equals(SettingsCatalog.category(key))) continue;
+                if (first) {
+                    TextView header = new TextView(activity);
+                    header.setText(category);
+                    header.setTextSize(14);
+                    header.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+                    header.setTextColor(0xFFB92B27);
+                    header.setPadding(pad, (int) (18 * density), pad, (int) (4 * density));
+                    list.addView(header);
+                    first = false;
+                }
+                list.addView(row(activity, names[i], SettingsCatalog.help(key), checked, i, pad, density));
+            }
+        }
+
+        android.widget.ScrollView scroll = new android.widget.ScrollView(activity);
+        scroll.addView(list);
+        return scroll;
+    }
+
+    private static View row(Activity activity, String name, String help, boolean[] checked, int index,
+                            int pad, float density) {
+        LinearLayout row = new LinearLayout(activity);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        row.setPadding(pad, (int) (8 * density), (int) (16 * density), (int) (8 * density));
+
+        LinearLayout texts = new LinearLayout(activity);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        TextView title = new TextView(activity);
+        title.setText(name);
+        title.setTextSize(16);
+        texts.addView(title);
+        if (help != null) {
+            TextView line = new TextView(activity);
+            line.setText(help);
+            line.setTextSize(13);
+            line.setAlpha(0.7f);
+            texts.addView(line);
+        }
+        row.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        android.widget.Switch toggle = new android.widget.Switch(activity);
+        toggle.setChecked(checked[index]);
+        toggle.setOnCheckedChangeListener((button, isChecked) -> checked[index] = isChecked);
+        row.addView(toggle);
+        row.setOnClickListener((v) -> toggle.toggle());
+        return row;
     }
 
     /** "Quora patches" with the page check's result under it. */
