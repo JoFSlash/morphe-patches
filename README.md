@@ -43,7 +43,7 @@ changed its pages in a way that breaks some patches.
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.7.0, 57 patches. Supported Quora versions: 3.2.42, 3.2.30.
+Version 1.7.1, 57 patches. Supported Quora versions: 3.2.42, 3.2.30.
 
 <details>
 <summary><b>Privacy</b> (12)</summary>

@@ -1,3 +1,12 @@
+## [1.7.1](https://github.com/JoFSlash/quora-patches/compare/v1.7.0...v1.7.1) (2026-11-18)
+
+### Documentation
+
+* Badges, supported versions up top, direct APKMirror links, FAQ ([08fdfff](https://github.com/JoFSlash/quora-patches/commit/08fdfff80eec35d25b0a029401f835ad65c921c4))
+* Fold the patch list by category and fix a broken paragraph ([4d4728d](https://github.com/JoFSlash/quora-patches/commit/4d4728d93a711c84e8d11d44325d6bdf2c00d65f))
+* **Needs release:** Point the changelog links at the current commits ([57ed9fc](https://github.com/JoFSlash/quora-patches/commit/57ed9fc66dae3e0c1ab797e1ce3807cb903e42d0))
+* Say where to get Quora, how to update, and that you sign in again ([9d4c589](https://github.com/JoFSlash/quora-patches/commit/9d4c5894649e556b74cc86047f3a54f7ecbd28a9))
+
 ## [1.7.0](https://github.com/JoFSlash/quora-patches/compare/v1.6.0...v1.7.0) (2026-11-18)
 
 ### New features
