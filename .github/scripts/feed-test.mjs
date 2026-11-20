@@ -87,13 +87,118 @@ const clickText = (labels) => `(function(){var want=${JSON.stringify(labels)};${
   + 'return want.indexOf((e.innerText||"").trim())>=0&&vis(e)&&e.getClientRects().length;});'
   + 'if(!b)return false;b.click();return true;})()';
 
+/** Sends one DevTools command to a page. */
+function command(page, method, params = {}, timeout = 20000) {
+  return new Promise((resolve) => {
+    const ws = new WebSocket(page.webSocketDebuggerUrl);
+    const timer = setTimeout(() => { try { ws.close(); } catch {} resolve(undefined); }, timeout);
+    ws.onerror = () => { clearTimeout(timer); resolve(undefined); };
+    ws.onopen = () => ws.send(JSON.stringify({ id: 1, method, params }));
+    ws.onmessage = (m) => {
+      const d = JSON.parse(m.data);
+      if (d.id !== 1) return;
+      clearTimeout(timer);
+      try { ws.close(); } catch {}
+      resolve(d.result);
+    };
+  });
+}
+
+// The cookies that hold a Quora session; the rest the app sets itself.
+const SESSION_COOKIES = ['m-b', 'm-b_lax', 'm-b_strict', 'm-s', 'm-lat', 'm-uid', 'm-login'];
+const HTTP_ONLY = ['m-b', 'm-b_lax', 'm-b_strict', 'm-s', 'm-lat'];
+
+/**
+ * Signs in with a saved session ("m-b=…; m-s=…" as a browser sends them) instead of the password:
+ * puts the cookies into the app's WebView and reloads the feed. Returns 'signed-in' or why not.
+ */
+async function useSession(cookieText) {
+  const cookies = cookieText.split(';').map((c) => c.trim()).filter(Boolean).map((c) => {
+    const i = c.indexOf('=');
+    return { name: c.slice(0, i).trim(), value: c.slice(i + 1).trim() };
+  }).filter((c) => SESSION_COOKIES.includes(c.name) && c.value);
+  if (!cookies.some((c) => c.name === 'm-b')) return 'session-without-m-b';
+  const page = (await pages()).find((p) => p.url.startsWith('https://www.quora.com/'));
+  if (!page) return 'no-page-for-session';
+  const expires = Math.floor(Date.now() / 1000) + 30 * 24 * 3600;
+  for (const c of cookies) {
+    const set = await command(page, 'Network.setCookie', {
+      name: c.name, value: c.value, domain: '.quora.com', path: '/', secure: true,
+      httpOnly: HTTP_ONLY.includes(c.name), expires,
+    });
+    if (!set || set.success === false) return `cookie-not-set:${c.name}`;
+  }
+  await command(page, 'Page.navigate', { url: 'https://www.quora.com/' });
+  if (!(await waitFor(feedCount, 60))) return 'session-not-accepted';
+  // The app itself still shows its signed-out screen over that page. Opening its start screen
+  // again, in a new task, makes it look at the cookies again and show the feed. The process keeps
+  // running, so the cookies don't have to be on disk yet (the WebView writes them only now and then).
+  const launcher = adb('shell', 'cmd', 'package', 'resolve-activity', '--brief', '-c',
+    'android.intent.category.LAUNCHER', PACKAGE).split('\n').pop().trim();
+  if (!launcher.includes('/')) return 'no-launcher-activity';
+  adb('shell', 'am', 'start', '-n', launcher, '-f', '0x10008000');
+  let connected = false;
+  for (let i = 0; i < 20 && !connected; i++) {
+    await sleep(3000);
+    connected = (await connect()) && (await pages()).length > 0;
+  }
+  if (!connected) return 'app-not-back';
+  if (!(await waitFor(feedCount, 60))) return 'session-lost-on-restart';
+  // In the EU the cookie dialog shows again over the feed after the restart.
+  await waitFor(clickText(['Reject All']), 8);
+  return 'signed-in';
+}
+
+/** Taps the visible button with this text with adb, at its place on the screen. */
+async function tapText(label) {
+  for (const page of await pages()) {
+    const spot = await evaluate(page, `(function(){
+      var b=[].slice.call(document.querySelectorAll('button,[role=button],a')).find(function(e){
+        return (e.innerText||'').trim()===${JSON.stringify(label)}&&e.getClientRects().length;});
+      if(!b)return null;b.scrollIntoView({block:'center'});var r=b.getBoundingClientRect();
+      return {x:r.left+r.width/2,y:r.top+r.height/2,dpr:window.devicePixelRatio};})()`);
+    const view = spot && webViewBounds();
+    if (!spot || !view) continue;
+    adb('shell', 'input', 'tap', String(Math.round(view.l + spot.x * spot.dpr)), String(Math.round(view.t + spot.y * spot.dpr)));
+    return true;
+  }
+  return false;
+}
+
+/** What the pages show, for a failed sign-in: addresses, buttons and field types, never values. */
+async function describePages() {
+  try {
+    const all = await (await fetch(`http://localhost:${PORT}/json`)).json();
+    console.log(`  all pages: ${JSON.stringify(all.map((p) => `${p.type} ${p.url.split('?')[0]}`))}`);
+  } catch {
+    console.log('  all pages: DevTools not reachable');
+  }
+  for (const page of await pages()) {
+    const info = await evaluate(page, `(function(){
+      function vis(e){return e.getClientRects().length>0;}
+      return {url:location.href.split('?')[0],title:document.title,
+        buttons:[].slice.call(document.querySelectorAll('button,[role=button],a')).filter(vis)
+          .map(function(e){return (e.innerText||'').trim().replace(/\\s+/g,' ').slice(0,40);}).filter(Boolean).slice(0,20),
+        fields:[].slice.call(document.querySelectorAll('input')).filter(vis)
+          .map(function(i){return i.type+(i.id?'#'+i.id:'')+(i.name?'['+i.name+']':'')+(i.value?' (filled)':' (empty)');}),
+        // The page's own messages, such as a sign-in error; lines with an address are left out.
+        text:((document.body&&document.body.innerText)||'').split('\\n').map(function(l){return l.trim();})
+          .filter(function(l){return l&&l.indexOf('@')<0;}).slice(0,25)};})()`, 8000);
+    console.log(`  page: ${JSON.stringify(info)}`);
+  }
+}
+
 async function signIn(email, password) {
   // The cookie dialog shows in the EU only.
   await waitFor(clickText(['Reject All']), 10);
   if (await waitFor(feedCount, 5)) return 'signed-in';
   const hasForm = "!!document.querySelector('input#email')&&!!document.querySelector('input#password')";
   // The start page's Login button opens the form; "Log in" would send it, so only Login is tapped.
-  if (!(await waitFor(hasForm, 3)) && !(await waitFor(clickText(['Login']), 60))) return 'no-login-button';
+  if (!(await waitFor(hasForm, 3))) {
+    if (!(await waitFor(clickText(['Login']), 60))) return 'no-login-button';
+    // Some WebViews only open the form on a real tap, so tap the button when the click did nothing.
+    if (!(await waitFor(hasForm, 10)) && !(await tapText('Login'))) return 'no-login-button';
+  }
   const form = await waitFor(hasForm, 30);
   if (!form) return 'no-form';
   const fill = `(function(){var set=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;
@@ -105,18 +210,26 @@ async function signIn(email, password) {
   if (process.env.DRY_RUN === '1') return 'dry-run';
   await sleep(1000);
   if (!(await evaluate(form.page, clickText(['Log in'])))) return 'no-submit';
+  // As with Login: tap the button when the click did nothing and the form is still there.
+  if (!(await waitFor(feedCount, 12)) && (await waitFor(hasForm, 2))) await tapText('Log in');
   if (await waitFor(feedCount, 90)) return 'signed-in';
   // Say why, without printing the page (it may show the address). Only clear signs of a captcha or
   // a code count as "Quora wants more"; anything else fails the test, so it can't pass by skipping.
-  const why = await evaluate(form.page, '(function(){var t=(document.body&&document.body.innerText||"").toLowerCase();'
-    + "if(document.querySelector('iframe[src*=\"recaptcha\"],iframe[src*=\"hcaptcha\"],iframe[src*=\"captcha\"]')"
-    + "||/i'm not a robot|complete the captcha/.test(t))return 'captcha';"
-    + "if(document.querySelector('input[autocomplete=\"one-time-code\"],input[name*=\"code\" i]')"
-    + "||/verification code|enter the code|we (just )?sent (you )?(a|an|the) (code|email|link)|confirm (it's|it is) you/.test(t))"
-    + "return 'verification';"
-    + "if(/incorrect password|wrong password|no account|isn't associated|not associated/.test(t))return 'rejected';"
-    + "return 'unknown';})()");
-  return `not-signed-in:${why || 'page gone'}`;
+  // Quora can ask in another page than the form (its "Help Us Protect Your Account" code dialog).
+  const reasons = [];
+  for (const page of await pages()) {
+    reasons.push(await evaluate(page, '(function(){var t=(document.body&&document.body.innerText||"").toLowerCase();'
+      + "if(document.querySelector('iframe[src*=\"recaptcha\"],iframe[src*=\"hcaptcha\"],iframe[src*=\"captcha\"]')"
+      + "||/i'm not a robot|complete the captcha/.test(t))return 'captcha';"
+      + "if(document.querySelector('input[autocomplete=\"one-time-code\"],input[name*=\"code\" i]')"
+      + "||/help us protect your account|resend code|verification code|enter the code|we (just )?sent (you )?(a|an|the) (code|email|link)|confirm (it's|it is) you/.test(t))"
+      + "return 'verification';"
+      + "if(/please confirm your email address/.test(t))return 'email-not-confirmed';"
+      + "if(/incorrect password|wrong password|no account|isn't associated|not associated/.test(t))return 'rejected';"
+      + "return null;})()", 8000));
+  }
+  const why = ['captcha', 'verification', 'email-not-confirmed', 'rejected'].find((r) => reasons.includes(r));
+  return `not-signed-in:${why || 'unknown'}`;
 }
 
 const FEED_CHECKS = `(async function(){${VISIBLE}
@@ -139,11 +252,12 @@ const FEED_CHECKS = `(async function(){${VISIBLE}
     J.toggleBookmark(url,'Feed test','');out.bookmarkStore=!before&&saved&&!J.isBookmarked(url);}
   return out;})()`;
 
-// Where to tap to open the first answer in the feed: its question title, in page pixels.
-const TITLE_SPOT = `(async function(){${VISIBLE}
-  var t=[].slice.call(document.querySelectorAll('[class*="dom_annotate_multifeed_bundle_AnswersBundle"] .puppeteer_test_question_title')).find(vis);
+// Where to tap to open the first answer in the feed, in page pixels: a part of it such as its title.
+const spotScript = (part) => `(async function(){${VISIBLE}
+  var t=[].slice.call(document.querySelectorAll('[class*="dom_annotate_multifeed_bundle_AnswersBundle"] ${part}')).find(vis);
   if(!t)return null;t.scrollIntoView({block:'center'});await new Promise(function(r){setTimeout(r,1500);});
-  var r=t.getBoundingClientRect();return {x:r.left+Math.min(r.width/2,100),y:r.top+r.height/2,dpr:window.devicePixelRatio};})()`;
+  var r=t.getBoundingClientRect();if(r.width<10||r.height<5||r.top<0||r.bottom>window.innerHeight)return null;
+  return {x:r.left+Math.min(r.width/2,100),y:r.top+r.height/2,dpr:window.devicePixelRatio};})()`;
 
 const IS_ANSWER = "/AnswerModal|\\/answer\\//.test(location.href)&&document.readyState==='complete'";
 
@@ -180,8 +294,9 @@ function webViewBounds() {
 async function main() {
   const email = process.env.QUORA_TEST_EMAIL;
   const password = process.env.QUORA_TEST_PASSWORD;
-  if (!email || !password) {
-    notice('QUORA_TEST_EMAIL and QUORA_TEST_PASSWORD aren\'t set, so the feed test is skipped.');
+  const session = process.env.QUORA_TEST_COOKIES;
+  if (!session && (!email || !password)) {
+    notice('QUORA_TEST_COOKIES, or QUORA_TEST_EMAIL and QUORA_TEST_PASSWORD, aren\'t set, so the feed test is skipped.');
     return 0;
   }
   let connected = false;
@@ -194,21 +309,47 @@ async function main() {
     return 2;
   }
 
-  const state = await signIn(email, password);
+  // A saved session skips the sign-in, where Quora asks a new device for a code sent by email.
+  let state = session ? await useSession(session) : 'no-session';
+  if (session) console.log(`Saved session: ${state}`);
+  if (state !== 'signed-in' && email && password) state = await signIn(email, password);
+  else if (state !== 'signed-in') state = `not-signed-in:${state}`;
   console.log(`Sign-in: ${state}`);
   if (state === 'dry-run') return 0;
   if (state.startsWith('not-signed-in:captcha') || state.startsWith('not-signed-in:verification')) {
     warning(`Quora asked for more than a password (${state.split(':')[1]}), so the feed test is skipped. `
-      + 'Sign in to the test account once by hand to clear it.');
+      + 'A new emulator is a new device to Quora: save a signed-in session in the QUORA_TEST_COOKIES secret '
+      + '(see CONTRIBUTING.md) so the test doesn\'t sign in at all.');
     return 0;
   }
+  if (state === 'not-signed-in:email-not-confirmed') {
+    console.log('::error title=Feed test::Quora says the test account\'s email address isn\'t confirmed. '
+      + 'Open the confirmation email Quora sent to it (or sign in once by hand and tap Resend Confirmation Link), then run this again.');
+    return 2;
+  }
   if (state !== 'signed-in') {
+    await describePages();
     console.log(`::error title=Feed test::Couldn't sign in (${state}). A changed sign-in page, `
       + 'a wrong password in the secrets, or a locked test account.');
     return 2;
   }
 
-  const feed = await waitFor(feedCount, 30);
+  // The feed on the screen: a page left from the signed-out screen can still be there, hidden.
+  // When none says it is on the screen, check any feed page; the answer taps then can't work.
+  let feed = await waitFor(`${feedCount}&&document.visibilityState==='visible'&&window.innerWidth>0`, 20);
+  if (!feed) {
+    feed = await waitFor(feedCount, 30);
+    if (feed) {
+      for (const page of await pages()) {
+        console.log(`  page ${page.url.split('?')[0]}: ${JSON.stringify(await evaluate(page,
+          '({visibility:document.visibilityState,width:window.innerWidth,height:window.innerHeight})', 8000))}`);
+      }
+      adb('shell', 'uiautomator', 'dump', '/sdcard/window.xml');
+      const screen = adb('shell', 'cat', '/sdcard/window.xml');
+      const texts = [...screen.matchAll(/(?:text|content-desc)="([^"]+)"/g)].map((m) => m[1]).filter((t) => t.trim());
+      console.log(`  on screen: ${texts.slice(0, 25).join(' | ') || 'no text'}`);
+    }
+  }
   const result = feed ? await evaluate(feed.page, FEED_CHECKS, 60000) : null;
   if (!result) {
     console.error('The feed didn\'t load after signing in.');
@@ -228,25 +369,36 @@ async function main() {
   expect(result.promotedVisible === 0, 'A promoted item still shows (Remove ads).');
   expect(result.bookmarkStore === true, 'Saving and removing a bookmark through the bridge didn\'t work.');
 
-  // Quora opens answers only on a real tap, so tap the first question title on the screen.
-  const spot = await evaluate(feed.page, TITLE_SPOT);
-  const view = spot && webViewBounds();
-  if (spot && view) {
+  // Quora opens answers only on a real tap: tap the first answer's question title, then its text.
+  let opened = null;
+  const tried = [];
+  for (const target of ['.puppeteer_test_question_title', '.puppeteer_test_answer_content']) {
+    const spot = await evaluate(feed.page, spotScript(target));
+    const view = spot && webViewBounds();
+    if (!spot || !view) {
+      tried.push(`${target}: not on screen`);
+      continue;
+    }
     const x = Math.round(view.l + spot.x * spot.dpr);
     const y = Math.round(view.t + spot.y * spot.dpr);
     adb('shell', 'input', 'tap', String(x), String(y));
-    const answer = await waitFor(IS_ANSWER, 45);
-    if (answer) {
-      const checks = await evaluate(answer.page, ANSWER_CHECKS);
-      console.log('Answer page:', JSON.stringify(checks));
-      expect(checks && checks.bookmarkButton > 0, 'No bookmark button on the answer page (Bookmarks).');
-      expect(checks && checks.copyButtons > 0, 'No Copy button on the answer page.');
-    } else {
-      notice('The answer didn\'t open from the feed, so its checks are skipped.');
-    }
+    opened = await waitFor(IS_ANSWER, 30);
+    if (opened) break;
+    const now = (await pages()).map((p) => p.url.split('?')[0]);
+    tried.push(`${target}: tapped ${x},${y} in a WebView at ${view.l},${view.t}; pages then: ${JSON.stringify(now)}`);
+    // Back to the feed before the next try, if the tap opened something else.
+    if (!(await waitFor(feedCount, 3))) adb('shell', 'input', 'keyevent', 'BACK');
+    await sleep(2000);
+  }
+  if (opened) {
+    const checks = await evaluate(opened.page, ANSWER_CHECKS);
+    console.log('Answer page:', JSON.stringify(checks));
+    expect(checks && checks.bookmarkButton > 0, 'No bookmark button on the answer page (Bookmarks).');
+    expect(checks && checks.copyButtons > 0, 'No Copy button on the answer page.');
     adb('shell', 'input', 'keyevent', 'BACK');
   } else {
-    notice('No answer to open in the feed, so the answer page checks are skipped.');
+    for (const line of tried) console.log(`  ${line}`);
+    notice('The answer didn\'t open from the feed, so its checks are skipped.');
   }
 
   if (failures.length) {

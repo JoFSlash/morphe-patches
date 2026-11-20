@@ -203,5 +203,51 @@ expect('blockAuthors-0.js', `
   ['#hers', true], ['#upvoted', false],
 ]);
 
-console.log(`${checks} DOM checks, ${failures} failure(s)`);
-process.exit(failures ? 1 : 0);
+// Bookmarks in an open answer: the button is added next to Share, and added again when Quora
+// redraws the action bar and drops it.
+async function bookmarkCheck() {
+  const props = encodeURIComponent(JSON.stringify({ aid: 7 }));
+  const dom = new JSDOM(`<!doctype html><html><body>
+    <div class="q-text puppeteer_test_question_title">Why is the sky blue?</div>
+    <a class="puppeteer_test_link" href="https://www.quora.com/profile/Jane-Doe">Jane Doe</a>
+    <div class="puppeteer_test_answer_content"><p class="q-text">Because of the air.</p></div>
+    <div id="bar"><div class="q-box"><div class="q-box dom_annotate_answer_action_bar_share">
+      <button aria-label="Share"><svg><path d="M0 0"></path></svg></button></div></div></div>
+    </body></html>`, {
+    url: `https://www.quora.com/ans_frontend?rootCls=AnswerModalPage&props=${props}`,
+    runScripts: 'outside-only', pretendToBeVisual: true,
+  });
+  const w = dom.window;
+  w.__RELAY_RECORDS__ = { r1: { aid: 7, permaUrl: 'https://www.quora.com/Why-is-the-sky-blue/answer/Jane-Doe' } };
+  Object.defineProperty(w.HTMLElement.prototype, 'innerText', {
+    get() { return this.textContent.replace(/\s+/g, ' ').trim(); },
+  });
+  const saved = new Set();
+  w.JoFSlashBridge = {
+    isBookmarked: (key, url) => saved.has(url),
+    toggleBookmark: (key, url) => { if (saved.has(url)) saved.delete(url); else saved.add(url); return saved.has(url); },
+  };
+  w.eval(fs.readFileSync(path.join(dir, 'bookmarks-0.js'), 'utf8'));
+  const button = () => w.document.querySelector('[aria-label="Bookmark"],[aria-label="Remove bookmark"]');
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  await wait(200);
+  checks++;
+  if (!button()) fail('bookmarks-0.js: no bookmark button next to Share');
+  if (button()) {
+    button().click();
+    checks++;
+    if (!saved.has('https://www.quora.com/Why-is-the-sky-blue/answer/Jane-Doe')) fail('bookmarks-0.js: tapping the button saved nothing');
+    // Quora redraws the bar: our button is gone.
+    w.document.querySelector('[data-jofslash-bookmark]').remove();
+    await wait(800);
+    checks++;
+    if (!button()) fail('bookmarks-0.js: the button doesn\'t come back after the bar is redrawn');
+    else if (button().getAttribute('aria-pressed') !== 'true') fail('bookmarks-0.js: the button that came back doesn\'t show the saved state');
+  }
+  w.close();
+}
+
+bookmarkCheck().then(() => {
+  console.log(`${checks} DOM checks, ${failures} failure(s)`);
+  process.exit(failures ? 1 : 0);
+});

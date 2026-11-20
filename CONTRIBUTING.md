@@ -68,9 +68,15 @@ page no longer has the class names some patches rely on, it names those patches.
 - `emulator.yml` patches the newest supported version on every pull request, installs it on an
   emulator and checks that it starts and loads the sign-in page.
 - `feed-test.yml` signs in with a test account every Monday before the release and checks the page
-  patches on the real feed and on an answer (`.github/scripts/feed-test.mjs`). It needs the
-  `QUORA_TEST_EMAIL` and `QUORA_TEST_PASSWORD` secrets. It skips itself with a warning when Quora
-  clearly asks for a captcha or a code, and fails on any other failed sign-in.
+  patches on the real feed and on an answer (`.github/scripts/feed-test.mjs`). Quora asks every new
+  device for a code sent by email, and each run is a new emulator, so the test uses a saved session
+  from the `QUORA_TEST_COOKIES` secret and only falls back to `QUORA_TEST_EMAIL` and
+  `QUORA_TEST_PASSWORD`. It skips itself with a warning when Quora clearly asks for a captcha or a
+  code, and fails on any other failed sign-in. To save a session: install a test build with WebView
+  debugging as a clone, sign in to the test account there (never your own), then
+  `adb forward tcp:9222 localabstract:webview_devtools_remote_$(adb shell pidof <package>)` and
+  `node .github/scripts/export-quora-session.mjs | gh secret set QUORA_TEST_COOKIES`. The session
+  lasts about a year, or until that app signs out.
 - `.github/scripts/check_texts.py` fails when a settings language misses a text the app shows.
   Add a new text to every `Texts<Lang>.java`; the Build workflow runs the check.
 
