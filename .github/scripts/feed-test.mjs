@@ -87,6 +87,52 @@ const clickText = (labels) => `(function(){var want=${JSON.stringify(labels)};${
   + 'return want.indexOf((e.innerText||"").trim())>=0&&vis(e)&&e.getClientRects().length;});'
   + 'if(!b)return false;b.click();return true;})()';
 
+/** Sends one DevTools command to a page. */
+function command(page, method, params = {}, timeout = 20000) {
+  return new Promise((resolve) => {
+    const ws = new WebSocket(page.webSocketDebuggerUrl);
+    const timer = setTimeout(() => { try { ws.close(); } catch {} resolve(undefined); }, timeout);
+    ws.onerror = () => { clearTimeout(timer); resolve(undefined); };
+    ws.onopen = () => ws.send(JSON.stringify({ id: 1, method, params }));
+    ws.onmessage = (m) => {
+      const d = JSON.parse(m.data);
+      if (d.id !== 1) return;
+      clearTimeout(timer);
+      try { ws.close(); } catch {}
+      resolve(d.result);
+    };
+  });
+}
+
+// The cookies that hold a Quora session; the rest the app sets itself.
+const SESSION_COOKIES = ['m-b', 'm-b_lax', 'm-b_strict', 'm-s', 'm-lat', 'm-uid', 'm-login'];
+const HTTP_ONLY = ['m-b', 'm-b_lax', 'm-b_strict', 'm-s', 'm-lat'];
+
+/**
+ * Signs in with a saved session ("m-b=…; m-s=…" as a browser sends them) instead of the password:
+ * puts the cookies into the app's WebView and reloads the feed. Returns 'signed-in' or why not.
+ */
+async function useSession(cookieText) {
+  const cookies = cookieText.split(';').map((c) => c.trim()).filter(Boolean).map((c) => {
+    const i = c.indexOf('=');
+    return { name: c.slice(0, i).trim(), value: c.slice(i + 1).trim() };
+  }).filter((c) => SESSION_COOKIES.includes(c.name) && c.value);
+  if (!cookies.some((c) => c.name === 'm-b')) return 'session-without-m-b';
+  const page = (await pages()).find((p) => p.url.startsWith('https://www.quora.com/'));
+  if (!page) return 'no-page-for-session';
+  const expires = Math.floor(Date.now() / 1000) + 30 * 24 * 3600;
+  for (const c of cookies) {
+    const set = await command(page, 'Network.setCookie', {
+      name: c.name, value: c.value, domain: '.quora.com', path: '/', secure: true,
+      httpOnly: HTTP_ONLY.includes(c.name), expires,
+    });
+    if (!set || set.success === false) return `cookie-not-set:${c.name}`;
+  }
+  await command(page, 'Page.navigate', { url: 'https://www.quora.com/' });
+  if (await waitFor(feedCount, 60)) return 'signed-in';
+  return 'session-not-accepted';
+}
+
 /** Taps the visible button with this text with adb, at its place on the screen. */
 async function tapText(label) {
   for (const page of await pages()) {
@@ -153,16 +199,21 @@ async function signIn(email, password) {
   if (await waitFor(feedCount, 90)) return 'signed-in';
   // Say why, without printing the page (it may show the address). Only clear signs of a captcha or
   // a code count as "Quora wants more"; anything else fails the test, so it can't pass by skipping.
-  const why = await evaluate(form.page, '(function(){var t=(document.body&&document.body.innerText||"").toLowerCase();'
-    + "if(document.querySelector('iframe[src*=\"recaptcha\"],iframe[src*=\"hcaptcha\"],iframe[src*=\"captcha\"]')"
-    + "||/i'm not a robot|complete the captcha/.test(t))return 'captcha';"
-    + "if(document.querySelector('input[autocomplete=\"one-time-code\"],input[name*=\"code\" i]')"
-    + "||/verification code|enter the code|we (just )?sent (you )?(a|an|the) (code|email|link)|confirm (it's|it is) you/.test(t))"
-    + "return 'verification';"
-    + "if(/please confirm your email address/.test(t))return 'email-not-confirmed';"
-    + "if(/incorrect password|wrong password|no account|isn't associated|not associated/.test(t))return 'rejected';"
-    + "return 'unknown';})()");
-  return `not-signed-in:${why || 'page gone'}`;
+  // Quora can ask in another page than the form (its "Help Us Protect Your Account" code dialog).
+  const reasons = [];
+  for (const page of await pages()) {
+    reasons.push(await evaluate(page, '(function(){var t=(document.body&&document.body.innerText||"").toLowerCase();'
+      + "if(document.querySelector('iframe[src*=\"recaptcha\"],iframe[src*=\"hcaptcha\"],iframe[src*=\"captcha\"]')"
+      + "||/i'm not a robot|complete the captcha/.test(t))return 'captcha';"
+      + "if(document.querySelector('input[autocomplete=\"one-time-code\"],input[name*=\"code\" i]')"
+      + "||/help us protect your account|resend code|verification code|enter the code|we (just )?sent (you )?(a|an|the) (code|email|link)|confirm (it's|it is) you/.test(t))"
+      + "return 'verification';"
+      + "if(/please confirm your email address/.test(t))return 'email-not-confirmed';"
+      + "if(/incorrect password|wrong password|no account|isn't associated|not associated/.test(t))return 'rejected';"
+      + "return null;})()", 8000));
+  }
+  const why = ['captcha', 'verification', 'email-not-confirmed', 'rejected'].find((r) => reasons.includes(r));
+  return `not-signed-in:${why || 'unknown'}`;
 }
 
 const FEED_CHECKS = `(async function(){${VISIBLE}
@@ -226,8 +277,9 @@ function webViewBounds() {
 async function main() {
   const email = process.env.QUORA_TEST_EMAIL;
   const password = process.env.QUORA_TEST_PASSWORD;
-  if (!email || !password) {
-    notice('QUORA_TEST_EMAIL and QUORA_TEST_PASSWORD aren\'t set, so the feed test is skipped.');
+  const session = process.env.QUORA_TEST_COOKIES;
+  if (!session && (!email || !password)) {
+    notice('QUORA_TEST_COOKIES, or QUORA_TEST_EMAIL and QUORA_TEST_PASSWORD, aren\'t set, so the feed test is skipped.');
     return 0;
   }
   let connected = false;
@@ -240,12 +292,17 @@ async function main() {
     return 2;
   }
 
-  const state = await signIn(email, password);
+  // A saved session skips the sign-in, where Quora asks a new device for a code sent by email.
+  let state = session ? await useSession(session) : 'no-session';
+  if (session) console.log(`Saved session: ${state}`);
+  if (state !== 'signed-in' && email && password) state = await signIn(email, password);
+  else if (state !== 'signed-in') state = `not-signed-in:${state}`;
   console.log(`Sign-in: ${state}`);
   if (state === 'dry-run') return 0;
   if (state.startsWith('not-signed-in:captcha') || state.startsWith('not-signed-in:verification')) {
     warning(`Quora asked for more than a password (${state.split(':')[1]}), so the feed test is skipped. `
-      + 'Sign in to the test account once by hand to clear it.');
+      + 'A new emulator is a new device to Quora: save a signed-in session in the QUORA_TEST_COOKIES secret '
+      + '(see CONTRIBUTING.md) so the test doesn\'t sign in at all.');
     return 0;
   }
   if (state === 'not-signed-in:email-not-confirmed') {
