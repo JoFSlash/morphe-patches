@@ -1,0 +1,84 @@
+name: Emulator test
+
+# Patches Quora with every patch, installs it on an Android emulator and checks that it starts
+# without a crash and loads Quora's sign-in page. The feed needs a signed-in account, so the
+# page patches are still tried by hand on a phone.
+#
+# Quora's APK can't be in this public repository. It comes from the private repository
+# JoFSlash/quora-apks, read with the QUORA_APKS_TOKEN secret (a fine-grained token with
+# read-only access to that repository's contents). Without the secret the test is skipped.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  QUORA_VERSION: '3.2.42'
+  MORPHE_CLI_VERSION: 'v2.2.0'
+
+jobs:
+  emulator:
+    name: Start on an emulator
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Check for the APK token
+        id: token
+        env:
+          TOKEN: ${{ secrets.QUORA_APKS_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::notice::QUORA_APKS_TOKEN isn't set (or this is a pull request from a fork), so the emulator test is skipped."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.token.outputs.skip != 'true'
+        uses: actions/checkout@v7
+
+      - name: Setup Java
+        if: steps.token.outputs.skip != 'true'
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build
+        if: steps.token.outputs.skip != 'true'
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew :patches:buildAndroid --no-daemon
+
+      - name: Download Quora and the Morphe CLI
+        if: steps.token.outputs.skip != 'true'
+        env:
+          APKS_TOKEN: ${{ secrets.QUORA_APKS_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          GH_TOKEN="$APKS_TOKEN" gh release download "quora-$QUORA_VERSION" -R JoFSlash/quora-apks \
+            -p "quora-$QUORA_VERSION.apkm" -O "$RUNNER_TEMP/quora.apkm"
+          gh release download "$MORPHE_CLI_VERSION" -R MorpheApp/morphe-cli -p 'morphe-desktop-*-all.jar' \
+            -O "$RUNNER_TEMP/morphe-cli.jar"
+          ls -l "$RUNNER_TEMP"
+
+      - name: Enable KVM
+        if: steps.token.outputs.skip != 'true'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Patch, install and start
+        if: steps.token.outputs.skip != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          script: python3 .github/scripts/check_quora_version.py "$RUNNER_TEMP/quora.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-login --adb adb
