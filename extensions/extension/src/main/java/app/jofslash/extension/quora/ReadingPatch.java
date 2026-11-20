@@ -112,7 +112,11 @@ public final class ReadingPatch {
                 + "var names=" + list + ".map(norm);"
                 + "function slug(a){var m=(a.getAttribute('href')||'').match(/\\/profile\\/([^/?#]+)/);return m?norm(decodeURIComponent(m[1]).replace(/-\\d+$/,'')):'';}"
                 + "function space(a){try{var h=new URL(a.href).hostname.split('.');return h.length>2&&h[h.length-2]==='quora'&&!/^(www|[a-z]{2})$/.test(h[0])?norm(h[0]):'';}catch(e){return '';}}"
+                // People in "Upvoted by …" lines didn't write the item.
+                + "function upvoter(a,u){for(var e=a.parentElement,i=0;e&&e!==u&&i<3;e=e.parentElement,i++){"
+                + "if(/^Upvoted by /.test((e.textContent||'').trim()))return true;}return false;}"
                 + "function hit(u){var links=u.querySelectorAll('a[href]');for(var i=0;i<links.length;i++){var a=links[i];"
+                + "if(upvoter(a,u))continue;"
                 + "var c=[norm(a.textContent),slug(a),space(a)];for(var j=0;j<c.length;j++)if(c[j]&&names.indexOf(c[j])>=0)return true;}"
                 + "var t=u.querySelectorAll('.puppeteer_test_tribe_name');for(var k=0;k<t.length;k++)if(names.indexOf(norm(t[k].textContent))>=0)return true;"
                 + "return false;}"

@@ -177,5 +177,21 @@ expect('hideSurveys-0.js', `<div id="feed">
   }
 }
 
+// Block authors (sample list has Jane Doe): her answers go on question pages too; an answer she
+// only upvoted stays.
+expect('blockAuthors-0.js', `
+  <div class="q-box dom_annotate_question_answer_item_0" id="hers">
+    <a class="puppeteer_test_link" href="https://www.quora.com/profile/Jane-Doe-12"></a>
+    <a class="puppeteer_test_link" href="https://www.quora.com/profile/Jane-Doe-12">Jane Doe</a>
+    <div class="puppeteer_test_answer_content"><p class="q-text">Her answer.</p></div></div>
+  <div class="q-box dom_annotate_question_answer_item_1" id="upvoted">
+    <a class="puppeteer_test_link" href="https://www.quora.com/profile/John-Roe">John Roe</a>
+    <div class="q-text qu-color--gray"><div><span class="c1h7helg">Upvoted by <span class="q-inlineFlex">
+      <a class="puppeteer_test_link" href="https://www.quora.com/profile/Jane-Doe-12">Jane Doe</a></span>
+      , PhD in physics</span></div></div>
+    <div class="puppeteer_test_answer_content"><p class="q-text">His answer.</p></div></div>`, [
+  ['#hers', true], ['#upvoted', false],
+]);
+
 console.log(`${checks} DOM checks, ${failures} failure(s)`);
 process.exit(failures ? 1 : 0);
