@@ -32,6 +32,9 @@ The privacy patches are on by default. Everything else is off until you pick it.
   you stay signed in and your patch settings stay.
 - **New Quora version:** the patched app doesn't update from the Play Store. Wait until a release of these
   patches lists the new version as supported, then patch that version the same way.
+- **Quora stops accepting your version:** Quora then shows "Upgrade Needed" with a button to Google Play,
+  which can't update a patched app. The patched app says so and links here: patch the newest supported
+  version and install it over the old one.
 
 ## Changing patches later
 
@@ -230,6 +233,10 @@ Quora probably changed its pages. Check the warning on the settings page (long-p
 
 - Most patches work on Quora's web pages, which can change without a new app version. When that happens,
   a patch stops working without any error. The page check on the settings page catches the common cases.
+- The patches expect Quora in English (www.quora.com). On Quora in other languages (de.quora.com,
+  es.quora.com and so on) the ones that look for Quora's English texts may not work: Hide dismissed
+  questions, Hide comment box, Hide credentials, Hide Follow buttons, Hide surveys, Hide old answers and
+  Expand answers on question pages.
 - With Data saver, tapping an image placeholder in the feed opens the post instead of loading the image.
   The image loads when you tap it there.
 - Hide Quora+ answers and Hide surveys haven't been tried on a real paywalled answer or survey yet.
