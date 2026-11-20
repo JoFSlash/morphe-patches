@@ -1,7 +1,15 @@
 name: Release
 
-# One release a week, from what was merged into main since the last one. Nothing new: no release.
-# An urgent fix can be released right away by running this workflow by hand.
+# Two channels, both cut by this workflow:
+# - Monday 08:00 UTC: a pre-release (vX.Y.Z-dev.N) from dev, with what was merged there that week.
+#   Morphe Manager offers it to people who turn on "Pre-release patches" for this source (it reads
+#   patches-bundle.json from dev).
+# - Thursday 08:00 UTC: the newest pre-release becomes stable. Its commit is merged into main and
+#   this workflow is started on main, which releases vX.Y.Z; the release is then merged back into dev.
+#   Nothing new since the last stable release, or an open issue labelled "release blocker": no
+#   stable release that week.
+# Nothing new on dev: no pre-release. An urgent fix can be released right away by running this
+# workflow by hand on main (or on dev for a pre-release).
 #
 # Before releasing, the bundle has to pass the emulator test (emulator.yml: every patch applies and
 # the app starts on Android 15, 16 and 17) and the feed test (feed-test.yml: the page patches work
@@ -11,7 +19,9 @@ name: Release
 # session is being renewed), an urgent fix can still go out by hand with "Skip the feed test".
 on:
   schedule:
+    # Keep these two strings in sync with the job "Start this week's release" below.
     - cron: '0 8 * * 1'
+    - cron: '0 8 * * 4'
   workflow_dispatch:
     inputs:
       skip-feed-test:
@@ -20,8 +30,53 @@ on:
         default: false
 
 jobs:
+  # Scheduled runs always start on the default branch (main), so they only start the real run:
+  # on dev on Mondays, on main (after merging the newest pre-release into it) on Thursdays.
+  schedule:
+    name: Start this week's release
+    if: github.event_name == 'schedule'
+    permissions:
+      contents: write
+      actions: write
+      issues: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Pre-release from dev
+        if: github.event.schedule == '0 8 * * 1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run release.yml --ref dev
+
+      - name: Make the newest pre-release stable
+        if: github.event.schedule == '0 8 * * 4'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch --tags --force origin
+          tag=$(git describe --tags --abbrev=0 --match 'v*-dev.*' origin/dev 2>/dev/null || true)
+          if [ -z "$tag" ]; then echo "No pre-release on dev yet."; exit 0; fi
+          if git merge-base --is-ancestor "$tag" origin/main; then
+            echo "$tag is already in main: nothing new for a stable release."; exit 0
+          fi
+          blockers=$(gh issue list --state open --label "release blocker" --json number --jq 'map("#\(.number)") | join(" ")')
+          if [ -n "$blockers" ]; then
+            echo "::warning::No stable release this week: open release blockers $blockers"; exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B main origin/main
+          git merge --ff-only "$tag" || git merge --no-ff "$tag" -m "chore: Merge $tag into main for the stable release"
+          git push origin main
+          gh workflow run release.yml --ref main
+
   emulator:
     name: Emulator test
+    if: github.event_name != 'schedule'
     permissions:
       contents: read
       packages: read
@@ -30,7 +85,7 @@ jobs:
 
   feed:
     name: Feed test
-    if: ${{ !inputs.skip-feed-test }}
+    if: ${{ github.event_name != 'schedule' && !inputs.skip-feed-test }}
     permissions:
       contents: read
       packages: read
@@ -80,7 +135,8 @@ jobs:
         run: python3 .github/scripts/check_texts.py
 
       # Semantic release runs its own Gradle build command.
-      # Only main makes a release, as set in .releaserc.
+      # main makes stable releases, dev pre-releases, as set in .releaserc. After a stable
+      # release, .releaserc merges main back into dev.
       - name: Release
         uses: cycjimmy/semantic-release-action@v8
         id: release
@@ -107,7 +163,7 @@ jobs:
   report:
     name: Open or close the issue
     needs: [emulator, feed, release]
-    if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+    if: ${{ !cancelled() && github.event_name != 'schedule' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
     permissions:
       issues: write
     runs-on: ubuntu-latest
@@ -121,7 +177,7 @@ jobs:
           RELEASE: ${{ needs.release.result }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          title="Weekly release stopped"
+          if [ "$GITHUB_REF_NAME" = "dev" ]; then title="Weekly pre-release stopped"; else title="Weekly release stopped"; fi
           existing=$(gh issue list --state open --search "\"$title\" in:title" --json number,title --jq ".[] | select(.title == \"$title\") | .number" | head -1)
           if [ "$RELEASE" = "success" ]; then
             if [ -n "$existing" ]; then

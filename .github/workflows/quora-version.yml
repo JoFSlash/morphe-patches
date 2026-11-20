@@ -38,6 +38,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          # Pull requests go to dev, so they start from dev (or from the branch a test run is on).
+          ref: ${{ github.ref_name == 'main' && 'dev' || github.ref_name }}
 
       - name: Check
         id: check
@@ -99,6 +102,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          # Pull requests go to dev, so they start from dev (or from the branch a test run is on).
+          ref: ${{ github.ref_name == 'main' && 'dev' || github.ref_name }}
 
       - name: Setup Java
         uses: actions/setup-java@v6
@@ -215,7 +221,7 @@ jobs:
                 --jq ".[] | select(.title == \"Quora $VERSION is on Google Play\") | .number" | head -1)
               if [ -n "$play_issue" ]; then body="$body
           Closes #$play_issue"; fi
-              if git push -f origin "$branch" && gh pr create --base main --head "$branch" --title "Support Quora $VERSION" --body "$body"; then
+              if git push -f origin "$branch" && gh pr create --base dev --head "$branch" --title "Support Quora $VERSION" --body "$body"; then
                 exit 0
               fi
               why="Every patch applies and the app starts, but opening the pull request failed. The change is on the branch \`$branch\` if it was pushed; see the run log."
