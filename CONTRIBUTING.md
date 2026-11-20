@@ -2,7 +2,8 @@
 
 Thanks for helping. These patches change a WebView app whose pages Quora updates often, so most
 problems are a page patch that no longer finds what it hides. Good reports and small fixes are the
-most useful contributions.
+most useful contributions. Please follow the [code of conduct](CODE_OF_CONDUCT.md), and report
+security problems privately as described in [SECURITY.md](SECURITY.md).
 
 ## Reporting a problem
 
