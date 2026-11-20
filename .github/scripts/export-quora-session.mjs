@@ -18,10 +18,17 @@ if (!page) {
 const ws = new WebSocket(page.webSocketDebuggerUrl);
 await new Promise((r) => (ws.onopen = r));
 ws.send(JSON.stringify({ id: 1, method: 'Network.getCookies', params: { urls: ['https://www.quora.com/'] } }));
-const result = await new Promise((r) => (ws.onmessage = (m) => {
-  const d = JSON.parse(m.data);
-  if (d.id === 1) r(d.result);
-}));
+// A page of an app in the background doesn't answer; say so instead of waiting forever.
+const result = await new Promise((r) => {
+  setTimeout(() => {
+    console.error('The page doesn\'t answer: open the app so it is on the screen, then try again.');
+    process.exit(1);
+  }, 15000);
+  ws.onmessage = (m) => {
+    const d = JSON.parse(m.data);
+    if (d.id === 1) r(d.result);
+  };
+});
 ws.close();
 const cookies = result.cookies.filter((c) => SESSION_COOKIES.includes(c.name));
 if (!cookies.some((c) => c.name === 'm-b') || !cookies.some((c) => c.name === 'm-login' && c.value === '1')) {

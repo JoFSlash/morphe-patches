@@ -129,8 +129,23 @@ async function useSession(cookieText) {
     if (!set || set.success === false) return `cookie-not-set:${c.name}`;
   }
   await command(page, 'Page.navigate', { url: 'https://www.quora.com/' });
-  if (await waitFor(feedCount, 60)) return 'signed-in';
-  return 'session-not-accepted';
+  if (!(await waitFor(feedCount, 60))) return 'session-not-accepted';
+  // The app itself still shows its signed-out screen over that page. Leaving it saves the cookies;
+  // started again, it opens signed in, with the feed on screen.
+  adb('shell', 'input', 'keyevent', 'HOME');
+  await sleep(5000);
+  adb('shell', 'am', 'force-stop', PACKAGE);
+  adb('shell', 'monkey', '-p', PACKAGE, '-c', 'android.intent.category.LAUNCHER', '1');
+  let connected = false;
+  for (let i = 0; i < 20 && !connected; i++) {
+    await sleep(3000);
+    connected = (await connect()) && (await pages()).length > 0;
+  }
+  if (!connected) return 'app-not-back';
+  if (!(await waitFor(feedCount, 60))) return 'session-lost-on-restart';
+  // In the EU the cookie dialog shows again over the feed after the restart.
+  await waitFor(clickText(['Reject All']), 8);
+  return 'signed-in';
 }
 
 /** Taps the visible button with this text with adb, at its place on the screen. */
