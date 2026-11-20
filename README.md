@@ -8,7 +8,7 @@ Patches for the [Quora](https://play.google.com/store/apps/details?id=com.quora.
 [Morphe](https://morphe.software). They remove ads and tracking, and let you hide the parts of Quora you don't use:
 AI answers, Quora+ paywalls, suggestions, counts, old answers and so on.
 
-Works with Quora <!-- VERSIONS_START -->3.2.42<!-- VERSIONS_END -->. No root needed.
+Works with Quora <!-- VERSIONS_START -->3.2.42<!-- VERSIONS_END --> on Android 7 or newer. No root needed.
 The privacy patches are on by default. Everything else is off until you pick it.
 
 ## Install
@@ -213,7 +213,9 @@ in your name. Still, it's a modified app, so there's no guarantee.
 
 **Is it safe?**
 All the code is in this repository, and the patch files in the releases are built from it by GitHub Actions.
-The patches don't send anything anywhere; the privacy ones only stop the app from sending things.
+The patches don't send anything anywhere on their own; the privacy ones only stop the app from sending things.
+The only exception is **Translate button**: when you tap it, the text of that answer goes to Google Translate.
+Found a security problem? See [SECURITY.md](SECURITY.md) for how to report it privately.
 
 **Quora links open in the browser instead of the app.**
 Android checks that an app opening quora.com links is signed by Quora, and the patched app isn't. Turn it on by
