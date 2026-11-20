@@ -254,13 +254,19 @@ def patch_errors(adb, pid):
 
 
 def login_page_shown(adb, timeout=60):
-    """Whether Quora's sign-in page is on screen. The cookie dialog in the EU covers it at first."""
+    """Whether Quora's sign-in page is on screen. The cookie dialog in the EU covers it at first.
+
+    Quora picks the page's language from the IP address, so a runner can get it in French or
+    another language. The page's top image (logged_out_home_mobile_top.png) is the same in
+    every language, so it counts as well as the English buttons.
+    """
     end = time.time() + timeout
     while time.time() < end:
         subprocess.run([adb, "shell", "uiautomator", "dump", "/sdcard/window.xml"], capture_output=True)
         screen = subprocess.run([adb, "shell", "cat", "/sdcard/window.xml"],
                                 capture_output=True, text=True, errors="replace").stdout
-        if re.search(r'text="(Continue with Google|Sign up with email|Login|Reject All|I Accept)"', screen):
+        if (re.search(r'text="(Continue with Google|Sign up with email|Login|Reject All|I Accept)"', screen)
+                or "logged_out_home" in screen):
             return True
         time.sleep(5)
     return False
