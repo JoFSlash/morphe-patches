@@ -130,13 +130,13 @@ async function useSession(cookieText) {
   }
   await command(page, 'Page.navigate', { url: 'https://www.quora.com/' });
   if (!(await waitFor(feedCount, 60))) return 'session-not-accepted';
-  // The app itself still shows its signed-out screen over that page. Leaving it saves the cookies;
-  // started again, it opens signed in, with the feed on screen.
-  // The WebView writes its cookies to disk only now and then (about every 30 s): wait for that.
-  adb('shell', 'input', 'keyevent', 'HOME');
-  await sleep(35000);
-  adb('shell', 'am', 'force-stop', PACKAGE);
-  adb('shell', 'monkey', '-p', PACKAGE, '-c', 'android.intent.category.LAUNCHER', '1');
+  // The app itself still shows its signed-out screen over that page. Opening its start screen
+  // again, in a new task, makes it look at the cookies again and show the feed. The process keeps
+  // running, so the cookies don't have to be on disk yet (the WebView writes them only now and then).
+  const launcher = adb('shell', 'cmd', 'package', 'resolve-activity', '--brief', '-c',
+    'android.intent.category.LAUNCHER', PACKAGE).split('\n').pop().trim();
+  if (!launcher.includes('/')) return 'no-launcher-activity';
+  adb('shell', 'am', 'start', '-n', launcher, '-f', '0x10008000');
   let connected = false;
   for (let i = 0; i < 20 && !connected; i++) {
     await sleep(3000);
