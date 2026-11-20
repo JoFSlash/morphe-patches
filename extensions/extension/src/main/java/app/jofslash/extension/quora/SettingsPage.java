@@ -41,6 +41,16 @@ final class SettingsPage {
 
     private static final String TAG = "JoFSlashPatches";
 
+    // The lists a backup holds, by their key in it.
+    private static final String LISTS_KEY = "lists";
+    private static final Map<String, ReadingHistory> LISTS = new LinkedHashMap<>();
+
+    static {
+        LISTS.put("history", ReadingHistory.HISTORY);
+        LISTS.put("bookmarks", ReadingHistory.BOOKMARKS);
+        LISTS.put("dismissed", ReadingHistory.DISMISSED);
+    }
+
     /** Switches whose change only shows after the app restarts. */
     private static final Set<String> RESTART = new HashSet<>(Arrays.asList(
             "hideTabs", "startTab", "textSize", "disablePullToRefresh", "disableSwipeBetweenFeeds"));
@@ -118,7 +128,7 @@ final class SettingsPage {
         if (switches.containsKey("hideDismissedQuestions")) {
             add(more, linkRow("Dismissed questions", "Questions whose answers the feed hides.", this::dismissedQuestions));
         }
-        add(more, linkRow("Backup", "Copy your settings as text, or restore them.", () -> backup(prefs)));
+        add(more, linkRow("Backup", "Your settings and lists as text, to keep or restore.", () -> backup(prefs)));
         add(more, linkRow("Report a problem", "Copies the app details and opens a bug report on GitHub.",
                 () -> report(prefs, switches)));
         content.addView(more);
@@ -342,11 +352,18 @@ final class SettingsPage {
                 if (key.startsWith("check_") || key.startsWith("hint_")) continue;
                 json.put(key, entry.getValue());
             }
+            // History, Bookmarks and Dismissed questions, under one key that older versions skip.
+            JSONObject lists = new JSONObject();
+            for (Map.Entry<String, ReadingHistory> list : LISTS.entrySet()) {
+                org.json.JSONArray items = list.getValue().toJson(activity);
+                if (items.length() > 0) lists.put(list.getKey(), items);
+            }
+            if (lists.length() > 0) json.put(LISTS_KEY, lists);
         } catch (Exception ex) {
             Log.e(TAG, "Failed to write the backup", ex);
         }
         LinearLayout content = column();
-        LinearLayout box = section("Your settings");
+        LinearLayout box = section("Your settings and lists");
         EditText field = field(json.toString());
         box.addView(field);
         content.addView(box);
@@ -370,7 +387,17 @@ final class SettingsPage {
                 }
                 editor.apply();
                 PatchSettings.reload();
-                Toast.makeText(activity, Texts.t("Settings restored."), Toast.LENGTH_SHORT).show();
+                // Lists are merged: what is already on the phone stays.
+                int added = 0;
+                JSONObject lists = saved.optJSONObject(LISTS_KEY);
+                if (lists != null) {
+                    for (Map.Entry<String, ReadingHistory> list : LISTS.entrySet()) {
+                        added += list.getValue().merge(activity, lists.optJSONArray(list.getKey()));
+                    }
+                }
+                Toast.makeText(activity, added > 0
+                        ? Texts.t("Settings restored. Items added to your lists: ") + added
+                        : Texts.t("Settings restored."), Toast.LENGTH_SHORT).show();
             } catch (Exception ex) {
                 Toast.makeText(activity, Texts.t("That is not a saved settings text."), Toast.LENGTH_LONG).show();
             }

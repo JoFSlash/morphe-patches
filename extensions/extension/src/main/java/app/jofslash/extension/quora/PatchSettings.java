@@ -284,11 +284,14 @@ public final class PatchSettings {
             WebView view = webView.get();
             if (view == null || !ReadingHistory.isQuoraUrl(url)) return false;
             Context context = view.getContext().getApplicationContext();
-            boolean saved = !ReadingHistory.BOOKMARKS.contains(context, url);
-            if (saved) ReadingHistory.BOOKMARKS.add(context, url, title, author);
-            else ReadingHistory.BOOKMARKS.remove(context, url);
-            view.post(() -> Toast.makeText(view.getContext(),
-                    Texts.t(saved ? "Saved to Bookmarks" : "Removed from Bookmarks"), Toast.LENGTH_SHORT).show());
+            boolean adding = !ReadingHistory.BOOKMARKS.contains(context, url);
+            boolean saved = adding && ReadingHistory.BOOKMARKS.add(context, url, title, author);
+            if (!adding) ReadingHistory.BOOKMARKS.remove(context, url);
+            String message = saved ? Texts.t("Saved to Bookmarks")
+                    : !adding ? Texts.t("Removed from Bookmarks")
+                    : Texts.t("Bookmarks are full. Remove some in Patch settings first.");
+            view.post(() -> Toast.makeText(view.getContext(), message,
+                    saved || !adding ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG).show());
             return saved;
         }
     }
