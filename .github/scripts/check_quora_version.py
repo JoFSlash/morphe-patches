@@ -67,6 +67,8 @@ def main():
     parser.add_argument("--adb", default="adb", help="Path to adb")
     parser.add_argument("--expect-login", action="store_true",
                         help="With --install: also require Quora's sign-in page on screen (a fresh install)")
+    parser.add_argument("--compare-original", action="store_true",
+                        help="With --install: when the check fails, try the original Quora the same way")
     parser.add_argument("--exclude", action="append", default=[], metavar="PATCH",
                         help="Leave this patch out (can be given more than once)")
     args = parser.parse_args()
@@ -125,40 +127,94 @@ def main():
 
     if args.install and out_apk.exists():
         print("\nInstalling on the phone ...")
-        adb = args.adb
-        install = subprocess.run([adb, "install", "-r", str(out_apk)], capture_output=True, text=True)
-        output = (install.stdout + install.stderr).strip()
-        if "Success" not in output:
-            # For example an older version over a newer one, or a different signature.
-            sys.exit("Install failed: " + output.splitlines()[-1] if output else "Install failed.")
-        subprocess.run([adb, "logcat", "-c"])
-        subprocess.run([adb, "shell", "monkey", "-p", PACKAGE, "-c", "android.intent.category.LAUNCHER", "1"],
-                       capture_output=True)
-        time.sleep(15)
-        log = subprocess.run([adb, "logcat", "-d"], capture_output=True, text=True, errors="replace").stdout
-        crashes = [line for line in log.splitlines()
-                   if re.search(r"FATAL EXCEPTION|VerifyError|Verifier rejected", line)]
-        pid = subprocess.run([adb, "shell", "pidof", PACKAGE], capture_output=True, text=True).stdout.strip()
-        if crashes or not pid:
-            print("The app crashed at start:" if crashes else "The app is not running after 15 seconds.")
-            for line in crashes[:10]:
-                print("  " + line)
+        ok = start_and_check(args.adb, [str(out_apk)], args.expect_login, patched=True)
+        if not ok and args.compare_original:
+            # Whether Quora itself works here tells a broken patch from an Android or WebView
+            # that Quora no longer supports.
+            print("\nTrying the original Quora, without the patches ...")
+            original = start_and_check(args.adb, apk_splits(args.apk, work), args.expect_login, patched=False)
+            print("The original Quora works here, so the patches break it." if original else
+                  "The original Quora fails here too, so it's not the patches.")
+        if not ok:
             sys.exit(1)
-        print("The app started and is running.")
-        if args.expect_login and not login_page_shown(adb):
-            sys.exit("Quora's sign-in page didn't show within a minute.")
-        if args.expect_login:
-            print("Quora's sign-in page loaded.")
+        print("Check the feed with the page patches by hand.")
+
+    sys.exit(1 if failed else 0)
+
+
+def apk_splits(apk, work):
+    """The APK files to install the original app: the APK itself, or every split in an APKM."""
+    if not apk.lower().endswith((".apkm", ".apks", ".xapk")):
+        return [apk]
+    import zipfile
+    out = work / "original"
+    out.mkdir(exist_ok=True)
+    with zipfile.ZipFile(apk) as z:
+        names = [n for n in z.namelist() if n.endswith(".apk") and "/" not in n]
+        for n in names:
+            z.extract(n, out)
+    return [str(out / n) for n in names]
+
+
+def start_and_check(adb, apks, expect_login, patched):
+    """Installs, starts and checks the app; prints what went wrong. Returns whether it passed."""
+    # The patched and the original app are signed differently, so one can't replace the other.
+    subprocess.run([adb, "uninstall", PACKAGE], capture_output=True)
+    command = [adb, "install-multiple", "-r", *apks] if len(apks) > 1 else [adb, "install", "-r", apks[0]]
+    install = subprocess.run(command, capture_output=True, text=True)
+    output = (install.stdout + install.stderr).strip()
+    if "Success" not in output:
+        # For example an older version over a newer one, or a different signature.
+        print("Install failed: " + (output.splitlines()[-1] if output else "no output"))
+        return False
+    subprocess.run([adb, "logcat", "-c"])
+    subprocess.run([adb, "shell", "monkey", "-p", PACKAGE, "-c", "android.intent.category.LAUNCHER", "1"],
+                   capture_output=True)
+    time.sleep(15)
+    log = subprocess.run([adb, "logcat", "-d"], capture_output=True, text=True, errors="replace").stdout
+    crashes = [line for line in log.splitlines()
+               if re.search(r"FATAL EXCEPTION|VerifyError|Verifier rejected", line)]
+    pid = subprocess.run([adb, "shell", "pidof", PACKAGE], capture_output=True, text=True).stdout.strip()
+    if crashes or not pid:
+        print("The app crashed at start:" if crashes else "The app is not running after 15 seconds.")
+        for line in crashes[:10]:
+            print("  " + line)
+        return False
+    print("The app started and is running.")
+    if expect_login:
+        if not login_page_shown(adb):
+            print("Quora's sign-in page didn't show within a minute.")
+            describe_screen(adb)
+            return False
+        print("Quora's sign-in page loaded.")
+    if patched:
         problems = patch_errors(adb, pid)
         if problems:
             print("Errors from the patches in the log:")
             for line in problems[:20]:
                 print("  " + line)
-            sys.exit(1)
+            return False
         print("No errors from the patches in the log.")
-        print("Check the feed with the page patches by hand.")
+    return True
 
-    sys.exit(1 if failed else 0)
+
+def describe_screen(adb):
+    """What is on the screen, the WebView version and the app's warnings, to see why it failed."""
+    subprocess.run([adb, "shell", "uiautomator", "dump", "/sdcard/window.xml"], capture_output=True)
+    screen = subprocess.run([adb, "shell", "cat", "/sdcard/window.xml"],
+                            capture_output=True, text=True, errors="replace").stdout
+    texts = [t for t in re.findall(r'(?:text|content-desc)="([^"]+)"', screen) if t.strip()]
+    print("  On screen: " + (" | ".join(texts[:25]) if texts else "no text"))
+    webview = subprocess.run([adb, "shell", "dumpsys", "webviewupdate"], capture_output=True, text=True,
+                             errors="replace").stdout
+    current = re.search(r"Current WebView package \(name, version\): \(([^)]*)\)", webview)
+    print("  WebView: " + (current.group(1) if current else "unknown"))
+    pid = subprocess.run([adb, "shell", "pidof", PACKAGE], capture_output=True, text=True).stdout.split()
+    log = subprocess.run([adb, "logcat", "-d", "-v", "brief"], capture_output=True, text=True,
+                         errors="replace").stdout
+    mine = [l for l in log.splitlines() if pid and re.match(r"^[EW]/[^(]*\(\s*(%s)\)" % "|".join(pid), l)]
+    for line in mine[-15:]:
+        print("  " + line[:220])
 
 
 def patch_errors(adb, pid):

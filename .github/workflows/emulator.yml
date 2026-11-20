@@ -1,8 +1,10 @@
 name: Emulator test
 
-# Patches Quora with every patch, installs it on Android 7, 11, 15 and 16 emulators and checks
-# that it starts without a crash or errors from the patches and loads Quora's sign-in page. The feed needs a signed-in account; the weekly
-# feed test (feed-test.yml) signs in with a test account and checks the page patches there.
+# Patches Quora with every patch, installs it on Android 15, 16 and 17 emulators and checks
+# that it starts without a crash or errors from the patches and loads Quora's sign-in page. When
+# a check fails, the original Quora is tried the same way, to tell a broken patch from an Android
+# version Quora itself doesn't work on. The feed needs a signed-in account; the weekly feed test
+# (feed-test.yml) signs in with a test account and checks the page patches there.
 #
 # Quora's APK can't be in this public repository. It comes from the private repository
 # JoFSlash/quora-apks, read with the QUORA_APKS_TOKEN secret (a fine-grained token with access
@@ -28,12 +30,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Quora's oldest (minSdk 24), a middle one, the latest common one and the newest (its targetSdk).
+        # The Android versions people run now, and the next one. Android 17's image is only in the
+        # SDK's canary channel so far.
         include:
-          - { api: 24, android: '7' }
-          - { api: 30, android: '11' }
-          - { api: 35, android: '15' }
-          - { api: 36, android: '16' }
+          - { api: '35', android: '15', channel: 'stable' }
+          - { api: '36', android: '16', channel: 'stable' }
+          - { api: '37.0', android: '17', channel: 'canary' }
     steps:
       - name: Check for the APK token
         id: token
@@ -90,7 +92,8 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api }}
+          channel: ${{ matrix.channel }}
           target: google_apis
           arch: x86_64
           disable-animations: true
-          script: python3 .github/scripts/check_quora_version.py "$RUNNER_TEMP/quora.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-login --adb adb
+          script: python3 .github/scripts/check_quora_version.py "$RUNNER_TEMP/quora.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-login --compare-original --adb adb

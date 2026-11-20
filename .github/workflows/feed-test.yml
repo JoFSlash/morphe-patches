@@ -112,7 +112,7 @@ jobs:
           QUORA_TEST_EMAIL: ${{ secrets.QUORA_TEST_EMAIL }}
           QUORA_TEST_PASSWORD: ${{ secrets.QUORA_TEST_PASSWORD }}
         with:
-          api-level: 34
+          api-level: 36
           target: google_apis
           arch: x86_64
           disable-animations: true
