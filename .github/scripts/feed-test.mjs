@@ -118,7 +118,10 @@ async function describePages() {
         buttons:[].slice.call(document.querySelectorAll('button,[role=button],a')).filter(vis)
           .map(function(e){return (e.innerText||'').trim().replace(/\\s+/g,' ').slice(0,40);}).filter(Boolean).slice(0,20),
         fields:[].slice.call(document.querySelectorAll('input')).filter(vis)
-          .map(function(i){return i.type+(i.id?'#'+i.id:'')+(i.name?'['+i.name+']':'');})};})()`, 8000);
+          .map(function(i){return i.type+(i.id?'#'+i.id:'')+(i.name?'['+i.name+']':'')+(i.value?' (filled)':' (empty)');}),
+        // The page's own messages, such as a sign-in error; lines with an address are left out.
+        text:((document.body&&document.body.innerText)||'').split('\\n').map(function(l){return l.trim();})
+          .filter(function(l){return l&&l.indexOf('@')<0;}).slice(0,25)};})()`, 8000);
     console.log(`  page: ${JSON.stringify(info)}`);
   }
 }
