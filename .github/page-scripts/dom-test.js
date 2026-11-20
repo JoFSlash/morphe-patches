@@ -203,6 +203,55 @@ expect('blockAuthors-0.js', `
   ['#hers', true], ['#upvoted', false],
 ]);
 
+// Word count: the editor opens as its own page whose params name the modal. Markup trimmed from
+// Quora's answer editor: each paragraph is a [data-kind=section].
+function editorPage(modal, html) {
+  const params = Buffer.from(JSON.stringify({ initialModalProps: { name: modal } })).toString('base64');
+  const dom = new JSDOM(`<!doctype html><html><head></head><body>${html}</body></html>`, {
+    url: `https://www.quora.com/ans_frontend/modalflow?params=${encodeURIComponent(params)}&chunkName=component-Modals-Editor`,
+    runScripts: 'outside-only',
+    pretendToBeVisual: true,
+  });
+  dom.window.eval(fs.readFileSync(path.join(dir, 'wordCount-0.js'), 'utf8'));
+  return dom.window.document;
+}
+
+const editorBox = (...paragraphs) => `<div class="doc dark_mode" contenteditable="true" data-kind="doc">${
+  paragraphs.map((p) => `<div class="section" data-kind="section"><div class="span" data-kind="span"><div class="content">${p}</div></div></div>`).join('')}</div>`;
+
+function expectCount(what, doc, want) {
+  checks++;
+  const label = doc.getElementById('jofslash-word-count');
+  const got = label && label.style.display !== 'none' ? label.textContent : null;
+  if (got !== want) fail(`wordCount-0.js: ${what} should show ${JSON.stringify(want)}, shows ${JSON.stringify(got)}`);
+}
+
+{
+  // Two paragraphs: their words don't run together, extra spaces don't count as words.
+  const doc = editorPage('AnswerEditorModal', editorBox('Hello world.', 'Second   paragraph here'));
+  expectCount('the answer editor', doc, 'Words: 5 · Characters: 35');
+  // Typing updates the count at once.
+  doc.querySelector('.content').textContent = 'One two three';
+  doc.querySelector('[data-kind="doc"]').dispatchEvent(new doc.defaultView.Event('input', { bubbles: true }));
+  expectCount('the answer editor after typing', doc, 'Words: 6 · Characters: 36');
+}
+expectCount('an empty answer editor', editorPage('AnswerEditorModal', editorBox('')), 'Words: 0 · Characters: 0');
+expectCount('the post editor', editorPage('AskQuestion', editorBox('A post.')), 'Words: 2 · Characters: 7');
+// The comment sheet has its Post button where the label would go.
+expectCount('the comment sheet', editorPage('CommentAddModal', editorBox('A comment.')), null);
+expectCount('a comment modal on an answer', editorPage('AnswerCommentModal', editorBox('A comment.')), null);
+// Quora reuses the comment sheet's page for the next modal without loading it again.
+{
+  const doc = editorPage('CommentAddModal', editorBox('A comment.'));
+  const w = doc.defaultView;
+  const params = Buffer.from(JSON.stringify({ initialModalProps: { name: 'AskQuestion' } })).toString('base64');
+  w.history.pushState({}, '', `/ans_frontend/modalflow?params=${encodeURIComponent(params)}`);
+  doc.querySelector('[data-kind="doc"]').dispatchEvent(new w.Event('input', { bubbles: true }));
+  expectCount('a page reused for the post editor', doc, 'Words: 2 · Characters: 10');
+}
+// An editor that isn't shown, such as the post tab while Add Question is open.
+expectCount('a hidden editor', editorPage('AskQuestion', `<div style="display:none">${editorBox('Hidden.')}</div>`), null);
+
 // Bookmarks in an open answer: the button is added next to Share, and added again when Quora
 // redraws the action bar and drops it.
 async function bookmarkCheck() {

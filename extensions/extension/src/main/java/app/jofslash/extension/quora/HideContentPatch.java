@@ -252,6 +252,78 @@ public final class HideContentPatch {
     }
 
     /**
+     * A small "Words: 12 · Characters: 64" label at the bottom right while writing an answer or a
+     * post. Each editor opens as its own page (ans_frontend/modalflow) whose params name the
+     * modal: AnswerEditorModal for answers, AskQuestion for posts (and questions), CommentAddModal
+     * for comments. The label only goes on the answer and post editors, never on a comment modal:
+     * the comment sheet has its Post button where the label would be. A page can be reused for another modal, so the check
+     * runs on every update. Paragraphs are separate [data-kind=section] boxes, so
+     * their texts are joined with line breaks; otherwise the last word of one paragraph and the
+     * first of the next would count as one.
+     */
+    static String wordCountScript(String words, String characters) {
+        return "(function(){"
+                + "if(window.__jofslashWordCount)return;"
+                + "window.__jofslashWordCount=true;"
+                // Quora reuses a page for the next modal without loading it again, so the modal is
+                // read from the address each time it changes, not once.
+                + "var seen=null,allowed=false;"
+                + "function editorModal(){"
+                + "if(location.search===seen)return allowed;"
+                + "seen=location.search;var name='';"
+                + "try{name=JSON.parse(atob(new URLSearchParams(seen).get('params'))).initialModalProps.name||'';}catch(e){}"
+                + "allowed=/Answer|Post|AskQuestion/.test(name)&&!/Comment/.test(name);return allowed;}"
+                // Made only when an editor shows up, so other pages get nothing.
+                + "var label=null;"
+                + "function makeLabel(){"
+                + "label=document.createElement('div');"
+                + "label.id='jofslash-word-count';"
+                + "label.style.cssText='position:fixed;right:12px;bottom:8px;z-index:2147483647;font-size:12px;"
+                + "line-height:18px;padding:0 8px;border-radius:9px;pointer-events:none;opacity:.8;display:none';"
+                + "document.body.appendChild(label);}"
+                + "function shown(e){for(;e&&e.nodeType===1;e=e.parentElement)if(getComputedStyle(e).display==='none')return false;return true;}"
+                + "function text(d){var s=d.querySelectorAll('[data-kind=\"section\"]');"
+                + "if(!s.length)return d.textContent||'';"
+                + "var a=[];for(var i=0;i<s.length;i++)a.push(s[i].textContent||'');return a.join('\\n');}"
+                + "function update(){"
+                + "var d=document.querySelector('[contenteditable][data-kind=\"doc\"]');"
+                + "if(!d||!editorModal()||!shown(d)){if(label&&label.style.display!=='none')label.style.display='none';return;}"
+                + "if(!label||!label.parentNode)makeLabel();"
+                + "var t=text(d);"
+                + "var w=t.split(/\\s+/).filter(function(x){return x.length>0;}).length;"
+                + "var c=Array.from(t.replace(/\\n/g,'')).length;"
+                + "var s=" + jsString(words) + "+w+' \\u00b7 '+" + jsString(characters) + "+c;"
+                // Only when it changes: setting the same text would wake the observer again.
+                + "if(label.textContent!==s)label.textContent=s;"
+                + "label.style.color=getComputedStyle(d).color;"
+                + "label.style.background=getComputedStyle(document.body).backgroundColor;"
+                + "label.style.display='block';"
+                + "}"
+                + "document.addEventListener('input',update,true);"
+                + observeScript("update")
+                + "})();";
+    }
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished.
+     */
+    public static void wordCount(WebView webView) {
+        if (!PatchSettings.active(webView, "wordCount", "Word count")) return;
+        evaluate(webView, wordCountScript(Texts.t("Words: "), Texts.t("Characters: ")), "word count");
+    }
+
+    /** A JavaScript string literal in single quotes, safe to put into a script. */
+    static String jsString(String s) {
+        StringBuilder out = new StringBuilder("'");
+        for (char c : s.toCharArray()) {
+            if (c == '\'' || c == '\\') out.append('\\').append(c);
+            else if (c < 0x20 || c == '<' || c == '>' || c == 0x2028 || c == 0x2029) out.append(String.format(java.util.Locale.ROOT, "\\u%04x", (int) c));
+            else out.append(c);
+        }
+        return out.append('\'').toString();
+    }
+
+    /**
      * Injection point: start of QWebViewClient.onPageFinished.
      */
     public static void hideQuoraPlusPromotions(WebView webView) {

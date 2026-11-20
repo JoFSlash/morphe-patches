@@ -165,6 +165,14 @@ val enableTextSelectionPatch = pageScriptPatch(
 )
 
 @Suppress("unused")
+val wordCountPatch = pageScriptPatch(
+    name = "Word count",
+    patchCategory = "Writing",
+    description = "Shows how many words and characters you have written while you write an answer or a post.",
+    extensionMethod = "wordCount",
+)
+
+@Suppress("unused")
 val hideCommentPreviewsPatch = pageScriptPatch(
     name = "Hide comment previews",
     patchCategory = "Feed",

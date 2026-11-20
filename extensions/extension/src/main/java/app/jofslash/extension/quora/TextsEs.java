@@ -219,5 +219,10 @@ final class TextsEs {
         m.put("It can't update from Google Play. Patch a newer Quora version with Morphe once these patches support it, and install it over this app: you stay signed in.", "No se puede actualizar desde Google Play. Parchea una versión más reciente de Quora con Morphe cuando estos parches la admitan e instálala sobre esta aplicación: seguirás con la sesión iniciada.");
         m.put("How to update", "Cómo actualizar");
         m.put("Close", "Cerrar");
+        // Writing.
+        m.put("Writing", "Escritura");
+        m.put("Words: ", "Palabras: ");
+        m.put("Characters: ", "Caracteres: ");
+        m.put("Words and characters while you write an answer or post.", "Palabras y caracteres mientras escribes una respuesta o una publicación.");
     }
 }

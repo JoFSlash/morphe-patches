@@ -9,7 +9,7 @@ import java.util.Map;
  */
 final class SettingsCatalog {
 
-    static final String[] CATEGORIES = {"Privacy", "Feed", "Reading", "App", "Other"};
+    static final String[] CATEGORIES = {"Privacy", "Feed", "Reading", "Writing", "App", "Other"};
 
     private static final Map<String, String[]> ENTRIES = new HashMap<>();
 
@@ -61,6 +61,8 @@ final class SettingsCatalog {
         add("dataSaverOnWifi", "Reading", "With Data saver, images still load on Wi-Fi.");
         add("disableVideoAutoplay", "Reading", "Videos play only when you tap them.");
         add("keepScreenOn", "Reading", "The screen stays on while a page is open.");
+
+        add("wordCount", "Writing", "Words and characters while you write an answer or post.");
 
         add("hideTabs", "App", "Removes the tabs set below. Applies after a restart.");
         add("startTab", "App", "Opens on the tab set below. Applies after a restart.");
