@@ -1,0 +1,108 @@
+{
+  "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
+  "version": "0.1.0",
+  "patches": [
+    {
+      "name": "Allow screenshots",
+      "description": "Lets you take screenshots and record the screen on every screen of the app. Some screens, such as sharing a health summary, block them.",
+      "default": false,
+      "category": "App",
+      "compatiblePackages": [
+        {
+          "packageName": "com.fitbit.FitbitMobile",
+          "name": "Google Health",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#3084FF",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "5.13.health-mobile-1104148438-1023845615",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "GmsCore support",
+      "description": "Makes signing in work through MicroG-RE instead of Google Play services. A patched app can't sign in through Play services, because it is no longer signed by Google. Needs MicroG-RE installed, with your Google account added to it.",
+      "default": true,
+      "category": "App",
+      "compatiblePackages": [
+        {
+          "packageName": "com.fitbit.FitbitMobile",
+          "name": "Google Health",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#3084FF",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "5.13.health-mobile-1104148438-1023845615",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Spoof installer",
+      "description": "Reports Google Play as the app installer, so the app doesn't treat the patched app as installed from an unknown source.",
+      "default": true,
+      "category": "Privacy",
+      "compatiblePackages": [
+        {
+          "packageName": "com.fitbit.FitbitMobile",
+          "name": "Google Health",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#3084FF",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "5.13.health-mobile-1104148438-1023845615",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    }
+  ]
+}
