@@ -24,11 +24,12 @@ data = json.loads(json_path.read_text(encoding="utf-8"))
 patches = data["patches"]
 version = str(data["version"]).lstrip("v")
 
-ORDER = ["Privacy", "Feed", "Reading", "App"]
+ORDER = ["Privacy", "Feed", "Reading", "Writing", "App"]
 INTRO = {
     "Privacy": "On by default. They stop data collection and change nothing you see.",
     "Feed": "What the feed and question pages show.",
     "Reading": "How answers look and load.",
+    "Writing": "The editor for answers and posts.",
     "App": "The app around the pages: prompts, tabs, notifications, gestures.",
 }
 

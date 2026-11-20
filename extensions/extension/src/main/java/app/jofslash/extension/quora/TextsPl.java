@@ -219,5 +219,10 @@ final class TextsPl {
         m.put("It can't update from Google Play. Patch a newer Quora version with Morphe once these patches support it, and install it over this app: you stay signed in.", "Nie można jej zaktualizować przez Google Play. Gdy te łatki obsłużą nowszą wersję Quory, załataj ją w Morphe i zainstaluj ją w miejsce tej aplikacji: nie wylogujesz się.");
         m.put("How to update", "Jak zaktualizować");
         m.put("Close", "Zamknij");
+        // Writing.
+        m.put("Writing", "Pisanie");
+        m.put("Words: ", "Słowa: ");
+        m.put("Characters: ", "Znaki: ");
+        m.put("Words and characters while you write an answer or post.", "Liczba słów i znaków podczas pisania odpowiedzi lub posta.");
     }
 }
