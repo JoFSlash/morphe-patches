@@ -17,7 +17,6 @@ permissions:
   packages: read
 
 env:
-  QUORA_VERSION: '3.2.42'
   MORPHE_CLI_VERSION: 'v2.2.0'
 
 jobs:
@@ -60,6 +59,9 @@ jobs:
           APKS_TOKEN: ${{ secrets.QUORA_APKS_TOKEN }}
           GH_TOKEN: ${{ github.token }}
         run: |
+          # The newest version listed as supported in Constants.kt.
+          QUORA_VERSION=$(grep -oE 'AppTarget\(version = "[0-9.]+"' patches/src/main/kotlin/app/jofslash/patches/quora/shared/Constants.kt             | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -1)
+          echo "Quora $QUORA_VERSION"
           GH_TOKEN="$APKS_TOKEN" gh release download "quora-$QUORA_VERSION" -R JoFSlash/quora-apks \
             -p "quora-$QUORA_VERSION.apkm" -O "$RUNNER_TEMP/quora.apkm"
           gh release download "$MORPHE_CLI_VERSION" -R MorpheApp/morphe-cli -p 'morphe-desktop-*-all.jar' \
