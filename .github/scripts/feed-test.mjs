@@ -256,7 +256,8 @@ const FEED_CHECKS = `(async function(){${VISIBLE}
 const spotScript = (part) => `(async function(){${VISIBLE}
   var t=[].slice.call(document.querySelectorAll('[class*="dom_annotate_multifeed_bundle_AnswersBundle"] ${part}')).find(vis);
   if(!t)return null;t.scrollIntoView({block:'center'});await new Promise(function(r){setTimeout(r,1500);});
-  var r=t.getBoundingClientRect();return {x:r.left+Math.min(r.width/2,100),y:r.top+r.height/2,dpr:window.devicePixelRatio};})()`;
+  var r=t.getBoundingClientRect();if(r.width<10||r.height<5||r.top<0||r.bottom>window.innerHeight)return null;
+  return {x:r.left+Math.min(r.width/2,100),y:r.top+r.height/2,dpr:window.devicePixelRatio};})()`;
 
 const IS_ANSWER = "/AnswerModal|\\/answer\\//.test(location.href)&&document.readyState==='complete'";
 
@@ -333,7 +334,8 @@ async function main() {
     return 2;
   }
 
-  const feed = await waitFor(feedCount, 30);
+  // The feed on the screen: a page left from the signed-out screen can still be there, hidden.
+  const feed = await waitFor(`${feedCount}&&document.visibilityState==='visible'&&window.innerWidth>0`, 30);
   const result = feed ? await evaluate(feed.page, FEED_CHECKS, 60000) : null;
   if (!result) {
     console.error('The feed didn\'t load after signing in.');
