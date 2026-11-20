@@ -236,9 +236,9 @@ const FEED_CHECKS = `(async function(){${VISIBLE}
     J.toggleBookmark(url,'Feed test','');out.bookmarkStore=!before&&saved&&!J.isBookmarked(url);}
   return out;})()`;
 
-// Where to tap to open the first answer in the feed: its question title, in page pixels.
-const TITLE_SPOT = `(async function(){${VISIBLE}
-  var t=[].slice.call(document.querySelectorAll('[class*="dom_annotate_multifeed_bundle_AnswersBundle"] .puppeteer_test_question_title')).find(vis);
+// Where to tap to open the first answer in the feed, in page pixels: a part of it such as its title.
+const spotScript = (part) => `(async function(){${VISIBLE}
+  var t=[].slice.call(document.querySelectorAll('[class*="dom_annotate_multifeed_bundle_AnswersBundle"] ${part}')).find(vis);
   if(!t)return null;t.scrollIntoView({block:'center'});await new Promise(function(r){setTimeout(r,1500);});
   var r=t.getBoundingClientRect();return {x:r.left+Math.min(r.width/2,100),y:r.top+r.height/2,dpr:window.devicePixelRatio};})()`;
 
@@ -337,25 +337,36 @@ async function main() {
   expect(result.promotedVisible === 0, 'A promoted item still shows (Remove ads).');
   expect(result.bookmarkStore === true, 'Saving and removing a bookmark through the bridge didn\'t work.');
 
-  // Quora opens answers only on a real tap, so tap the first question title on the screen.
-  const spot = await evaluate(feed.page, TITLE_SPOT);
-  const view = spot && webViewBounds();
-  if (spot && view) {
+  // Quora opens answers only on a real tap: tap the first answer's question title, then its text.
+  let opened = null;
+  const tried = [];
+  for (const target of ['.puppeteer_test_question_title', '.puppeteer_test_answer_content']) {
+    const spot = await evaluate(feed.page, spotScript(target));
+    const view = spot && webViewBounds();
+    if (!spot || !view) {
+      tried.push(`${target}: not on screen`);
+      continue;
+    }
     const x = Math.round(view.l + spot.x * spot.dpr);
     const y = Math.round(view.t + spot.y * spot.dpr);
     adb('shell', 'input', 'tap', String(x), String(y));
-    const answer = await waitFor(IS_ANSWER, 45);
-    if (answer) {
-      const checks = await evaluate(answer.page, ANSWER_CHECKS);
-      console.log('Answer page:', JSON.stringify(checks));
-      expect(checks && checks.bookmarkButton > 0, 'No bookmark button on the answer page (Bookmarks).');
-      expect(checks && checks.copyButtons > 0, 'No Copy button on the answer page.');
-    } else {
-      notice('The answer didn\'t open from the feed, so its checks are skipped.');
-    }
+    opened = await waitFor(IS_ANSWER, 30);
+    if (opened) break;
+    const now = (await pages()).map((p) => p.url.split('?')[0]);
+    tried.push(`${target}: tapped ${x},${y} in a WebView at ${view.l},${view.t}; pages then: ${JSON.stringify(now)}`);
+    // Back to the feed before the next try, if the tap opened something else.
+    if (!(await waitFor(feedCount, 3))) adb('shell', 'input', 'keyevent', 'BACK');
+    await sleep(2000);
+  }
+  if (opened) {
+    const checks = await evaluate(opened.page, ANSWER_CHECKS);
+    console.log('Answer page:', JSON.stringify(checks));
+    expect(checks && checks.bookmarkButton > 0, 'No bookmark button on the answer page (Bookmarks).');
+    expect(checks && checks.copyButtons > 0, 'No Copy button on the answer page.');
     adb('shell', 'input', 'keyevent', 'BACK');
   } else {
-    notice('No answer to open in the feed, so the answer page checks are skipped.');
+    for (const line of tried) console.log(`  ${line}`);
+    notice('The answer didn\'t open from the feed, so its checks are skipped.');
   }
 
   if (failures.length) {
