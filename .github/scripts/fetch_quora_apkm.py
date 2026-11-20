@@ -147,19 +147,20 @@ def run_tool(command):
 def signer_digests(output):
     """SHA-1 digests of the signer certificates in `apksigner verify --print-certs-pem` output.
 
-    The digests are computed from the PEM blocks rather than read from the "SHA-1 digest" lines,
-    which not every apksigner version prints. The source stamp certificate (Google's, added by
-    Play) is left out: only "Signer #N" certificates count."""
+    apksigner versions differ: older ones print "Signer #1 certificate DN: ..." to stdout, newer
+    ones "V3.0 Signer: certificate DN: ..." to stderr, so the caller passes both streams and the
+    digests are computed from the PEM blocks. The source stamp certificate (Google's, added by
+    Play) is left out; every other signer certificate counts."""
     digests, label, pem = [], "", None
     for line in output.splitlines():
         line = line.strip()
-        match = re.match(r"(.+?) certificate DN:", line)
+        match = re.match(r"(.+?):? certificate DN:", line)
         if match:
             label = match.group(1)
         elif line == "-----BEGIN CERTIFICATE-----":
             pem = []
         elif line == "-----END CERTIFICATE-----" and pem is not None:
-            if label.startswith("Signer #"):
+            if "Signer" in label and not label.startswith("Source Stamp"):
                 digests.append(hashlib.sha1(base64.b64decode("".join(pem))).hexdigest())
             pem = None
         elif pem is not None:
@@ -193,10 +194,10 @@ def verify(apkm, version, apksigner, aapt2):
             problems.append(f"version is {found_version}, not {version}")
         for name in apks:
             certs = run_tool([apksigner, "verify", "--print-certs-pem", str(pathlib.Path(work) / name)])
-            digests = signer_digests(certs.stdout)
+            digests = signer_digests(certs.stdout + "\n" + certs.stderr)
             if certs.returncode != 0:
                 problems.append(f"{name}: signature doesn't verify: " + (certs.stderr or certs.stdout).strip()[:200])
-            elif digests != [expected]:
+            elif not digests or set(digests) != {expected}:
                 problems.append(f"{name} is signed by {digests}, not Quora")
                 print(f"{apksigner} output for {name} (exit {certs.returncode}):\n"
                       f"{certs.stdout.strip()[:1500]}\n{certs.stderr.strip()[:1500]}")
