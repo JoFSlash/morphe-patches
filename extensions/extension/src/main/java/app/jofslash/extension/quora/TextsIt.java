@@ -16,7 +16,7 @@ final class TextsIt {
         m.put("Reading", "Lettura");
         m.put("App", "App");
         m.put("Other", "Altro");
-        m.put("More", "Altro ancora");
+        m.put("More", "Altre funzioni");
         m.put("Back", "Indietro");
         m.put("Cancel", "Annulla");
         m.put("Clear", "Cancella");
@@ -32,13 +32,13 @@ final class TextsIt {
                 "Prima apri una pagina nell'app; le patch che agiscono sulle pagine compaiono qui dopo essere state eseguite.");
         m.put("Some changes show after restarting the app.", "Alcune modifiche si vedono dopo il riavvio dell'app.");
         m.put("Quora patches: change them in Settings > Morphe, or long-press the Home tab.",
-                "Patch di Quora: modificale in Impostazioni > Morphe o tieni premuta la scheda Home.");
+                "Patch di Quora: modificale in Settings > Morphe o tieni premuta la scheda Home.");
 
         // More section.
         m.put("Filters", "Filtri");
         m.put("Keywords, authors and Spaces to hide.", "Parole chiave, autori e Spaces da nascondere.");
         m.put("Separate with commas", "Separa con virgole");
-        m.put("Matching ignores case. Saved when you go back.", "Maiuscole e minuscole non contano. Salvato quando torni indietro.");
+        m.put("Matching ignores case. Saved when you go back.", "Maiuscole e minuscole non contano. Si salva quando torni indietro.");
         m.put("History", "Cronologia");
         m.put("Answers, posts and questions you opened.", "Risposte, post e domande che hai aperto.");
         m.put("Bookmarks", "Segnalibri");
@@ -51,7 +51,7 @@ final class TextsIt {
         m.put("Copied.", "Copiato.");
         m.put("Settings restored.", "Impostazioni ripristinate.");
         m.put("Settings restored. Items added to your lists: ", "Impostazioni ripristinate. Elementi aggiunti alle liste: ");
-        m.put("Bookmarks are full. Remove some in Patch settings first.", "I segnalibri sono pieni. Prima rimuovine alcuni nelle impostazioni delle patch.");
+        m.put("Bookmarks are full. Remove some in Patch settings first.", "Hai raggiunto il limite di segnalibri. Prima rimuovine alcuni in Patch di Quora.");
         m.put("That is not a saved settings text.", "Questo non è un testo di impostazioni salvate.");
         m.put("Report a problem", "Segnala un problema");
         m.put("Copies the app details and opens a bug report on GitHub.",
@@ -79,8 +79,8 @@ final class TextsIt {
 
         // Messages from the buttons on pages.
         m.put("Answer copied", "Risposta copiata");
-        m.put("Copied the preview. Open it to copy all of it.", "Copiata l'anteprima. Aprila per copiare tutto il testo.");
-        m.put("Sharing the preview. Open it to share all of it.", "Condivisione dell'anteprima. Aprila per condividere tutto il testo.");
+        m.put("Copied the preview. Open it to copy all of it.", "Anteprima copiata. Apri la risposta per copiare tutto il testo.");
+        m.put("Sharing the preview. Open it to share all of it.", "Condivisione dell'anteprima. Apri la risposta per condividerla tutta.");
         m.put("Translate", "Traduci");
         m.put("Translate to", "Traduci in");
         m.put("Phone's language", "Lingua del telefono");
@@ -108,7 +108,7 @@ final class TextsIt {
         m.put("Install MicroG-RE to sign in with Google and get notifications.",
                 "Installa MicroG-RE per accedere con Google e ricevere le notifiche.");
         m.put("Quora changed its pages, so some patches may not work. Long-press Home for details.",
-                "Quora ha cambiato le sue pagine, alcune patch potrebbero non funzionare. Tieni premuto Home per i dettagli.");
+                "Quora ha cambiato le sue pagine, quindi alcune patch potrebbero non funzionare. Tieni premuta la scheda Home per i dettagli.");
         m.put("Page check: the feed and answers look as the patches expect.",
                 "Controllo pagine: il feed e le risposte sono come le patch si aspettano.");
         m.put("Page check: Quora changed its pages. These may not work: ",
@@ -116,7 +116,7 @@ final class TextsIt {
         m.put(". Please report it on GitHub.", ". Segnalalo su GitHub, per favore.");
 
         // Options.
-        m.put("None", "Nessuno");
+        m.put("None", "Nessuna");
         m.put("Order", "Ordine");
         m.put("Recent", "Più recenti");
         m.put("Upvotes", "Upvote");
@@ -153,7 +153,7 @@ final class TextsIt {
         m.put("The downvote button.", "Il pulsante downvote.");
         m.put("\"123 comments from … and more\" rows.", "Righe «123 comments from … and more».");
         m.put("The line under authors' names.", "La riga sotto i nomi degli autori.");
-        m.put("The small Follow next to names.", "Il piccolo Follow accanto ai nomi.");
+        m.put("The small Follow next to names.", "Il piccolo pulsante Follow accanto ai nomi.");
         m.put("\"How satisfied are you…\" and \"Was this worth your time?\" boxes.",
                 "Riquadri «How satisfied are you…» e «Was this worth your time?».");
         m.put("The \"What do you want to ask or share?\" box.", "Il campo «What do you want to ask or share?».");
@@ -172,7 +172,7 @@ final class TextsIt {
         m.put("Dismissed questions copied.", "Domande scartate copiate.");
         m.put("Answer by ", "Risposta di ");
         m.put("Post by ", "Post di ");
-        m.put("Answer", "Risposta");
+        m.put("Answer", "Rispondi");
         m.put("Question", "Domanda");
         m.put("A Copy button next to Share under answers.", "Un pulsante Copia accanto a Share sotto le risposte.");
         m.put("A Share text button next to Share under answers.", "Un pulsante Condividi testo accanto a Share sotto le risposte.");
@@ -184,11 +184,11 @@ final class TextsIt {
         m.put("Shortened answers open in full.", "Le risposte abbreviate si aprono per intero.");
         m.put("More space between lines and paragraphs.", "Più spazio tra righe e paragrafi.");
         m.put("Answers in the font set below.", "Risposte nel carattere impostato qui sotto.");
-        m.put("Pure black with Quora's dark theme.", "Nero puro con il tema scuro di Quora.");
+        m.put("Pure black with Quora's dark theme.", "Nero puro nel tema scuro di Quora.");
         m.put("Text at the size set below. Applies after a restart.", "Testo nella dimensione impostata qui sotto. Si applica dopo il riavvio.");
         m.put("Select and copy text anywhere.", "Seleziona e copia il testo ovunque.");
         m.put("Images load when you tap them.", "Le immagini si caricano quando le tocchi.");
-        m.put("With Data saver, images still load on Wi-Fi.", "Con Risparmio dati, le immagini si caricano comunque su Wi-Fi.");
+        m.put("With Data saver, images still load on Wi-Fi.", "Con Data saver attivo, le immagini si caricano comunque con il Wi-Fi.");
         m.put("Videos play only when you tap them.", "I video partono solo quando li tocchi.");
         m.put("The screen stays on while a page is open.", "Lo schermo resta acceso mentre una pagina è aperta.");
         m.put("Removes the tabs set below. Applies after a restart.", "Rimuove le schede impostate qui sotto. Si applica dopo il riavvio.");
@@ -212,11 +212,11 @@ final class TextsIt {
         m.put("Notifications", "Notifiche");
         m.put("Next part", "Parte successiva");
         m.put("First part", "Prima parte");
-        m.put("Long answer: translated in parts. Use Next part at the top.", "Risposta lunga: tradotta a parti. Usa Parte successiva in alto.");
+        m.put("Long answer: translated in parts. Use Next part at the top.", "Risposta lunga: tradotta in più parti. Usa Parte successiva in alto.");
         // Quora's upgrade page.
         m.put("Quora no longer accepts this version", "Quora non accetta più questa versione");
         m.put("This patched app is Quora ", "Questa app modificata è Quora ");
-        m.put("It can't update from Google Play. Patch a newer Quora version with Morphe once these patches support it, and install it over this app: you stay signed in.", "Non può aggiornarsi da Google Play. Applica le patch a una versione più recente di Quora con Morphe quando queste patch la supportano e installala sopra questa app: resterai connesso.");
+        m.put("It can't update from Google Play. Patch a newer Quora version with Morphe once these patches support it, and install it over this app: you stay signed in.", "Non può aggiornarsi da Google Play. Applica le patch a una versione più recente di Quora con Morphe quando queste patch la supporteranno e installala sopra questa app: resterai connesso.");
         m.put("How to update", "Come aggiornare");
         m.put("Close", "Chiudi");
     }

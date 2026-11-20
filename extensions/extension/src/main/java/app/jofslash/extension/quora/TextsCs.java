@@ -26,13 +26,13 @@ final class TextsCs {
         m.put("Search patches", "Hledat patche");
         m.put("Search history", "Hledat v historii");
         m.put("Search bookmarks", "Hledat v záložkách");
-        m.put("No patch matches.", "Žádný patch neodpovídá.");
-        m.put("Nothing matches.", "Nic neodpovídá.");
+        m.put("No patch matches.", "Žádný patch se nenašel.");
+        m.put("Nothing matches.", "Nic se nenašlo.");
         m.put("Open a page in the app first; the patches that work on pages appear here once they have run.",
                 "Nejdřív v aplikaci otevři nějakou stránku; patche, které pracují se stránkami, se tu objeví, až se spustí.");
         m.put("Some changes show after restarting the app.", "Některé změny se projeví až po restartu aplikace.");
         m.put("Quora patches: change them in Settings > Morphe, or long-press the Home tab.",
-                "Patche pro Quoru: změníš je v Nastavení > Morphe nebo dlouhým podržením karty Domů.");
+                "Patche pro Quoru: změníš je v Settings > Morphe nebo dlouhým podržením karty Home (domeček dole).");
 
         // More section.
         m.put("Filters", "Filtry");
@@ -47,7 +47,7 @@ final class TextsCs {
         m.put("Your settings and lists as text, to keep or restore.", "Tvoje nastavení a seznamy jako text, k uschování nebo obnovení.");
         m.put("Your settings and lists", "Tvoje nastavení a seznamy");
         m.put("Keep the text somewhere safe.", "Ulož si text někam na bezpečné místo.");
-        m.put("Paste a saved text above first.", "Nejdřív vlož výše uložený text.");
+        m.put("Paste a saved text above first.", "Nejdřív vlož uložený text do pole výše.");
         m.put("Copied.", "Zkopírováno.");
         m.put("Settings restored.", "Nastavení obnoveno.");
         m.put("Settings restored. Items added to your lists: ", "Nastavení obnoveno. Položky přidané do seznamů: ");
@@ -79,7 +79,7 @@ final class TextsCs {
 
         // Messages from the buttons on pages.
         m.put("Answer copied", "Odpověď zkopírována");
-        m.put("Copied the preview. Open it to copy all of it.", "Zkopírován náhled. Celý text zkopíruješ po otevření.");
+        m.put("Copied the preview. Open it to copy all of it.", "Náhled zkopírován. Celý text zkopíruješ po otevření.");
         m.put("Sharing the preview. Open it to share all of it.", "Sdílí se náhled. Celý text nasdílíš po otevření.");
         m.put("Translate", "Přeložit");
         m.put("Translate to", "Přeložit do");
@@ -108,7 +108,7 @@ final class TextsCs {
         m.put("Install MicroG-RE to sign in with Google and get notifications.",
                 "Pro přihlášení přes Google a oznámení nainstaluj MicroG-RE.");
         m.put("Quora changed its pages, so some patches may not work. Long-press Home for details.",
-                "Quora změnila své stránky, některé patche nemusí fungovat. Podrobnosti po dlouhém podržení Domů.");
+                "Quora změnila své stránky, některé patche nemusí fungovat. Podrobnosti uvidíš po dlouhém podržení karty Home.");
         m.put("Page check: the feed and answers look as the patches expect.",
                 "Kontrola stránek: feed i odpovědi vypadají tak, jak patche očekávají.");
         m.put("Page check: Quora changed its pages. These may not work: ",
@@ -141,7 +141,7 @@ final class TextsCs {
         m.put("Answers written by Poe bots.", "Odpovědi, které napsali boti Poe.");
         m.put("Links and buttons that open Poe.", "Odkazy a tlačítka, která otevírají Poe.");
         m.put("Related questions on question pages.", "Související otázky na stránkách otázek.");
-        m.put("Questions for you to answer.", "Otázky, na které máš odpovědět.");
+        m.put("Questions for you to answer.", "Otázky, které ti Quora nabízí k zodpovězení.");
         m.put("\"Spaces you might like\".", "„Spaces you might like“.");
         m.put("\"People you may know\".", "„People you may know“.");
         m.put("Posts from Spaces, so the feed shows answers only.", "Příspěvky ze Spaces, aby feed ukazoval jen odpovědi.");
@@ -160,7 +160,7 @@ final class TextsCs {
         m.put("The red \"More Stories\" button over the feed.", "Červené tlačítko „More Stories“ nad feedem.");
         m.put("The \"Add a comment…\" field under answers.", "Pole „Add a comment…“ pod odpověďmi.");
         m.put("Answers to questions you marked \"Not interested\".", "Odpovědi na otázky označené „Not interested“.");
-        m.put("Dismissed questions", "Odmítnuté otázky");
+        m.put("Dismissed questions", "Nezajímavé otázky");
         m.put("Questions whose answers the feed hides.", "Otázky, jejichž odpovědi feed skrývá.");
         m.put("Nothing yet. Questions you mark \"Not interested in this question\" show up here.",
                 "Zatím nic. Otázky označené „Not interested in this question“ se objeví tady.");
@@ -168,11 +168,11 @@ final class TextsCs {
         m.put("Removed from the list", "Odstraněno ze seznamu");
         m.put("Clear the whole list?", "Vymazat celý seznam?");
         m.put("List cleared.", "Seznam vymazán.");
-        m.put("Search dismissed questions", "Hledat v odmítnutých otázkách");
-        m.put("Dismissed questions copied.", "Odmítnuté otázky zkopírovány.");
-        m.put("Answer by ", "Odpověď od ");
-        m.put("Post by ", "Příspěvek od ");
-        m.put("Answer", "Odpověď");
+        m.put("Search dismissed questions", "Hledat v nezajímavých otázkách");
+        m.put("Dismissed questions copied.", "Nezajímavé otázky zkopírovány.");
+        m.put("Answer by ", "Odpověď: ");
+        m.put("Post by ", "Příspěvek: ");
+        m.put("Answer", "Odpovídat");
         m.put("Question", "Otázka");
         m.put("A Copy button next to Share under answers.", "Tlačítko Kopírovat vedle Share pod odpověďmi.");
         m.put("A Share text button next to Share under answers.", "Tlačítko Sdílet text vedle Share pod odpověďmi.");
@@ -186,9 +186,9 @@ final class TextsCs {
         m.put("Answers in the font set below.", "Odpovědi v písmu nastaveném níže.");
         m.put("Pure black with Quora's dark theme.", "Čistě černá s tmavým motivem Quory.");
         m.put("Text at the size set below. Applies after a restart.", "Text ve velikosti nastavené níže. Projeví se po restartu.");
-        m.put("Select and copy text anywhere.", "Označ a zkopíruj text kdekoli.");
+        m.put("Select and copy text anywhere.", "Text jde kdekoli označit a zkopírovat.");
         m.put("Images load when you tap them.", "Obrázky se načtou až po klepnutí.");
-        m.put("With Data saver, images still load on Wi-Fi.", "Při spořiči dat se obrázky na Wi-Fi načtou i tak.");
+        m.put("With Data saver, images still load on Wi-Fi.", "S patchem Data saver se obrázky na Wi-Fi načtou i tak.");
         m.put("Videos play only when you tap them.", "Videa se spustí až po klepnutí.");
         m.put("The screen stays on while a page is open.", "Obrazovka zůstane zapnutá, dokud je otevřená stránka.");
         m.put("Removes the tabs set below. Applies after a restart.", "Odstraní karty nastavené níže. Projeví se po restartu.");
@@ -212,11 +212,11 @@ final class TextsCs {
         m.put("Notifications", "Oznámení");
         m.put("Next part", "Další část");
         m.put("First part", "První část");
-        m.put("Long answer: translated in parts. Use Next part at the top.", "Dlouhá odpověď: překládá se po částech. Použij Další část nahoře.");
+        m.put("Long answer: translated in parts. Use Next part at the top.", "Dlouhá odpověď: překládá se po částech. Pokračuj tlačítkem Další část nahoře.");
         // Quora's upgrade page.
         m.put("Quora no longer accepts this version", "Quora už tuto verzi nepřijímá");
         m.put("This patched app is Quora ", "Tato upravená aplikace je Quora ");
-        m.put("It can't update from Google Play. Patch a newer Quora version with Morphe once these patches support it, and install it over this app: you stay signed in.", "Nedá se aktualizovat z Google Play. Až ji tyto patche podpoří, uprav novější verzi Quory v Morphe a nainstaluj ji přes tuto aplikaci: zůstaneš přihlášený.");
+        m.put("It can't update from Google Play. Patch a newer Quora version with Morphe once these patches support it, and install it over this app: you stay signed in.", "Nedá se aktualizovat z Google Play. Až tyto patche podpoří novější verzi Quory, uprav ji v Morphe a nainstaluj přes tuto aplikaci. Přihlášení ti zůstane.");
         m.put("How to update", "Jak aktualizovat");
         m.put("Close", "Zavřít");
     }

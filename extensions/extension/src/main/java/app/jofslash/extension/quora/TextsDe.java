@@ -26,19 +26,19 @@ final class TextsDe {
         m.put("Search patches", "Patches durchsuchen");
         m.put("Search history", "Verlauf durchsuchen");
         m.put("Search bookmarks", "Lesezeichen durchsuchen");
-        m.put("No patch matches.", "Kein Patch passt.");
-        m.put("Nothing matches.", "Nichts passt.");
+        m.put("No patch matches.", "Keine passenden Patches.");
+        m.put("Nothing matches.", "Keine Treffer.");
         m.put("Open a page in the app first; the patches that work on pages appear here once they have run.",
                 "Öffne zuerst eine Seite in der App; Patches, die auf Seiten arbeiten, erscheinen hier, sobald sie gelaufen sind.");
         m.put("Some changes show after restarting the app.", "Manche Änderungen werden erst nach einem Neustart der App sichtbar.");
         m.put("Quora patches: change them in Settings > Morphe, or long-press the Home tab.",
-                "Quora-Patches: Ändere sie unter Einstellungen > Morphe oder halte den Home-Tab gedrückt.");
+                "Quora-Patches: Ändere sie unter Settings > Morphe oder halte den Home-Tab gedrückt.");
 
         // More section.
         m.put("Filters", "Filter");
         m.put("Keywords, authors and Spaces to hide.", "Stichwörter, Autoren und Spaces zum Ausblenden.");
         m.put("Separate with commas", "Mit Kommas trennen");
-        m.put("Matching ignores case. Saved when you go back.", "Groß- und Kleinschreibung egal. Wird beim Zurückgehen gespeichert.");
+        m.put("Matching ignores case. Saved when you go back.", "Groß-/Kleinschreibung wird ignoriert. Wird beim Zurückgehen gespeichert.");
         m.put("History", "Verlauf");
         m.put("Answers, posts and questions you opened.", "Geöffnete Antworten, Beiträge und Fragen.");
         m.put("Bookmarks", "Lesezeichen");
@@ -51,7 +51,7 @@ final class TextsDe {
         m.put("Copied.", "Kopiert.");
         m.put("Settings restored.", "Einstellungen wiederhergestellt.");
         m.put("Settings restored. Items added to your lists: ", "Einstellungen wiederhergestellt. Zu deinen Listen hinzugefügte Einträge: ");
-        m.put("Bookmarks are full. Remove some in Patch settings first.", "Lesezeichen sind voll. Entferne zuerst welche in den Patch-Einstellungen.");
+        m.put("Bookmarks are full. Remove some in Patch settings first.", "Die Lesezeichenliste ist voll. Entferne zuerst einige unter Quora-Patches.");
         m.put("That is not a saved settings text.", "Das ist kein gespeicherter Einstellungstext.");
         m.put("Report a problem", "Problem melden");
         m.put("Copies the app details and opens a bug report on GitHub.",
@@ -73,14 +73,14 @@ final class TextsDe {
         m.put("Clear the whole history?", "Gesamten Verlauf löschen?");
         m.put("History cleared.", "Verlauf gelöscht.");
         m.put("Remove this bookmark?", "Dieses Lesezeichen entfernen?");
-        m.put("Saved to Bookmarks", "In Lesezeichen gespeichert");
+        m.put("Saved to Bookmarks", "Zu Lesezeichen hinzugefügt");
         m.put("Removed from Bookmarks", "Aus Lesezeichen entfernt");
         m.put("Just now", "Gerade eben");
 
         // Messages from the buttons on pages.
         m.put("Answer copied", "Antwort kopiert");
-        m.put("Copied the preview. Open it to copy all of it.", "Vorschau kopiert. Öffne sie, um alles zu kopieren.");
-        m.put("Sharing the preview. Open it to share all of it.", "Vorschau wird geteilt. Öffne sie, um alles zu teilen.");
+        m.put("Copied the preview. Open it to copy all of it.", "Vorschau kopiert. Öffne den Eintrag, um alles zu kopieren.");
+        m.put("Sharing the preview. Open it to share all of it.", "Vorschau wird geteilt. Öffne den Eintrag, um alles zu teilen.");
         m.put("Translate", "Übersetzen");
         m.put("Translate to", "Übersetzen in");
         m.put("Phone's language", "Sprache des Telefons");
@@ -108,7 +108,7 @@ final class TextsDe {
         m.put("Install MicroG-RE to sign in with Google and get notifications.",
                 "Installiere MicroG-RE, um dich mit Google anzumelden und Benachrichtigungen zu erhalten.");
         m.put("Quora changed its pages, so some patches may not work. Long-press Home for details.",
-                "Quora hat seine Seiten geändert, manche Patches funktionieren evtl. nicht. Details: Home gedrückt halten.");
+                "Quora hat seine Seiten geändert, daher funktionieren manche Patches eventuell nicht. Für Details den Home-Tab gedrückt halten.");
         m.put("Page check: the feed and answers look as the patches expect.",
                 "Seitenprüfung: Feed und Antworten sehen so aus, wie die Patches es erwarten.");
         m.put("Page check: Quora changed its pages. These may not work: ",
@@ -121,7 +121,7 @@ final class TextsDe {
         m.put("Recent", "Neueste");
         m.put("Upvotes", "Upvotes");
         m.put("Seen items", "Gesehene Einträge");
-        m.put("Dim", "Abblenden");
+        m.put("Dim", "Abdunkeln");
         m.put("Hide", "Ausblenden");
         m.put("Older than", "Älter als");
         m.put("1 year", "1 Jahr");
@@ -141,15 +141,15 @@ final class TextsDe {
         m.put("Answers written by Poe bots.", "Antworten von Poe-Bots.");
         m.put("Links and buttons that open Poe.", "Links und Schaltflächen, die Poe öffnen.");
         m.put("Related questions on question pages.", "Ähnliche Fragen auf Frageseiten.");
-        m.put("Questions for you to answer.", "Fragen, die du beantworten sollst.");
+        m.put("Questions for you to answer.", "Fragen, die du beantworten könntest.");
         m.put("\"Spaces you might like\".", "„Spaces you might like“.");
         m.put("\"People you may know\".", "„People you may know“.");
         m.put("Posts from Spaces, so the feed shows answers only.", "Beiträge aus Spaces, damit der Feed nur Antworten zeigt.");
         m.put("Items you already opened, when they come back.", "Bereits geöffnete Einträge, wenn sie erneut auftauchen.");
-        m.put("Answers older than the years set below.", "Antworten, die älter sind als die unten eingestellten Jahre.");
+        m.put("Answers older than the years set below.", "Antworten, die älter sind als unten eingestellt.");
         m.put("Items that mention your keywords (see Filters).", "Einträge mit deinen Stichwörtern (siehe Filter).");
         m.put("Items from the people and Spaces in Filters.", "Einträge von Personen und Spaces aus den Filtern.");
-        m.put("Upvote, view, comment and share numbers.", "Anzahl von Upvotes, Aufrufen, Kommentaren und Teilungen.");
+        m.put("Upvote, view, comment and share numbers.", "Zahlen zu Upvotes, Aufrufen, Kommentaren und Shares.");
         m.put("The downvote button.", "Die Downvote-Schaltfläche.");
         m.put("\"123 comments from … and more\" rows.", "Zeilen „123 comments from … and more“.");
         m.put("The line under authors' names.", "Die Zeile unter den Namen der Autoren.");
@@ -160,7 +160,7 @@ final class TextsDe {
         m.put("The red \"More Stories\" button over the feed.", "Die rote Schaltfläche „More Stories“ über dem Feed.");
         m.put("The \"Add a comment…\" field under answers.", "Das Feld „Add a comment…“ unter Antworten.");
         m.put("Answers to questions you marked \"Not interested\".", "Antworten auf Fragen, die du mit „Not interested“ markiert hast.");
-        m.put("Dismissed questions", "Abgelehnte Fragen");
+        m.put("Dismissed questions", "Ausgeblendete Fragen");
         m.put("Questions whose answers the feed hides.", "Fragen, deren Antworten der Feed ausblendet.");
         m.put("Nothing yet. Questions you mark \"Not interested in this question\" show up here.",
                 "Noch nichts da. Fragen, die du mit „Not interested in this question“ markierst, erscheinen hier.");
@@ -168,14 +168,14 @@ final class TextsDe {
         m.put("Removed from the list", "Aus der Liste entfernt");
         m.put("Clear the whole list?", "Gesamte Liste löschen?");
         m.put("List cleared.", "Liste gelöscht.");
-        m.put("Search dismissed questions", "Abgelehnte Fragen durchsuchen");
-        m.put("Dismissed questions copied.", "Abgelehnte Fragen kopiert.");
+        m.put("Search dismissed questions", "Ausgeblendete Fragen durchsuchen");
+        m.put("Dismissed questions copied.", "Ausgeblendete Fragen kopiert.");
         m.put("Answer by ", "Antwort von ");
         m.put("Post by ", "Beitrag von ");
-        m.put("Answer", "Antwort");
+        m.put("Answer", "Antworten");
         m.put("Question", "Frage");
         m.put("A Copy button next to Share under answers.", "Eine Kopieren-Schaltfläche neben Share unter Antworten.");
-        m.put("A Share text button next to Share under answers.", "Eine Text-teilen-Schaltfläche neben Share unter Antworten.");
+        m.put("A Share text button next to Share under answers.", "Eine Schaltfläche „Text teilen“ neben Share unter Antworten.");
         m.put("Questions open with answers in the order set below.", "Fragen öffnen sich mit Antworten in der unten eingestellten Reihenfolge.");
         m.put("Remembers what you open (see History).", "Merkt sich, was du öffnest (siehe Verlauf).");
         m.put("A bookmark button under open answers (see Bookmarks).", "Eine Lesezeichen-Schaltfläche unter geöffneten Antworten (siehe Lesezeichen).");
@@ -188,7 +188,7 @@ final class TextsDe {
         m.put("Text at the size set below. Applies after a restart.", "Text in der unten eingestellten Größe. Gilt nach einem Neustart.");
         m.put("Select and copy text anywhere.", "Text überall markieren und kopieren.");
         m.put("Images load when you tap them.", "Bilder laden erst, wenn du darauf tippst.");
-        m.put("With Data saver, images still load on Wi-Fi.", "Mit Datensparmodus laden Bilder im Wi-Fi trotzdem.");
+        m.put("With Data saver, images still load on Wi-Fi.", "Mit Data saver laden Bilder im WLAN trotzdem.");
         m.put("Videos play only when you tap them.", "Videos starten erst, wenn du darauf tippst.");
         m.put("The screen stays on while a page is open.", "Der Bildschirm bleibt an, solange eine Seite geöffnet ist.");
         m.put("Removes the tabs set below. Applies after a restart.", "Entfernt die unten eingestellten Tabs. Gilt nach einem Neustart.");
@@ -202,17 +202,17 @@ final class TextsDe {
         m.put("Other tabs load only when you open them.", "Andere Tabs laden erst, wenn du sie öffnest.");
         m.put("No vibration when you tap buttons.", "Keine Vibration beim Tippen auf Schaltflächen.");
         m.put("No \"Save password?\" or automatic sign-in.", "Kein „Passwort speichern?“ und keine automatische Anmeldung.");
-        m.put("Drops digests and promotions.", "Verwirft Zusammenfassungen und Werbung.");
+        m.put("Drops digests and promotions.", "Blockiert Zusammenfassungen und Werbebenachrichtigungen.");
         m.put("Authors and Spaces", "Autoren und Spaces");
         m.put("Keywords", "Stichwörter");
-        m.put("Serif", "Serifen");
+        m.put("Serif", "Mit Serifen");
         m.put("Sans-serif", "Serifenlos");
-        m.put("Following", "Gefolgt");
+        m.put("Following", "Abonniert");
         m.put("Spaces", "Spaces");
         m.put("Notifications", "Benachrichtigungen");
         m.put("Next part", "Nächster Teil");
         m.put("First part", "Erster Teil");
-        m.put("Long answer: translated in parts. Use Next part at the top.", "Lange Antwort: wird in Teilen übersetzt. Nutze oben Nächster Teil.");
+        m.put("Long answer: translated in parts. Use Next part at the top.", "Lange Antwort: wird in Teilen übersetzt. Tippe oben auf „Nächster Teil“.");
         // Quora's upgrade page.
         m.put("Quora no longer accepts this version", "Quora akzeptiert diese Version nicht mehr");
         m.put("This patched app is Quora ", "Diese gepatchte App ist Quora ");

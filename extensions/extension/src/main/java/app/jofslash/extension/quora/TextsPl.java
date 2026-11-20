@@ -32,7 +32,7 @@ final class TextsPl {
                 "Najpierw otwórz jakąś stronę w aplikacji; łatki działające na stronach pojawią się tutaj, gdy się uruchomią.");
         m.put("Some changes show after restarting the app.", "Niektóre zmiany zadziałają dopiero po ponownym uruchomieniu aplikacji.");
         m.put("Quora patches: change them in Settings > Morphe, or long-press the Home tab.",
-                "Łatki Quora: zmienisz je w Ustawienia > Morphe lub przytrzymując kartę Strona główna.");
+                "Łatki Quora: zmienisz je w Settings > Morphe lub przytrzymując kartę Home.");
 
         // More section.
         m.put("Filters", "Filtry");
@@ -51,7 +51,7 @@ final class TextsPl {
         m.put("Copied.", "Skopiowano.");
         m.put("Settings restored.", "Przywrócono ustawienia.");
         m.put("Settings restored. Items added to your lists: ", "Przywrócono ustawienia. Pozycje dodane do list: ");
-        m.put("Bookmarks are full. Remove some in Patch settings first.", "Zakładki są pełne. Najpierw usuń kilka w ustawieniach łatek.");
+        m.put("Bookmarks are full. Remove some in Patch settings first.", "Osiągnięto limit zakładek. Najpierw usuń kilka w Łatkach Quora.");
         m.put("That is not a saved settings text.", "To nie jest tekst zapisanych ustawień.");
         m.put("Report a problem", "Zgłoś problem");
         m.put("Copies the app details and opens a bug report on GitHub.",
@@ -108,9 +108,9 @@ final class TextsPl {
         m.put("Install MicroG-RE to sign in with Google and get notifications.",
                 "Zainstaluj MicroG-RE, aby logować się przez Google i dostawać powiadomienia.");
         m.put("Quora changed its pages, so some patches may not work. Long-press Home for details.",
-                "Quora zmieniła swoje strony, więc niektóre łatki mogą nie działać. Przytrzymaj Stronę główną, aby zobaczyć szczegóły.");
+                "Quora zmieniła swoje strony, więc niektóre łatki mogą nie działać. Przytrzymaj kartę Home, aby zobaczyć szczegóły.");
         m.put("Page check: the feed and answers look as the patches expect.",
-                "Sprawdzenie stron: kanał i odpowiedzi wyglądają tak, jak oczekują łatki.");
+                "Sprawdzenie stron: kanał i odpowiedzi wyglądają zgodnie z oczekiwaniami łatek.");
         m.put("Page check: Quora changed its pages. These may not work: ",
                 "Sprawdzenie stron: Quora zmieniła swoje strony. Te mogą nie działać: ");
         m.put(". Please report it on GitHub.", ". Zgłoś to, proszę, na GitHubie.");
@@ -141,7 +141,7 @@ final class TextsPl {
         m.put("Answers written by Poe bots.", "Odpowiedzi napisane przez boty Poe.");
         m.put("Links and buttons that open Poe.", "Linki i przyciski, które otwierają Poe.");
         m.put("Related questions on question pages.", "Powiązane pytania na stronach pytań.");
-        m.put("Questions for you to answer.", "Pytania, na które masz odpowiedzieć.");
+        m.put("Questions for you to answer.", "Pytania proponowane Ci do odpowiedzi.");
         m.put("\"Spaces you might like\".", "„Spaces you might like”.");
         m.put("\"People you may know\".", "„People you may know”.");
         m.put("Posts from Spaces, so the feed shows answers only.", "Posty ze Spaces, żeby kanał pokazywał tylko odpowiedzi.");
@@ -153,7 +153,7 @@ final class TextsPl {
         m.put("The downvote button.", "Przycisk głosu przeciw.");
         m.put("\"123 comments from … and more\" rows.", "Wiersze „123 comments from … and more”.");
         m.put("The line under authors' names.", "Wiersz pod nazwami autorów.");
-        m.put("The small Follow next to names.", "Małe Follow obok nazw.");
+        m.put("The small Follow next to names.", "Mały przycisk Follow obok nazw autorów.");
         m.put("\"How satisfied are you…\" and \"Was this worth your time?\" boxes.",
                 "Okienka „How satisfied are you…” i „Was this worth your time?”.");
         m.put("The \"What do you want to ask or share?\" box.", "Pole „What do you want to ask or share?”.");
@@ -170,9 +170,9 @@ final class TextsPl {
         m.put("List cleared.", "Wyczyszczono listę.");
         m.put("Search dismissed questions", "Szukaj w odrzuconych pytaniach");
         m.put("Dismissed questions copied.", "Skopiowano odrzucone pytania.");
-        m.put("Answer by ", "Odpowiedź od ");
-        m.put("Post by ", "Post od ");
-        m.put("Answer", "Odpowiedź");
+        m.put("Answer by ", "Odpowiedź: ");
+        m.put("Post by ", "Post: ");
+        m.put("Answer", "Odpowiadanie");
         m.put("Question", "Pytanie");
         m.put("A Copy button next to Share under answers.", "Przycisk Kopiuj obok Share pod odpowiedziami.");
         m.put("A Share text button next to Share under answers.", "Przycisk Udostępnij tekst obok Share pod odpowiedziami.");
@@ -184,11 +184,11 @@ final class TextsPl {
         m.put("Shortened answers open in full.", "Skrócone odpowiedzi otwierają się w całości.");
         m.put("More space between lines and paragraphs.", "Więcej miejsca między wierszami i akapitami.");
         m.put("Answers in the font set below.", "Odpowiedzi czcionką ustawioną poniżej.");
-        m.put("Pure black with Quora's dark theme.", "Czysta czerń z ciemnym motywem Quory.");
+        m.put("Pure black with Quora's dark theme.", "Czysta czerń w ciemnym motywie Quory.");
         m.put("Text at the size set below. Applies after a restart.", "Tekst w rozmiarze ustawionym poniżej. Działa po ponownym uruchomieniu.");
         m.put("Select and copy text anywhere.", "Zaznaczaj i kopiuj tekst wszędzie.");
         m.put("Images load when you tap them.", "Obrazy wczytują się dopiero po stuknięciu.");
-        m.put("With Data saver, images still load on Wi-Fi.", "Przy oszczędzaniu danych obrazy i tak wczytują się przez Wi-Fi.");
+        m.put("With Data saver, images still load on Wi-Fi.", "Gdy Data saver jest włączony, obrazy i tak wczytują się przez Wi-Fi.");
         m.put("Videos play only when you tap them.", "Filmy odtwarzają się dopiero po stuknięciu.");
         m.put("The screen stays on while a page is open.", "Ekran pozostaje włączony, gdy strona jest otwarta.");
         m.put("Removes the tabs set below. Applies after a restart.", "Usuwa karty ustawione poniżej. Działa po ponownym uruchomieniu.");
@@ -196,7 +196,7 @@ final class TextsPl {
         m.put("Red dots and numbers on the tabs.", "Czerwone kropki i liczby na kartach.");
         m.put("The Ask button in the top bar.", "Przycisk Ask na górnym pasku.");
         m.put("Other websites open in your browser.", "Inne strony internetowe otwierają się w przeglądarce.");
-        m.put("Coming back keeps the open answer and the feed.", "Po powrocie zostaje otwarta odpowiedź i kanał.");
+        m.put("Coming back keeps the open answer and the feed.", "Po powrocie otwarta odpowiedź i kanał pozostają bez zmian.");
         m.put("Pulling down doesn't reload the page. Applies after a restart.", "Przeciągnięcie w dół nie odświeża strony. Działa po ponownym uruchomieniu.");
         m.put("Swiping sideways doesn't change the feed. Applies after a restart.", "Przesunięcie w bok nie zmienia kanału. Działa po ponownym uruchomieniu.");
         m.put("Other tabs load only when you open them.", "Pozostałe karty wczytują się dopiero, gdy je otworzysz.");
@@ -216,7 +216,7 @@ final class TextsPl {
         // Quora's upgrade page.
         m.put("Quora no longer accepts this version", "Quora nie akceptuje już tej wersji");
         m.put("This patched app is Quora ", "Ta zmodyfikowana aplikacja to Quora ");
-        m.put("It can't update from Google Play. Patch a newer Quora version with Morphe once these patches support it, and install it over this app: you stay signed in.", "Nie można jej zaktualizować przez Google Play. Gdy te łatki obsłużą nowszą wersję Quory, załataj ją w Morphe i zainstaluj na tej aplikacji: pozostaniesz zalogowany.");
+        m.put("It can't update from Google Play. Patch a newer Quora version with Morphe once these patches support it, and install it over this app: you stay signed in.", "Nie można jej zaktualizować przez Google Play. Gdy te łatki obsłużą nowszą wersję Quory, załataj ją w Morphe i zainstaluj ją w miejsce tej aplikacji: nie wylogujesz się.");
         m.put("How to update", "Jak zaktualizować");
         m.put("Close", "Zamknij");
     }
