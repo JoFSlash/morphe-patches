@@ -173,7 +173,21 @@ changed copy. These patches are one source you add to it.
 
 **Why do I have to uninstall the Play Store version?**
 The patched app is signed with a different key than Quora's, and Android won't install an app over one with a
-different signature. The same is why the patched app doesn't update from the Play Store.
+different signature. The same is why the patched app doesn't update from the Play Store. To keep the official
+app as well, see the next question.
+
+**Can I keep the official Quora app too?**
+Yes, with the **Clone app** patch. The patched app then installs next to the official one as a separate app,
+"Quora Clone", with its own sign-in. You can change its name and package name in the patch options.
+
+**Signing in with Google doesn't work.**
+Google only signs in apps signed by their maker, so a patched app can't sign in with Google through Google Play
+services. Sign in with email instead, or use Google sign-in through MicroG-RE:
+1. Install [MicroG-RE](https://github.com/MorpheApp/MicroG-RE/releases) (the same one YouTube patched with
+   Morphe uses). It runs next to Google Play services and doesn't replace them.
+2. Open the MicroG RE app, go to Accounts > Add Google account, and sign in.
+3. Patch Quora with **GmsCore support** on. Google sign-in and push notifications then go through MicroG-RE.
+   Without MicroG-RE the app shows a reminder at start, and Google sign-in won't work.
 
 **Can my Quora account get banned for this?**
 Nobody has reported it. The patches change what the app shows and what it sends, they don't post, vote or do anything
