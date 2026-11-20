@@ -149,9 +149,43 @@ def main():
             sys.exit("Quora's sign-in page didn't show within a minute.")
         if args.expect_login:
             print("Quora's sign-in page loaded.")
+        problems = patch_errors(adb, pid)
+        if problems:
+            print("Errors from the patches in the log:")
+            for line in problems[:20]:
+                print("  " + line)
+            sys.exit(1)
+        print("No errors from the patches in the log.")
         print("Check the feed with the page patches by hand.")
 
     sys.exit(1 if failed else 0)
+
+
+def patch_errors(adb, pid):
+    """Error lines our extension logged, and missing classes or methods in the app's process.
+
+    The extension catches its own exceptions and logs them as E/JoFSlashPatches, so a patch that
+    stops working on some Android version shows up here and not as a crash. A class or method that
+    an older Android doesn't have shows up as NoSuchMethodError or NoClassDefFoundError.
+    """
+    log = subprocess.run([adb, "logcat", "-d", "-v", "brief"], capture_output=True, text=True,
+                         errors="replace").stdout
+    pids = set(pid.split())
+    lines = log.splitlines()
+    problems = []
+    for i, line in enumerate(lines):
+        if line.startswith("E/JoFSlashPatches"):
+            problems.append(line)
+            continue
+        m = re.match(r"^[A-Z]/[^(]*\(\s*(\d+)\)", line)
+        if not m or m.group(1) not in pids:
+            continue
+        if not re.search(r"NoSuchMethodError|NoClassDefFoundError|NoSuchFieldError|AbstractMethodError", line):
+            continue
+        # Only when the stack trace that follows goes through our code.
+        if any("app.jofslash" in later for later in lines[i:i + 25]):
+            problems.append(line)
+    return problems
 
 
 def login_page_shown(adb, timeout=60):

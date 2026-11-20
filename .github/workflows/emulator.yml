@@ -1,7 +1,7 @@
 name: Emulator test
 
-# Patches Quora with every patch, installs it on an Android emulator and checks that it starts
-# without a crash and loads Quora's sign-in page. The feed needs a signed-in account; the weekly
+# Patches Quora with every patch, installs it on Android 7, 11, 15 and 16 emulators and checks
+# that it starts without a crash or errors from the patches and loads Quora's sign-in page. The feed needs a signed-in account; the weekly
 # feed test (feed-test.yml) signs in with a test account and checks the page patches there.
 #
 # Quora's APK can't be in this public repository. It comes from the private repository
@@ -22,9 +22,18 @@ env:
 
 jobs:
   emulator:
-    name: Start on an emulator
+    name: Start on Android ${{ matrix.android }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        # Quora's oldest (minSdk 24), a middle one, the latest common one and the newest (its targetSdk).
+        include:
+          - { api: 24, android: '7' }
+          - { api: 30, android: '11' }
+          - { api: 35, android: '15' }
+          - { api: 36, android: '16' }
     steps:
       - name: Check for the APK token
         id: token
@@ -80,7 +89,7 @@ jobs:
         if: steps.token.outputs.skip != 'true'
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          api-level: ${{ matrix.api }}
           target: google_apis
           arch: x86_64
           disable-animations: true
