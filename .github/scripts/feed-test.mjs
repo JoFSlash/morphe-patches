@@ -87,6 +87,22 @@ const clickText = (labels) => `(function(){var want=${JSON.stringify(labels)};${
   + 'return want.indexOf((e.innerText||"").trim())>=0&&vis(e)&&e.getClientRects().length;});'
   + 'if(!b)return false;b.click();return true;})()';
 
+/** Taps the visible button with this text with adb, at its place on the screen. */
+async function tapText(label) {
+  for (const page of await pages()) {
+    const spot = await evaluate(page, `(function(){
+      var b=[].slice.call(document.querySelectorAll('button,[role=button],a')).find(function(e){
+        return (e.innerText||'').trim()===${JSON.stringify(label)}&&e.getClientRects().length;});
+      if(!b)return null;b.scrollIntoView({block:'center'});var r=b.getBoundingClientRect();
+      return {x:r.left+r.width/2,y:r.top+r.height/2,dpr:window.devicePixelRatio};})()`);
+    const view = spot && webViewBounds();
+    if (!spot || !view) continue;
+    adb('shell', 'input', 'tap', String(Math.round(view.l + spot.x * spot.dpr)), String(Math.round(view.t + spot.y * spot.dpr)));
+    return true;
+  }
+  return false;
+}
+
 /** What the pages show, for a failed sign-in: addresses, buttons and field types, never values. */
 async function describePages() {
   try {
@@ -113,7 +129,11 @@ async function signIn(email, password) {
   if (await waitFor(feedCount, 5)) return 'signed-in';
   const hasForm = "!!document.querySelector('input#email')&&!!document.querySelector('input#password')";
   // The start page's Login button opens the form; "Log in" would send it, so only Login is tapped.
-  if (!(await waitFor(hasForm, 3)) && !(await waitFor(clickText(['Login']), 60))) return 'no-login-button';
+  if (!(await waitFor(hasForm, 3))) {
+    if (!(await waitFor(clickText(['Login']), 60))) return 'no-login-button';
+    // Some WebViews only open the form on a real tap, so tap the button when the click did nothing.
+    if (!(await waitFor(hasForm, 10)) && !(await tapText('Login'))) return 'no-login-button';
+  }
   const form = await waitFor(hasForm, 30);
   if (!form) return 'no-form';
   const fill = `(function(){var set=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;
@@ -125,6 +145,8 @@ async function signIn(email, password) {
   if (process.env.DRY_RUN === '1') return 'dry-run';
   await sleep(1000);
   if (!(await evaluate(form.page, clickText(['Log in'])))) return 'no-submit';
+  // As with Login: tap the button when the click did nothing and the form is still there.
+  if (!(await waitFor(feedCount, 12)) && (await waitFor(hasForm, 2))) await tapText('Log in');
   if (await waitFor(feedCount, 90)) return 'signed-in';
   // Say why, without printing the page (it may show the address). Only clear signs of a captcha or
   // a code count as "Quora wants more"; anything else fails the test, so it can't pass by skipping.
