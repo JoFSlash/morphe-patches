@@ -19,6 +19,7 @@ import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 /**
@@ -29,20 +30,25 @@ import android.widget.TextView;
 final class TranslatePage {
 
     private static final String TAG = "JoFSlashPatches";
-    // Google Translate's page takes about 5000 characters.
-    private static final int MAX_CHARS = 4500;
 
     private TranslatePage() {
     }
 
-    static String url(String text) {
-        String part = text.length() > MAX_CHARS ? text.substring(0, MAX_CHARS) : text;
+    /** A link that translates one part (see TextParts) into the language set for the button. */
+    static String url(String part) {
         return "https://translate.google.com/?sl=auto&tl=" + Uri.encode(ReadingPatch.translateTarget())
                 + "&op=translate&text=" + Uri.encode(part);
     }
 
+    /** "Next part 2/3", or "First part" on the last one. */
+    private static String nextLabel(int shown, int count) {
+        return shown + 1 < count ? Texts.t("Next part") + " " + (shown + 2) + "/" + count : Texts.t("First part");
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
     static void show(Context context, String text) {
+        java.util.List<String> parts = TextParts.split(text);
+        if (parts.isEmpty()) return;
         try {
             boolean dark = (context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
                     == Configuration.UI_MODE_NIGHT_YES;
@@ -76,7 +82,22 @@ final class TranslatePage {
             title.setTextSize(21);
             title.setTypeface(Typeface.DEFAULT_BOLD);
             title.setTextColor(ink);
-            top.addView(title);
+            top.addView(title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            // A long answer goes to Google in parts; this steps through them.
+            TextView next = new TextView(context);
+            int[] shown = {0};
+            // Switching parts is not a step back can undo: back still means back inside one part.
+            boolean[] clearHistory = {false};
+            if (parts.size() > 1) {
+                next.setText(nextLabel(0, parts.size()));
+                next.setTextSize(16);
+                next.setTypeface(Typeface.DEFAULT_BOLD);
+                next.setTextColor(0xFF2E69FF);
+                next.setGravity(Gravity.CENTER);
+                int pad = (int) (16 * density);
+                next.setPadding(pad, 0, pad, 0);
+                top.addView(next, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, (int) (56 * density)));
+            }
             root.addView(top);
 
             ProgressBar progress = new ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal);
@@ -100,6 +121,10 @@ final class TranslatePage {
                 @Override
                 public void onPageFinished(WebView view, String url) {
                     progress.setVisibility(View.GONE);
+                    if (clearHistory[0]) {
+                        clearHistory[0] = false;
+                        view.clearHistory();
+                    }
                 }
             });
             root.addView(web, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
@@ -131,8 +156,19 @@ final class TranslatePage {
                     }
                 }
             }
-            web.loadUrl(url(text));
+            next.setOnClickListener((v) -> {
+                shown[0] = (shown[0] + 1) % parts.size();
+                next.setText(nextLabel(shown[0], parts.size()));
+                progress.setVisibility(View.VISIBLE);
+                clearHistory[0] = true;
+                web.loadUrl(url(parts.get(shown[0])));
+            });
+            web.loadUrl(url(parts.get(0)));
             dialog.show();
+            if (parts.size() > 1) {
+                Toast.makeText(context, Texts.t("Long answer: translated in parts. Use Next part at the top."),
+                        Toast.LENGTH_LONG).show();
+            }
         } catch (Exception ex) {
             Log.e(TAG, "Failed to open the translation", ex);
         }
