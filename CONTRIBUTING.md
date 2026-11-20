@@ -67,9 +67,12 @@ page no longer has the class names some patches rely on, it names those patches.
   there when you change what a script hides.
 - `emulator.yml` patches the newest supported version on every pull request, installs it on an
   emulator and checks that it starts and loads the sign-in page.
-- `feed-test.yml` signs in with a test account once a day and checks the page patches on the real
-  feed and on an answer (`.github/scripts/feed-test.mjs`). It needs the `QUORA_TEST_EMAIL` and
-  `QUORA_TEST_PASSWORD` secrets, and skips itself when Quora asks for a captcha or a code.
+- `feed-test.yml` signs in with a test account every Monday before the release and checks the page
+  patches on the real feed and on an answer (`.github/scripts/feed-test.mjs`). It needs the
+  `QUORA_TEST_EMAIL` and `QUORA_TEST_PASSWORD` secrets. It skips itself with a warning when Quora
+  clearly asks for a captcha or a code, and fails on any other failed sign-in.
+- `.github/scripts/check_texts.py` fails when a settings language misses a text the app shows.
+  Add a new text to every `Texts<Lang>.java`; the Build workflow runs the check.
 
 ## Pull requests
 

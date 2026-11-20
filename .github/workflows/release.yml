@@ -41,6 +41,9 @@ jobs:
       - name: Test page scripts
         run: bash .github/page-scripts/run.sh
 
+      - name: Check settings translations
+        run: python3 .github/scripts/check_texts.py
+
       # Semantic release runs its own Gradle build command.
       # Only main makes a release, as set in .releaserc.
       - name: Release

@@ -47,7 +47,13 @@ It also keeps your lists, each with a search field and **Copy as text**:
 - **Dismissed questions**: questions you marked "Not interested in this question" (Hide dismissed questions).
 
 **Report a problem** copies the Quora and Android versions, the patches you have on and the page check, then opens
-a bug report on GitHub for you to paste them into. When the phone is set to Slovak, the settings page is in Slovak.
+a bug report on GitHub for you to paste them into.
+
+The settings page follows the phone's language: Czech, French, German, Italian, Polish, Portuguese, Slovak and
+Spanish, otherwise English. Patch names stay in English, as Morphe Manager shows them.
+
+**Backup** copies your settings and these lists as text. Restoring adds the saved items to the lists already on
+the phone.
 
 ## Where to start
 
