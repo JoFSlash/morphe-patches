@@ -49,6 +49,7 @@ final class SettingsPage {
     private final float density;
     private final int text, secondary, background, section, divider, bar, accent;
     private final boolean dark;
+    private Dialog mainPage;
 
     private SettingsPage(Activity activity) {
         this.activity = activity;
@@ -108,6 +109,9 @@ final class SettingsPage {
         if (!texts.isEmpty()) {
             add(more, linkRow("Filters", "Keywords, authors and Spaces to hide.", () -> filters(prefs, texts)));
         }
+        if (switches.containsKey("readingHistory")) {
+            add(more, linkRow("History", "Answers, posts and questions you opened.", this::history));
+        }
         add(more, linkRow("Backup", "Copy your settings as text, or restore them.", () -> backup(prefs)));
         content.addView(more);
 
@@ -119,7 +123,7 @@ final class SettingsPage {
         content.addView(none);
         content.addView(search(content, none), 0);
 
-        show("Quora patches", content, () -> {
+        mainPage = show("Quora patches", content, () -> {
             if (changed.isEmpty()) return;
             PatchSettings.reload();
             for (String key : changed) {
@@ -157,6 +161,52 @@ final class SettingsPage {
             editor.apply();
             if (edited) PatchSettings.reload();
         });
+    }
+
+    private void history() {
+        List<ReadingHistory.Item> items = ReadingHistory.load(activity);
+        LinearLayout content = column();
+        Dialog[] page = new Dialog[1];
+        if (items.isEmpty()) {
+            content.addView(note("Nothing yet. Answers, posts and questions you open show up here."));
+        } else {
+            LinearLayout box = section(null);
+            long now = System.currentTimeMillis();
+            for (ReadingHistory.Item item : items) {
+                String when = now - item.time < android.text.format.DateUtils.MINUTE_IN_MILLIS
+                        ? "Just now"
+                        : android.text.format.DateUtils.getRelativeTimeSpanString(
+                                item.time, now, android.text.format.DateUtils.MINUTE_IN_MILLIS).toString();
+                String line = item.author.isEmpty() ? when : item.author + " · " + when;
+                add(box, linkRow(item.title, line, () -> {
+                    if (!ReadingHistory.isQuoraUrl(item.url)) return;
+                    try {
+                        // Quora opens its own links in the app.
+                        android.content.Intent open = new android.content.Intent(
+                                android.content.Intent.ACTION_VIEW, android.net.Uri.parse(item.url));
+                        open.setPackage(activity.getPackageName());
+                        activity.startActivity(open);
+                        if (page[0] != null) page[0].dismiss();
+                        if (mainPage != null) mainPage.dismiss();
+                    } catch (Exception ex) {
+                        Log.e(TAG, "Failed to open a history item", ex);
+                    }
+                }));
+            }
+            content.addView(box);
+        }
+        Runnable clear = items.isEmpty() ? null : () -> new android.app.AlertDialog.Builder(activity, dark
+                ? android.R.style.Theme_Material_Dialog_Alert
+                : android.R.style.Theme_Material_Light_Dialog_Alert)
+                .setMessage("Clear the whole history?")
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Clear", (d, w) -> {
+                    ReadingHistory.clear(activity);
+                    Toast.makeText(activity, "History cleared.", Toast.LENGTH_SHORT).show();
+                    if (page[0] != null) page[0].dismiss();
+                })
+                .show();
+        page[0] = show("History", content, null, "Clear", clear);
     }
 
     private void backup(SharedPreferences prefs) {
@@ -209,6 +259,11 @@ final class SettingsPage {
 
     /** A full screen window with a top bar; back (the arrow or the system back) closes it. */
     private Dialog show(String title, View content, Runnable onClose) {
+        return show(title, content, onClose, null, null);
+    }
+
+    /** As above, with a text button at the right end of the top bar. */
+    private Dialog show(String title, View content, Runnable onClose, String actionLabel, Runnable action) {
         Dialog dialog = new Dialog(activity, dark
                 ? android.R.style.Theme_Material_NoActionBar
                 : android.R.style.Theme_Material_Light_NoActionBar);
@@ -236,7 +291,18 @@ final class SettingsPage {
         name.setTextSize(21);
         name.setTypeface(Typeface.DEFAULT_BOLD);
         name.setTextColor(text);
-        top.addView(name);
+        top.addView(name, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        if (actionLabel != null && action != null) {
+            TextView button = new TextView(activity);
+            button.setText(actionLabel);
+            button.setTextSize(16);
+            button.setTypeface(Typeface.DEFAULT_BOLD);
+            button.setTextColor(accent);
+            button.setGravity(Gravity.CENTER);
+            button.setPadding(dp(16), 0, dp(16), 0);
+            button.setOnClickListener((v) -> action.run());
+            top.addView(button, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(56)));
+        }
         root.addView(top);
         View line = new View(activity);
         line.setBackgroundColor(divider);

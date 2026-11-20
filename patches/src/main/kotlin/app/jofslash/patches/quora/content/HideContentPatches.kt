@@ -38,6 +38,14 @@ val hideQuoraPlusAnswersPatch = pageScriptPatch(
 )
 
 @Suppress("unused")
+val hideAskBoxPatch = pageScriptPatch(
+    name = "Hide ask box",
+    patchCategory = "Feed",
+    description = "Hides the \"What do you want to ask or share?\" box with Ask, Answer and Post at the top of the feed.",
+    extensionMethod = "hideAskBox",
+)
+
+@Suppress("unused")
 val hideRelatedQuestionsPatch = pageScriptPatch(
     name = "Hide related questions",
     patchCategory = "Feed",
@@ -145,6 +153,7 @@ val hideCredentialsPatch = pageScriptPatch(
 val hideSurveysPatch = pageScriptPatch(
     name = "Hide surveys",
     patchCategory = "Feed",
-    description = "Hides Quora's surveys in the feed, such as \"How satisfied are you with your home feed?\".",
+    description = "Hides Quora's surveys in the feed, such as \"How satisfied are you with your home feed?\" " +
+            "and \"Was this worth your time?\" under answers.",
     extensionMethod = "hideSurveys",
 )

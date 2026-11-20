@@ -18,8 +18,8 @@ The privacy patches are on by default. Everything else is off until you pick it.
    [this link](https://morphe.software/add-source?github=JoFSlash/quora-patches) on your phone, or add
    `https://github.com/JoFSlash/quora-patches` under sources in Morphe Manager.
 3. Download a supported version of Quora as an APKM file from APKMirror:
-   [3.2.42](https://www.apkmirror.com/apk/quora-inc/quora/quora-the-knowledge-platform-3-2-42-release/) (newest) or
-   [3.2.30](https://www.apkmirror.com/apk/quora-inc/quora/quora-3-2-30-release/). Other versions won't work.
+   [3.2.42](https://www.apkmirror.com/apk/quora-inc/quora/quora-the-knowledge-platform-3-2-42-release/).
+   Older versions won't work: Quora's servers turn away old app versions.
    Pick the file in Morphe Manager, then pick the patches you want.
 4. Uninstall the Play Store version before installing the patched one. It is signed with a different key,
    so Android won't install it over the original. Uninstalling signs you out, so sign in again in the patched

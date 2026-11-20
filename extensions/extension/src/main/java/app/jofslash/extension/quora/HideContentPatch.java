@@ -36,6 +36,15 @@ public final class HideContentPatch {
     }
 
     /**
+     * Injection point: start of QWebViewClient.onPageFinished. The "What do you want to ask or share?"
+     * box with Ask, Answer and Post at the top of the feed.
+     */
+    public static void hideAskBox(WebView webView) {
+        if (!PatchSettings.active(webView, "hideAskBox", "Hide ask box")) return;
+        injectStyle(webView, "jofslash-hide-ask-box", "[class*=\"dom_annotate_multifeed_bundle_AskQuestionPromptBundle\"]");
+    }
+
+    /**
      * Injection point: start of QWebViewClient.onPageFinished.
      */
     public static void hideRelatedQuestions(WebView webView) {
@@ -316,10 +325,10 @@ public final class HideContentPatch {
         evaluate(webView, CREDENTIALS_SCRIPT, "credentials");
     }
 
-    // "How satisfied are you with your home feed experience today?" and similar boxes.
+    // "How satisfied are you with your home feed experience today?", "Was this worth your time?" and similar boxes.
     private static final String SURVEYS_SCRIPT = "(function(){"
             + "if(window.__jofslashSurveys)return;window.__jofslashSurveys=1;"
-            + "var re=/^(How (satisfied|likely|would you rate)|Rate your experience|Help us improve)/i;"
+            + "var re=/^(How (satisfied|likely|would you rate)|Rate your experience|Help us improve|Was this worth your time)/i;"
             + "function text(e){return (e.textContent||'').replace(/\\s+/g,' ').trim();}"
             + "function run(){document.querySelectorAll('div').forEach(function(d){"
             + "if(d.hasAttribute('data-jofslash-hidden'))return;var t=text(d);if(!re.test(t))return;"
@@ -327,6 +336,9 @@ public final class HideContentPatch {
             // The whole box: its wrappers start with the same question and stay short.
             + "var w=d;while(w.parentElement&&w.parentElement!==document.body){var p=text(w.parentElement);"
             + "if(p.indexOf(t)!==0||p.length>400)break;w=w.parentElement;}"
+            // "Was this worth your time?" under answers sits in a box that starts with "Your response is private".
+            + "while(w.parentElement&&w.parentElement!==document.body){var q=text(w.parentElement);"
+            + "if(!/^Your response is private/i.test(q)||q.indexOf(t)<0||q.length>300)break;w=w.parentElement;}"
             + "w.setAttribute('data-jofslash-hidden','');w.style.setProperty('display','none','important');});}"
             + observeScript("run")
             + "})();";
