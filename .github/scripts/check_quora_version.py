@@ -263,15 +263,20 @@ def login_page_shown(adb, timeout=60):
 
     Quora picks the page's language from the IP address, so a runner can get it in French or
     another language. The page's top image (logged_out_home_mobile_top.png) is the same in
-    every language, so it counts as well as the English buttons.
+    every language, so it counts as well as the English buttons; it isn't always in the dump,
+    so the Google and Facebook buttons count in any language too.
     """
     end = time.time() + timeout
     while time.time() < end:
         subprocess.run([adb, "shell", "uiautomator", "dump", "/sdcard/window.xml"], capture_output=True)
         screen = subprocess.run([adb, "shell", "cat", "/sdcard/window.xml"],
                                 capture_output=True, text=True, errors="replace").stdout
+        # The sign-in buttons name Google and Facebook in every language ("Continuer avec
+        # Google"), so both brand names on buttons count too.
+        brands = (re.search(r'text="[^"]*\bGoogle\b[^"]*"', screen)
+                  and re.search(r'text="[^"]*\bFacebook\b[^"]*"', screen))
         if (re.search(r'text="(Continue with Google|Sign up with email|Login|Reject All|I Accept)"', screen)
-                or "logged_out_home" in screen):
+                or "logged_out_home" in screen or brands):
             return True
         time.sleep(5)
     return False
