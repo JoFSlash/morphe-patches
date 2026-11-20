@@ -2,6 +2,7 @@ package app.jofslash.patches.quora.content
 
 import app.jofslash.patches.quora.ads.PageFinishedFingerprint
 import app.jofslash.patches.quora.shared.Constants.COMPATIBILITY_QUORA
+import app.jofslash.patches.quora.video.InitWebViewFingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
 import app.morphe.patcher.patch.bytecodePatch
 
@@ -52,6 +53,40 @@ val hideAskBoxPatch = pageScriptPatch(
     extensionMethod = "hideAskBox",
     default = true,
 )
+
+@Suppress("unused")
+val hideCommentBoxPatch = pageScriptPatch(
+    name = "Hide comment box",
+    patchCategory = "Reading",
+    description = "Hides the \"Add a comment…\" field under answers and posts. Comments still open from the comment button.",
+    extensionMethod = "hideCommentBox",
+)
+
+@Suppress("unused")
+val hideDismissedQuestionsPatch = bytecodePatch(
+    name = "Hide dismissed questions",
+    description = "When you close a feed item with its × and pick \"Not interested in this question\", the feed " +
+            "doesn't show answers to that question again. Undo brings it back. The list stays on your phone, " +
+            "under Dismissed questions in Patch settings.",
+    default = false
+) {
+    category("Feed")
+    compatibleWith(COMPATIBILITY_QUORA)
+
+    extendWith("extensions/extension.mpe")
+
+    execute {
+        PageFinishedFingerprint.method.addInstruction(
+            0,
+            "invoke-static { p1 }, $EXTENSION_CLASS->hideDismissedQuestions(Landroid/webkit/WebView;)V"
+        )
+        // The list is kept by the app, which the page reaches through this.
+        InitWebViewFingerprint.method.addInstruction(
+            0,
+            "invoke-static { p1 }, Lapp/jofslash/extension/quora/PatchSettings;->bind(Landroid/webkit/WebView;)V"
+        )
+    }
+}
 
 @Suppress("unused")
 val hideRelatedQuestionsPatch = pageScriptPatch(

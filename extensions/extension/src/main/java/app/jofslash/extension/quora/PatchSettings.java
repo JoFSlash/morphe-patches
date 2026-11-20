@@ -127,7 +127,8 @@ public final class PatchSettings {
     /**
      * Injection point: start of QWebViewController.initWebView. Lets the "Quora patches" entry on
      * Quora's settings page open this dialog. Pages can also use it for Copy and Share answer text,
-     * Sort answers and Reading history; they can't read anything back through it.
+     * Sort answers, Reading history and Bookmarks. The only thing they can read back is whether one
+     * quora.com link is bookmarked.
      */
     public static void bind(WebView webView) {
         if (webView == null) return;
@@ -154,13 +155,13 @@ public final class PatchSettings {
         /** For Copy answer text: puts the answer's text on the clipboard. */
         @android.webkit.JavascriptInterface
         public void copyText(String text) {
-            copy(text, "Answer copied", Toast.LENGTH_SHORT);
+            copy(text, Texts.t("Answer copied"), Toast.LENGTH_SHORT);
         }
 
         /** For Copy answer text: the feed only has the start of a long answer. */
         @android.webkit.JavascriptInterface
         public void copyPreview(String text) {
-            copy(text, "Copied the preview. Open it to copy all of it.", Toast.LENGTH_LONG);
+            copy(text, Texts.t("Copied the preview. Open it to copy all of it."), Toast.LENGTH_LONG);
         }
 
         private void copy(String text, String message, int length) {
@@ -188,7 +189,7 @@ public final class PatchSettings {
         /** For Share answer text: the feed only has the start of a long answer. */
         @android.webkit.JavascriptInterface
         public void sharePreview(String text) {
-            share(text, "Sharing the preview. Open it to share all of it.");
+            share(text, Texts.t("Sharing the preview. Open it to share all of it."));
         }
 
         private void share(String text, String message) {
@@ -212,6 +213,18 @@ public final class PatchSettings {
             });
         }
 
+        /**
+         * For Translate button: shows the text translated on Google Translate's site, in a page
+         * inside the app, into the phone's language.
+         */
+        @android.webkit.JavascriptInterface
+        public void translateText(String text) {
+            WebView view = webView.get();
+            if (view == null || text == null || text.trim().isEmpty()) return;
+            String value = text.trim();
+            view.post(() -> TranslatePage.show(view.getContext(), value));
+        }
+
         /** For Sort answers: the next sort menu the page opens picks this order instead of showing. */
         @android.webkit.JavascriptInterface
         public void sortNext(String order) {
@@ -223,7 +236,60 @@ public final class PatchSettings {
         public void addHistory(String url, String title, String author) {
             WebView view = webView.get();
             if (view == null) return;
-            ReadingHistory.add(view.getContext().getApplicationContext(), url, title, author);
+            ReadingHistory.HISTORY.add(view.getContext().getApplicationContext(), url, title, author);
+        }
+
+        /** For Hide dismissed questions: you marked this question "Not interested in this question". */
+        @android.webkit.JavascriptInterface
+        public void dismissQuestion(String title) {
+            WebView view = webView.get();
+            if (view == null || title == null || title.trim().isEmpty()) return;
+            String clean = title.trim().replaceAll("\\s+", " ");
+            ReadingHistory.DISMISSED.add(view.getContext().getApplicationContext(),
+                    ReadingHistory.questionSearchUrl(clean), clean, "");
+        }
+
+        /** For Hide dismissed questions: you tapped Undo. */
+        @android.webkit.JavascriptInterface
+        public void undismissQuestion(String title) {
+            WebView view = webView.get();
+            if (view == null || title == null) return;
+            ReadingHistory.DISMISSED.remove(view.getContext().getApplicationContext(),
+                    ReadingHistory.questionSearchUrl(title));
+        }
+
+        /** For Hide dismissed questions: the titles to hide, in lower case, as a JSON array. */
+        @android.webkit.JavascriptInterface
+        public String dismissedQuestions() {
+            WebView view = webView.get();
+            org.json.JSONArray titles = new org.json.JSONArray();
+            if (view == null) return titles.toString();
+            for (ReadingHistory.Item item : ReadingHistory.DISMISSED.load(view.getContext().getApplicationContext())) {
+                titles.put(item.title.toLowerCase(java.util.Locale.ROOT));
+            }
+            return titles.toString();
+        }
+
+        /** For Bookmarks: whether this answer or post is saved. Only says yes or no for one quora.com link. */
+        @android.webkit.JavascriptInterface
+        public boolean isBookmarked(String url) {
+            WebView view = webView.get();
+            if (view == null || !ReadingHistory.isQuoraUrl(url)) return false;
+            return ReadingHistory.BOOKMARKS.contains(view.getContext().getApplicationContext(), url);
+        }
+
+        /** For Bookmarks: saves or removes this answer or post. Returns whether it is saved now. */
+        @android.webkit.JavascriptInterface
+        public boolean toggleBookmark(String url, String title, String author) {
+            WebView view = webView.get();
+            if (view == null || !ReadingHistory.isQuoraUrl(url)) return false;
+            Context context = view.getContext().getApplicationContext();
+            boolean saved = !ReadingHistory.BOOKMARKS.contains(context, url);
+            if (saved) ReadingHistory.BOOKMARKS.add(context, url, title, author);
+            else ReadingHistory.BOOKMARKS.remove(context, url);
+            view.post(() -> Toast.makeText(view.getContext(),
+                    Texts.t(saved ? "Saved to Bookmarks" : "Removed from Bookmarks"), Toast.LENGTH_SHORT).show());
+            return saved;
         }
     }
 
@@ -263,7 +329,7 @@ public final class PatchSettings {
         SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         if (prefs.getBoolean("hint_shown", false)) return;
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            Toast.makeText(context, "Quora patches: change them in Settings > Morphe, or long-press the Home tab.",
+            Toast.makeText(context, Texts.t("Quora patches: change them in Settings > Morphe, or long-press the Home tab."),
                     Toast.LENGTH_LONG).show();
             prefs.edit().putBoolean("hint_shown", true).apply();
         }, 6000);
@@ -298,8 +364,8 @@ public final class PatchSettings {
         String summary(String value) {
             List<String> picked = new ArrayList<>();
             List<String> chosen = java.util.Arrays.asList((value == null ? "" : value).split(","));
-            for (int i = 0; i < values.length; i++) if (chosen.contains(values[i])) picked.add(labels[i]);
-            return picked.isEmpty() ? (multi ? "None" : value) : android.text.TextUtils.join(", ", picked);
+            for (int i = 0; i < values.length; i++) if (chosen.contains(values[i])) picked.add(Texts.t(labels[i]));
+            return picked.isEmpty() ? (multi ? Texts.t("None") : value) : android.text.TextUtils.join(", ", picked);
         }
     }
 

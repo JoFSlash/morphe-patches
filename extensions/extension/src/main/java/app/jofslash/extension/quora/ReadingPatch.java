@@ -591,7 +591,134 @@ public final class ReadingPatch {
                 + "})();", "share answer text");
     }
 
+    // ------------------------------------------------------------------ translate
+
+    /** The languages offered in Patch settings, as Google Translate's codes. "device" is the phone's language. */
+    private static final String[] TRANSLATE_LABELS = {"Phone's language", "Slovak", "Czech", "English", "German",
+            "Hungarian", "Polish", "Ukrainian", "Russian", "French", "Spanish", "Italian", "Portuguese", "Dutch",
+            "Chinese", "Japanese", "Korean", "Arabic", "Hindi", "Turkish"};
+    private static final String[] TRANSLATE_CODES = {"device", "sk", "cs", "en", "de", "hu", "pl", "uk", "ru", "fr",
+            "es", "it", "pt", "nl", "zh-CN", "ja", "ko", "ar", "hi", "tr"};
+
+    /** The language set under Translate button in Patch settings, as a Google Translate code. */
+    static String translateTarget() {
+        String code = PatchSettings.choice("translateAnswerText", "translateTo", "Translate to", "device",
+                TRANSLATE_LABELS, TRANSLATE_CODES, false);
+        if (code == null || code.isEmpty() || "device".equals(code)) return java.util.Locale.getDefault().getLanguage();
+        return code;
+    }
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Adds a Translate button after Share
+     * under answers and posts; it opens their text in the phone's translator.
+     */
+    public static void translateAnswerText(WebView webView) {
+        if (!PatchSettings.active(webView, "translateAnswerText", "Translate button")) return;
+        translateTarget(); // Lists the option in Patch settings.
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashTranslate)return;window.__jofslashTranslate=1;"
+                // An "A" and a character from another script: translate.
+                + "var ICON='<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\">"
+                + "<g class=\"icon_svg-stroke\" stroke=\"#666\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\">"
+                + "<path d=\"M3 6h8M7 4v2M5 6c0 3 2 5 5 6M9 6c0 3-2 5-5 6\"></path>"
+                + "<path d=\"M12 20l4-9 4 9M13.5 17h5\"></path></g></svg>';"
+                + ITEM_TEXT_JS
+                + PREVIEW_JS
+                + "function translate(t){var r=preview(t);if(!r.text)return;var J=window.JoFSlashPatches;"
+                + "if(J&&J.translateText)J.translateText(r.text);}"
+                + SHARE_BUTTONS_JS
+                + "function run(){shareButtons().forEach(function(s){"
+                + "if(s.hasAttribute('data-jofslash-translate'))return;s.setAttribute('data-jofslash-translate','');"
+                + "var item=s.parentElement&&s.parentElement.children.length===1?s.parentElement:s;"
+                + "var b=item.cloneNode(true);b.setAttribute('data-jofslash-translate','');b.setAttribute('data-jofslash-clone','');"
+                + "[b].concat([].slice.call(b.querySelectorAll('*'))).forEach(function(e){"
+                + "e.classList.remove('dom_annotate_answer_action_bar_share','puppeteer_test_answer_quora_share_button','sprig_share_button');});"
+                + "var svg=b.querySelector('svg');if(!svg)return;svg.outerHTML=ICON;"
+                + "b.querySelectorAll('.q-text').forEach(function(e){e.remove();});"
+                + "var btn=b.querySelector('button')||b;btn.setAttribute('aria-label','Translate');"
+                + "b.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();translate(text(item));},true);"
+                + "item.parentElement.insertBefore(b,item.nextSibling);});}"
+                + observe("run")
+                + "})();", "translate");
+    }
+
     // ------------------------------------------------------------------ reading history
+
+    /**
+     * pageItem(): the answer, post or question this page shows, as {url, title, author}; the
+     * author line reads "Answer by …", "Post by …" or "Question". {other: true} on other pages.
+     * The url or title may still be empty while the page loads.
+     */
+    private static final String PAGE_ITEM_JS = "function pageItem(){"
+            + "function txt(e){return e?(e.innerText||'').trim():'';}"
+            + "var u=location.href,url='',title='',author='';"
+            + "var m=/[?&]props=([^&#]+)/.exec(u),props=null;"
+            + "if(m){try{props=JSON.parse(decodeURIComponent(m[1]));}catch(e){}}"
+            + "var q=txt(document.querySelector('.puppeteer_test_question_title'));"
+            // The first profile link with a name; the avatar before it is a link too.
+            + "var p=[].slice.call(document.querySelectorAll('a[href*=\"/profile/\"]')).map(txt)"
+            + ".filter(Boolean).map(function(s){return s.split('\\n')[0];})[0]||'';"
+            // Answers and posts open in pages without their own address; Quora's data has it.
+            + "if(props&&/rootCls=(AnswerModalPage|PostModalPage)/.test(u)){"
+            + "var R=window.__RELAY_RECORDS__||{},r=null;"
+            + "for(var k in R){var x=R[k];if(!x)continue;"
+            + "if((props.aid&&x.aid===props.aid)||(props.pid&&x.pid===props.pid)){r=x;break;}}"
+            + "if(r)url=r.permaUrl||r.url||'';"
+            // A post's title is rich text: {"sections":[{"spans":[{"text":…}]}]}.
+            + "var pt='';if(r&&typeof r.title==='string'){try{pt=JSON.parse(r.title).sections.map(function(s){"
+            + "return s.spans.map(function(x){return x.text;}).join('');}).join(' ').trim();}catch(e){}}"
+            + "title=q||pt||txt(document.querySelector('" + ANSWER_TEXT + "')).split('\\n')[0].slice(0,140);"
+            // The line under the title in History.
+            + "var post=/PostModalPage/.test(u);"
+            + "author=(post?'Post':'Answer')+(p?' by '+p:'');"
+            + "}else if(/^https:\\/\\/www\\.quora\\.com\\/[^?#\\/]+\\/answer\\/[^?#\\/]+/.test(u)){"
+            + "url=u.split(/[?#]/)[0];title=q;author='Answer'+(p?' by '+p:'');"
+            // A question page: its answers have the sort and filter menus.
+            + "}else if(/^https:\\/\\/www\\.quora\\.com\\/[^?#\\/]+([?#].*)?$/.test(u)"
+            + "&&document.querySelector('button.sprig_sort_dropdown,button.sprig_all_related_dropdown')){"
+            + "url=u.split(/[?#]/)[0];title=q;author='Question';}"
+            + "else return {other:true};"
+            + "if(url&&url.charAt(0)==='/')url='https://www.quora.com'+url;"
+            + "return {url:url,title:title,author:author};}";
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Adds a bookmark button next to Share
+     * under an open answer or post; Patch settings > Bookmarks lists what you saved.
+     */
+    public static void bookmarks(WebView webView) {
+        if (!PatchSettings.active(webView, "bookmarks", "Bookmarks")) return;
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashBookmark===location.href)return;window.__jofslashBookmark=location.href;"
+                + "var OUTLINE='<path d=\"M7 4.5h10a1 1 0 0 1 1 1V20l-6-4-6 4V5.5a1 1 0 0 1 1-1z\"></path>';"
+                + "var FILLED='<path fill=\"currentColor\" d=\"M7 4.5h10a1 1 0 0 1 1 1V20l-6-4-6 4V5.5a1 1 0 0 1 1-1z\"></path>';"
+                + "function icon(on){return '<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\">"
+                + "<g class=\"icon_svg-stroke\" stroke=\"#666\" stroke-width=\"1.5\" fill=\"none\" stroke-linejoin=\"round\""
+                + "'+(on?' style=\"color:#666\"':'')+'>'+(on?FILLED:OUTLINE)+'</g></svg>';}"
+                + PAGE_ITEM_JS
+                + SHARE_BUTTONS_JS
+                + "var n=0;"
+                + "function run(){var J=window.JoFSlashPatches;if(!J||!J.toggleBookmark)return;"
+                + "var it=pageItem();"
+                // Only an open answer or post: questions and the feed have no address for one item.
+                + "if(it.other||/^Question/.test(it.author||''))return;"
+                + "var s=shareButtons()[0];"
+                + "if(!it.url||!it.title||!s){if(++n<20)setTimeout(run,500);return;}"
+                + "if(document.querySelector('[data-jofslash-bookmark]'))return;"
+                + "var item=s.parentElement&&s.parentElement.children.length===1?s.parentElement:s;"
+                + "var b=item.cloneNode(true);b.setAttribute('data-jofslash-bookmark','');b.setAttribute('data-jofslash-clone','');"
+                + "[b].concat([].slice.call(b.querySelectorAll('*'))).forEach(function(e){"
+                + "e.classList.remove('dom_annotate_answer_action_bar_share','puppeteer_test_answer_quora_share_button','sprig_share_button');});"
+                + "var svg=b.querySelector('svg');if(!svg)return;"
+                + "b.querySelectorAll('.q-text').forEach(function(e){e.remove();});"
+                + "var btn=b.querySelector('button')||b;"
+                + "function show(on){var g=b.querySelector('svg');if(g)g.outerHTML=icon(on);"
+                + "btn.setAttribute('aria-label',on?'Remove bookmark':'Bookmark');btn.setAttribute('aria-pressed',on?'true':'false');}"
+                + "show(J.isBookmarked(it.url));"
+                + "b.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();"
+                + "var now=pageItem();show(J.toggleBookmark(now.url||it.url,now.title||it.title,now.author||it.author));},true);"
+                + "item.parentElement.insertBefore(b,item.nextSibling);}"
+                + "run();})();", "bookmarks");
+    }
 
     /**
      * Injection point: start of QWebViewClient.onPageFinished. Remembers the answers, posts and
@@ -601,39 +728,13 @@ public final class ReadingPatch {
         if (!PatchSettings.active(webView, "readingHistory", "Reading history")) return;
         evaluate(webView, "(function(){"
                 + "if(window.__jofslashHistory===location.href)return;window.__jofslashHistory=location.href;"
+                + PAGE_ITEM_JS
                 + "var n=0;"
-                + "function txt(e){return e?(e.innerText||'').trim():'';}"
-                + "function rec(){var u=location.href,url='',title='',author='';"
-                + "var m=/[?&]props=([^&#]+)/.exec(u),props=null;"
-                + "if(m){try{props=JSON.parse(decodeURIComponent(m[1]));}catch(e){}}"
-                + "var q=txt(document.querySelector('.puppeteer_test_question_title'));"
-                // The first profile link with a name; the avatar before it is a link too.
-                + "var p=[].slice.call(document.querySelectorAll('a[href*=\"/profile/\"]')).map(txt)"
-                + ".filter(Boolean).map(function(s){return s.split('\\n')[0];})[0]||'';"
-                // Answers and posts open in pages without their own address; Quora's data has it.
-                + "if(props&&/rootCls=(AnswerModalPage|PostModalPage)/.test(u)){"
-                + "var R=window.__RELAY_RECORDS__||{},r=null;"
-                + "for(var k in R){var x=R[k];if(!x)continue;"
-                + "if((props.aid&&x.aid===props.aid)||(props.pid&&x.pid===props.pid)){r=x;break;}}"
-                + "if(r)url=r.permaUrl||r.url||'';"
-                // A post's title is rich text: {"sections":[{"spans":[{"text":…}]}]}.
-                + "var pt='';if(r&&typeof r.title==='string'){try{pt=JSON.parse(r.title).sections.map(function(s){"
-                + "return s.spans.map(function(x){return x.text;}).join('');}).join(' ').trim();}catch(e){}}"
-                + "title=q||pt||txt(document.querySelector('" + ANSWER_TEXT + "')).split('\\n')[0].slice(0,140);"
-                // The line under the title in History.
-                + "var post=/PostModalPage/.test(u);"
-                + "author=(post?'Post':'Answer')+(p?' by '+p:'');"
-                + "}else if(/^https:\\/\\/www\\.quora\\.com\\/[^?#\\/]+\\/answer\\/[^?#\\/]+/.test(u)){"
-                + "url=u.split(/[?#]/)[0];title=q;author='Answer'+(p?' by '+p:'');"
-                // A question page: its answers have the sort and filter menus.
-                + "}else if(/^https:\\/\\/www\\.quora\\.com\\/[^?#\\/]+([?#].*)?$/.test(u)"
-                + "&&document.querySelector('button.sprig_sort_dropdown,button.sprig_all_related_dropdown')){"
-                + "url=u.split(/[?#]/)[0];title=q;author='Question';}"
+                + "function rec(){var it=pageItem();"
                 // Other pages: give up after a few tries (a question page may still be loading).
-                + "else if(n>=6)return;"
-                + "if(url&&url.charAt(0)==='/')url='https://www.quora.com'+url;"
-                + "if(url&&title&&window.JoFSlashPatches&&window.JoFSlashPatches.addHistory){"
-                + "window.JoFSlashPatches.addHistory(url,title,author);return;}"
+                + "if(it.other){if(n>=6)return;}"
+                + "else if(it.url&&it.title&&window.JoFSlashPatches&&window.JoFSlashPatches.addHistory){"
+                + "window.JoFSlashPatches.addHistory(it.url,it.title,it.author);return;}"
                 + "if(++n<20)setTimeout(rec,500);}"
                 + "rec();})();", "reading history");
     }

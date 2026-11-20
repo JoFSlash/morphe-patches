@@ -148,3 +148,46 @@ val fullscreenReadingPatch = bytecodePatch(
         )
     }
 }
+
+@Suppress("unused")
+val bookmarksPatch = bytecodePatch(
+    name = "Bookmarks",
+    description = "Adds a bookmark button next to Share under an open answer or post, to read it later. " +
+            "Saved items are listed under Bookmarks in Patch settings and stay on your phone.",
+    default = true
+) {
+    category("Reading")
+    compatibleWith(COMPATIBILITY_QUORA)
+
+    extendWith("extensions/extension.mpe")
+
+    execute {
+        PageFinishedFingerprint.method.addInstruction(
+            0,
+            "invoke-static { p1 }, $READING->bookmarks(Landroid/webkit/WebView;)V"
+        )
+        bindBridge()
+    }
+}
+
+@Suppress("unused")
+val translateButtonPatch = bytecodePatch(
+    name = "Translate button",
+    description = "Adds a Translate button next to Share under answers and posts. It shows their text " +
+            "translated by Google Translate inside the app, into your phone's language or the one you pick. " +
+            "The text is sent to Google only when you tap the button.",
+    default = false
+) {
+    category("Reading")
+    compatibleWith(COMPATIBILITY_QUORA)
+
+    extendWith("extensions/extension.mpe")
+
+    execute {
+        PageFinishedFingerprint.method.addInstruction(
+            0,
+            "invoke-static { p1 }, $READING->translateAnswerText(Landroid/webkit/WebView;)V"
+        )
+        bindBridge()
+    }
+}

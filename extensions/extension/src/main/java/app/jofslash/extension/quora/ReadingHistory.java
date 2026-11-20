@@ -12,15 +12,28 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * Reading history: the answers, posts and questions you opened, newest first.
+ * A list of answers, posts and questions, newest first: the reading history and the bookmarks.
  * Kept in the app's own storage, apart from the settings so backups don't include it.
  */
 final class ReadingHistory {
 
     private static final String TAG = "JoFSlashPatches";
-    private static final String PREFS = "jofslash_history";
     private static final String KEY = "items";
-    private static final int MAX = 300;
+
+    /** The answers, posts and questions you opened. */
+    static final ReadingHistory HISTORY = new ReadingHistory("jofslash_history", 300);
+    /** The answers and posts you saved. */
+    static final ReadingHistory BOOKMARKS = new ReadingHistory("jofslash_bookmarks", 1000);
+    /**
+     * The questions you marked "Not interested in this question". Each one is kept with a Quora
+     * search link for its title, as the feed doesn't show the question's own address.
+     */
+    static final ReadingHistory DISMISSED = new ReadingHistory("jofslash_dismissed", 500);
+
+    /** The link a dismissed question is kept under. */
+    static String questionSearchUrl(String title) {
+        return "https://www.quora.com/search?q=" + android.net.Uri.encode(title.trim().replaceAll("\\s+", " "));
+    }
 
     // Only Quora pages: quora.com and Spaces on their own subdomains.
     private static final Pattern QUORA_URL = Pattern.compile("^https://([a-z0-9-]+\\.)?quora\\.com/[^\\s]*$");
@@ -37,19 +50,24 @@ final class ReadingHistory {
         }
     }
 
-    private ReadingHistory() {
+    private final String prefsName;
+    private final int max;
+
+    private ReadingHistory(String prefsName, int max) {
+        this.prefsName = prefsName;
+        this.max = max;
     }
 
     static boolean isQuoraUrl(String url) {
         return url != null && url.length() < 2000 && QUORA_URL.matcher(url).matches();
     }
 
-    private static SharedPreferences prefs(Context context) {
-        return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+    private SharedPreferences prefs(Context context) {
+        return context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
     }
 
     /** Adds an item, or moves it to the top when it is already there. */
-    static synchronized void add(Context context, String url, String title, String author) {
+    synchronized void add(Context context, String url, String title, String author) {
         if (context == null || !isQuoraUrl(url) || title == null || title.trim().isEmpty()) return;
         try {
             List<Item> items = load(context);
@@ -58,14 +76,39 @@ final class ReadingHistory {
             }
             items.add(0, new Item(url, clip(title.trim(), 300), clip(author == null ? "" : author.trim(), 100),
                     System.currentTimeMillis()));
-            while (items.size() > MAX) items.remove(items.size() - 1);
+            while (items.size() > max) items.remove(items.size() - 1);
             save(context, items);
         } catch (Exception ex) {
-            Log.e(TAG, "Failed to save the reading history", ex);
+            Log.e(TAG, "Failed to save " + prefsName, ex);
         }
     }
 
-    static synchronized List<Item> load(Context context) {
+    synchronized void remove(Context context, String url) {
+        if (context == null || url == null) return;
+        try {
+            List<Item> items = load(context);
+            boolean changed = false;
+            for (int i = items.size() - 1; i >= 0; i--) {
+                if (items.get(i).url.equals(url)) {
+                    items.remove(i);
+                    changed = true;
+                }
+            }
+            if (changed) save(context, items);
+        } catch (Exception ex) {
+            Log.e(TAG, "Failed to save " + prefsName, ex);
+        }
+    }
+
+    synchronized boolean contains(Context context, String url) {
+        if (context == null || url == null) return false;
+        for (Item item : load(context)) {
+            if (item.url.equals(url)) return true;
+        }
+        return false;
+    }
+
+    synchronized List<Item> load(Context context) {
         List<Item> items = new ArrayList<>();
         if (context == null) return items;
         try {
@@ -76,16 +119,16 @@ final class ReadingHistory {
                 items.add(new Item(o.optString("u"), o.optString("t"), o.optString("a"), o.optLong("d")));
             }
         } catch (Exception ex) {
-            Log.e(TAG, "Failed to read the reading history", ex);
+            Log.e(TAG, "Failed to read " + prefsName, ex);
         }
         return items;
     }
 
-    static synchronized void clear(Context context) {
+    synchronized void clear(Context context) {
         if (context != null) prefs(context).edit().remove(KEY).apply();
     }
 
-    private static void save(Context context, List<Item> items) throws Exception {
+    private void save(Context context, List<Item> items) throws Exception {
         JSONArray array = new JSONArray();
         for (Item item : items) {
             JSONObject o = new JSONObject();
