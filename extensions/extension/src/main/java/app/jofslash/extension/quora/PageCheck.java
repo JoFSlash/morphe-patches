@@ -74,7 +74,61 @@ public final class PageCheck {
      */
     public static void onPageFinished(WebView webView) {
         if (webView == null) return;
+        new Handler(Looper.getMainLooper()).postDelayed(() -> checkUpgradeNeeded(webView), 1_500);
         new Handler(Looper.getMainLooper()).postDelayed(() -> check(webView), 10_000);
+    }
+
+    private static boolean upgradeShown;
+    // One string, so .github/scripts/check_texts.py finds it.
+    private static final String UPGRADE_HELP = "It can't update from Google Play. Patch a newer Quora version with Morphe once these patches support it, and install it over this app: you stay signed in.";
+
+    /**
+     * Quora's servers refuse an app version they no longer support with an "Upgrade Needed" page
+     * whose button goes to Google Play, where a patched app can't update. Says what to do instead,
+     * once per start.
+     */
+    private static void checkUpgradeNeeded(WebView webView) {
+        if (upgradeShown) return;
+        try {
+            webView.evaluateJavascript("(function(){var t=(document.body&&document.body.innerText)||'';"
+                    + "return document.title==='Upgrade Needed'"
+                    + "||/old version of Quora for Android that.s no longer supported/.test(t);})()", (value) -> {
+                if (!"true".equals(value) || upgradeShown) return;
+                upgradeShown = true;
+                showUpgradeNeeded(webView.getContext());
+            });
+        } catch (Exception ex) {
+            Log.e(TAG, "Failed to check for Quora's upgrade page", ex);
+        }
+    }
+
+    private static void showUpgradeNeeded(android.content.Context context) {
+        try {
+            String version = "?";
+            try {
+                version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+            } catch (Exception ignored) {
+                // The version is only for the message.
+            }
+            new android.app.AlertDialog.Builder(context)
+                    .setTitle(Texts.t("Quora no longer accepts this version"))
+                    .setMessage(Texts.t("This patched app is Quora ") + version + ". "
+                            + Texts.t(UPGRADE_HELP))
+                    .setPositiveButton(Texts.t("How to update"), (d, w) -> {
+                        try {
+                            android.content.Intent open = new android.content.Intent(android.content.Intent.ACTION_VIEW,
+                                    android.net.Uri.parse("https://github.com/JoFSlash/quora-patches#updating"));
+                            open.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(open);
+                        } catch (Exception ex) {
+                            Log.e(TAG, "Failed to open the update guide", ex);
+                        }
+                    })
+                    .setNegativeButton(Texts.t("Close"), null)
+                    .show();
+        } catch (Exception ex) {
+            Log.e(TAG, "Failed to show the upgrade note", ex);
+        }
     }
 
     private static void check(WebView webView) {

@@ -213,5 +213,11 @@ final class TextsSk {
         m.put("Next part", "Ďalšia časť");
         m.put("First part", "Prvá časť");
         m.put("Long answer: translated in parts. Use Next part at the top.", "Dlhá odpoveď: prekladá sa po častiach. Použi Ďalšia časť hore.");
+        // Quora's upgrade page.
+        m.put("Quora no longer accepts this version", "Quora už túto verziu neprijíma");
+        m.put("This patched app is Quora ", "Táto upravená aplikácia je Quora ");
+        m.put("It can't update from Google Play. Patch a newer Quora version with Morphe once these patches support it, and install it over this app: you stay signed in.", "Nedá sa aktualizovať z Google Play. Keď ju tieto patche podporia, uprav novšiu verziu Quory v Morphe a nainštaluj ju cez túto aplikáciu: ostaneš prihlásený.");
+        m.put("How to update", "Ako aktualizovať");
+        m.put("Close", "Zavrieť");
     }
 }

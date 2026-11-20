@@ -36,6 +36,12 @@ def used_texts():
         src = path.read_text(encoding="utf8")
         for m in re.finditer(r'Texts\.t\(' + STR + r'\s*\)', src):
             used.add(unescape(m.group(1)))
+        # Texts.t(NAME) with a String constant of this file.
+        for m in re.finditer(r'Texts\.t\(([A-Z][A-Z0-9_]*)\)', src):
+            const = re.search(r'String\s+' + m.group(1) + r'\s*=\s*' + STR + r'\s*;', src)
+            if not const:
+                sys.exit(f"{path.name}: Texts.t({m.group(1)}) needs a one-string constant")
+            used.add(unescape(const.group(1)))
         # The settings page builders take English text and translate it themselves: every string in
         # their arguments, up to the end of the call's statement or the start of a lambda. A string
         # followed by + is the start of a text put together at run time (see DYNAMIC).

@@ -213,5 +213,11 @@ final class TextsEs {
         m.put("Next part", "Siguiente parte");
         m.put("First part", "Primera parte");
         m.put("Long answer: translated in parts. Use Next part at the top.", "Respuesta larga: se traduce por partes. Usa Siguiente parte arriba.");
+        // Quora's upgrade page.
+        m.put("Quora no longer accepts this version", "Quora ya no acepta esta versión");
+        m.put("This patched app is Quora ", "Esta app parcheada es Quora ");
+        m.put("It can't update from Google Play. Patch a newer Quora version with Morphe once these patches support it, and install it over this app: you stay signed in.", "No se puede actualizar desde Google Play. Parchea una versión más reciente de Quora con Morphe cuando estos parches la admitan e instálala sobre esta app: seguirás con la sesión iniciada.");
+        m.put("How to update", "Cómo actualizar");
+        m.put("Close", "Cerrar");
     }
 }
