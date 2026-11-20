@@ -70,7 +70,23 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B main origin/main
-          git merge --ff-only "$tag" || git merge --no-ff "$tag" -m "chore: Merge $tag into main for the stable release"
+          if ! git merge --ff-only "$tag"; then
+            # main has commits dev doesn't (an urgent fix released by hand this week). Both
+            # releases rewrote the files semantic-release generates, so conflicts there are
+            # expected: keep main's (the stable release regenerates them; README takes dev's text,
+            # as its generated parts are regenerated too). A conflict anywhere else stops here.
+            if ! git merge --no-ff "$tag" -m "chore: Merge $tag into main for the stable release"; then
+              for f in $(git diff --name-only --diff-filter=U); do
+                case "$f" in
+                  CHANGELOG.md|gradle.properties|patches-bundle.json|patches-list.json) git checkout --ours -- "$f" ;;
+                  README.md) git checkout --theirs -- "$f" ;;
+                  *) echo "::error::$tag conflicts with main in $f: merge it into main by hand, then run this workflow on main."; exit 1 ;;
+                esac
+                git add -- "$f"
+              done
+              git commit --no-edit
+            fi
+          fi
           git push origin main
           gh workflow run release.yml --ref main
 
@@ -134,6 +150,14 @@ jobs:
       - name: Check settings translations
         run: python3 .github/scripts/check_texts.py
 
+      # Downloads the Gradle plugins and dependencies with retries, so the build semantic-release
+      # runs below finds them in the cache instead of failing on a network hiccup. "clean" removes
+      # this build's .mpp again, so only the released one is uploaded.
+      - name: Download Gradle dependencies
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/scripts/gradle-retry.sh :patches:buildAndroid clean --no-daemon
+
       # Semantic release runs its own Gradle build command.
       # main makes stable releases, dev pre-releases, as set in .releaserc. After a stable
       # release, .releaserc merges main back into dev.
@@ -157,7 +181,7 @@ jobs:
         if: steps.release.outputs.new_release_published != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :patches:buildAndroid clean --no-daemon
+        run: bash .github/scripts/gradle-retry.sh :patches:buildAndroid clean --no-daemon
 
   # Says on GitHub when a release didn't go out, so a red run on a Monday morning isn't missed.
   report:
