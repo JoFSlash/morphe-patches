@@ -3,16 +3,19 @@
 It follows APKMirror's pages from the release in the feed to the file, with a pause between
 requests and a few tries, as one person would. It is meant to run once for each new Quora
 version, not more. Before the file is used it checks that base.apk is com.quora.android at the
-asked version and signed with Quora's certificate (the SHA-1 in Constants.kt).
+asked version, and that every APK in the bundle is signed with Quora's certificate (the SHA-1 in
+Constants.kt).
 
 Usage:
     python .github/scripts/fetch_quora_apkm.py <version> <out.apkm> [--apksigner <path>] [--aapt2 <path>]
     python .github/scripts/fetch_quora_apkm.py --verify-only <file.apkm> <version> [--apksigner ...] [--aapt2 ...]
 
-Exit codes: 0 done, 4 APKMirror turned the download away (for example Cloudflare), 5 the version
-isn't on APKMirror, 6 the file isn't Quora's (wrong package, version or signature).
+Exit codes: 0 done, 4 APKMirror or the network turned the download away (for example Cloudflare
+or a timeout), 5 there is no APK bundle of the version on APKMirror, 6 the file isn't Quora's
+(wrong package, version or signature), 7 apksigner or aapt2 couldn't run.
 """
 import argparse
+import http.client
 import pathlib
 import re
 import subprocess
@@ -37,7 +40,11 @@ PAUSE = 4  # seconds between requests
 
 
 class Blocked(Exception):
-    pass
+    """APKMirror or the network turned a request away."""
+
+
+class NotFound(Exception):
+    """APKMirror has no APK bundle of the version."""
 
 
 def get(url, referer=None, binary=False):
@@ -54,11 +61,12 @@ def get(url, referer=None, binary=False):
                 kind = response.headers.get("Content-Type", "")
         except urllib.error.HTTPError as ex:
             last = f"HTTP {ex.code}"
-            if ex.code in (403, 429, 503):
-                continue
-            raise
-        except urllib.error.URLError as ex:
-            last = str(ex.reason)
+            if ex.code in (404, 410):
+                raise NotFound(f"{url}: {last}")
+            continue
+        # URLError, timeouts and dropped connections, also while reading the body.
+        except (OSError, http.client.HTTPException) as ex:
+            last = f"{type(ex).__name__}: {ex}"
             continue
         time.sleep(PAUSE)
         if binary:
@@ -85,6 +93,18 @@ def release_page(version):
     return None
 
 
+def bundle_variant(page):
+    """The download page of the APK bundle (APKM). A release can also list plain APKs, which aren't
+    what the patches take; APKMirror marks the bundle row with a BUNDLE badge."""
+    links = list(dict.fromkeys(re.findall(r'href="(/apk/quora-inc/quora/[^"]*-android-apk-download/)"', page)))
+    for i, link in enumerate(links):
+        start = page.find(f'href="{link}"')
+        end = page.find(f'href="{links[i + 1]}"') if i + 1 < len(links) else start + 3000
+        if re.search(r">\s*BUNDLE\s*<|apkm-badge", page[start:end if end > start else start + 3000]):
+            return link
+    raise NotFound("no APK bundle (APKM) for this version on APKMirror")
+
+
 def first(pattern, text, what):
     match = re.search(pattern, text)
     if not match:
@@ -95,10 +115,9 @@ def first(pattern, text, what):
 def download(version, out):
     release = release_page(version)
     if not release:
-        print(f"Quora {version} isn't on APKMirror.")
-        sys.exit(5)
+        raise NotFound(f"Quora {version} isn't in APKMirror's feed")
     page = get(release)
-    variant = BASE + first(r'href="(/apk/quora-inc/quora/[^"]*-android-apk-download/)"', page, "the download variant")
+    variant = BASE + bundle_variant(page)
     page = get(variant, release)
     keyed = BASE + first(r'href="(/apk/[^"]*/download/\?key=[^"]+)"', page, "the download button")
     page = get(keyed, variant)
@@ -113,34 +132,51 @@ def quora_signature():
     return match.group(1)
 
 
+def run_tool(command):
+    """Runs apksigner or aapt2. Exits with 7 when the tool itself can't run, so a missing tool
+    isn't mistaken for a file that isn't Quora's."""
+    try:
+        return subprocess.run(command, capture_output=True, text=True)
+    except OSError as ex:
+        print(f"Couldn't run {command[0]}: {ex}")
+        sys.exit(7)
+
+
 def verify(apkm, version, apksigner, aapt2):
-    """Exits with 6 unless base.apk is Quora at this version, signed with Quora's certificate."""
+    """Exits with 6 unless base.apk is Quora at this version and every APK in the bundle (the
+    splits too: they can carry code) is signed with Quora's certificate."""
+    expected = quora_signature()
+    problems = []
     with tempfile.TemporaryDirectory() as work:
         try:
             with zipfile.ZipFile(apkm) as archive:
-                archive.extract("base.apk", work)
-        except (zipfile.BadZipFile, KeyError) as ex:
+                apks = [n for n in archive.namelist() if n.endswith(".apk")]
+                if "base.apk" not in apks:
+                    raise KeyError("base.apk")
+                for name in apks:
+                    archive.extract(name, work)
+        except (zipfile.BadZipFile, KeyError, OSError) as ex:
             print(f"Not an APKM with a base.apk: {ex}")
             sys.exit(6)
         base = str(pathlib.Path(work) / "base.apk")
-        badging = subprocess.run([aapt2, "dump", "badging", base], capture_output=True, text=True).stdout
+        badging = run_tool([aapt2, "dump", "badging", base]).stdout
         match = re.search(r"package: name='([^']+)' versionCode='\d+' versionName='([^']+)'", badging)
-        certs = subprocess.run([apksigner, "verify", "--print-certs", base], capture_output=True, text=True)
-    found_package, found_version = match.groups() if match else ("?", "?")
-    digests = re.findall(r"Signer #1 certificate SHA-1 digest: ([0-9a-f]+)", certs.stdout)
-    problems = []
-    if found_package != PACKAGE:
-        problems.append(f"package is {found_package}")
-    if found_version != version:
-        problems.append(f"version is {found_version}, not {version}")
-    if certs.returncode != 0:
-        problems.append("signature doesn't verify: " + (certs.stderr or certs.stdout).strip()[:200])
-    elif digests != [quora_signature()]:
-        problems.append(f"signed by {digests}, not Quora")
+        found_package, found_version = match.groups() if match else ("?", "?")
+        if found_package != PACKAGE:
+            problems.append(f"package is {found_package}")
+        if found_version != version:
+            problems.append(f"version is {found_version}, not {version}")
+        for name in apks:
+            certs = run_tool([apksigner, "verify", "--print-certs", str(pathlib.Path(work) / name)])
+            digests = re.findall(r"Signer #1 certificate SHA-1 digest: ([0-9a-f]+)", certs.stdout)
+            if certs.returncode != 0:
+                problems.append(f"{name}: signature doesn't verify: " + (certs.stderr or certs.stdout).strip()[:200])
+            elif digests != [expected]:
+                problems.append(f"{name} is signed by {digests}, not Quora")
     if problems:
         print("This isn't Quora's APK: " + "; ".join(problems))
         sys.exit(6)
-    print(f"Checked: {PACKAGE} {version}, signed by Quora ({digests[0]}).")
+    print(f"Checked: {PACKAGE} {version}, all {len(apks)} APKs signed by Quora ({expected}).")
 
 
 def main():
@@ -159,8 +195,11 @@ def main():
         sys.exit("The version looks like 3.2.47.")
     try:
         download(version, out)
+    except NotFound as ex:
+        print(f"Not on APKMirror: {ex}")
+        sys.exit(5)
     except Blocked as ex:
-        print(f"APKMirror turned the download away: {ex}")
+        print(f"APKMirror or the network turned the download away: {ex}")
         sys.exit(4)
     verify(out, version, args.apksigner, args.aapt2)
 

@@ -67,6 +67,8 @@ def main():
     parser.add_argument("--adb", default="adb", help="Path to adb")
     parser.add_argument("--expect-login", action="store_true",
                         help="With --install: also require Quora's sign-in page on screen (a fresh install)")
+    parser.add_argument("--exclude", action="append", default=[], metavar="PATCH",
+                        help="Leave this patch out (can be given more than once)")
     args = parser.parse_args()
 
     mpp = pathlib.Path(args.mpp) if args.mpp else newest_mpp()
@@ -77,6 +79,10 @@ def main():
     if args.install:
         # Clone app would install under another package name than the one started below.
         names = [n for n in names if n != "Clone app"]
+    unknown = [n for n in args.exclude if n not in names]
+    if unknown:
+        sys.exit("Not in the bundle: " + ", ".join(unknown))
+    names = [n for n in names if n not in args.exclude]
     command = ["java", "-jar", args.cli, "patch", f"-p={mpp}"]
     command += [f"-e={name}" for name in names]
     # -f: also try versions that are not listed yet; keep going so every failure shows up.
