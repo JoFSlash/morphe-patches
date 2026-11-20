@@ -114,6 +114,57 @@ expect('hideSurveys-0.js', `<div id="feed">
   ['#worth', true], ['#w', false], ['#w-text', false], ['#name', false], ['#b', false],
 ]);
 
+// Copy and Share text: one of each under an answer and under a Spaces post (whose Share button
+// is only marked by its icon's label), none made from each other, and a shortened feed text goes
+// out as a preview without its "Read more".
+{
+  const shareIcon = '<span aria-label="Share"><svg width="24" height="24"></svg></span>';
+  const html = `
+    <div class="q-box dom_annotate_multifeed_bundle_AnswersBundle" id="a">
+      <div class="puppeteer_test_answer_content"><p class="q-text">Full answer text.</p></div>
+      <div class="q-flex" id="a-bar"><span class="q-box"><button class="dom_annotate_answer_action_bar_share">
+        ${shareIcon}<div class="q-text">3</div></button></span></div>
+    </div>
+    <div class="q-box dom_annotate_multifeed_bundle_TribeBundle" id="other">
+      <div class="q-text"><p class="q-text">Text of another item.</p></div>
+    </div>
+    <div class="q-box dom_annotate_multifeed_bundle_PostBundle" id="p">
+      <div class="q-click-wrapper"><div class="q-text qu-dynamicFontSize--regular_title">A post title?</div>
+      <div class="q-text qu-truncateLines--3 qu-wordBreak--break-word"><span>The start of a long post</span></div>
+      <span class="q-text">Read more</span></div>
+      <div class="q-flex" id="p-bar"><span class="q-box"><button class="q-click-wrapper" aria-label="82 shares">
+        ${shareIcon}<div class="q-text">82</div></button></span></div>
+    </div>`;
+  const dom = new JSDOM(`<!doctype html><html><head></head><body>${html}</body></html>`, {
+    runScripts: 'outside-only', pretendToBeVisual: true,
+  });
+  // jsdom has no innerText; the page scripts read the text with it.
+  Object.defineProperty(dom.window.HTMLElement.prototype, 'innerText', {
+    get() { return this.textContent.replace(/\s+/g, ' ').trim(); },
+  });
+  const calls = [];
+  dom.window.JoFSlashPatches = {
+    copyText: (t) => calls.push(['copyText', t]), copyPreview: (t) => calls.push(['copyPreview', t]),
+    shareText: (t) => calls.push(['shareText', t]), sharePreview: (t) => calls.push(['sharePreview', t]),
+  };
+  for (const s of ['copyAnswerText-0.js', 'shareAnswerText-0.js', 'copyAnswerText-0.js']) {
+    dom.window.eval(fs.readFileSync(path.join(dir, s), 'utf8'));
+  }
+  const doc = dom.window.document;
+  const count = (bar, label) => doc.querySelectorAll(`#${bar} button[aria-label="${label}"]`).length;
+  for (const bar of ['a-bar', 'p-bar']) {
+    for (const label of ['Copy text', 'Share text']) {
+      checks++;
+      if (count(bar, label) !== 1) fail(`#${bar} should have one "${label}" button, has ${count(bar, label)}`);
+    }
+  }
+  doc.querySelector('#p-bar button[aria-label="Share text"]').click();
+  doc.querySelector('#a-bar button[aria-label="Copy text"]').click();
+  const want = [['sharePreview', 'A post title?\n\nThe start of a long post…'], ['copyText', 'Full answer text.']];
+  checks++;
+  if (JSON.stringify(calls) !== JSON.stringify(want)) fail(`Copy/Share text calls: ${JSON.stringify(calls)}`);
+}
+
 // Hide Spaces posts: a stylesheet that hides post units and leaves answers.
 {
   const doc = run('hideSpacesPosts-0.js', `${unit('a', '1y')}

@@ -25,6 +25,46 @@ public final class ReadingPatch {
 
     private static final String ANSWER_TEXT = ".puppeteer_test_answer_content";
 
+    /**
+     * shareButtons(): the Share buttons under answers (marked by Quora) and under Spaces posts (only
+     * their icon is labelled "Share"), leaving out the Copy and Share text buttons made from them.
+     */
+    private static final String SHARE_BUTTONS_JS = "function shareButtons(){"
+            + "var out=[].slice.call(document.querySelectorAll('.dom_annotate_answer_action_bar_share'));"
+            + "document.querySelectorAll('button [aria-label=\"Share\"]').forEach(function(x){var b=x.closest('button');"
+            + "if(b&&!b.closest('.dom_annotate_answer_action_bar_share')&&!b.closest('[data-jofslash-clone]')"
+            + "&&out.indexOf(b)<0)out.push(b);});"
+            + "return out;}";
+
+    /**
+     * text(bar): the text of the answer or post a button bar belongs to. In the feed and on question
+     * pages it only looks inside that one item; a Spaces post in the feed has a title and a preview.
+     * A shortened item gets "Read more" at the end, which preview() then takes off again.
+     */
+    private static final String ITEM_TEXT_JS = "function text(bar){"
+            + "var unit=bar.closest('[class*=\"dom_annotate_multifeed_bundle_\"],[class*=\"dom_annotate_question_answer_item\"]');"
+            + "if(unit){var t='',c=unit.querySelector('" + ANSWER_TEXT + "');"
+            + "if(c)t=c.innerText;"
+            + "else{var p=unit.querySelector('p.q-text');"
+            + "if(p){t=(p.closest('div.q-text')||p.parentElement).innerText;}"
+            + "else{var h=unit.querySelector('[class*=\"regular_title\"]'),b=unit.querySelector('[class*=\"qu-truncateLines--3\"]');"
+            + "t=[h&&h.innerText,b&&b.innerText].filter(Boolean).join('\\n\\n');}}"
+            + "if(!/(read more|\\(more\\))\\s*$/i.test(t)&&/\\bRead more\\b/.test(unit.innerText))t+='\\nRead more';"
+            + "return t;}"
+            // An open answer or post: the first text above the button.
+            + "for(var a=bar.parentElement;a&&a!==document.body;a=a.parentElement){"
+            + "var c2=a.querySelector('" + ANSWER_TEXT + "');if(c2)return c2.innerText;"
+            + "var p2=a.querySelector('p.q-text');if(p2){return (p2.closest('div.q-text')||p2.parentElement).innerText;}}"
+            + "return '';}";
+
+    /**
+     * preview(t): the text without the "Read more" link a shortened answer in the feed ends with,
+     * and whether it was shortened; a shortened text ends with "…".
+     */
+    private static final String PREVIEW_JS = "function preview(t){t=(t||'').trim();"
+            + "var re=/\\s*(\\(more\\)|read more|continue reading)\\s*$/i,cut=re.test(t);"
+            + "t=t.replace(re,'').trim();if(cut&&t)t=t.replace(/[.…]+$/,'')+'…';return {text:t,cut:cut};}";
+
     // Paragraphs of answers and posts, also in the answer and post modals, which have no answer_content class.
     private static final String PARAGRAPH = "p.q-text";
 
@@ -174,19 +214,18 @@ public final class ReadingPatch {
                 + "<g class=\"icon_svg-stroke\" stroke=\"#666\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\">"
                 + "<rect x=\"8.5\" y=\"8.5\" width=\"11\" height=\"12\" rx=\"2\"></rect>"
                 + "<path d=\"M15.5 8.5V6a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2\"></path></g></svg>';"
-                // The answer's text: the answer content in the feed, or the block holding its paragraphs.
-                + "function text(bar){for(var a=bar.parentElement;a&&a!==document.body;a=a.parentElement){"
-                + "var c=a.querySelector('" + ANSWER_TEXT + "');if(c)return c.innerText;"
-                + "var p=a.querySelector('p.q-text');if(p){var box=p.closest('div.q-text')||p.parentElement;return box.innerText;}}"
-                + "return '';}"
-                + "function copy(t){t=(t||'').trim();if(!t)return;"
-                + "if(window.JoFSlashPatches&&window.JoFSlashPatches.copyText)window.JoFSlashPatches.copyText(t);"
-                + "else if(navigator.clipboard)navigator.clipboard.writeText(t);}"
-                + "function run(){document.querySelectorAll('.dom_annotate_answer_action_bar_share').forEach(function(s){"
+                + ITEM_TEXT_JS
+                + PREVIEW_JS
+                + "function copy(t){var r=preview(t);if(!r.text)return;var J=window.JoFSlashPatches;"
+                + "if(r.cut&&J&&J.copyPreview)J.copyPreview(r.text);"
+                + "else if(J&&J.copyText)J.copyText(r.text);"
+                + "else if(navigator.clipboard)navigator.clipboard.writeText(r.text);}"
+                + SHARE_BUTTONS_JS
+                + "function run(){shareButtons().forEach(function(s){"
                 + "if(s.hasAttribute('data-jofslash-copy'))return;s.setAttribute('data-jofslash-copy','');"
                 + "var item=s.parentElement&&s.parentElement.children.length===1?s.parentElement:s;"
                 // The copy must not count as a Share button, or it would be copied again.
-                + "var b=item.cloneNode(true);b.setAttribute('data-jofslash-copy','');"
+                + "var b=item.cloneNode(true);b.setAttribute('data-jofslash-copy','');b.setAttribute('data-jofslash-clone','');"
                 + "[b].concat([].slice.call(b.querySelectorAll('*'))).forEach(function(e){"
                 + "e.classList.remove('dom_annotate_answer_action_bar_share','puppeteer_test_answer_quora_share_button','sprig_share_button');});"
                 + "var svg=b.querySelector('svg');if(!svg)return;svg.outerHTML=ICON;"
@@ -529,18 +568,18 @@ public final class ReadingPatch {
                 + "var ICON='<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\">"
                 + "<g class=\"icon_svg-stroke\" stroke=\"#666\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\">"
                 + "<path d=\"M4 6h10M4 10h10M4 14h6\"></path><path d=\"M14 18h6M17 15l3 3-3 3\"></path></g></svg>';"
-                + "function text(bar){for(var a=bar.parentElement;a&&a!==document.body;a=a.parentElement){"
-                + "var c=a.querySelector('" + ANSWER_TEXT + "');if(c)return c.innerText;"
-                + "var p=a.querySelector('p.q-text');if(p){var box=p.closest('div.q-text')||p.parentElement;return box.innerText;}}"
-                + "return '';}"
-                // A shortened answer in the feed ends with its "Read more" link; leave that out.
-                + "function share(t){t=(t||'').replace(/\\s*(\\(more\\)|read more|continue reading)\\s*$/i,'').trim();if(!t)return;"
-                + "if(window.JoFSlashPatches&&window.JoFSlashPatches.shareText)window.JoFSlashPatches.shareText(t);}"
-                + "function run(){document.querySelectorAll('.dom_annotate_answer_action_bar_share').forEach(function(s){"
+                + ITEM_TEXT_JS
+                + PREVIEW_JS
+                + "function share(t){var r=preview(t);if(!r.text)return;var J=window.JoFSlashPatches;"
+                + "if(r.cut&&J&&J.sharePreview)J.sharePreview(r.text);"
+                + "else if(J&&J.shareText)J.shareText(r.text);}"
+                + SHARE_BUTTONS_JS
+                + "function run(){shareButtons().forEach(function(s){"
                 + "if(s.hasAttribute('data-jofslash-sharetext'))return;s.setAttribute('data-jofslash-sharetext','');"
                 + "var item=s.parentElement&&s.parentElement.children.length===1?s.parentElement:s;"
                 // The copy must not count as a Share button, or it would be copied again.
                 + "var b=item.cloneNode(true);b.setAttribute('data-jofslash-sharetext','');b.setAttribute('data-jofslash-copy','');"
+                + "b.setAttribute('data-jofslash-clone','');"
                 + "[b].concat([].slice.call(b.querySelectorAll('*'))).forEach(function(e){"
                 + "e.classList.remove('dom_annotate_answer_action_bar_share','puppeteer_test_answer_quora_share_button','sprig_share_button');});"
                 + "var svg=b.querySelector('svg');if(!svg)return;svg.outerHTML=ICON;"

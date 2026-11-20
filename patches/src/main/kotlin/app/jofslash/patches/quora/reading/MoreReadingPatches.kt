@@ -130,8 +130,8 @@ internal object WebViewScrollChangedFingerprint : Fingerprint(
 @Suppress("unused")
 val fullscreenReadingPatch = bytecodePatch(
     name = "Fullscreen reading",
-    description = "Hides the top bar and the tabs while you scroll down the feed, and shows them again " +
-            "when you scroll up.",
+    description = "Hides the top bar and the tabs while you scroll down, and shows them again when you " +
+            "scroll up. On answer and question pages it hides their top bar.",
     default = false
 ) {
     category("Reading")

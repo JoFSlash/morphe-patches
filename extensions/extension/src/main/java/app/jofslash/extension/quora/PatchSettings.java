@@ -154,6 +154,16 @@ public final class PatchSettings {
         /** For Copy answer text: puts the answer's text on the clipboard. */
         @android.webkit.JavascriptInterface
         public void copyText(String text) {
+            copy(text, "Answer copied", Toast.LENGTH_SHORT);
+        }
+
+        /** For Copy answer text: the feed only has the start of a long answer. */
+        @android.webkit.JavascriptInterface
+        public void copyPreview(String text) {
+            copy(text, "Copied the preview. Open it to copy all of it.", Toast.LENGTH_LONG);
+        }
+
+        private void copy(String text, String message, int length) {
             WebView view = webView.get();
             if (view == null || text == null) return;
             view.post(() -> {
@@ -162,7 +172,7 @@ public final class PatchSettings {
                     android.content.ClipboardManager clipboard = (android.content.ClipboardManager)
                             context.getSystemService(Context.CLIPBOARD_SERVICE);
                     clipboard.setPrimaryClip(android.content.ClipData.newPlainText("Quora answer", text));
-                    Toast.makeText(context, "Answer copied", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, message, length).show();
                 } catch (Exception ex) {
                     Log.e(TAG, "Failed to copy the answer", ex);
                 }
@@ -172,10 +182,21 @@ public final class PatchSettings {
         /** For Share answer text: opens the share sheet with the answer's text. */
         @android.webkit.JavascriptInterface
         public void shareText(String text) {
+            share(text, null);
+        }
+
+        /** For Share answer text: the feed only has the start of a long answer. */
+        @android.webkit.JavascriptInterface
+        public void sharePreview(String text) {
+            share(text, "Sharing the preview. Open it to share all of it.");
+        }
+
+        private void share(String text, String message) {
             WebView view = webView.get();
             if (view == null || text == null || text.trim().isEmpty()) return;
             view.post(() -> {
                 try {
+                    if (message != null) Toast.makeText(view.getContext(), message, Toast.LENGTH_LONG).show();
                     android.content.Intent send = new android.content.Intent(android.content.Intent.ACTION_SEND);
                     send.setType("text/plain");
                     send.putExtra(android.content.Intent.EXTRA_TEXT, text.trim());

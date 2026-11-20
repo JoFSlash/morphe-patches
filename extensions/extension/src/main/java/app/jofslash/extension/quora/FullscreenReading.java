@@ -8,8 +8,9 @@ import android.view.ViewParent;
 import java.lang.ref.WeakReference;
 
 /**
- * Fullscreen reading: hides the top bar and the tabs of the main screen while you scroll down,
- * and shows them again when you scroll up or reach the top.
+ * Fullscreen reading: hides the top bar and the tabs of the main screen, or the top bar of an
+ * answer or question page, while you scroll down, and shows them again when you scroll up or
+ * reach the top.
  */
 @SuppressWarnings("unused")
 public final class FullscreenReading {
@@ -24,6 +25,7 @@ public final class FullscreenReading {
 
     private static WeakReference<View> navBar = new WeakReference<>(null);
     private static WeakReference<View> tabs = new WeakReference<>(null);
+    private static WeakReference<View> lastWebView = new WeakReference<>(null);
     private static boolean navBarHidden;
     private static boolean tabsHidden;
     private static int travel;
@@ -47,10 +49,7 @@ public final class FullscreenReading {
                 showBars();
                 return;
             }
-            // Only the pages of the main screen; answers and questions open in their own screens.
-            View container = ancestorNamed(webView, "tab_container");
-            if (container == null) return;
-            findBars(container);
+            if (!findBars(webView)) return;
 
             float density = webView.getResources().getDisplayMetrics().density;
             int delta = top - oldTop;
@@ -114,22 +113,42 @@ public final class FullscreenReading {
         travel = 0;
     }
 
-    private static void findBars(View container) {
-        if (navBar.get() == null || !isInside(navBar.get(), container)) {
-            navBar = new WeakReference<>(findNamed(container, "q_navbar"));
-            navBarHidden = false;
+    /**
+     * The bars around this page: on the main screen its top bar and the tabs, on an answer or
+     * question page that page's own top bar.
+     *
+     * @return Whether the page has bars to hide.
+     */
+    private static boolean findBars(View webView) {
+        if (webView == lastWebView.get()) return navBar.get() != null || tabs.get() != null;
+        View nav;
+        View tabBar = null;
+        View container = ancestorNamed(webView, "tab_container");
+        if (container != null) {
+            nav = findNamed(container, "q_navbar");
+            tabBar = findNamed(container, "tab_bar_tabs");
+        } else {
+            nav = nearestNamed(webView, "q_navbar_wvf");
         }
-        if (tabs.get() == null || !isInside(tabs.get(), container)) {
-            tabs = new WeakReference<>(findNamed(container, "tab_bar_tabs"));
+        if (nav != navBar.get() || tabBar != tabs.get()) {
+            // Another page: give back the bars hidden on the previous one first.
+            showBars();
+            navBar = new WeakReference<>(nav);
+            tabs = new WeakReference<>(tabBar);
+            navBarHidden = false;
             tabsHidden = false;
         }
+        lastWebView = new WeakReference<>(webView);
+        return nav != null || tabBar != null;
     }
 
-    private static boolean isInside(View view, View container) {
-        for (ViewParent p = view.getParent(); p != null; p = p.getParent()) {
-            if (p == container) return true;
+    /** The closest view with this id above the page, that is, in the page's own screen. */
+    private static View nearestNamed(View view, String name) {
+        for (ViewParent p = view.getParent(); p instanceof View; p = p.getParent()) {
+            View found = findNamed((View) p, name);
+            if (found != null) return found;
         }
-        return false;
+        return null;
     }
 
     /** Quora's view ids, by name, so the lookup works whatever number they got in this build. */
