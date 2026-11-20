@@ -15,6 +15,8 @@ or a timeout), 5 there is no APK bundle of the version on APKMirror, 6 the file 
 (wrong package, version or signature), 7 apksigner or aapt2 couldn't run.
 """
 import argparse
+import base64
+import hashlib
 import http.client
 import pathlib
 import re
@@ -142,6 +144,29 @@ def run_tool(command):
         sys.exit(7)
 
 
+def signer_digests(output):
+    """SHA-1 digests of the signer certificates in `apksigner verify --print-certs-pem` output.
+
+    The digests are computed from the PEM blocks rather than read from the "SHA-1 digest" lines,
+    which not every apksigner version prints. The source stamp certificate (Google's, added by
+    Play) is left out: only "Signer #N" certificates count."""
+    digests, label, pem = [], "", None
+    for line in output.splitlines():
+        line = line.strip()
+        match = re.match(r"(.+?) certificate DN:", line)
+        if match:
+            label = match.group(1)
+        elif line == "-----BEGIN CERTIFICATE-----":
+            pem = []
+        elif line == "-----END CERTIFICATE-----" and pem is not None:
+            if label.startswith("Signer #"):
+                digests.append(hashlib.sha1(base64.b64decode("".join(pem))).hexdigest())
+            pem = None
+        elif pem is not None:
+            pem.append(line)
+    return digests
+
+
 def verify(apkm, version, apksigner, aapt2):
     """Exits with 6 unless base.apk is Quora at this version and every APK in the bundle (the
     splits too: they can carry code) is signed with Quora's certificate."""
@@ -167,12 +192,13 @@ def verify(apkm, version, apksigner, aapt2):
         if found_version != version:
             problems.append(f"version is {found_version}, not {version}")
         for name in apks:
-            certs = run_tool([apksigner, "verify", "--print-certs", str(pathlib.Path(work) / name)])
-            digests = re.findall(r"Signer #1 certificate SHA-1 digest: ([0-9a-f]+)", certs.stdout)
+            certs = run_tool([apksigner, "verify", "--print-certs-pem", str(pathlib.Path(work) / name)])
+            digests = signer_digests(certs.stdout)
             if certs.returncode != 0:
                 problems.append(f"{name}: signature doesn't verify: " + (certs.stderr or certs.stdout).strip()[:200])
             elif digests != [expected]:
                 problems.append(f"{name} is signed by {digests}, not Quora")
+                print(f"apksigner output for {name}:\n{certs.stdout.strip()[:1500]}")
     if problems:
         print("This isn't Quora's APK: " + "; ".join(problems))
         sys.exit(6)
