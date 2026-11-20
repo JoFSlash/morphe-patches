@@ -220,7 +220,7 @@ public final class ReadingPatch {
                 + "<path d=\"M15.5 8.5V6a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2\"></path></g></svg>';"
                 + ITEM_TEXT_JS
                 + PREVIEW_JS
-                + "function copy(t){var r=preview(t);if(!r.text)return;var J=window.JoFSlashPatches;"
+                + "function copy(t){var r=preview(t);if(!r.text)return;var J=window.JoFSlashPatches;if(J&&!J.ready())J=null;"
                 + "if(r.cut&&J&&J.copyPreview)J.copyPreview(r.text);"
                 + "else if(J&&J.copyText)J.copyText(r.text);"
                 + "else if(navigator.clipboard)navigator.clipboard.writeText(r.text);}"
@@ -553,7 +553,7 @@ public final class ReadingPatch {
                 + "function run(){var b=document.querySelector('button.sprig_sort_dropdown');"
                 + "if(!b){if(++n<40)setTimeout(run,250);return;}"
                 + "if((b.innerText||'').trim()===T)return;"
-                + "if(!window.JoFSlashPatches||!window.JoFSlashPatches.sortNext)return;"
+                + "if(!window.JoFSlashPatches||!window.JoFSlashPatches.ready())return;"
                 + "window.JoFSlashPatches.sortNext(T);b.click();}"
                 + "run();})();", "sort answers");
     }
@@ -574,7 +574,7 @@ public final class ReadingPatch {
                 + "<path d=\"M4 6h10M4 10h10M4 14h6\"></path><path d=\"M14 18h6M17 15l3 3-3 3\"></path></g></svg>';"
                 + ITEM_TEXT_JS
                 + PREVIEW_JS
-                + "function share(t){var r=preview(t);if(!r.text)return;var J=window.JoFSlashPatches;"
+                + "function share(t){var r=preview(t);if(!r.text)return;var J=window.JoFSlashPatches;if(J&&!J.ready())J=null;"
                 + "if(r.cut&&J&&J.sharePreview)J.sharePreview(r.text);"
                 + "else if(J&&J.shareText)J.shareText(r.text);}"
                 + SHARE_BUTTONS_JS
@@ -628,7 +628,7 @@ public final class ReadingPatch {
                 + "<path d=\"M12 20l4-9 4 9M13.5 17h5\"></path></g></svg>';"
                 + ITEM_TEXT_JS
                 + PREVIEW_JS
-                + "function translate(t){var r=preview(t);if(!r.text)return;var J=window.JoFSlashPatches;"
+                + "function translate(t){var r=preview(t);if(!r.text)return;var J=window.JoFSlashPatches;if(J&&!J.ready())J=null;"
                 + "if(J&&J.translateText)J.translateText(r.text);}"
                 + SHARE_BUTTONS_JS
                 + "function run(){shareButtons().forEach(function(s){"
@@ -701,12 +701,13 @@ public final class ReadingPatch {
                 + PAGE_ITEM_JS
                 + SHARE_BUTTONS_JS
                 + "var n=0;"
-                + "function run(){var J=window.JoFSlashPatches;if(!J||!J.toggleBookmark)return;"
+                // Waits up to 20 s for the bridge, the page's data and its Share button.
+                + "function run(){var J=window.JoFSlashPatches;if(!J||!J.ready()){if(++n<40)setTimeout(run,500);return;}"
                 + "var it=pageItem();"
                 // Only an open answer or post: questions and the feed have no address for one item.
                 + "if(it.other||/^Question/.test(it.author||''))return;"
                 + "var s=shareButtons()[0];"
-                + "if(!it.url||!it.title||!s){if(++n<20)setTimeout(run,500);return;}"
+                + "if(!it.url||!it.title||!s){if(++n<40)setTimeout(run,500);return;}"
                 + "if(document.querySelector('[data-jofslash-bookmark]'))return;"
                 + "var item=s.parentElement&&s.parentElement.children.length===1?s.parentElement:s;"
                 + "var b=item.cloneNode(true);b.setAttribute('data-jofslash-bookmark','');b.setAttribute('data-jofslash-clone','');"
@@ -737,7 +738,7 @@ public final class ReadingPatch {
                 + "function rec(){var it=pageItem();"
                 // Other pages: give up after a few tries (a question page may still be loading).
                 + "if(it.other){if(n>=6)return;}"
-                + "else if(it.url&&it.title&&window.JoFSlashPatches&&window.JoFSlashPatches.addHistory){"
+                + "else if(it.url&&it.title&&window.JoFSlashPatches&&window.JoFSlashPatches.ready()){"
                 + "window.JoFSlashPatches.addHistory(it.url,it.title,it.author);return;}"
                 + "if(++n<20)setTimeout(rec,500);}"
                 + "rec();})();", "reading history");
@@ -764,7 +765,8 @@ public final class ReadingPatch {
     private static void evaluate(WebView webView, String script, String what) {
         if (webView == null) return;
         try {
-            webView.evaluateJavascript(script, null);
+            // The bridge for our scripts, with its key; see PatchSettings.bridgeScript.
+            webView.evaluateJavascript(PatchSettings.bridgeScript() + script, null);
         } catch (Exception ex) {
             Log.e(TAG, "Failed to inject " + what, ex);
         }

@@ -142,10 +142,13 @@ expect('hideSurveys-0.js', `<div id="feed">
   Object.defineProperty(dom.window.HTMLElement.prototype, 'innerText', {
     get() { return this.textContent.replace(/\s+/g, ' ').trim(); },
   });
+  // The app's raw bridge: every call must carry the key the scripts' own wrapper adds.
   const calls = [];
-  dom.window.JoFSlashPatches = {
-    copyText: (t) => calls.push(['copyText', t]), copyPreview: (t) => calls.push(['copyPreview', t]),
-    shareText: (t) => calls.push(['shareText', t]), sharePreview: (t) => calls.push(['sharePreview', t]),
+  const keys = new Set();
+  const record = (name) => (key, t) => { keys.add(key); calls.push([name, t]); };
+  dom.window.JoFSlashBridge = {
+    copyText: record('copyText'), copyPreview: record('copyPreview'),
+    shareText: record('shareText'), sharePreview: record('sharePreview'),
   };
   for (const s of ['copyAnswerText-0.js', 'shareAnswerText-0.js', 'copyAnswerText-0.js']) {
     dom.window.eval(fs.readFileSync(path.join(dir, s), 'utf8'));
@@ -163,6 +166,13 @@ expect('hideSurveys-0.js', `<div id="feed">
   const want = [['sharePreview', 'A post title?\n\nThe start of a long post…'], ['copyText', 'Full answer text.']];
   checks++;
   if (JSON.stringify(calls) !== JSON.stringify(want)) fail(`Copy/Share text calls: ${JSON.stringify(calls)}`);
+  checks++;
+  const [key] = keys;
+  if (keys.size !== 1 || !/^[0-9a-f]{36}$/.test(key)) fail(`Bridge calls should carry one key, got ${JSON.stringify([...keys])}`);
+  // A frame without the key gets nothing: the wrapper is the only way in, and it can't be replaced.
+  checks++;
+  try { dom.window.JoFSlashPatches = {}; } catch (e) { /* frozen in strict code */ }
+  if (typeof dom.window.JoFSlashPatches.ready !== 'function') fail('window.JoFSlashPatches could be replaced');
 }
 
 // Hide Spaces posts: a stylesheet that hides post units and leaves answers.

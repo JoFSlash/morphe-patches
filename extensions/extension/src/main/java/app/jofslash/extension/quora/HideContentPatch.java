@@ -75,10 +75,12 @@ public final class HideContentPatch {
         if (!PatchSettings.active(webView, "hideDismissedQuestions", "Hide dismissed questions")) return;
         evaluate(webView, "(function(){"
                 + "if(window.__jofslashDismissed)return;window.__jofslashDismissed=1;"
-                + "var J=window.JoFSlashPatches;if(!J||!J.dismissedQuestions)return;"
+                + "var J=window.JoFSlashPatches;if(!J)return;"
                 + "function text(e){return (e&&(e.innerText||e.textContent)||'').replace(/\\s+/g,' ').trim();}"
                 + "function title(u){return text(u.querySelector('.puppeteer_test_question_title'));}"
-                + "var list=[];function load(){try{list=JSON.parse(J.dismissedQuestions())||[];}catch(e){list=[];}}"
+                // Read again until the bridge is there; a page can run this before it is.
+                + "var list=[],loaded=false;function load(){if(!J.ready())return;"
+                + "try{list=JSON.parse(J.dismissedQuestions())||[];loaded=true;}catch(e){list=[];}}"
                 + "document.addEventListener('click',function(ev){var t=ev.target;if(!t||!t.closest)return;"
                 // The ×: note the question now, as Quora replaces the item with a menu.
                 + "var x=t.closest('.dom_annotate_negative_feedback_hide');"
@@ -86,9 +88,10 @@ public final class HideContentPatch {
                 + "var m=t.closest('[data-jofslash-q]');if(!m)return;var q2=m.getAttribute('data-jofslash-q');"
                 // The menu option that was tapped: the nearest box with a short label.
                 + "var label='';for(var e=t;e&&e!==m;e=e.parentElement){var s=text(e);if(s){label=s;break;}}"
+                + "if(!J.ready())return;"
                 + "if(/^Not interested in this question$/i.test(label)){J.dismissQuestion(q2);load();}"
                 + "else if(/^Undo$/i.test(label)){J.undismissQuestion(q2);load();}},true);"
-                + "function run(){if(!list.length)return;"
+                + "function run(){if(!loaded)load();if(!list.length)return;"
                 + "document.querySelectorAll('" + FEED_UNIT + "').forEach(function(u){"
                 + "if(u.hasAttribute('data-jofslash-hidden'))return;var q=title(u).toLowerCase();"
                 + "if(q&&list.indexOf(q)>=0){u.setAttribute('data-jofslash-hidden','');u.style.setProperty('display','none','important');}});}"
@@ -434,7 +437,8 @@ public final class HideContentPatch {
     private static void evaluate(WebView webView, String script, String what) {
         if (webView == null) return;
         try {
-            webView.evaluateJavascript(script, null);
+            // The bridge for our scripts, with its key; see PatchSettings.bridgeScript.
+            webView.evaluateJavascript(PatchSettings.bridgeScript() + script, null);
         } catch (Exception ex) {
             Log.e(TAG, "Failed to inject " + what, ex);
         }

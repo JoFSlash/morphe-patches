@@ -124,16 +124,60 @@ public final class PatchSettings {
         }
     }
 
+    // A key made new at every start. The page scripts get it through bridgeScript(), which runs in
+    // the page's own frame only; frames from other sites inside a page (videos, embeds) can see the
+    // interface too, but can't use it without the key.
+    private static final String KEY = newKey();
+
+    private static String newKey() {
+        byte[] bytes = new byte[18];
+        new java.security.SecureRandom().nextBytes(bytes);
+        StringBuilder key = new StringBuilder();
+        for (byte b : bytes) key.append(String.format(java.util.Locale.ROOT, "%02x", b));
+        return key.toString();
+    }
+
+    private static boolean allowed(String key) {
+        return KEY.equals(key);
+    }
+
+    /**
+     * window.JoFSlashPatches for the page scripts: the bridge's methods with the key filled in.
+     * Put it at the start of every script that uses the bridge.
+     */
+    static String bridgeScript() {
+        if (bridgeScript == null) bridgeScript = makeBridgeScript();
+        return bridgeScript;
+    }
+
+    private static String bridgeScript;
+
+    private static String makeBridgeScript() {
+        StringBuilder names = new StringBuilder();
+        for (java.lang.reflect.Method m : Bridge.class.getDeclaredMethods()) {
+            if (!m.isAnnotationPresent(android.webkit.JavascriptInterface.class)) continue;
+            if (names.length() > 0) names.append(',');
+            names.append('\'').append(m.getName()).append('\'');
+        }
+        // The bridge is looked up at each call: a page can run our scripts before it is there.
+        return "(function(k){if(window.JoFSlashPatches)return;var o={};"
+                + "[" + names + "].forEach(function(n){o[n]=function(){var B=window.JoFSlashBridge;"
+                + "if(!B||!B[n])throw new Error('JoFSlashBridge not ready');"
+                + "return B[n].apply(B,[k].concat([].slice.call(arguments)));};});"
+                + "o.ready=function(){return !!window.JoFSlashBridge;};"
+                + "Object.defineProperty(window,'JoFSlashPatches',{value:Object.freeze(o)});})('" + KEY + "');";
+    }
+
     /**
      * Injection point: start of QWebViewController.initWebView. Lets the "Quora patches" entry on
      * Quora's settings page open this dialog. Pages can also use it for Copy and Share answer text,
-     * Sort answers, Reading history and Bookmarks. The only thing they can read back is whether one
-     * quora.com link is bookmarked.
+     * Sort answers, Reading history, Bookmarks and Hide dismissed questions. Every call needs the key
+     * (see bridgeScript), so only our own scripts in Quora's page can use it.
      */
     public static void bind(WebView webView) {
         if (webView == null) return;
         try {
-            webView.addJavascriptInterface(new Bridge(webView), "JoFSlashPatches");
+            webView.addJavascriptInterface(new Bridge(webView), "JoFSlashBridge");
         } catch (Exception ex) {
             Log.e(TAG, "Failed to add the settings bridge", ex);
         }
@@ -147,20 +191,23 @@ public final class PatchSettings {
         }
 
         @android.webkit.JavascriptInterface
-        public void openSettings() {
+        public void openSettings(String key) {
+            if (!allowed(key)) return;
             WebView view = webView.get();
             if (view != null) view.post(() -> show(view.getContext()));
         }
 
         /** For Copy answer text: puts the answer's text on the clipboard. */
         @android.webkit.JavascriptInterface
-        public void copyText(String text) {
+        public void copyText(String key, String text) {
+            if (!allowed(key)) return;
             copy(text, Texts.t("Answer copied"), Toast.LENGTH_SHORT);
         }
 
         /** For Copy answer text: the feed only has the start of a long answer. */
         @android.webkit.JavascriptInterface
-        public void copyPreview(String text) {
+        public void copyPreview(String key, String text) {
+            if (!allowed(key)) return;
             copy(text, Texts.t("Copied the preview. Open it to copy all of it."), Toast.LENGTH_LONG);
         }
 
@@ -182,13 +229,15 @@ public final class PatchSettings {
 
         /** For Share answer text: opens the share sheet with the answer's text. */
         @android.webkit.JavascriptInterface
-        public void shareText(String text) {
+        public void shareText(String key, String text) {
+            if (!allowed(key)) return;
             share(text, null);
         }
 
         /** For Share answer text: the feed only has the start of a long answer. */
         @android.webkit.JavascriptInterface
-        public void sharePreview(String text) {
+        public void sharePreview(String key, String text) {
+            if (!allowed(key)) return;
             share(text, Texts.t("Sharing the preview. Open it to share all of it."));
         }
 
@@ -218,7 +267,8 @@ public final class PatchSettings {
          * inside the app, into the phone's language.
          */
         @android.webkit.JavascriptInterface
-        public void translateText(String text) {
+        public void translateText(String key, String text) {
+            if (!allowed(key)) return;
             WebView view = webView.get();
             if (view == null || text == null || text.trim().isEmpty()) return;
             String value = text.trim();
@@ -227,13 +277,15 @@ public final class PatchSettings {
 
         /** For Sort answers: the next sort menu the page opens picks this order instead of showing. */
         @android.webkit.JavascriptInterface
-        public void sortNext(String order) {
+        public void sortNext(String key, String order) {
+            if (!allowed(key)) return;
             ReadingPatch.requestSort(order);
         }
 
         /** For Reading history: remembers an answer, post or question you opened. Only quora.com links. */
         @android.webkit.JavascriptInterface
-        public void addHistory(String url, String title, String author) {
+        public void addHistory(String key, String url, String title, String author) {
+            if (!allowed(key)) return;
             WebView view = webView.get();
             if (view == null) return;
             ReadingHistory.HISTORY.add(view.getContext().getApplicationContext(), url, title, author);
@@ -241,7 +293,8 @@ public final class PatchSettings {
 
         /** For Hide dismissed questions: you marked this question "Not interested in this question". */
         @android.webkit.JavascriptInterface
-        public void dismissQuestion(String title) {
+        public void dismissQuestion(String key, String title) {
+            if (!allowed(key)) return;
             WebView view = webView.get();
             if (view == null || title == null || title.trim().isEmpty()) return;
             String clean = title.trim().replaceAll("\\s+", " ");
@@ -251,7 +304,8 @@ public final class PatchSettings {
 
         /** For Hide dismissed questions: you tapped Undo. */
         @android.webkit.JavascriptInterface
-        public void undismissQuestion(String title) {
+        public void undismissQuestion(String key, String title) {
+            if (!allowed(key)) return;
             WebView view = webView.get();
             if (view == null || title == null) return;
             ReadingHistory.DISMISSED.remove(view.getContext().getApplicationContext(),
@@ -260,7 +314,8 @@ public final class PatchSettings {
 
         /** For Hide dismissed questions: the titles to hide, in lower case, as a JSON array. */
         @android.webkit.JavascriptInterface
-        public String dismissedQuestions() {
+        public String dismissedQuestions(String key) {
+            if (!allowed(key)) return "[]";
             WebView view = webView.get();
             org.json.JSONArray titles = new org.json.JSONArray();
             if (view == null) return titles.toString();
@@ -272,7 +327,8 @@ public final class PatchSettings {
 
         /** For Bookmarks: whether this answer or post is saved. Only says yes or no for one quora.com link. */
         @android.webkit.JavascriptInterface
-        public boolean isBookmarked(String url) {
+        public boolean isBookmarked(String key, String url) {
+            if (!allowed(key)) return false;
             WebView view = webView.get();
             if (view == null || !ReadingHistory.isQuoraUrl(url)) return false;
             return ReadingHistory.BOOKMARKS.contains(view.getContext().getApplicationContext(), url);
@@ -280,7 +336,8 @@ public final class PatchSettings {
 
         /** For Bookmarks: saves or removes this answer or post. Returns whether it is saved now. */
         @android.webkit.JavascriptInterface
-        public boolean toggleBookmark(String url, String title, String author) {
+        public boolean toggleBookmark(String key, String url, String title, String author) {
+            if (!allowed(key)) return false;
             WebView view = webView.get();
             if (view == null || !ReadingHistory.isQuoraUrl(url)) return false;
             Context context = view.getContext().getApplicationContext();
@@ -304,7 +361,7 @@ public final class PatchSettings {
         if (webView == null) return;
         String url = webView.getUrl();
         if (url == null || !url.matches("https://www\\.quora\\.com/settings/?(\\?.*)?")) return;
-        webView.evaluateJavascript("(function(){"
+        webView.evaluateJavascript(bridgeScript() + "(function(){"
                 + "if(window.__jofslashEntry)return;window.__jofslashEntry=1;"
                 + "function leaf(t){var l=document.querySelectorAll('.q-text');for(var i=0;i<l.length;i++)"
                 + "if(!l[i].children.length&&l[i].textContent.trim()===t)return l[i];return null;}"

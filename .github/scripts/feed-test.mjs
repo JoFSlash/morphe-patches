@@ -147,10 +147,23 @@ const TITLE_SPOT = `(async function(){${VISIBLE}
 
 const IS_ANSWER = "/AnswerModal|\\/answer\\//.test(location.href)&&document.readyState==='complete'";
 
+// The bookmark script waits up to 20 s for the page's data, so give it 25 s. Without a button,
+// say what the page had, to tell a slow page from a changed one.
 const ANSWER_CHECKS = `(async function(){
-  await new Promise(function(r){setTimeout(r,5000);});
-  return {bookmarkButton:document.querySelectorAll('[aria-label="Bookmark"],[aria-label="Remove bookmark"]').length,
-    copyButtons:document.querySelectorAll('[aria-label="Copy text"]').length};})()`;
+  function count(s){return document.querySelectorAll(s).length;}
+  for(var i=0;i<50&&!count('[aria-label="Bookmark"],[aria-label="Remove bookmark"]');i++)
+    await new Promise(function(r){setTimeout(r,500);});
+  var out={bookmarkButton:count('[aria-label="Bookmark"],[aria-label="Remove bookmark"]'),
+    copyButtons:count('[aria-label="Copy text"]')};
+  if(!out.bookmarkButton){var m=/rootCls=(\\w+)/.exec(location.href);out.page=m?m[1]:location.pathname;
+    out.shareButtons=count('.dom_annotate_answer_action_bar_share')+count('button [aria-label="Share"]');
+    out.bridgeReady=!!(window.JoFSlashPatches&&window.JoFSlashPatches.ready());
+    out.questionTitle=!!document.querySelector('.puppeteer_test_question_title');
+    var p=/[?&]props=([^&#]+)/.exec(location.href),props=null;try{props=JSON.parse(decodeURIComponent(p[1]));}catch(e){}
+    var R=window.__RELAY_RECORDS__||{},found=false;
+    for(var k in R){var x=R[k];if(x&&props&&((props.aid&&x.aid===props.aid)||(props.pid&&x.pid===props.pid))){found=!!(x.permaUrl||x.url);break;}}
+    out.addressInData=found;}
+  return out;})()`;
 
 /** The screen position of the biggest WebView, from uiautomator. */
 function webViewBounds() {

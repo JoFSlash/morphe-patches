@@ -15,7 +15,7 @@ import app.morphe.patcher.patch.stringOption
 private const val READING = "Lapp/jofslash/extension/quora/ReadingPatch;"
 private const val FULLSCREEN = "Lapp/jofslash/extension/quora/FullscreenReading;"
 
-/** Gives pages the JoFSlashPatches bridge, which these patches use to reach the app. */
+/** Adds the bridge these patches use to reach the app; only our own page scripts hold its key. */
 private fun BytecodePatchContext.bindBridge() {
     InitWebViewFingerprint.method.addInstruction(
         0,
