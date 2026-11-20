@@ -1,10 +1,11 @@
 name: Release
 
+# One release a week, from what was merged into main since the last one. Nothing new: no release.
+# An urgent fix can be released right away by running this workflow by hand.
 on:
+  schedule:
+    - cron: '0 8 * * 1'
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
   release:

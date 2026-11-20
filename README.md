@@ -27,8 +27,8 @@ The privacy patches are on by default. Everything else is off until you pick it.
 
 ## Updating
 
-- **New patches:** Morphe Manager marks the patched app with an Update badge when a newer version of these
-  patches is out. Patch the same Quora file again and install it over the patched app. No need to uninstall:
+- **New patches:** a new version of these patches comes out once a week, on Mondays, when there is
+  something new. Morphe Manager then marks the patched app with an Update badge. Patch the same Quora file again and install it over the patched app. No need to uninstall:
   you stay signed in and your patch settings stay.
 - **New Quora version:** the patched app doesn't update from the Play Store. Wait until a release of these
   patches lists the new version as supported, then patch that version the same way.
