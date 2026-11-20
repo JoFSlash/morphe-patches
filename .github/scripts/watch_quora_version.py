@@ -77,6 +77,9 @@ def main():
         play = None
 
     new = [v for v in mirror if key(v) > key(newest_supported)]
+    # A newer version that only Google Play has. The workflow says so in an issue; it is tried
+    # once APKMirror has it, or by hand once its APKM is uploaded to quora-apks.
+    play_only = play if play and key(play) > key(newest_supported) and play not in mirror else ""
     print(f"Supported: {', '.join(supported) or 'none'}")
     print(f"APKMirror: {', '.join(mirror[:5]) or 'none found'}")
     print(f"Google Play: {play or 'unknown'}")
@@ -91,6 +94,7 @@ def main():
         with open(args.github_output, "a", encoding="utf8") as out:
             out.write(f"new={new[0] if new else ''}\n")
             out.write(f"play={play or ''}\n")
+            out.write(f"play_only={play_only}\n")
             out.write(f"supported={', '.join(supported)}\n")
 
 
