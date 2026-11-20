@@ -335,7 +335,21 @@ async function main() {
   }
 
   // The feed on the screen: a page left from the signed-out screen can still be there, hidden.
-  const feed = await waitFor(`${feedCount}&&document.visibilityState==='visible'&&window.innerWidth>0`, 30);
+  // When none says it is on the screen, check any feed page; the answer taps then can't work.
+  let feed = await waitFor(`${feedCount}&&document.visibilityState==='visible'&&window.innerWidth>0`, 20);
+  if (!feed) {
+    feed = await waitFor(feedCount, 30);
+    if (feed) {
+      for (const page of await pages()) {
+        console.log(`  page ${page.url.split('?')[0]}: ${JSON.stringify(await evaluate(page,
+          '({visibility:document.visibilityState,width:window.innerWidth,height:window.innerHeight})', 8000))}`);
+      }
+      adb('shell', 'uiautomator', 'dump', '/sdcard/window.xml');
+      const screen = adb('shell', 'cat', '/sdcard/window.xml');
+      const texts = [...screen.matchAll(/(?:text|content-desc)="([^"]+)"/g)].map((m) => m[1]).filter((t) => t.trim());
+      console.log(`  on screen: ${texts.slice(0, 25).join(' | ') || 'no text'}`);
+    }
+  }
   const result = feed ? await evaluate(feed.page, FEED_CHECKS, 60000) : null;
   if (!result) {
     console.error('The feed didn\'t load after signing in.');
