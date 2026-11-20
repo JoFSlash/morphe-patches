@@ -442,6 +442,163 @@ public final class ReadingPatch {
     }
 
     /** Runs the function now and again, at most every 300 ms, whenever the page changes. */
+    // ------------------------------------------------------------------ sort answers
+
+    private static final String[] SORT_ORDERS = {"Recent", "Upvotes"};
+    private static volatile String pendingSort;
+    private static volatile long pendingSortAt;
+
+    private static String sortOrder(String value) {
+        for (String order : SORT_ORDERS) {
+            if (order.equalsIgnoreCase(value)) return order;
+        }
+        return SORT_ORDERS[0];
+    }
+
+    /** Called by the page through the bridge right before it opens the sort menu. */
+    static void requestSort(String order) {
+        pendingSort = sortOrder(order);
+        pendingSortAt = android.os.SystemClock.uptimeMillis();
+    }
+
+    /**
+     * Injection point: start of QBaseActivity.showPopoverMenu. When the page just asked for a sort
+     * order, answers the sort menu with it instead of showing the menu.
+     *
+     * @return Whether the menu was answered and must not show.
+     */
+    public static boolean pickSortSheet(org.json.JSONObject data, Object webViewController) {
+        String order = pendingSort;
+        pendingSort = null;
+        if (order == null || data == null || webViewController == null) return false;
+        if (android.os.SystemClock.uptimeMillis() - pendingSortAt > 3000) return false;
+        try {
+            org.json.JSONArray titles = data.optJSONArray("buttonTitles");
+            if (titles == null) return false;
+            int index = -1;
+            boolean sortMenu = false;
+            for (int i = 0; i < titles.length(); i++) {
+                // The current order carries a check mark.
+                String title = titles.optString(i, "").replaceAll("[^A-Za-z ]", "").trim();
+                if (title.equalsIgnoreCase(order)) index = i;
+                if (title.equalsIgnoreCase("Recommended")) sortMenu = true;
+            }
+            if (!sortMenu || index < 0) return false;
+            org.json.JSONObject result = new org.json.JSONObject();
+            result.put("buttonIndex", index);
+            webViewController.getClass()
+                    .getMethod("sendMessageToJavaScript", String.class, org.json.JSONObject.class)
+                    .invoke(webViewController, "actionSheetDismissed", result);
+            return true;
+        } catch (Exception ex) {
+            Log.e(TAG, "Failed to pick the sort order", ex);
+            return false;
+        }
+    }
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. On question pages, switches the
+     * answers to the order set (once per page; you can still change it).
+     */
+    public static void sortAnswers(WebView webView, String order) {
+        if (!PatchSettings.active(webView, "sortAnswers", "Sort answers")) return;
+        order = sortOrder(PatchSettings.choice("sortAnswers", "sortOrder", "Order", sortOrder(order),
+                SORT_ORDERS, SORT_ORDERS, false));
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashSort===location.href)return;window.__jofslashSort=location.href;"
+                + "var T='" + order + "',n=0;"
+                + "function run(){var b=document.querySelector('button.sprig_sort_dropdown');"
+                + "if(!b){if(++n<40)setTimeout(run,250);return;}"
+                + "if((b.innerText||'').trim()===T)return;"
+                + "if(!window.JoFSlashPatches||!window.JoFSlashPatches.sortNext)return;"
+                + "window.JoFSlashPatches.sortNext(T);b.click();}"
+                + "run();})();", "sort answers");
+    }
+
+    // ------------------------------------------------------------------ share answer text
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Adds a Share text button after Share
+     * under answers and posts; it shares their text without formatting.
+     */
+    public static void shareAnswerText(WebView webView) {
+        if (!PatchSettings.active(webView, "shareAnswerText", "Share answer text")) return;
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashShareText)return;window.__jofslashShareText=1;"
+                // Lines of text with an arrow: share as text.
+                + "var ICON='<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\">"
+                + "<g class=\"icon_svg-stroke\" stroke=\"#666\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\">"
+                + "<path d=\"M4 6h10M4 10h10M4 14h6\"></path><path d=\"M14 18h6M17 15l3 3-3 3\"></path></g></svg>';"
+                + "function text(bar){for(var a=bar.parentElement;a&&a!==document.body;a=a.parentElement){"
+                + "var c=a.querySelector('" + ANSWER_TEXT + "');if(c)return c.innerText;"
+                + "var p=a.querySelector('p.q-text');if(p){var box=p.closest('div.q-text')||p.parentElement;return box.innerText;}}"
+                + "return '';}"
+                // A shortened answer in the feed ends with its "Read more" link; leave that out.
+                + "function share(t){t=(t||'').replace(/\\s*(\\(more\\)|read more|continue reading)\\s*$/i,'').trim();if(!t)return;"
+                + "if(window.JoFSlashPatches&&window.JoFSlashPatches.shareText)window.JoFSlashPatches.shareText(t);}"
+                + "function run(){document.querySelectorAll('.dom_annotate_answer_action_bar_share').forEach(function(s){"
+                + "if(s.hasAttribute('data-jofslash-sharetext'))return;s.setAttribute('data-jofslash-sharetext','');"
+                + "var item=s.parentElement&&s.parentElement.children.length===1?s.parentElement:s;"
+                // The copy must not count as a Share button, or it would be copied again.
+                + "var b=item.cloneNode(true);b.setAttribute('data-jofslash-sharetext','');b.setAttribute('data-jofslash-copy','');"
+                + "[b].concat([].slice.call(b.querySelectorAll('*'))).forEach(function(e){"
+                + "e.classList.remove('dom_annotate_answer_action_bar_share','puppeteer_test_answer_quora_share_button','sprig_share_button');});"
+                + "var svg=b.querySelector('svg');if(!svg)return;svg.outerHTML=ICON;"
+                + "b.querySelectorAll('.q-text').forEach(function(e){e.remove();});"
+                + "var btn=b.querySelector('button')||b;btn.setAttribute('aria-label','Share text');"
+                + "b.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();share(text(item));},true);"
+                + "item.parentElement.insertBefore(b,item.nextSibling);});}"
+                + observe("run")
+                + "})();", "share answer text");
+    }
+
+    // ------------------------------------------------------------------ reading history
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Remembers the answers, posts and
+     * questions you open; Patch settings > History lists them.
+     */
+    public static void readingHistory(WebView webView) {
+        if (!PatchSettings.active(webView, "readingHistory", "Reading history")) return;
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashHistory===location.href)return;window.__jofslashHistory=location.href;"
+                + "var n=0;"
+                + "function txt(e){return e?(e.innerText||'').trim():'';}"
+                + "function rec(){var u=location.href,url='',title='',author='';"
+                + "var m=/[?&]props=([^&#]+)/.exec(u),props=null;"
+                + "if(m){try{props=JSON.parse(decodeURIComponent(m[1]));}catch(e){}}"
+                + "var q=txt(document.querySelector('.puppeteer_test_question_title'));"
+                // The first profile link with a name; the avatar before it is a link too.
+                + "var p=[].slice.call(document.querySelectorAll('a[href*=\"/profile/\"]')).map(txt)"
+                + ".filter(Boolean).map(function(s){return s.split('\\n')[0];})[0]||'';"
+                // Answers and posts open in pages without their own address; Quora's data has it.
+                + "if(props&&/rootCls=(AnswerModalPage|PostModalPage)/.test(u)){"
+                + "var R=window.__RELAY_RECORDS__||{},r=null;"
+                + "for(var k in R){var x=R[k];if(!x)continue;"
+                + "if((props.aid&&x.aid===props.aid)||(props.pid&&x.pid===props.pid)){r=x;break;}}"
+                + "if(r)url=r.permaUrl||r.url||'';"
+                // A post's title is rich text: {"sections":[{"spans":[{"text":…}]}]}.
+                + "var pt='';if(r&&typeof r.title==='string'){try{pt=JSON.parse(r.title).sections.map(function(s){"
+                + "return s.spans.map(function(x){return x.text;}).join('');}).join(' ').trim();}catch(e){}}"
+                + "title=q||pt||txt(document.querySelector('" + ANSWER_TEXT + "')).split('\\n')[0].slice(0,140);"
+                // The line under the title in History.
+                + "var post=/PostModalPage/.test(u);"
+                + "author=(post?'Post':'Answer')+(p?' by '+p:'');"
+                + "}else if(/^https:\\/\\/www\\.quora\\.com\\/[^?#\\/]+\\/answer\\/[^?#\\/]+/.test(u)){"
+                + "url=u.split(/[?#]/)[0];title=q;author='Answer'+(p?' by '+p:'');"
+                // A question page: its answers have the sort and filter menus.
+                + "}else if(/^https:\\/\\/www\\.quora\\.com\\/[^?#\\/]+([?#].*)?$/.test(u)"
+                + "&&document.querySelector('button.sprig_sort_dropdown,button.sprig_all_related_dropdown')){"
+                + "url=u.split(/[?#]/)[0];title=q;author='Question';}"
+                // Other pages: give up after a few tries (a question page may still be loading).
+                + "else if(n>=6)return;"
+                + "if(url&&url.charAt(0)==='/')url='https://www.quora.com'+url;"
+                + "if(url&&title&&window.JoFSlashPatches&&window.JoFSlashPatches.addHistory){"
+                + "window.JoFSlashPatches.addHistory(url,title,author);return;}"
+                + "if(++n<20)setTimeout(rec,500);}"
+                + "rec();})();", "reading history");
+    }
+
     private static String observe(String function) {
         return function + "();"
                 + "var p=false;"

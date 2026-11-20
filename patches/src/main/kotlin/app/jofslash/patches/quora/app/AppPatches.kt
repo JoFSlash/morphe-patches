@@ -148,7 +148,7 @@ val blockBranchTrackingPatch = bytecodePatch(
     name = "Block Branch tracking",
     description = "Turns on Branch's \"disable tracking\" mode and turns off its debug mode. " +
             "Branch tracks where installs come from. Quora's quora.app.link links may open with less detail.",
-    default = false
+    default = true
 ) {
     category("Privacy")
     compatibleWith(COMPATIBILITY_QUORA)

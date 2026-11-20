@@ -126,7 +126,8 @@ public final class PatchSettings {
 
     /**
      * Injection point: start of QWebViewController.initWebView. Lets the "Quora patches" entry on
-     * Quora's settings page open this dialog. The only thing a page can do with it is open the dialog.
+     * Quora's settings page open this dialog. Pages can also use it for Copy and Share answer text,
+     * Sort answers and Reading history; they can't read anything back through it.
      */
     public static void bind(WebView webView) {
         if (webView == null) return;
@@ -166,6 +167,42 @@ public final class PatchSettings {
                     Log.e(TAG, "Failed to copy the answer", ex);
                 }
             });
+        }
+
+        /** For Share answer text: opens the share sheet with the answer's text. */
+        @android.webkit.JavascriptInterface
+        public void shareText(String text) {
+            WebView view = webView.get();
+            if (view == null || text == null || text.trim().isEmpty()) return;
+            view.post(() -> {
+                try {
+                    android.content.Intent send = new android.content.Intent(android.content.Intent.ACTION_SEND);
+                    send.setType("text/plain");
+                    send.putExtra(android.content.Intent.EXTRA_TEXT, text.trim());
+                    android.content.Intent chooser = android.content.Intent.createChooser(send, "Share answer text");
+                    Context context = view.getContext();
+                    if (!(context instanceof android.app.Activity)) {
+                        chooser.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+                    }
+                    context.startActivity(chooser);
+                } catch (Exception ex) {
+                    Log.e(TAG, "Failed to share the answer", ex);
+                }
+            });
+        }
+
+        /** For Sort answers: the next sort menu the page opens picks this order instead of showing. */
+        @android.webkit.JavascriptInterface
+        public void sortNext(String order) {
+            ReadingPatch.requestSort(order);
+        }
+
+        /** For Reading history: remembers an answer, post or question you opened. Only quora.com links. */
+        @android.webkit.JavascriptInterface
+        public void addHistory(String url, String title, String author) {
+            WebView view = webView.get();
+            if (view == null) return;
+            ReadingHistory.add(view.getContext().getApplicationContext(), url, title, author);
         }
     }
 

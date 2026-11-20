@@ -96,6 +96,24 @@ expect('hideSurveys-0.js', `<div id="feed">${unit('a', '1y')}
   ['#survey', true], ['#a', false], ['#b', false],
 ]);
 
+// Hide surveys: "Was this worth your time?" under a short answer. The box starts with
+// "Your response is private"; the answer around it stays (it is under 400 characters on purpose).
+expect('hideSurveys-0.js', `<div id="feed">
+  <div class="q-box dom_annotate_multifeed_bundle_AnswersBundle" id="w">
+    ${header('Knows things', '1y')}
+    <div class="q-text puppeteer_test_question_title">A short question?</div>
+    <div class="puppeteer_test_answer_content"><p class="q-text" id="w-text">A short answer.</p></div>
+    <div class="q-box" id="worth"><div class="q-box"><div class="q-flex">
+      <div class="q-box"><div class="q-text">Your response is private</div>
+        <div class="q-text">Was this worth your time?</div>
+        <div class="q-text">This helps us show content you find valuable.</div></div>
+      <div class="q-flex"><button>Absolutely not</button><button>Definitely yes</button></div>
+    </div></div></div>
+  </div>
+  ${unit('b', '2y')}</div>`, [
+  ['#worth', true], ['#w', false], ['#w-text', false], ['#name', false], ['#b', false],
+]);
+
 // Hide Spaces posts: a stylesheet that hides post units and leaves answers.
 {
   const doc = run('hideSpacesPosts-0.js', `${unit('a', '1y')}
