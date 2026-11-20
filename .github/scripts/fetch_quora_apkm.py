@@ -198,7 +198,8 @@ def verify(apkm, version, apksigner, aapt2):
                 problems.append(f"{name}: signature doesn't verify: " + (certs.stderr or certs.stdout).strip()[:200])
             elif digests != [expected]:
                 problems.append(f"{name} is signed by {digests}, not Quora")
-                print(f"apksigner output for {name}:\n{certs.stdout.strip()[:1500]}")
+                print(f"{apksigner} output for {name} (exit {certs.returncode}):\n"
+                      f"{certs.stdout.strip()[:1500]}\n{certs.stderr.strip()[:1500]}")
     if problems:
         print("This isn't Quora's APK: " + "; ".join(problems))
         sys.exit(6)
