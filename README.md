@@ -66,7 +66,6 @@ Not sure what to pick? The privacy patches are already on. These are a good firs
 - Hide AI answers
 - Hide Quora+ answers and Hide Quora+ promotions
 - Hide suggested questions and Hide people suggestions
-- Disable video autoplay
 - Keep place on return
 
 Everything else can wait until something bothers you.
@@ -141,7 +140,7 @@ How answers look and load.
 | Comfortable reading | off | More space between the lines and paragraphs of answers. |
 | Copy answer text | on | Adds a Copy button next to Share under answers and posts. It copies their text without formatting. |
 | Data saver | off | Images load only when you tap them. By default only on mobile data; on Wi-Fi they load as usual. Options: Load images on Wi-Fi. |
-| Disable video autoplay | off | Videos in the feed and in answers only play when you tap them. |
+| Disable video autoplay | on | Videos in the feed and in answers only play when you tap them. |
 | Enable text selection | on | Lets you select and copy text on every page. |
 | Expand answers | on | Opens shortened answers on question pages, and shows the whole answer preview in the feed. |
 | Fullscreen reading | off | Hides the top bar and the tabs while you scroll down, and shows them again when you scroll up. On answer and question pages it hides their top bar. |
