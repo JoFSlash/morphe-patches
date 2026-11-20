@@ -40,6 +40,15 @@ patching again: open **Settings > Morphe > Quora patches**, or long-press the **
 search field, edits the keyword and author filters, backs up your settings as text, and tells you when Quora has
 changed its pages in a way that breaks some patches.
 
+It also keeps your lists, each with a search field and **Copy as text**:
+
+- **History**: the answers, posts and questions you opened (Reading history).
+- **Bookmarks**: the answers and posts you saved with the bookmark button under them. Long-press one to remove it.
+- **Dismissed questions**: questions you marked "Not interested in this question" (Hide dismissed questions).
+
+**Report a problem** copies the Quora and Android versions, the patches you have on and the page check, then opens
+a bug report on GitHub for you to paste them into. When the phone is set to Slovak, the settings page is in Slovak.
+
 ## Where to start
 
 Not sure what to pick? The privacy patches are already on. These are a good first set on top of them:
@@ -202,9 +211,14 @@ Android checks that an app opening quora.com links is signed by Quora, and the p
 hand: Android's Settings > Apps > Quora > Open by default > Open supported links, and add the links it lists.
 The exact names differ a bit between phones.
 
+**Can I read answers in another language?**
+Turn on **Translate button**. It adds a Translate button under answers and posts that opens Google Translate inside
+the app, into your phone's language or the one set under "Translate to" in the settings page. The text goes to
+Google only when you tap the button.
+
 **A patch stopped working.**
-Quora probably changed its pages. Check the warning on the settings page (long-press the Home tab), then
-[open an issue](https://github.com/JoFSlash/quora-patches/issues/new/choose) with the Quora version and the patch.
+Quora probably changed its pages. Check the warning on the settings page (long-press the Home tab), then tap
+**Report a problem** there: it copies the details a report needs and opens the bug report form.
 
 ## Known issues
 
