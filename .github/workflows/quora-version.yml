@@ -27,9 +27,6 @@ permissions:
   issues: write
   packages: read
 
-env:
-  MORPHE_CLI_VERSION: 'v2.2.0'
-
 jobs:
   check:
     name: Look for a new Quora version
@@ -140,7 +137,7 @@ jobs:
         if: steps.apkm.outputs.result == 'ok'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release download "$MORPHE_CLI_VERSION" -R MorpheApp/morphe-cli -p 'morphe-desktop-*-all.jar' -O "$RUNNER_TEMP/morphe-cli.jar"
+        run: gh release download "$(cat .github/morphe-cli-version)" -R MorpheApp/morphe-cli -p 'morphe-desktop-*-all.jar' -O "$RUNNER_TEMP/morphe-cli.jar"
 
       - name: Enable KVM
         if: steps.apkm.outputs.result == 'ok'

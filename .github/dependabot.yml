@@ -1,16 +1,15 @@
 version: 2
+# Pull requests go to main, the default branch (there is no dev branch any more).
 updates:
   - package-ecosystem: github-actions
     labels: []
     directory: /
-    target-branch: dev
     schedule:
       interval: monthly
 
   - package-ecosystem: npm
     labels: []
     directory: /
-    target-branch: dev
     schedule:
       interval: monthly
     ignore:
@@ -21,6 +20,5 @@ updates:
   - package-ecosystem: gradle
     labels: []
     directory: /
-    target-branch: dev
     schedule:
       interval: monthly
