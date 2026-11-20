@@ -24,7 +24,7 @@ public final class GmsCoreCheck {
             final Context app = context.getApplicationContext() != null
                     ? context.getApplicationContext() : context;
             new Handler(Looper.getMainLooper()).postDelayed(() -> Toast.makeText(app,
-                    "Install MicroG-RE to sign in with Google and get notifications.",
+                    Texts.t("Install MicroG-RE to sign in with Google and get notifications."),
                     Toast.LENGTH_LONG).show(), 3000);
         } catch (Throwable ignored) {
             // Never break the app start.

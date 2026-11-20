@@ -1,12 +1,15 @@
 name: Emulator test
 
-# Patches Quora with every patch, installs it on an Android emulator and checks that it starts
-# without a crash and loads Quora's sign-in page. The feed needs a signed-in account, so the
-# page patches are still tried by hand on a phone.
+# Patches Quora with every patch, installs it on Android 15, 16 and 17 emulators and checks
+# that it starts without a crash or errors from the patches and loads Quora's sign-in page. When
+# a check fails, the original Quora is tried the same way, to tell a broken patch from an Android
+# version Quora itself doesn't work on. The feed needs a signed-in account; the weekly feed test
+# (feed-test.yml) signs in with a test account and checks the page patches there.
 #
 # Quora's APK can't be in this public repository. It comes from the private repository
-# JoFSlash/quora-apks, read with the QUORA_APKS_TOKEN secret (a fine-grained token with
-# read-only access to that repository's contents). Without the secret the test is skipped.
+# JoFSlash/quora-apks, read with the QUORA_APKS_TOKEN secret (a fine-grained token with access
+# to that repository's contents only: read and write, since the Quora version workflow keeps new
+# APKMs there). Without the secret the test is skipped.
 
 on:
   pull_request:
@@ -17,14 +20,22 @@ permissions:
   packages: read
 
 env:
-  QUORA_VERSION: '3.2.42'
   MORPHE_CLI_VERSION: 'v2.2.0'
 
 jobs:
   emulator:
-    name: Start on an emulator
+    name: Start on Android ${{ matrix.android }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        # The Android versions people run now, and the next one. Android 17's image is only in the
+        # SDK's canary channel so far.
+        include:
+          - { api: '35', android: '15', channel: 'stable' }
+          - { api: '36', android: '16', channel: 'stable' }
+          - { api: '37.0', android: '17', channel: 'canary' }
     steps:
       - name: Check for the APK token
         id: token
@@ -60,6 +71,9 @@ jobs:
           APKS_TOKEN: ${{ secrets.QUORA_APKS_TOKEN }}
           GH_TOKEN: ${{ github.token }}
         run: |
+          # The newest version listed as supported in Constants.kt.
+          QUORA_VERSION=$(grep -oE 'AppTarget\(version = "[0-9.]+"' patches/src/main/kotlin/app/jofslash/patches/quora/shared/Constants.kt             | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -1)
+          echo "Quora $QUORA_VERSION"
           GH_TOKEN="$APKS_TOKEN" gh release download "quora-$QUORA_VERSION" -R JoFSlash/quora-apks \
             -p "quora-$QUORA_VERSION.apkm" -O "$RUNNER_TEMP/quora.apkm"
           gh release download "$MORPHE_CLI_VERSION" -R MorpheApp/morphe-cli -p 'morphe-desktop-*-all.jar' \
@@ -77,8 +91,9 @@ jobs:
         if: steps.token.outputs.skip != 'true'
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          api-level: ${{ matrix.api }}
+          channel: ${{ matrix.channel }}
           target: google_apis
           arch: x86_64
           disable-animations: true
-          script: python3 .github/scripts/check_quora_version.py "$RUNNER_TEMP/quora.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-login --adb adb
+          script: python3 .github/scripts/check_quora_version.py "$RUNNER_TEMP/quora.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-login --compare-original --adb adb

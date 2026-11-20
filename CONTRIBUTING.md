@@ -6,7 +6,9 @@ most useful contributions.
 
 ## Reporting a problem
 
-Open a [bug report](https://github.com/JoFSlash/quora-patches/issues/new?template=bug_report.yml) with:
+The quickest way is **Report a problem** in Patch settings (long-press Home): it copies the app
+details and opens the form. Otherwise open a
+[bug report](https://github.com/JoFSlash/quora-patches/issues/new?template=bug_report.yml) with:
 
 - the patch name as Morphe Manager shows it,
 - what you expected and what happened, ideally with a screenshot of the page,
@@ -48,9 +50,29 @@ for a crash at start.
 python .github/scripts/check_quora_version.py com.quora.android_X.Y.Z.apkm --cli morphe-cli.jar --install
 ```
 
+This mostly runs on its own. `.github/workflows/quora-version.yml` checks APKMirror and Google Play
+every day. For a new version it downloads the APKM, checks that every split is signed by Quora,
+keeps it as a release in the private repository `JoFSlash/quora-apks`, patches it, starts it on an
+emulator and opens a pull request that adds the version to `Constants.kt`. When something fails it
+opens an issue that says what. A maintainer still tries the page patches on a phone before merging.
+
 The page patches depend on Quora's web pages, which can change without a new app version. The
-Patch settings dialog (long-press Home) shows a page check: when the feed no longer has the class
-names some patches rely on, it names those patches.
+Patch settings dialog (long-press Home) shows a page check for the feed and answer pages: when a
+page no longer has the class names some patches rely on, it names those patches.
+
+### Tests
+
+- `.github/page-scripts/run.sh` writes every script the page patches inject, checks that each one
+  parses, and runs the DOM checks in `dom-test.js` on trimmed copies of Quora's markup. Add a check
+  there when you change what a script hides.
+- `emulator.yml` patches the newest supported version on every pull request, installs it on an
+  emulator and checks that it starts and loads the sign-in page.
+- `feed-test.yml` signs in with a test account every Monday before the release and checks the page
+  patches on the real feed and on an answer (`.github/scripts/feed-test.mjs`). It needs the
+  `QUORA_TEST_EMAIL` and `QUORA_TEST_PASSWORD` secrets. It skips itself with a warning when Quora
+  clearly asks for a captcha or a code, and fails on any other failed sign-in.
+- `.github/scripts/check_texts.py` fails when a settings language misses a text the app shows.
+  Add a new text to every `Texts<Lang>.java`; the Build workflow runs the check.
 
 ## Pull requests
 

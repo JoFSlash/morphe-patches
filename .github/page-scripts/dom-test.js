@@ -142,10 +142,13 @@ expect('hideSurveys-0.js', `<div id="feed">
   Object.defineProperty(dom.window.HTMLElement.prototype, 'innerText', {
     get() { return this.textContent.replace(/\s+/g, ' ').trim(); },
   });
+  // The app's raw bridge: every call must carry the key the scripts' own wrapper adds.
   const calls = [];
-  dom.window.JoFSlashPatches = {
-    copyText: (t) => calls.push(['copyText', t]), copyPreview: (t) => calls.push(['copyPreview', t]),
-    shareText: (t) => calls.push(['shareText', t]), sharePreview: (t) => calls.push(['sharePreview', t]),
+  const keys = new Set();
+  const record = (name) => (key, t) => { keys.add(key); calls.push([name, t]); };
+  dom.window.JoFSlashBridge = {
+    copyText: record('copyText'), copyPreview: record('copyPreview'),
+    shareText: record('shareText'), sharePreview: record('sharePreview'),
   };
   for (const s of ['copyAnswerText-0.js', 'shareAnswerText-0.js', 'copyAnswerText-0.js']) {
     dom.window.eval(fs.readFileSync(path.join(dir, s), 'utf8'));
@@ -163,6 +166,13 @@ expect('hideSurveys-0.js', `<div id="feed">
   const want = [['sharePreview', 'A post title?\n\nThe start of a long post…'], ['copyText', 'Full answer text.']];
   checks++;
   if (JSON.stringify(calls) !== JSON.stringify(want)) fail(`Copy/Share text calls: ${JSON.stringify(calls)}`);
+  checks++;
+  const [key] = keys;
+  if (keys.size !== 1 || !/^[0-9a-f]{36}$/.test(key)) fail(`Bridge calls should carry one key, got ${JSON.stringify([...keys])}`);
+  // A frame without the key gets nothing: the wrapper is the only way in, and it can't be replaced.
+  checks++;
+  try { dom.window.JoFSlashPatches = {}; } catch (e) { /* frozen in strict code */ }
+  if (typeof dom.window.JoFSlashPatches.ready !== 'function') fail('window.JoFSlashPatches could be replaced');
 }
 
 // Hide Spaces posts: a stylesheet that hides post units and leaves answers.
@@ -176,6 +186,22 @@ expect('hideSurveys-0.js', `<div id="feed">
     if (shown(id) !== want) fail(`hideSpacesPosts-0.js: #${id} should be ${want ? 'shown' : 'hidden'}`);
   }
 }
+
+// Block authors (sample list has Jane Doe): her answers go on question pages too; an answer she
+// only upvoted stays.
+expect('blockAuthors-0.js', `
+  <div class="q-box dom_annotate_question_answer_item_0" id="hers">
+    <a class="puppeteer_test_link" href="https://www.quora.com/profile/Jane-Doe-12"></a>
+    <a class="puppeteer_test_link" href="https://www.quora.com/profile/Jane-Doe-12">Jane Doe</a>
+    <div class="puppeteer_test_answer_content"><p class="q-text">Her answer.</p></div></div>
+  <div class="q-box dom_annotate_question_answer_item_1" id="upvoted">
+    <a class="puppeteer_test_link" href="https://www.quora.com/profile/John-Roe">John Roe</a>
+    <div class="q-text qu-color--gray"><div><span class="c1h7helg">Upvoted by <span class="q-inlineFlex">
+      <a class="puppeteer_test_link" href="https://www.quora.com/profile/Jane-Doe-12">Jane Doe</a></span>
+      , PhD in physics</span></div></div>
+    <div class="puppeteer_test_answer_content"><p class="q-text">His answer.</p></div></div>`, [
+  ['#hers', true], ['#upvoted', false],
+]);
 
 console.log(`${checks} DOM checks, ${failures} failure(s)`);
 process.exit(failures ? 1 : 0);

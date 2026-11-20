@@ -20,6 +20,7 @@ function fakePage(units = []) {
     createElement: () => ({}),
     querySelector: () => null,
     querySelectorAll: () => units,
+    addEventListener() {},
   };
   const sandbox = {
     window: { addEventListener() {} }, document, URL, styles,

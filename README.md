@@ -32,6 +32,9 @@ The privacy patches are on by default. Everything else is off until you pick it.
   you stay signed in and your patch settings stay.
 - **New Quora version:** the patched app doesn't update from the Play Store. Wait until a release of these
   patches lists the new version as supported, then patch that version the same way.
+- **Quora stops accepting your version:** Quora then shows "Upgrade Needed" with a button to Google Play,
+  which can't update a patched app. The patched app says so and links here: patch the newest supported
+  version and install it over the old one.
 
 ## Changing patches later
 
@@ -39,6 +42,21 @@ Most patches and their options (text size, tabs, font, how old is too old) can b
 patching again: open **Settings > Morphe > Quora patches**, or long-press the **Home** tab. The same page has a
 search field, edits the keyword and author filters, backs up your settings as text, and tells you when Quora has
 changed its pages in a way that breaks some patches.
+
+It also keeps your lists, each with a search field and **Copy as text**:
+
+- **History**: the answers, posts and questions you opened (Reading history).
+- **Bookmarks**: the answers and posts you saved with the bookmark button under them. Long-press one to remove it.
+- **Dismissed questions**: questions you marked "Not interested in this question" (Hide dismissed questions).
+
+**Report a problem** copies the Quora and Android versions, the patches you have on and the page check, then opens
+a bug report on GitHub for you to paste them into.
+
+The settings page follows the phone's language: Czech, French, German, Italian, Polish, Portuguese, Slovak and
+Spanish, otherwise English. Patch names stay in English, as Morphe Manager shows them.
+
+**Backup** copies your settings and these lists as text. Restoring adds the saved items to the lists already on
+the phone.
 
 ## Where to start
 
@@ -202,14 +220,23 @@ Android checks that an app opening quora.com links is signed by Quora, and the p
 hand: Android's Settings > Apps > Quora > Open by default > Open supported links, and add the links it lists.
 The exact names differ a bit between phones.
 
+**Can I read answers in another language?**
+Turn on **Translate button**. It adds a Translate button under answers and posts that opens Google Translate inside
+the app, into your phone's language or the one set under "Translate to" in the settings page. The text goes to
+Google only when you tap the button.
+
 **A patch stopped working.**
-Quora probably changed its pages. Check the warning on the settings page (long-press the Home tab), then
-[open an issue](https://github.com/JoFSlash/quora-patches/issues/new/choose) with the Quora version and the patch.
+Quora probably changed its pages. Check the warning on the settings page (long-press the Home tab), then tap
+**Report a problem** there: it copies the details a report needs and opens the bug report form.
 
 ## Known issues
 
 - Most patches work on Quora's web pages, which can change without a new app version. When that happens,
   a patch stops working without any error. The page check on the settings page catches the common cases.
+- The patches expect Quora in English (www.quora.com). On Quora in other languages (de.quora.com,
+  es.quora.com and so on) the ones that look for Quora's English texts may not work: Hide dismissed
+  questions, Hide comment box, Hide credentials, Hide Follow buttons, Hide surveys, Hide old answers and
+  Expand answers on question pages.
 - With Data saver, tapping an image placeholder in the feed opens the post instead of loading the image.
   The image loads when you tap it there.
 - Hide Quora+ answers and Hide surveys haven't been tried on a real paywalled answer or survey yet.
