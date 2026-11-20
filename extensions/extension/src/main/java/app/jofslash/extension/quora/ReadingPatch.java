@@ -702,13 +702,15 @@ public final class ReadingPatch {
                 + SHARE_BUTTONS_JS
                 + "var n=0;"
                 // Waits up to 20 s for the bridge, the page's data and its Share button.
-                + "function run(){var J=window.JoFSlashPatches;if(!J||!J.ready()){if(++n<40)setTimeout(run,500);return;}"
+                // retry: keep trying for up to 20 s while the bridge, the page's data or Share is missing.
+                + "function run(retry){if(document.querySelector('[data-jofslash-bookmark]'))return;"
+                + "function later(){if(retry&&++n<40)setTimeout(function(){run(true);},500);}"
+                + "var J=window.JoFSlashPatches;if(!J||!J.ready()){later();return;}"
                 + "var it=pageItem();"
                 // Only an open answer or post: questions and the feed have no address for one item.
                 + "if(it.other||/^Question/.test(it.author||''))return;"
                 + "var s=shareButtons()[0];"
-                + "if(!it.url||!it.title||!s){if(++n<40)setTimeout(run,500);return;}"
-                + "if(document.querySelector('[data-jofslash-bookmark]'))return;"
+                + "if(!it.url||!it.title||!s){later();return;}"
                 + "var item=s.parentElement&&s.parentElement.children.length===1?s.parentElement:s;"
                 + "var b=item.cloneNode(true);b.setAttribute('data-jofslash-bookmark','');b.setAttribute('data-jofslash-clone','');"
                 + "[b].concat([].slice.call(b.querySelectorAll('*'))).forEach(function(e){"
@@ -722,7 +724,11 @@ public final class ReadingPatch {
                 + "b.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();"
                 + "var now=pageItem();show(J.toggleBookmark(now.url||it.url,now.title||it.title,now.author||it.author));},true);"
                 + "item.parentElement.insertBefore(b,item.nextSibling);}"
-                + "run();})();", "bookmarks");
+                // Quora redraws the action bar now and then, which drops the button: add it again.
+                + "run(true);var p=false;new MutationObserver(function(){if(p)return;p=true;"
+                + "setTimeout(function(){p=false;run(false);},300);})"
+                + ".observe(document.documentElement,{childList:true,subtree:true});"
+                + "})();", "bookmarks");
     }
 
     /**
