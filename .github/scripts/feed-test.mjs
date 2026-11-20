@@ -6,7 +6,7 @@
 // Optional: ADB (path to adb), QUORA_PACKAGE (default com.quora.android), DRY_RUN=1 (fills the
 // sign-in form but doesn't send it).
 //
-// Exit codes: 0 every check passed, or the test was skipped (no account, or Quora asked for more
+// Exit codes: 0 every check passed, or the test was skipped (no account, or Quora clearly asked for more
 // than a password: a captcha or a code); 1 a check failed; 2 the app or its pages couldn't be reached.
 // The account's email and password are never printed.
 import { execFileSync } from 'node:child_process';
@@ -24,6 +24,8 @@ const adb = (...args) => {
   }
 };
 const notice = (msg) => console.log(`::notice title=Feed test::${msg}`);
+// A skipped run is yellow in the summary, so a test that keeps skipping gets noticed.
+const warning = (msg) => console.log(`::warning title=Feed test::${msg}`);
 
 async function connect() {
   const pid = adb('shell', 'pidof', PACKAGE).split(/\s+/)[0];
@@ -104,11 +106,16 @@ async function signIn(email, password) {
   await sleep(1000);
   if (!(await evaluate(form.page, clickText(['Log in'])))) return 'no-submit';
   if (await waitFor(feedCount, 90)) return 'signed-in';
-  // Say why, without printing the page (it may show the address).
+  // Say why, without printing the page (it may show the address). Only clear signs of a captcha or
+  // a code count as "Quora wants more"; anything else fails the test, so it can't pass by skipping.
   const why = await evaluate(form.page, '(function(){var t=(document.body&&document.body.innerText||"").toLowerCase();'
-    + "if(/captcha|robot|recaptcha/.test(t)||document.querySelector('iframe[src*=\"recaptcha\"],iframe[src*=\"captcha\"]'))return 'captcha';"
-    + "if(/code|verify|verification|confirm/.test(t))return 'verification';"
-    + "if(/incorrect|wrong|invalid|no account/.test(t))return 'rejected';return 'unknown';})()");
+    + "if(document.querySelector('iframe[src*=\"recaptcha\"],iframe[src*=\"hcaptcha\"],iframe[src*=\"captcha\"]')"
+    + "||/i'm not a robot|complete the captcha/.test(t))return 'captcha';"
+    + "if(document.querySelector('input[autocomplete=\"one-time-code\"],input[name*=\"code\" i]')"
+    + "||/verification code|enter the code|we (just )?sent (you )?(a|an|the) (code|email|link)|confirm (it's|it is) you/.test(t))"
+    + "return 'verification';"
+    + "if(/incorrect password|wrong password|no account|isn't associated|not associated/.test(t))return 'rejected';"
+    + "return 'unknown';})()");
   return `not-signed-in:${why || 'page gone'}`;
 }
 
@@ -178,11 +185,13 @@ async function main() {
   console.log(`Sign-in: ${state}`);
   if (state === 'dry-run') return 0;
   if (state.startsWith('not-signed-in:captcha') || state.startsWith('not-signed-in:verification')) {
-    notice(`Quora asked for more than a password (${state.split(':')[1]}), so the feed test is skipped.`);
+    warning(`Quora asked for more than a password (${state.split(':')[1]}), so the feed test is skipped. `
+      + 'Sign in to the test account once by hand to clear it.');
     return 0;
   }
   if (state !== 'signed-in') {
-    console.error(`Couldn't sign in (${state}).`);
+    console.log(`::error title=Feed test::Couldn't sign in (${state}). A changed sign-in page, `
+      + 'a wrong password in the secrets, or a locked test account.');
     return 2;
   }
 

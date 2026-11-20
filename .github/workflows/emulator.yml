@@ -1,7 +1,7 @@
 name: Emulator test
 
 # Patches Quora with every patch, installs it on an Android emulator and checks that it starts
-# without a crash and loads Quora's sign-in page. The feed needs a signed-in account; the daily
+# without a crash and loads Quora's sign-in page. The feed needs a signed-in account; the weekly
 # feed test (feed-test.yml) signs in with a test account and checks the page patches there.
 #
 # Quora's APK can't be in this public repository. It comes from the private repository
