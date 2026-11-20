@@ -13,6 +13,10 @@ import java.util.Map;
  */
 final class Texts {
 
+    /** The languages load() has texts for. */
+    private static final java.util.Set<String> LANGUAGES = new java.util.HashSet<>(
+            java.util.Arrays.asList("cs", "de", "es", "fr", "it", "pl", "pt", "sk"));
+
     private static String loadedLanguage;
     private static Map<String, String> table;
 
@@ -30,12 +34,31 @@ final class Texts {
 
     /** The table for the phone's language, made the first time it is needed. */
     private static synchronized Map<String, String> table() {
-        String language = Locale.getDefault().getLanguage();
+        String language = language();
         if (!language.equals(loadedLanguage)) {
             loadedLanguage = language;
             table = load(language);
         }
         return table;
+    }
+
+    /**
+     * The first language in the phone's (or the app's own) language list that has texts here.
+     * Locale.getDefault() isn't enough: Android sets it to the best language Quora's own
+     * resources have, and Quora has no Czech or Slovak, so a Slovak phone would get English.
+     * LocaleList.getDefault() keeps the whole list as the user set it.
+     */
+    private static String language() {
+        try {
+            android.os.LocaleList list = android.os.LocaleList.getDefault();
+            for (int i = 0; i < list.size(); i++) {
+                String language = list.get(i).getLanguage();
+                if (language.equals("en") || LANGUAGES.contains(language)) return language;
+            }
+        } catch (Throwable ignored) {
+            // Not on Android (the page script tests): fall back to the JVM's language.
+        }
+        return Locale.getDefault().getLanguage();
     }
 
     private static Map<String, String> load(String language) {
