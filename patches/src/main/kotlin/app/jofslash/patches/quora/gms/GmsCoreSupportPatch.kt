@@ -8,7 +8,13 @@ import app.jofslash.patches.quora.shared.Constants.COMPATIBILITY_QUORA
 import app.jofslash.patches.quora.shared.replaceStrings
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
+import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
+import app.morphe.patcher.string
+import com.android.tools.smali.dexlib2.Opcode
+import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
+import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import app.morphe.patcher.patch.resourcePatch
 import app.morphe.patcher.util.returnEarly
 import org.w3c.dom.Element
@@ -30,6 +36,20 @@ internal object GooglePlayServicesAvailableFingerprint : Fingerprint(
     name = "isGooglePlayServicesAvailable",
     returnType = "I",
     parameters = listOf("Landroid/content/Context;", "I"),
+)
+
+// Firebase Installations sends the app's package name and certificate with Quora's API key.
+// The key only accepts Quora's own, so a re-signed or renamed app gets 403 and no push token.
+internal object FisOpenConnectionFingerprint : Fingerprint(
+    definingClass = "Lcom/google/firebase/installations/remote/FirebaseInstallationServiceClient;",
+    filters = listOf(string("X-Android-Package")),
+)
+
+internal object FisCertificateFingerprint : Fingerprint(
+    definingClass = "Lcom/google/firebase/installations/remote/FirebaseInstallationServiceClient;",
+    name = "getFingerprintHashForPackage",
+    returnType = "Ljava/lang/String;",
+    parameters = listOf(),
 )
 
 internal object ApplicationOnCreateFingerprint : Fingerprint(
@@ -115,6 +135,25 @@ val gmsCoreSupportPatch = bytecodePatch(
         Logger.getLogger("GmsCoreSupport").info("Moved $changed Play services strings to MicroG-RE")
 
         GooglePlayServicesAvailableFingerprint.method.returnEarly(0)
+
+        // Push needs a Firebase installation, so report Quora's package and certificate.
+        FisOpenConnectionFingerprint.let { match ->
+            match.method.apply {
+                val instructions = implementation!!.instructions.toList()
+                val start = match.instructionMatches.first().index
+                // The package name is read just before the header name is loaded.
+                val callIndex = (start downTo 0).first { i ->
+                    val insn = instructions[i]
+                    insn.opcode == Opcode.INVOKE_VIRTUAL &&
+                        ((insn as ReferenceInstruction).reference as MethodReference).name == "getPackageName"
+                }
+                val moveResult = instructions[callIndex + 1]
+                if (moveResult.opcode != Opcode.MOVE_RESULT_OBJECT) throw PatchException("No package name result")
+                val register = (moveResult as OneRegisterInstruction).registerA
+                addInstruction(callIndex + 2, "const-string v$register, \"$QUORA_PACKAGE\"")
+            }
+        }
+        FisCertificateFingerprint.method.returnEarly(QUORA_SIGNATURE.uppercase())
 
         // Tell the user when MicroG-RE is missing.
         ApplicationOnCreateFingerprint.method.addInstruction(
