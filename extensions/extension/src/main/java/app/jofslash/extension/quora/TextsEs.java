@@ -25,14 +25,14 @@ final class TextsEs {
         m.put("Restore", "Restaurar");
         m.put("Search patches", "Buscar parches");
         m.put("Search history", "Buscar en el historial");
-        m.put("Search bookmarks", "Buscar en marcadores");
+        m.put("Search bookmarks", "Buscar en los marcadores");
         m.put("No patch matches.", "Ningún parche coincide.");
         m.put("Nothing matches.", "No hay coincidencias.");
         m.put("Open a page in the app first; the patches that work on pages appear here once they have run.",
                 "Primero abre una página en la aplicación; los parches que actúan en las páginas aparecerán aquí cuando se hayan ejecutado.");
         m.put("Some changes show after restarting the app.", "Algunos cambios se aplican al reiniciar la aplicación.");
         m.put("Quora patches: change them in Settings > Morphe, or long-press the Home tab.",
-                "Parches de Quora: cámbialos en Ajustes > Morphe o mantén pulsada la pestaña Inicio.");
+                "Parches de Quora: cámbialos en Settings > Morphe o mantén pulsada la pestaña Home.");
 
         // More section.
         m.put("Filters", "Filtros");
@@ -51,7 +51,7 @@ final class TextsEs {
         m.put("Copied.", "Copiado.");
         m.put("Settings restored.", "Ajustes restaurados.");
         m.put("Settings restored. Items added to your lists: ", "Ajustes restaurados. Elementos añadidos a tus listas: ");
-        m.put("Bookmarks are full. Remove some in Patch settings first.", "Los marcadores están llenos. Primero quita algunos en los ajustes de parches.");
+        m.put("Bookmarks are full. Remove some in Patch settings first.", "Los marcadores están llenos. Primero quita algunos en Parches de Quora.");
         m.put("That is not a saved settings text.", "Ese no es un texto de ajustes guardados.");
         m.put("Report a problem", "Informar de un problema");
         m.put("Copies the app details and opens a bug report on GitHub.",
@@ -79,8 +79,8 @@ final class TextsEs {
 
         // Messages from the buttons on pages.
         m.put("Answer copied", "Respuesta copiada");
-        m.put("Copied the preview. Open it to copy all of it.", "Se copió la vista previa. Ábrela para copiarla entera.");
-        m.put("Sharing the preview. Open it to share all of it.", "Se comparte la vista previa. Ábrela para compartirla entera.");
+        m.put("Copied the preview. Open it to copy all of it.", "Solo se copió la vista previa. Abre la respuesta para copiarla entera.");
+        m.put("Sharing the preview. Open it to share all of it.", "Compartiendo la vista previa. Abre la respuesta para compartirla entera.");
         m.put("Translate", "Traducir");
         m.put("Translate to", "Traducir a");
         m.put("Phone's language", "Idioma del teléfono");
@@ -108,15 +108,15 @@ final class TextsEs {
         m.put("Install MicroG-RE to sign in with Google and get notifications.",
                 "Instala MicroG-RE para iniciar sesión con Google y recibir notificaciones.");
         m.put("Quora changed its pages, so some patches may not work. Long-press Home for details.",
-                "Quora cambió sus páginas y puede que algunos parches no funcionen. Mantén pulsado Inicio para ver los detalles.");
+                "Quora cambió sus páginas y puede que algunos parches no funcionen. Mantén pulsada la pestaña Home para ver los detalles.");
         m.put("Page check: the feed and answers look as the patches expect.",
                 "Comprobación de páginas: el feed y las respuestas son como esperan los parches.");
         m.put("Page check: Quora changed its pages. These may not work: ",
                 "Comprobación de páginas: Quora cambió sus páginas. Puede que estos no funcionen: ");
-        m.put(". Please report it on GitHub.", ". Por favor, infórmalo en GitHub.");
+        m.put(". Please report it on GitHub.", ". Por favor, comunícalo en GitHub.");
 
         // Options.
-        m.put("None", "Ninguno");
+        m.put("None", "Ninguna");
         m.put("Order", "Orden");
         m.put("Recent", "Recientes");
         m.put("Upvotes", "Votos positivos");
@@ -146,10 +146,10 @@ final class TextsEs {
         m.put("\"People you may know\".", "«People you may know».");
         m.put("Posts from Spaces, so the feed shows answers only.", "Publicaciones de Spaces, para que el feed muestre solo respuestas.");
         m.put("Items you already opened, when they come back.", "Elementos que ya abriste, cuando vuelven a aparecer.");
-        m.put("Answers older than the years set below.", "Respuestas con más años que los indicados abajo.");
+        m.put("Answers older than the years set below.", "Respuestas más antiguas que el plazo indicado abajo.");
         m.put("Items that mention your keywords (see Filters).", "Elementos que mencionan tus palabras clave (ver Filtros).");
-        m.put("Items from the people and Spaces in Filters.", "Elementos de las personas y Spaces de Filtros.");
-        m.put("Upvote, view, comment and share numbers.", "Contadores de votos positivos, vistas, comentarios y veces compartido.");
+        m.put("Items from the people and Spaces in Filters.", "Elementos de las personas y Spaces indicados en Filtros.");
+        m.put("Upvote, view, comment and share numbers.", "Contadores de votos positivos, vistas, comentarios y veces compartidas.");
         m.put("The downvote button.", "El botón de voto negativo.");
         m.put("\"123 comments from … and more\" rows.", "Filas «123 comments from … and more».");
         m.put("The line under authors' names.", "La línea bajo el nombre de los autores.");
@@ -165,14 +165,14 @@ final class TextsEs {
         m.put("Nothing yet. Questions you mark \"Not interested in this question\" show up here.",
                 "Aún no hay nada. Aquí aparecerán las preguntas que marques como «Not interested in this question».");
         m.put("Show this question again?", "¿Volver a mostrar esta pregunta?");
-        m.put("Removed from the list", "Quitado de la lista");
+        m.put("Removed from the list", "Quitada de la lista");
         m.put("Clear the whole list?", "¿Borrar toda la lista?");
         m.put("List cleared.", "Lista borrada.");
-        m.put("Search dismissed questions", "Buscar en preguntas descartadas");
+        m.put("Search dismissed questions", "Buscar en las preguntas descartadas");
         m.put("Dismissed questions copied.", "Preguntas descartadas copiadas.");
         m.put("Answer by ", "Respuesta de ");
         m.put("Post by ", "Publicación de ");
-        m.put("Answer", "Respuesta");
+        m.put("Answer", "Responder");
         m.put("Question", "Pregunta");
         m.put("A Copy button next to Share under answers.", "Un botón Copiar junto a Share bajo las respuestas.");
         m.put("A Share text button next to Share under answers.", "Un botón Compartir texto junto a Share bajo las respuestas.");
@@ -188,7 +188,7 @@ final class TextsEs {
         m.put("Text at the size set below. Applies after a restart.", "Texto con el tamaño indicado abajo. Se aplica tras reiniciar.");
         m.put("Select and copy text anywhere.", "Selecciona y copia texto en cualquier lugar.");
         m.put("Images load when you tap them.", "Las imágenes se cargan al tocarlas.");
-        m.put("With Data saver, images still load on Wi-Fi.", "Con el ahorro de datos, las imágenes se cargan igualmente con Wi-Fi.");
+        m.put("With Data saver, images still load on Wi-Fi.", "Con Data saver, las imágenes se cargan igualmente con Wi-Fi.");
         m.put("Videos play only when you tap them.", "Los videos solo se reproducen al tocarlos.");
         m.put("The screen stays on while a page is open.", "La pantalla sigue encendida mientras haya una página abierta.");
         m.put("Removes the tabs set below. Applies after a restart.", "Quita las pestañas indicadas abajo. Se aplica tras reiniciar.");
@@ -215,8 +215,8 @@ final class TextsEs {
         m.put("Long answer: translated in parts. Use Next part at the top.", "Respuesta larga: se traduce por partes. Usa Siguiente parte arriba.");
         // Quora's upgrade page.
         m.put("Quora no longer accepts this version", "Quora ya no acepta esta versión");
-        m.put("This patched app is Quora ", "Esta app parcheada es Quora ");
-        m.put("It can't update from Google Play. Patch a newer Quora version with Morphe once these patches support it, and install it over this app: you stay signed in.", "No se puede actualizar desde Google Play. Parchea una versión más reciente de Quora con Morphe cuando estos parches la admitan e instálala sobre esta app: seguirás con la sesión iniciada.");
+        m.put("This patched app is Quora ", "Esta aplicación parcheada es Quora ");
+        m.put("It can't update from Google Play. Patch a newer Quora version with Morphe once these patches support it, and install it over this app: you stay signed in.", "No se puede actualizar desde Google Play. Parchea una versión más reciente de Quora con Morphe cuando estos parches la admitan e instálala sobre esta aplicación: seguirás con la sesión iniciada.");
         m.put("How to update", "Cómo actualizar");
         m.put("Close", "Cerrar");
     }

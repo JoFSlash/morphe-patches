@@ -32,7 +32,7 @@ final class TextsFr {
                 "Ouvrez d'abord une page dans l'application ; les patchs qui agissent sur les pages apparaissent ici une fois exécutés.");
         m.put("Some changes show after restarting the app.", "Certaines modifications s'appliquent après le redémarrage de l'application.");
         m.put("Quora patches: change them in Settings > Morphe, or long-press the Home tab.",
-                "Patchs Quora : modifiez-les dans Paramètres > Morphe ou appuyez longuement sur l'onglet Accueil.");
+                "Patchs Quora : modifiez-les dans Settings > Morphe ou appuyez longuement sur l'onglet Home.");
 
         // More section.
         m.put("Filters", "Filtres");
@@ -51,7 +51,7 @@ final class TextsFr {
         m.put("Copied.", "Copié.");
         m.put("Settings restored.", "Paramètres restaurés.");
         m.put("Settings restored. Items added to your lists: ", "Paramètres restaurés. Éléments ajoutés à vos listes : ");
-        m.put("Bookmarks are full. Remove some in Patch settings first.", "Les favoris sont pleins. Supprimez-en d'abord dans les paramètres des patchs.");
+        m.put("Bookmarks are full. Remove some in Patch settings first.", "La liste des favoris est pleine. Supprimez-en d'abord dans Patchs Quora.");
         m.put("That is not a saved settings text.", "Ce n'est pas un texte de paramètres enregistrés.");
         m.put("Report a problem", "Signaler un problème");
         m.put("Copies the app details and opens a bug report on GitHub.",
@@ -66,7 +66,7 @@ final class TextsFr {
         m.put("Nothing saved yet. Tap the bookmark next to Share under an open answer or post.",
                 "Rien d'enregistré pour l'instant. Appuyez sur le favori à côté de Share sous une réponse ou une publication ouverte.");
         m.put("Long-press one to remove it.", "Appuyez longuement sur un élément pour le supprimer.");
-        m.put("Copy as text", "Copier en texte");
+        m.put("Copy as text", "Copier sous forme de texte");
         m.put("Every title with its link, to keep or share.", "Chaque titre avec son lien, à conserver ou partager.");
         m.put("History copied.", "Historique copié.");
         m.put("Bookmarks copied.", "Favoris copiés.");
@@ -108,11 +108,11 @@ final class TextsFr {
         m.put("Install MicroG-RE to sign in with Google and get notifications.",
                 "Installez MicroG-RE pour vous connecter avec Google et recevoir les notifications.");
         m.put("Quora changed its pages, so some patches may not work. Long-press Home for details.",
-                "Quora a modifié ses pages, certains patchs risquent de ne pas fonctionner. Appuyez longuement sur Accueil pour en savoir plus.");
+                "Quora a modifié ses pages, certains patchs risquent de ne pas fonctionner. Appuyez longuement sur l'onglet Home pour en savoir plus.");
         m.put("Page check: the feed and answers look as the patches expect.",
                 "Vérification des pages : le fil et les réponses sont conformes à ce qu'attendent les patchs.");
         m.put("Page check: Quora changed its pages. These may not work: ",
-                "Vérification des pages : Quora a modifié ses pages. Ceux-ci risquent de ne pas fonctionner : ");
+                "Vérification des pages : Quora a modifié ses pages. Ces patchs risquent de ne pas fonctionner : ");
         m.put(". Please report it on GitHub.", ". Merci de le signaler sur GitHub.");
 
         // Options.
@@ -149,11 +149,11 @@ final class TextsFr {
         m.put("Answers older than the years set below.", "Réponses plus anciennes que le nombre d'années défini ci-dessous.");
         m.put("Items that mention your keywords (see Filters).", "Éléments contenant vos mots-clés (voir Filtres).");
         m.put("Items from the people and Spaces in Filters.", "Éléments des personnes et Spaces indiqués dans Filtres.");
-        m.put("Upvote, view, comment and share numbers.", "Nombres de votes positifs, de vues, de commentaires et de partages.");
+        m.put("Upvote, view, comment and share numbers.", "Compteurs de votes positifs, de vues, de commentaires et de partages.");
         m.put("The downvote button.", "Le bouton de vote négatif.");
         m.put("\"123 comments from … and more\" rows.", "Lignes « 123 comments from … and more ».");
         m.put("The line under authors' names.", "La ligne sous le nom des auteurs.");
-        m.put("The small Follow next to names.", "Le petit Follow à côté des noms.");
+        m.put("The small Follow next to names.", "Le petit bouton Follow à côté des noms.");
         m.put("\"How satisfied are you…\" and \"Was this worth your time?\" boxes.",
                 "Encadrés « How satisfied are you… » et « Was this worth your time? ».");
         m.put("The \"What do you want to ask or share?\" box.", "Le champ « What do you want to ask or share? ».");
@@ -172,7 +172,7 @@ final class TextsFr {
         m.put("Dismissed questions copied.", "Questions écartées copiées.");
         m.put("Answer by ", "Réponse de ");
         m.put("Post by ", "Publication de ");
-        m.put("Answer", "Réponse");
+        m.put("Answer", "Répondre");
         m.put("Question", "Question");
         m.put("A Copy button next to Share under answers.", "Un bouton Copier à côté de Share sous les réponses.");
         m.put("A Share text button next to Share under answers.", "Un bouton Partager le texte à côté de Share sous les réponses.");
@@ -188,7 +188,7 @@ final class TextsFr {
         m.put("Text at the size set below. Applies after a restart.", "Texte à la taille définie ci-dessous. S'applique après un redémarrage.");
         m.put("Select and copy text anywhere.", "Sélectionnez et copiez du texte n'importe où.");
         m.put("Images load when you tap them.", "Les images se chargent quand vous appuyez dessus.");
-        m.put("With Data saver, images still load on Wi-Fi.", "Avec l'économiseur de données, les images se chargent quand même en Wi-Fi.");
+        m.put("With Data saver, images still load on Wi-Fi.", "Avec Data saver, les images se chargent quand même en Wi-Fi.");
         m.put("Videos play only when you tap them.", "Les vidéos ne se lancent que quand vous appuyez dessus.");
         m.put("The screen stays on while a page is open.", "L'écran reste allumé tant qu'une page est ouverte.");
         m.put("Removes the tabs set below. Applies after a restart.", "Supprime les onglets définis ci-dessous. S'applique après un redémarrage.");
