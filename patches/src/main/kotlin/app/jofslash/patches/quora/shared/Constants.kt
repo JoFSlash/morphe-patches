@@ -16,7 +16,7 @@ object Constants {
         appIconColor = 0xB92B27,
         targets = listOf(
             AppTarget(version = "3.2.42"),
-            AppTarget(version = "3.2.30"),
+            // 3.2.30 was dropped: Quora's servers now refuse it as "no longer supported".
             AppTarget(version = null, isExperimental = true),
         )
     )
