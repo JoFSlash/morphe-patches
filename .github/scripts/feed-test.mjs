@@ -159,6 +159,7 @@ async function signIn(email, password) {
     + "if(document.querySelector('input[autocomplete=\"one-time-code\"],input[name*=\"code\" i]')"
     + "||/verification code|enter the code|we (just )?sent (you )?(a|an|the) (code|email|link)|confirm (it's|it is) you/.test(t))"
     + "return 'verification';"
+    + "if(/please confirm your email address/.test(t))return 'email-not-confirmed';"
     + "if(/incorrect password|wrong password|no account|isn't associated|not associated/.test(t))return 'rejected';"
     + "return 'unknown';})()");
   return `not-signed-in:${why || 'page gone'}`;
@@ -246,6 +247,11 @@ async function main() {
     warning(`Quora asked for more than a password (${state.split(':')[1]}), so the feed test is skipped. `
       + 'Sign in to the test account once by hand to clear it.');
     return 0;
+  }
+  if (state === 'not-signed-in:email-not-confirmed') {
+    console.log('::error title=Feed test::Quora says the test account\'s email address isn\'t confirmed. '
+      + 'Open the confirmation email Quora sent to it (or sign in once by hand and tap Resend Confirmation Link), then run this again.');
+    return 2;
   }
   if (state !== 'signed-in') {
     await describePages();
