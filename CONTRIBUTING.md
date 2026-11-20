@@ -67,8 +67,16 @@ page no longer has the class names some patches rely on, it names those patches.
   there when you change what a script hides.
 - `emulator.yml` patches the newest supported version on every pull request, installs it on an
   emulator and checks that it starts and loads the sign-in page.
-- `feed-test.yml` signs in with a test account every Monday before the release and checks the page
-  patches on the real feed and on an answer (`.github/scripts/feed-test.mjs`). Quora asks every new
+- `feed-test.yml` signs in with a test account and checks the page patches on the real feed and on
+  an answer (`.github/scripts/feed-test.mjs`). It leaves out "Start tab", so the app opens on the
+  Home feed.
+- `release.yml` runs the emulator test and the feed test first and releases only when both pass;
+  a skipped feed test doesn't count as passed. When a run doesn't pass, the issues "Weekly release
+  stopped" and "Feed test needs attention" say why, and the next passing run closes them. An urgent
+  fix can be released by hand with "Skip the feed test" while the feed test can't run.
+- The workflows use the Morphe CLI release in `.github/morphe-cli-version`. `morphe-cli.yml` looks
+  for a newer stable one every Sunday, runs the emulator test with it and opens a pull request.
+- Feed test sign-in: Quora asks every new
   device for a code sent by email, and each run is a new emulator, so the test uses a saved session
   from the `QUORA_TEST_COOKIES` secret and only falls back to `QUORA_TEST_EMAIL` and
   `QUORA_TEST_PASSWORD`. It skips itself with a warning when Quora clearly asks for a captcha or a
@@ -83,7 +91,7 @@ page no longer has the class names some patches rely on, it names those patches.
 ## Pull requests
 
 - Target the `main` branch. A release goes out every Monday with the `feat` and `fix` commits merged
-  into `main` that week; urgent fixes are released right away.
+  into `main` that week, once the emulator and feed tests pass; urgent fixes are released right away.
 - Use [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:` and so
   on); the release notes and version numbers are generated from them.
 - Describe what you tested and on which Quora version.

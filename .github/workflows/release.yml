@@ -2,14 +2,49 @@ name: Release
 
 # One release a week, from what was merged into main since the last one. Nothing new: no release.
 # An urgent fix can be released right away by running this workflow by hand.
+#
+# Before releasing, the bundle has to pass the emulator test (emulator.yml: every patch applies and
+# the app starts on Android 15, 16 and 17) and the feed test (feed-test.yml: the page patches work
+# on the signed-in feed and on an answer). A skipped feed test counts as not passed. When either
+# doesn't pass, nothing is released and the issue "Weekly release stopped" says why; the next
+# release that goes through closes it. When the feed test can't run (for example while its saved
+# session is being renewed), an urgent fix can still go out by hand with "Skip the feed test".
 on:
   schedule:
     - cron: '0 8 * * 1'
   workflow_dispatch:
+    inputs:
+      skip-feed-test:
+        description: 'Skip the feed test (the emulator test still runs)'
+        type: boolean
+        default: false
 
 jobs:
+  emulator:
+    name: Emulator test
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/emulator.yml
+    secrets: inherit
+
+  feed:
+    name: Feed test
+    if: ${{ !inputs.skip-feed-test }}
+    permissions:
+      contents: read
+      packages: read
+      issues: write
+    uses: ./.github/workflows/feed-test.yml
+    secrets: inherit
+
   release:
     name: Release
+    needs: [emulator, feed]
+    if: >-
+      !cancelled()
+      && needs.emulator.result == 'success'
+      && (needs.feed.outputs.result == 'passed' || (github.event_name == 'workflow_dispatch' && inputs.skip-feed-test))
     permissions:
       contents: write
       packages: write
@@ -67,3 +102,46 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :patches:buildAndroid clean --no-daemon
+
+  # Says on GitHub when a release didn't go out, so a red run on a Monday morning isn't missed.
+  report:
+    name: Open or close the issue
+    needs: [emulator, feed, release]
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+    permissions:
+      issues: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open or close the issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          EMULATOR: ${{ needs.emulator.result }}
+          FEED: ${{ needs.feed.outputs.result || needs.feed.result }}
+          RELEASE: ${{ needs.release.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Weekly release stopped"
+          existing=$(gh issue list --state open --search "\"$title\" in:title" --json number,title --jq ".[] | select(.title == \"$title\") | .number" | head -1)
+          if [ "$RELEASE" = "success" ]; then
+            if [ -n "$existing" ]; then
+              gh issue close "$existing" --comment "The release workflow went through again ([run]($RUN_URL))."
+            fi
+            exit 0
+          fi
+          if [ "$EMULATOR" != "success" ]; then
+            why="The emulator test didn't pass ($EMULATOR): a patch doesn't apply, or the patched app doesn't start."
+          elif [ "$RELEASE" = "skipped" ]; then
+            why="The feed test didn't pass ($FEED). The issue \"Feed test needs attention\" says why."
+          else
+            why="The release step itself failed ($RELEASE)."
+          fi
+          body=$(printf '%s\n\n%s\n\n%s\n' \
+            "Nothing was released in this run." \
+            "$why" \
+            "[Workflow run]($RUN_URL). After fixing it, run the Release workflow by hand; a run that goes through closes this issue.")
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --label bug --body "$body"
+          fi
