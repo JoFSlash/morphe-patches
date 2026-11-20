@@ -132,8 +132,9 @@ async function useSession(cookieText) {
   if (!(await waitFor(feedCount, 60))) return 'session-not-accepted';
   // The app itself still shows its signed-out screen over that page. Leaving it saves the cookies;
   // started again, it opens signed in, with the feed on screen.
+  // The WebView writes its cookies to disk only now and then (about every 30 s): wait for that.
   adb('shell', 'input', 'keyevent', 'HOME');
-  await sleep(5000);
+  await sleep(35000);
   adb('shell', 'am', 'force-stop', PACKAGE);
   adb('shell', 'monkey', '-p', PACKAGE, '-c', 'android.intent.category.LAUNCHER', '1');
   let connected = false;
