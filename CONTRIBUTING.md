@@ -54,7 +54,8 @@ names some patches rely on, it names those patches.
 
 ## Pull requests
 
-- Target the `main` branch. Every merge into `main` with a `feat` or `fix` commit makes a release.
+- Target the `main` branch. A release goes out every Monday with the `feat` and `fix` commits merged
+  into `main` that week; urgent fixes are released right away.
 - Use [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:` and so
   on); the release notes and version numbers are generated from them.
 - Describe what you tested and on which Quora version.
