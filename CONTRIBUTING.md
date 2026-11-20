@@ -97,9 +97,23 @@ page no longer has the class names some patches rely on, it names those patches.
   out as a pre-release (`vX.Y.Z-dev.N`) for people who turn on "Pre-release patches" in Morphe
   Manager. On Thursday that pre-release becomes the stable release on `main`, unless an open issue
   is labelled `release blocker`. Both need the emulator and feed tests to pass; urgent fixes are
-  released right away by hand.
-- A pull request merged into `dev` doesn't close the issues it names with "Closes #N"; they close
-  when the change reaches `main`, or by hand.
+  released right away by hand (see below).
+- GitHub closes the issues a pull request names with "Closes #N" only when it is merged into
+  `main`. For pull requests into `dev`, close them by hand once the stable release has them.
+
+### Urgent fixes
+
+A crash at start or a broken sign-in shouldn't wait for Thursday:
+
+1. Branch from `main` and open the pull request against `main`. Label the issue `release blocker`
+   if the current pre-release has the bug too, so Thursday doesn't make it stable.
+2. After merging, run the Release workflow by hand on `main` (Actions > Release > Run workflow).
+   It releases a patch version once the emulator and feed tests pass. "Skip the feed test" is only
+   for when the feed test itself can't run.
+3. The release merges `main` back into `dev`, so the next pre-release has the fix. If that merge
+   fails, merge `main` into `dev` by hand. On Thursday, conflicts in the files the releases
+   generate (`CHANGELOG.md`, `gradle.properties`, `patches-bundle.json`, `patches-list.json`,
+   `README.md`) are resolved by the workflow; any other conflict stops the stable release.
 - Use [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:` and so
   on); the release notes and version numbers are generated from them.
 - Describe what you tested and on which Quora version.

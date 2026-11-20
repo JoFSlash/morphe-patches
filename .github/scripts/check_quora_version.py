@@ -130,6 +130,11 @@ def main():
     if args.install and out_apk.exists():
         print("\nInstalling on the phone ...")
         ok = start_and_check(args.adb, [str(out_apk)], args.expect_login, patched=True)
+        if not ok:
+            # A slow emulator now and then misses the sign-in page or the start: one more try
+            # (a real crash or patch error shows up again).
+            print("\nTrying the patched app once more ...")
+            ok = start_and_check(args.adb, [str(out_apk)], args.expect_login, patched=True)
         if not ok and args.compare_original:
             # Whether Quora itself works here tells a broken patch from an Android or WebView
             # that Quora no longer supports.
