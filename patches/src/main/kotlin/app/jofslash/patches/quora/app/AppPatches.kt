@@ -29,7 +29,7 @@ val blockPromotionalNotificationsPatch = bytecodePatch(
     name = "Block promotional notifications",
     description = "Drops digest and promotional push notifications. Replies, comments and other " +
             "notifications about you still arrive.",
-    default = false
+    default = true
 ) {
     category("App")
     compatibleWith(COMPATIBILITY_QUORA)
