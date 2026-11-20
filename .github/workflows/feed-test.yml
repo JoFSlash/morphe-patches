@@ -120,6 +120,12 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      - name: Install the emulator
+        if: steps.secrets.outputs.skip != 'true'
+        uses: ./.github/actions/install-emulator
+        with:
+          api-level: 36
+
       - name: Patch, install, sign in and check the feed
         if: steps.secrets.outputs.skip != 'true'
         uses: reactivecircus/android-emulator-runner@v2
