@@ -1,3 +1,13 @@
+## [1.9.0](https://github.com/JoFSlash/quora-patches/compare/v1.8.0...v1.9.0) (2026-11-20)
+
+### New features
+
+* Turn on 14 more patches by default ([f34b0ec](https://github.com/JoFSlash/quora-patches/commit/f34b0ec407987a98a5df7dc6dc08373d865e0a9a))
+
+### Documentation
+
+* Google sign-in through MicroG-RE and keeping the official app ([925b5dc](https://github.com/JoFSlash/quora-patches/commit/925b5dcfc2acb44314fa41ff8bbd48a03d0a4192))
+
 ## [1.8.0](https://github.com/JoFSlash/quora-patches/compare/v1.7.1...v1.8.0) (2026-11-20)
 
 ### New features

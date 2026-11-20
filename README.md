@@ -55,7 +55,7 @@ Everything else can wait until something bothers you.
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.8.0, 67 patches. Supported Quora versions: 3.2.42.
+Version 1.9.0, 67 patches. Supported Quora versions: 3.2.42.
 
 <details>
 <summary><b>Privacy</b> (12)</summary>
@@ -88,25 +88,25 @@ What the feed and question pages show.
 | --- | --- | --- |
 | Block authors and Spaces | off | Hides answers and posts by the people and Spaces you pick. Options: Authors and Spaces. |
 | Filter keywords | off | Hides answers, posts and questions that mention words you pick. Options: Keywords. |
-| Hide AI answers | off | Hides answers written by Poe bots. |
-| Hide ask box | off | Hides the "What do you want to ask or share?" box with Ask, Answer and Post at the top of the feed. |
+| Hide AI answers | on | Hides answers written by Poe bots. |
+| Hide ask box | on | Hides the "What do you want to ask or share?" box with Ask, Answer and Post at the top of the feed. |
 | Hide comment previews | off | Hides the "123 comments from … and more" row under answers. Comments still open from the comment button. |
 | Hide counts | off | Hides upvote, view and share counts on answers and posts. |
 | Hide credentials | off | Hides the line under authors' names, such as "Lives in Vienna", and "Upvoted by" lines. The date stays. |
 | Hide downvote button | off | Hides the downvote button on answers and posts. |
 | Hide Follow buttons | off | Hides the small "Follow" next to author and Space names. Profiles and Space pages keep theirs. |
-| Hide More Stories button | off | Hides the red "More Stories" button that appears over the feed. Pull down to load new stories. |
+| Hide More Stories button | on | Hides the red "More Stories" button that appears over the feed. Pull down to load new stories. |
 | Hide old answers | off | Hides answers and posts older than the number of years you pick, in the feed and on question pages. Options: Older than. |
 | Hide people suggestions | off | Hides "People you may know" and other people to follow in the feed. |
-| Hide Poe | off | Hides links and buttons that open Poe or Quora's AI assistant. |
-| Hide Quora+ answers | off | Hides answers and posts that can only be read with a Quora+ subscription. |
-| Hide Quora+ promotions | off | Hides buttons that ask you to try or join Quora+. |
+| Hide Poe | on | Hides links and buttons that open Poe or Quora's AI assistant. |
+| Hide Quora+ answers | on | Hides answers and posts that can only be read with a Quora+ subscription. |
+| Hide Quora+ promotions | on | Hides buttons that ask you to try or join Quora+. |
 | Hide related questions | off | Hides the related questions lists on question pages. |
 | Hide seen items | off | Dims or hides feed items you already opened when the feed shows them again. The list of opened items stays on your phone. Options: Seen items. |
 | Hide Spaces posts | off | Hides posts from Spaces in the feed, so it shows answers to questions only. |
 | Hide Spaces suggestions | off | Hides the Spaces you might like suggestions in the feed. |
 | Hide suggested questions | off | Hides the questions for you to answer in the feed. |
-| Hide surveys | off | Hides Quora's surveys in the feed, such as "How satisfied are you with your home feed?" and "Was this worth your time?" under answers. |
+| Hide surveys | on | Hides Quora's surveys in the feed, such as "How satisfied are you with your home feed?" and "Was this worth your time?" under answers. |
 
 </details>
 
@@ -120,16 +120,16 @@ How answers look and load.
 | AMOLED dark mode | off | Uses a pure black background when Quora's dark theme is on. |
 | Answer font | off | Sets answers in a serif or a sans-serif font of your phone. Options: Font. |
 | Comfortable reading | off | More space between the lines and paragraphs of answers. |
-| Copy answer text | off | Adds a Copy button next to Share under answers and posts. It copies their text without formatting. |
+| Copy answer text | on | Adds a Copy button next to Share under answers and posts. It copies their text without formatting. |
 | Data saver | off | Images load only when you tap them. By default only on mobile data; on Wi-Fi they load as usual. Options: Load images on Wi-Fi. |
 | Disable video autoplay | off | Videos in the feed and in answers only play when you tap them. |
-| Enable text selection | off | Lets you select and copy text on every page. |
-| Expand answers | off | Opens shortened answers on question pages, and shows the whole answer preview in the feed. |
+| Enable text selection | on | Lets you select and copy text on every page. |
+| Expand answers | on | Opens shortened answers on question pages, and shows the whole answer preview in the feed. |
 | Fullscreen reading | off | Hides the top bar and the tabs while you scroll down, and shows them again when you scroll up. On answer and question pages it hides their top bar. |
 | Keep screen on | off | Keeps the screen from turning off while a page is open. |
-| Reading history | off | Remembers the answers, posts and questions you open, so you can find them again under History in Patch settings. The list stays on your phone. |
+| Reading history | on | Remembers the answers, posts and questions you open, so you can find them again under History in Patch settings. The list stays on your phone. |
 | Save images | on | Long-press an image you opened full screen to save it to Pictures/Quora. |
-| Share answer text | off | Adds a Share text button next to Share under answers and posts. It shares their text without formatting, for example to a notes app. |
+| Share answer text | on | Adds a Share text button next to Share under answers and posts. It shares their text without formatting, for example to a notes app. |
 | Sort answers | off | Opens questions with their answers sorted by the order you pick instead of Recommended. You can still change the order on the page. Options: Order. |
 | Text size | off | Makes the text on every page larger or smaller. Options: Text size. |
 
@@ -142,11 +142,11 @@ The app around the pages: prompts, tabs, notifications, gestures.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
-| Block promotional notifications | off | Drops digest and promotional push notifications. Replies, comments and other notifications about you still arrive. |
+| Block promotional notifications | on | Drops digest and promotional push notifications. Replies, comments and other notifications about you still arrive. |
 | Clone app | off | Changes the package name, so the patched app installs next to the official Quora app instead of replacing it. Both apps keep their own login and data. Sharing to Facebook may not work in the clone. Options: Package name, App name. |
 | Disable notification prompt | on | Stops the app from asking to show notifications, both its own prompt and Android's. You can still turn notifications on in Android's settings. |
 | Disable rating prompts | on | Stops the app from asking you to rate it on Google Play. |
-| Disable sign-in prompts | off | Stops Google's "Save password?" and automatic Google sign-in prompts. You can still sign in with the buttons on the login page. |
+| Disable sign-in prompts | on | Stops Google's "Save password?" and automatic Google sign-in prompts. You can still sign in with the buttons on the login page. |
 | Disable swipe gestures | off | Turns off pulling down to refresh and swiping sideways between feeds, so a page doesn't reload or change while you read. Options: Disable pull to refresh, Disable swiping between feeds. |
 | Disable tab prefetching | off | Saves data by loading the other tabs only when you open them. |
 | Disable update prompts | on | Stops the app from showing the Google Play update screen and the feed's update card. |
