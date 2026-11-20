@@ -87,6 +87,8 @@ def main():
     names = [n for n in names if n not in args.exclude]
     command = ["java", "-jar", args.cli, "patch", f"-p={mpp}"]
     command += [f"-e={name}" for name in names]
+    # A patch that is on by default is applied unless it is turned off by name.
+    command += [f"-d={name}" for name in args.exclude]
     # -f: also try versions that are not listed yet; keep going so every failure shows up.
     command += ["-f", "--continue-on-error"]
     # Only an installed APK needs a signature.

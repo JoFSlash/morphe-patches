@@ -87,6 +87,26 @@ const clickText = (labels) => `(function(){var want=${JSON.stringify(labels)};${
   + 'return want.indexOf((e.innerText||"").trim())>=0&&vis(e)&&e.getClientRects().length;});'
   + 'if(!b)return false;b.click();return true;})()';
 
+/** What the pages show, for a failed sign-in: addresses, buttons and field types, never values. */
+async function describePages() {
+  try {
+    const all = await (await fetch(`http://localhost:${PORT}/json`)).json();
+    console.log(`  all pages: ${JSON.stringify(all.map((p) => `${p.type} ${p.url.split('?')[0]}`))}`);
+  } catch {
+    console.log('  all pages: DevTools not reachable');
+  }
+  for (const page of await pages()) {
+    const info = await evaluate(page, `(function(){
+      function vis(e){return e.getClientRects().length>0;}
+      return {url:location.href.split('?')[0],title:document.title,
+        buttons:[].slice.call(document.querySelectorAll('button,[role=button],a')).filter(vis)
+          .map(function(e){return (e.innerText||'').trim().replace(/\\s+/g,' ').slice(0,40);}).filter(Boolean).slice(0,20),
+        fields:[].slice.call(document.querySelectorAll('input')).filter(vis)
+          .map(function(i){return i.type+(i.id?'#'+i.id:'')+(i.name?'['+i.name+']':'');})};})()`, 8000);
+    console.log(`  page: ${JSON.stringify(info)}`);
+  }
+}
+
 async function signIn(email, password) {
   // The cookie dialog shows in the EU only.
   await waitFor(clickText(['Reject All']), 10);
@@ -203,6 +223,7 @@ async function main() {
     return 0;
   }
   if (state !== 'signed-in') {
+    await describePages();
     console.log(`::error title=Feed test::Couldn't sign in (${state}). A changed sign-in page, `
       + 'a wrong password in the secrets, or a locked test account.');
     return 2;
