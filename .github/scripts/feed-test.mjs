@@ -4,12 +4,14 @@
 //
 // Usage: QUORA_TEST_EMAIL=… QUORA_TEST_PASSWORD=… node .github/scripts/feed-test.mjs
 // Optional: ADB (path to adb), QUORA_PACKAGE (default com.quora.android), DRY_RUN=1 (fills the
-// sign-in form but doesn't send it).
+// sign-in form but doesn't send it), FEED_TEST_RESULT (a file to write the outcome to, one line:
+// "passed", "skipped: <why>" or "failed: <why>"; the workflow opens or closes an issue from it).
 //
 // Exit codes: 0 every check passed, or the test was skipped (no account, or Quora clearly asked for more
 // than a password: a captcha or a code); 1 a check failed; 2 the app or its pages couldn't be reached.
 // The account's email and password are never printed.
 import { execFileSync } from 'node:child_process';
+import { writeFileSync } from 'node:fs';
 
 const ADB = process.env.ADB || 'adb';
 const PACKAGE = process.env.QUORA_PACKAGE || 'com.quora.android';
@@ -26,6 +28,9 @@ const adb = (...args) => {
 const notice = (msg) => console.log(`::notice title=Feed test::${msg}`);
 // A skipped run is yellow in the summary, so a test that keeps skipping gets noticed.
 const warning = (msg) => console.log(`::warning title=Feed test::${msg}`);
+// What the run ends with, for FEED_TEST_RESULT.
+let outcome = 'failed: the test stopped before saying why';
+const report = (line) => { outcome = line.replace(/\s+/g, ' ').trim(); };
 
 async function connect() {
   const pid = adb('shell', 'pidof', PACKAGE).split(/\s+/)[0];
@@ -297,6 +302,7 @@ async function main() {
   const session = process.env.QUORA_TEST_COOKIES;
   if (!session && (!email || !password)) {
     notice('QUORA_TEST_COOKIES, or QUORA_TEST_EMAIL and QUORA_TEST_PASSWORD, aren\'t set, so the feed test is skipped.');
+    report('skipped: no test account in the secrets');
     return 0;
   }
   let connected = false;
@@ -306,6 +312,7 @@ async function main() {
   }
   if (!connected) {
     console.error('No Quora page to inspect: the app isn\'t running, or WebView debugging is off in this build.');
+    report('failed: no Quora page to inspect (the app isn\'t running, or WebView debugging is off)');
     return 2;
   }
 
@@ -315,22 +322,31 @@ async function main() {
   if (state !== 'signed-in' && email && password) state = await signIn(email, password);
   else if (state !== 'signed-in') state = `not-signed-in:${state}`;
   console.log(`Sign-in: ${state}`);
-  if (state === 'dry-run') return 0;
+  if (state === 'dry-run') {
+    report('skipped: dry run');
+    return 0;
+  }
   if (state.startsWith('not-signed-in:captcha') || state.startsWith('not-signed-in:verification')) {
     warning(`Quora asked for more than a password (${state.split(':')[1]}), so the feed test is skipped. `
       + 'A new emulator is a new device to Quora: save a signed-in session in the QUORA_TEST_COOKIES secret '
       + '(see CONTRIBUTING.md) so the test doesn\'t sign in at all.');
+    report(`skipped: ${session ? 'the saved session in QUORA_TEST_COOKIES no longer works' : 'no saved session'}, `
+      + `and Quora asked for a ${state.split(':')[1]} when signing in with the password. `
+      + 'Save a new session in QUORA_TEST_COOKIES (see CONTRIBUTING.md) and run the Feed test by hand.');
     return 0;
   }
   if (state === 'not-signed-in:email-not-confirmed') {
     console.log('::error title=Feed test::Quora says the test account\'s email address isn\'t confirmed. '
       + 'Open the confirmation email Quora sent to it (or sign in once by hand and tap Resend Confirmation Link), then run this again.');
+    report('failed: Quora says the test account\'s email address isn\'t confirmed');
     return 2;
   }
   if (state !== 'signed-in') {
     await describePages();
     console.log(`::error title=Feed test::Couldn't sign in (${state}). A changed sign-in page, `
       + 'a wrong password in the secrets, or a locked test account.');
+    report(`failed: couldn't sign in (${state}). A changed sign-in page, an expired session in `
+      + 'QUORA_TEST_COOKIES, a wrong password in the secrets, or a locked test account.');
     return 2;
   }
 
@@ -353,6 +369,7 @@ async function main() {
   const result = feed ? await evaluate(feed.page, FEED_CHECKS, 60000) : null;
   if (!result) {
     console.error('The feed didn\'t load after signing in.');
+    report('failed: the feed didn\'t load after signing in');
     return 2;
   }
   console.log('Feed:', JSON.stringify(result));
@@ -397,16 +414,21 @@ async function main() {
     expect(checks && checks.copyButtons > 0, 'No Copy button on the answer page.');
     adb('shell', 'input', 'keyevent', 'BACK');
   } else {
+    // A failure, not a skip: otherwise the answer patches are never checked and the test still passes.
     for (const line of tried) console.log(`  ${line}`);
-    notice('The answer didn\'t open from the feed, so its checks are skipped.');
+    expect(false, 'No answer opened from the feed, so the answer page wasn\'t checked (the taps are listed above).');
   }
 
   if (failures.length) {
     for (const f of failures) console.log(`::error title=Feed test::${f}`);
+    report(`failed: ${failures.join(' ')}`);
     return 1;
   }
   console.log('Every feed check passed.');
+  report('passed');
   return 0;
 }
 
-process.exit(await main());
+const code = await main();
+if (process.env.FEED_TEST_RESULT) writeFileSync(process.env.FEED_TEST_RESULT, `${outcome}\n`);
+process.exit(code);
