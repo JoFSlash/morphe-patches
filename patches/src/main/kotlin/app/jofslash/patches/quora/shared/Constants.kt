@@ -5,6 +5,9 @@ import app.morphe.patcher.patch.AppTarget
 import app.morphe.patcher.patch.Compatibility
 
 object Constants {
+    /** SHA-1 of the certificate Quora signs its releases with. */
+    const val QUORA_SIGNATURE = "62869ae6b37ac8407cc65331add254f12ad435e5"
+
     val COMPATIBILITY_QUORA = Compatibility(
         name = "Quora",
         packageName = "com.quora.android",

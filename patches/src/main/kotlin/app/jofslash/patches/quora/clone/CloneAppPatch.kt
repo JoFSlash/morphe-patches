@@ -10,8 +10,10 @@ import org.w3c.dom.Element
 
 internal const val QUORA_PACKAGE = "com.quora.android"
 internal const val DEFAULT_CLONE_PACKAGE = "com.quora.android.clone"
+private const val DEFAULT_CLONE_NAME = "Quora Clone"
 
 private lateinit var packageNameOption: Option<String>
+private lateinit var appNameOption: Option<String>
 
 /** The package name the clone is installed under. */
 internal fun clonePackageName(): String = packageNameOption.value ?: DEFAULT_CLONE_PACKAGE
@@ -27,6 +29,17 @@ private val cloneAppResourcePatch = resourcePatch {
         document("AndroidManifest.xml").use { document ->
             val manifest = document.documentElement
             manifest.setAttribute("package", newPackage)
+
+            // Name the launcher icon, so the two apps can be told apart. Only the manifest labels
+            // change; the app still calls itself Quora inside.
+            val appName = appNameOption.value?.takeIf { it.isNotBlank() } ?: DEFAULT_CLONE_NAME
+            val labelled = document.getElementsByTagName("*")
+            for (i in 0 until labelled.length) {
+                val element = labelled.item(i) as Element
+                if (element.getAttribute("android:label") == "@string/app_name") {
+                    element.setAttribute("android:label", appName)
+                }
+            }
 
             fun renamed(value: String) =
                 if (value.startsWith("$QUORA_PACKAGE.")) newPackage + value.removePrefix(QUORA_PACKAGE) else value
@@ -81,6 +94,15 @@ val cloneAppPatch = bytecodePatch(
     ) {
         it != null && it != QUORA_PACKAGE && it.matches(Regex("^[a-z]\\w*(\\.[a-z]\\w*)+$"))
     }
+
+    appNameOption = stringOption(
+        key = "appName",
+        default = DEFAULT_CLONE_NAME,
+        values = mapOf("Default" to DEFAULT_CLONE_NAME, "Quora" to "Quora"),
+        title = "App name",
+        description = "Name shown under the clone's launcher icon.",
+        required = true,
+    ) { !it.isNullOrBlank() }
 
     dependsOn(cloneAppResourcePatch)
 
