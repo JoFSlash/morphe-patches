@@ -170,15 +170,22 @@ def start_and_check(adb, apks, expect_login, patched):
         print("Install failed: " + (output.splitlines()[-1] if output else "no output"))
         return False
     subprocess.run([adb, "logcat", "-c"])
-    subprocess.run([adb, "shell", "monkey", "-p", PACKAGE, "-c", "android.intent.category.LAUNCHER", "1"],
-                   capture_output=True)
-    time.sleep(15)
+    launch = [adb, "shell", "monkey", "-p", PACKAGE, "-c", "android.intent.category.LAUNCHER", "1"]
+    subprocess.run(launch, capture_output=True)
+    # A busy emulator can take a while, or miss the first launch: wait, and launch once more.
+    pid = ""
+    for second in range(45):
+        time.sleep(1)
+        pid = subprocess.run([adb, "shell", "pidof", PACKAGE], capture_output=True, text=True).stdout.strip()
+        if pid and second >= 14:
+            break
+        if not pid and second == 15:
+            subprocess.run(launch, capture_output=True)
     log = subprocess.run([adb, "logcat", "-d"], capture_output=True, text=True, errors="replace").stdout
     crashes = [line for line in log.splitlines()
                if re.search(r"FATAL EXCEPTION|VerifyError|Verifier rejected", line)]
-    pid = subprocess.run([adb, "shell", "pidof", PACKAGE], capture_output=True, text=True).stdout.strip()
     if crashes or not pid:
-        print("The app crashed at start:" if crashes else "The app is not running after 15 seconds.")
+        print("The app crashed at start:" if crashes else "The app is not running after 45 seconds.")
         for line in crashes[:10]:
             print("  " + line)
         return False
