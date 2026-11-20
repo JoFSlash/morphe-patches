@@ -11,10 +11,16 @@ private const val EXTENSION_CLASS = "Lapp/jofslash/extension/quora/HideContentPa
  * Quora renders its content in a WebView. Each patch injects a stylesheet or script into every page
  * that changes one thing about it.
  */
-private fun pageScriptPatch(patchCategory: String, name: String, description: String, extensionMethod: String) = bytecodePatch(
+private fun pageScriptPatch(
+    patchCategory: String,
+    name: String,
+    description: String,
+    extensionMethod: String,
+    default: Boolean = false,
+) = bytecodePatch(
     name = name,
     description = description,
-    default = false
+    default = default
 ) {
     category(patchCategory)
     compatibleWith(COMPATIBILITY_QUORA)
@@ -35,6 +41,7 @@ val hideQuoraPlusAnswersPatch = pageScriptPatch(
     patchCategory = "Feed",
     description = "Hides answers and posts that can only be read with a Quora+ subscription.",
     extensionMethod = "hideQuoraPlusAnswers",
+    default = true,
 )
 
 @Suppress("unused")
@@ -43,6 +50,7 @@ val hideAskBoxPatch = pageScriptPatch(
     patchCategory = "Feed",
     description = "Hides the \"What do you want to ask or share?\" box with Ask, Answer and Post at the top of the feed.",
     extensionMethod = "hideAskBox",
+    default = true,
 )
 
 @Suppress("unused")
@@ -67,6 +75,7 @@ val hideAiAnswersPatch = pageScriptPatch(
     patchCategory = "Feed",
     description = "Hides answers written by Poe bots.",
     extensionMethod = "hideAiAnswers",
+    default = true,
 )
 
 @Suppress("unused")
@@ -83,6 +92,7 @@ val hideQuoraPlusPromotionsPatch = pageScriptPatch(
     patchCategory = "Feed",
     description = "Hides buttons that ask you to try or join Quora+.",
     extensionMethod = "hideQuoraPlusPromotions",
+    default = true,
 )
 
 @Suppress("unused")
@@ -99,6 +109,7 @@ val hidePoePatch = pageScriptPatch(
     patchCategory = "Feed",
     description = "Hides links and buttons that open Poe or Quora's AI assistant.",
     extensionMethod = "hidePoe",
+    default = true,
 )
 
 @Suppress("unused")
@@ -115,6 +126,7 @@ val enableTextSelectionPatch = pageScriptPatch(
     patchCategory = "Reading",
     description = "Lets you select and copy text on every page.",
     extensionMethod = "enableTextSelection",
+    default = true,
 )
 
 @Suppress("unused")
@@ -156,4 +168,5 @@ val hideSurveysPatch = pageScriptPatch(
     description = "Hides Quora's surveys in the feed, such as \"How satisfied are you with your home feed?\" " +
             "and \"Was this worth your time?\" under answers.",
     extensionMethod = "hideSurveys",
+    default = true,
 )

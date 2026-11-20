@@ -6,7 +6,10 @@ the patched app on a phone over adb, starts it and looks for a crash at start.
 
 Usage:
     python .github/scripts/check_quora_version.py <quora.apkm> --cli <morphe-cli.jar> [--mpp <bundle.mpp>]
-        [--install] [--adb <adb>]
+        [--install [--expect-login]] [--adb <adb>]
+
+With --install, Clone app is left out (it would install under another package name). The emulator
+test in .github/workflows/emulator.yml runs this with --install --expect-login.
 
 Build the bundle first (./gradlew buildAndroid); by default the newest .mpp in patches/build/libs is used.
 """
@@ -32,7 +35,14 @@ def newest_mpp():
     return max(files, key=lambda f: f.stat().st_mtime)
 
 
-def patch_names():
+def patch_names(cli=None, mpp=None):
+    """The patches in the bundle itself; patches-list.json is only updated by a release."""
+    if cli and mpp:
+        run = subprocess.run(["java", "-jar", cli, "list-patches", f"--patches={mpp}"],
+                             capture_output=True, text=True, encoding="utf8", errors="replace")
+        names = re.findall(r"^Name: (.+)$", run.stdout, re.M)
+        if names:
+            return [n.strip() for n in names]
     return [p["name"] for p in json.loads((ROOT / "patches-list.json").read_text(encoding="utf8"))["patches"]]
 
 
@@ -55,14 +65,20 @@ def main():
     parser.add_argument("--mpp", help="Bundle to check (default: newest in patches/build/libs)")
     parser.add_argument("--install", action="store_true", help="Install on a phone and look for a crash at start")
     parser.add_argument("--adb", default="adb", help="Path to adb")
+    parser.add_argument("--expect-login", action="store_true",
+                        help="With --install: also require Quora's sign-in page on screen (a fresh install)")
     args = parser.parse_args()
 
     mpp = pathlib.Path(args.mpp) if args.mpp else newest_mpp()
     work = pathlib.Path(tempfile.mkdtemp(prefix="quora-check-"))
     result_file, out_apk = work / "result.json", work / "patched.apk"
 
+    names = patch_names(args.cli, mpp)
+    if args.install:
+        # Clone app would install under another package name than the one started below.
+        names = [n for n in names if n != "Clone app"]
     command = ["java", "-jar", args.cli, "patch", f"-p={mpp}"]
-    command += [f"-e={name}" for name in patch_names()]
+    command += [f"-e={name}" for name in names]
     # -f: also try versions that are not listed yet; keep going so every failure shows up.
     command += ["-f", "--continue-on-error"]
     # Only an installed APK needs a signature.
@@ -84,7 +100,6 @@ def main():
     applied = result.get("appliedPatches", [])
     failed = [describe(f) for f in result.get("failedPatches", [])]
     # Patches that neither applied nor failed, for example because they were skipped.
-    names = patch_names()
     skipped = [n for n in names if n not in applied and n not in [f[0] for f in failed]]
     failed += [(n, "not applied") for n in skipped]
     listed = listed_versions()
@@ -122,10 +137,28 @@ def main():
             print("The app crashed at start:" if crashes else "The app is not running after 15 seconds.")
             for line in crashes[:10]:
                 print("  " + line)
-        else:
-            print("The app started and is running. Check the feed with the page patches by hand.")
+            sys.exit(1)
+        print("The app started and is running.")
+        if args.expect_login and not login_page_shown(adb):
+            sys.exit("Quora's sign-in page didn't show within a minute.")
+        if args.expect_login:
+            print("Quora's sign-in page loaded.")
+        print("Check the feed with the page patches by hand.")
 
     sys.exit(1 if failed else 0)
+
+
+def login_page_shown(adb, timeout=60):
+    """Whether Quora's sign-in page is on screen. The cookie dialog in the EU covers it at first."""
+    end = time.time() + timeout
+    while time.time() < end:
+        subprocess.run([adb, "shell", "uiautomator", "dump", "/sdcard/window.xml"], capture_output=True)
+        screen = subprocess.run([adb, "shell", "cat", "/sdcard/window.xml"],
+                                capture_output=True, text=True, errors="replace").stdout
+        if re.search(r'text="(Continue with Google|Sign up with email|Login|Reject All|I Accept)"', screen):
+            return True
+        time.sleep(5)
+    return False
 
 
 if __name__ == "__main__":

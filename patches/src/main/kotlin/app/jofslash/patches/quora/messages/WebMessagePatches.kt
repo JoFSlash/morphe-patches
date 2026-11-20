@@ -103,7 +103,7 @@ val disableSignInPromptsPatch = blockWebMessagesPatch(
     patchCategory = "App",
     description = "Stops Google's \"Save password?\" and automatic Google sign-in prompts. " +
             "You can still sign in with the buttons on the login page.",
-    default = false,
+    default = true,
     messages = listOf("SAVE_CREDENTIALS", "AUTO_LOGIN_WITH_GOOGLE_ACCOUNT"),
     settingKey = "disableSignInPrompts",
 )
@@ -143,7 +143,7 @@ val hideMoreStoriesPatch = bytecodePatch(
     name = "Hide More Stories button",
     description = "Hides the red \"More Stories\" button that appears over the feed. " +
             "Pull down to load new stories.",
-    default = false
+    default = true
 ) {
     category("Feed")
     compatibleWith(COMPATIBILITY_QUORA)

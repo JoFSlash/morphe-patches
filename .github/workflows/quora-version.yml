@@ -1,0 +1,57 @@
+name: Quora version
+
+# Once a day, looks for a Quora version on APKMirror that this bundle doesn't support yet,
+# and opens an issue for it. Quora turns away old app versions after a while, so a new
+# version needs checking soon. One issue per version: it isn't opened twice.
+
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    name: Look for a new Quora version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Check
+        id: check
+        run: python .github/scripts/watch_quora_version.py --github-output "$GITHUB_OUTPUT"
+
+      - name: Open an issue
+        if: steps.check.outputs.new != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NEW: ${{ steps.check.outputs.new }}
+          PLAY: ${{ steps.check.outputs.play }}
+          SUPPORTED: ${{ steps.check.outputs.supported }}
+        run: |
+          title="Quora $NEW is out"
+          if gh issue list --state all --search "\"$title\" in:title" --json title --jq '.[].title' | grep -qxF "$title"; then
+            echo "An issue for $NEW already exists."
+            exit 0
+          fi
+          body=$(cat <<EOF
+          Quora $NEW is on [APKMirror](https://www.apkmirror.com/apk/quora-inc/quora/). This bundle supports $SUPPORTED.
+          ${PLAY:+Google Play has $PLAY.}
+
+          To check it:
+          1. Download the APKM and build the bundle (\`./gradlew buildAndroid\`).
+          2. Run \`python .github/scripts/check_quora_version.py <quora.apkm> --cli <morphe-cli.jar> --install\`.
+          3. If every patch applies and the app runs, add \`AppTarget(version = "$NEW")\` to \`Constants.kt\`
+             and try the page patches on a phone.
+          EOF
+          )
+          gh issue create --title "$title" --label enhancement --body "$body"

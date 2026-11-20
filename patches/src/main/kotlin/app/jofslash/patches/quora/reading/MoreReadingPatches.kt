@@ -28,7 +28,7 @@ val shareAnswerTextPatch = bytecodePatch(
     name = "Share answer text",
     description = "Adds a Share text button next to Share under answers and posts. " +
             "It shares their text without formatting, for example to a notes app.",
-    default = false
+    default = true
 ) {
     category("Reading")
     compatibleWith(COMPATIBILITY_QUORA)
@@ -104,7 +104,7 @@ val readingHistoryPatch = bytecodePatch(
     name = "Reading history",
     description = "Remembers the answers, posts and questions you open, so you can find them again " +
             "under History in Patch settings. The list stays on your phone.",
-    default = false
+    default = true
 ) {
     category("Reading")
     compatibleWith(COMPATIBILITY_QUORA)
