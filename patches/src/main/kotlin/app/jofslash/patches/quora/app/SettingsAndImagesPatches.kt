@@ -94,9 +94,9 @@ val filterUpdatesPatch = bytecodePatch(
 @Suppress("unused")
 val updateNoticePatch = bytecodePatch(
     name = "Update notice",
-    description = "Says when newer patches are out, since a patched app doesn't update from Google Play: once a day the app " +
-            "reads the newest version number from this project's GitHub repository, shows a newer one once, and keeps it " +
-            "in Patch settings. The check sends nothing but a normal web request.",
+    description = "Shows in Patch settings when newer patches are out, since a patched app doesn't update from Google Play: " +
+            "once a day the app reads the newest version number from this project's GitHub repository. Nothing pops up. " +
+            "The check sends nothing but a normal web request.",
     default = true
 ) {
     category("App")

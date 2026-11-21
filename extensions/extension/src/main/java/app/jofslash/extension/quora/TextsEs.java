@@ -297,13 +297,6 @@ final class TextsEs {
         // Update notice.
         m.put("Switch many patches at once: everything, a clean feed, for reading, or ads only.",
                 "Cambia muchos parches a la vez: todo, un feed limpio, para leer o solo anuncios.");
-        m.put("Says when newer patches are out, from GitHub once a day.",
-                "Avisa cuando salen parches nuevos, desde GitHub una vez al día.");
-        m.put("New Quora patches: ", "Nuevos parches de Quora: ");
-        m.put("This app has ", "Esta app tiene ");
-        m.put("Patch Quora again in Morphe Manager to get the new version, and install it over this app: you stay signed in and keep your settings.",
-                "Vuelve a parchear Quora en Morphe Manager para tener la nueva versión e instálala sobre esta app: sigues con la sesión iniciada y conservas tus ajustes.");
-        m.put("What's new", "Novedades");
         m.put("Patches ", "Parches ");
         m.put("A newer version is out: ", "Hay una versión más nueva: ");
         m.put("the newest.", "la más reciente.");
@@ -326,5 +319,8 @@ final class TextsEs {
         // Offline pictures.
         m.put("Saved as text with its pictures: links and formatting aren't kept.",
                 "Guardado como texto con sus imágenes: no se guardan los enlaces ni el formato.");
+        // Update notice, settings line only.
+        m.put("Shows here when newer patches are out, from GitHub once a day.",
+                "Muestra aquí cuando salen parches nuevos, desde GitHub una vez al día.");
     }
 }
