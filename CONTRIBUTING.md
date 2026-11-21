@@ -40,20 +40,27 @@ in the app itself, signed in through MicroG-RE.
 
 ### A new Google Health version
 
-Run `check_app.py` on the new APKM. When every patch applies and the app starts, add the version to
-`AppTarget` in `patches/src/main/kotlin/app/jofslash/patches/googlehealth/shared/Constants.kt` (newest
-first) and upload the APKM to the private repository `JoFSlash/google-health-apks` as a release named
-`google-health-<version>`, so the emulator test can use it.
+The **Google Health version** workflow does this every day: it downloads the new APKM from APKMirror,
+checks that it is signed by Google Health, keeps it in the private repository `JoFSlash/google-health-apks`,
+applies every patch and starts the app on an emulator. Then it opens a pull request
+`bump: Support Google Health <version>`, or an issue that says what failed. Sign in on a phone before
+merging the pull request.
+
+By hand: run `check_app.py` on the new APKM. When every patch applies and the app starts, add the version
+with `python .github/scripts/add_app_version.py <version>` and upload the APKM to `JoFSlash/google-health-apks`
+as a release named `google-health-<version>`, so the emulator test can use it.
 
 ## Continuous integration
 
 - **Build** (pull requests): builds the bundle and checks the scripts.
 - **Emulator test** (pull requests and before each release): applies every patch to the newest supported
   version and starts the app on Android 15, 16 and 17 emulators. It needs the `GOOGLE_HEALTH_APKS_TOKEN`
-  secret (a fine-grained token that can read `JoFSlash/google-health-apks`); without it, pull requests
-  skip the test.
+  secret (a fine-grained token with read and write access to the contents of `JoFSlash/google-health-apks`);
+  without it, pull requests skip the test.
 - **Release** (Mondays 08:00 UTC, or by hand): runs the emulator test, then semantic-release publishes the
-  bundle when there are `feat:` or `fix:` commits since the last release.
+  bundle when there are `feat:`, `fix:` or `bump:` commits since the last release.
+- **Google Health version** (daily 05:30 UTC, or by hand with a version): tries a new Google Health
+  version and opens a pull request or an issue, as described above.
 
 ## Pull requests
 
