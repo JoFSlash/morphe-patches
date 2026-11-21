@@ -39,7 +39,7 @@ All patches are on by default; you can switch any of them off when you patch.
 ## Patches
 
 <!-- PATCHES_START -->
-12 patches, all on by default. Supported Booking.com versions: 71.1.
+13 patches, all on by default. Supported Booking.com versions: 71.1.
 
 <details open>
 <summary><b>Price</b> (2)</summary>
@@ -69,7 +69,7 @@ What the search results show.
 </details>
 
 <details>
-<summary><b>App</b> (4)</summary>
+<summary><b>App</b> (5)</summary>
 
 The app around the search.
 
@@ -78,6 +78,7 @@ The app around the search.
 | Disable start-up promotions | on | Stops the promotional sheets the app shows on start, such as the "Black Friday Deals" sheet and the app's own Genius sign-in, wallet and credit-card prompts, and the full-screen sign-in page on the first start. You can still sign in from My account, or when booking or saving. The cookie dialog and Android's notification prompt are left alone. |
 | Disable update and rating prompts | on | Stops the "update available" and "this version is no longer supported" prompts, which you can't act on in a patched app (it doesn't update from the Play Store), and the Google Play "rate this app" card after a booking. |
 | Allow screenshots | on | Lets you take screenshots and record the screen on booking and payment screens, which the app normally blocks (they come out black). Bank verification (3-D Secure) screens still block them. |
+| Follow system theme | on | Makes the app light or dark to match your phone. Booking.com has a dark theme built in (**My account > Settings > Theme**), but it starts on Light; this makes it start on **System** instead. A theme you pick there yourself still wins. |
 | GmsCore support | on | Makes "Continue with Google" work through [MicroG-RE](https://github.com/MorpheApp/MicroG-RE) instead of Google Play services, which won't sign in an app it didn't sign. Needs MicroG-RE installed with your Google account added; without it the app says so once and Google sign-in won't work. Email sign-in works either way. Push notifications stay off in the patched app. With MicroG-RE the app's maps are MicroG's (MapLibre, not Google's own tiles); the patch also works around a MicroG bug that crashed the app when a map opened or switched between the default and satellite view. |
 
 </details>
