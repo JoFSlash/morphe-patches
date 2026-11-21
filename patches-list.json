@@ -37,6 +37,64 @@
       "options": []
     },
     {
+      "name": "Clone app",
+      "description": "Changes the package name, so the patched app installs next to the official Google Health app instead of replacing it. Both apps sign in on their own. Push notifications don't work in the clone, and a watch or tracker can only be paired with one of the two apps.",
+      "default": false,
+      "category": "App",
+      "compatiblePackages": [
+        {
+          "packageName": "com.fitbit.FitbitMobile",
+          "name": "Google Health",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#3084FF",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "5.13.health-mobile-1104148438-1023845615",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "key": "packageName",
+          "title": "Package name",
+          "description": "Package name of the cloned app. Each install needs its own package name.",
+          "required": true,
+          "type": "kotlin.String",
+          "default": "com.fitbit.FitbitMobile.clone",
+          "values": {
+            "Default": "com.fitbit.FitbitMobile.clone"
+          }
+        },
+        {
+          "key": "appName",
+          "title": "App name",
+          "description": "Name shown under the clone's launcher icon.",
+          "required": true,
+          "type": "kotlin.String",
+          "default": "Health Clone",
+          "values": {
+            "Default": "Health Clone",
+            "Health": "Health"
+          }
+        }
+      ]
+    },
+    {
       "name": "Disable surveys",
       "description": "Stops the app from asking Google for surveys, such as \"How satisfied are you with Google Health?\", so none are shown.",
       "default": true,
