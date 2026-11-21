@@ -172,7 +172,6 @@ final class TextsPl {
         m.put("Items you already opened, when they come back.", "Już otwarte pozycje, gdy pojawią się ponownie.");
         m.put("Answers older than the years set below.", "Odpowiedzi starsze niż liczba lat ustawiona poniżej.");
         m.put("Items that mention your keywords (see Filters).", "Pozycje z twoimi słowami kluczowymi (zob. Filtry).");
-        m.put("Items from the people and Spaces in Filters.", "Pozycje od osób i Spaces z Filtrów.");
         m.put("Upvote, view, comment and share numbers.", "Liczby głosów za, wyświetleń, komentarzy i udostępnień.");
         m.put("The downvote button.", "Przycisk głosu przeciw.");
         m.put("\"123 comments from … and more\" rows.", "Wiersze „123 comments from … and more”.");
@@ -303,6 +302,13 @@ final class TextsPl {
         m.put("the newest.", "najnowsza.");
         m.put("Get the new version", "Pobierz nową wersję");
         m.put("What's new, and how to patch again.", "Co nowego i jak załatać ponownie.");
+        // Block an author with a long press.
+        m.put("Items from the people and Spaces in Filters. Long-press a name to add it.",
+                "Wpisy osób i Przestrzeni z Filtrów. Przytrzymaj nazwę, aby ją dodać.");
+        m.put("Hide everything by ", "Ukryj wszystko od ");
+        m.put("Their answers and posts won't show in the feed or on question pages. You can remove the name again in Patch settings > More > Filters.",
+                "Ich odpowiedzi i posty nie pokażą się w feedzie ani na stronach pytań. Nazwę możesz usunąć w Patch settings > Więcej > Filtry.");
+        m.put("hidden.", "ukryto.");
         // Update notice, settings line only.
         m.put("Shows here when newer patches are out, from GitHub once a day.",
                 "Pokazuje tutaj, gdy wyjdą nowsze łatki, z GitHuba raz dziennie.");

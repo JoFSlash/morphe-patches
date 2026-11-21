@@ -172,7 +172,6 @@ final class TextsSk {
         m.put("Items you already opened, when they come back.", "Už otvorené položky, keď sa znova objavia.");
         m.put("Answers older than the years set below.", "Odpovede staršie ako počet rokov nastavený nižšie.");
         m.put("Items that mention your keywords (see Filters).", "Položky s tvojimi kľúčovými slovami (pozri Filtre).");
-        m.put("Items from the people and Spaces in Filters.", "Položky od ľudí a Spaces z Filtrov.");
         m.put("Upvote, view, comment and share numbers.", "Počty upvotov, zobrazení, komentárov a zdieľaní.");
         m.put("The downvote button.", "Tlačidlo downvote.");
         m.put("\"123 comments from … and more\" rows.", "Riadky „123 comments from … and more“.");
@@ -303,6 +302,13 @@ final class TextsSk {
         m.put("the newest.", "najnovšie.");
         m.put("Get the new version", "Získať novú verziu");
         m.put("What's new, and how to patch again.", "Čo je nové a ako znova napatchovať.");
+        // Block an author with a long press.
+        m.put("Items from the people and Spaces in Filters. Long-press a name to add it.",
+                "Príspevky ľudí a Priestorov z Filtrov. Meno pridáš dlhým podržaním.");
+        m.put("Hide everything by ", "Skryť všetko od ");
+        m.put("Their answers and posts won't show in the feed or on question pages. You can remove the name again in Patch settings > More > Filters.",
+                "Ich odpovede a príspevky sa nezobrazia vo feede ani na stránkach otázok. Meno môžeš znova odstrániť v Patch settings > Ďalšie > Filtre.");
+        m.put("hidden.", "skryté.");
         // Update notice, settings line only.
         m.put("Shows here when newer patches are out, from GitHub once a day.",
                 "Ukáže tu, keď vyjdú novšie patche, z GitHubu raz denne.");

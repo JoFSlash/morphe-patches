@@ -172,7 +172,6 @@ final class TextsPt {
         m.put("Items you already opened, when they come back.", "Itens que você já abriu, quando voltam a aparecer.");
         m.put("Answers older than the years set below.", "Respostas mais antigas que o prazo definido abaixo.");
         m.put("Items that mention your keywords (see Filters).", "Itens que mencionam as suas palavras-chave (veja Filtros).");
-        m.put("Items from the people and Spaces in Filters.", "Itens das pessoas e Spaces em Filtros.");
         m.put("Upvote, view, comment and share numbers.", "Números de upvotes, visualizações, comentários e compartilhamentos.");
         m.put("The downvote button.", "O botão de downvote.");
         m.put("\"123 comments from … and more\" rows.", "Linhas \"123 comments from … and more\".");
@@ -303,6 +302,13 @@ final class TextsPt {
         m.put("the newest.", "a mais recente.");
         m.put("Get the new version", "Obter a nova versão");
         m.put("What's new, and how to patch again.", "Novidades e como voltar a aplicar os patches.");
+        // Block an author with a long press.
+        m.put("Items from the people and Spaces in Filters. Long-press a name to add it.",
+                "Publicações das pessoas e Espaços dos Filtros. Mantém premido um nome para o adicionar.");
+        m.put("Hide everything by ", "Ocultar tudo de ");
+        m.put("Their answers and posts won't show in the feed or on question pages. You can remove the name again in Patch settings > More > Filters.",
+                "As suas respostas e publicações não vão aparecer no feed nem nas páginas de perguntas. Podes remover o nome em Patch settings > Mais > Filtros.");
+        m.put("hidden.", "oculto.");
         // Update notice, settings line only.
         m.put("Shows here when newer patches are out, from GitHub once a day.",
                 "Mostra aqui quando saem patches mais novos, do GitHub uma vez por dia.");

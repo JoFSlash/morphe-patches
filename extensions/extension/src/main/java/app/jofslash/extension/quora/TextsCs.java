@@ -172,7 +172,6 @@ final class TextsCs {
         m.put("Items you already opened, when they come back.", "Už otevřené položky, když se znovu objeví.");
         m.put("Answers older than the years set below.", "Odpovědi starší než počet let nastavený níže.");
         m.put("Items that mention your keywords (see Filters).", "Položky s tvými klíčovými slovy (viz Filtry).");
-        m.put("Items from the people and Spaces in Filters.", "Položky od lidí a Spaces z Filtrů.");
         m.put("Upvote, view, comment and share numbers.", "Počty upvotů, zobrazení, komentářů a sdílení.");
         m.put("The downvote button.", "Tlačítko downvote.");
         m.put("\"123 comments from … and more\" rows.", "Řádky „123 comments from … and more“.");
@@ -303,6 +302,13 @@ final class TextsCs {
         m.put("the newest.", "nejnovější.");
         m.put("Get the new version", "Získat novou verzi");
         m.put("What's new, and how to patch again.", "Co je nového a jak znovu napatchovat.");
+        // Block an author with a long press.
+        m.put("Items from the people and Spaces in Filters. Long-press a name to add it.",
+                "Příspěvky lidí a Prostorů z Filtrů. Jméno přidáš dlouhým podržením.");
+        m.put("Hide everything by ", "Skrýt vše od ");
+        m.put("Their answers and posts won't show in the feed or on question pages. You can remove the name again in Patch settings > More > Filters.",
+                "Jejich odpovědi a příspěvky se nezobrazí ve feedu ani na stránkách otázek. Jméno můžeš znovu odebrat v Patch settings > Další > Filtry.");
+        m.put("hidden.", "skryto.");
         // Update notice, settings line only.
         m.put("Shows here when newer patches are out, from GitHub once a day.",
                 "Ukáže tady, když vyjdou novější patche, z GitHubu jednou denně.");

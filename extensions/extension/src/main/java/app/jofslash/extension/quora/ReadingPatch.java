@@ -97,6 +97,43 @@ public final class ReadingPatch {
     }
 
     /**
+     * Part of the author filter's script: a long press on an author's or a Space's name in a feed item
+     * or an answer asks the app whether to hide everything by them (PatchSettings' blockAuthor). The
+     * tap that ends the long press doesn't open the profile. Names in "Upvoted by" lines don't count:
+     * those people didn't write the item. Uses norm, upvoter and UNITS from the script around it.
+     */
+    private static final String LONG_PRESS_AUTHOR = ""
+            + "var J=window.JoFSlashPatches,timer=0,sx=0,sy=0,eat=0;"
+            + "function who(t){if(!t||!t.closest)return null;"
+            + "var a=t.closest('a[href],.puppeteer_test_tribe_name');if(!a)return null;"
+            + "var u=a.closest('" + UNITS + "');if(!u||upvoter(a,u))return null;"
+            + "var name=(a.textContent||'').replace(/\\s+/g,' ').trim();"
+            + "if(!name||name.length>80)return null;"
+            + "var h=a.getAttribute('href')||'';"
+            + "var space=a.classList.contains('puppeteer_test_tribe_name')||(function(){"
+            + "try{var p=new URL(a.href).hostname.split('.');return p.length>2&&p[p.length-2]==='quora'&&!/^(www|[a-z]{2})$/.test(p[0]);}catch(e){return false;}})();"
+            + "if(!space&&!/\\/profile\\//.test(h))return null;"
+            + "return name;}"
+            + "function stop(){if(timer){clearTimeout(timer);timer=0;}}"
+            + "document.addEventListener('touchstart',function(ev){stop();var n=who(ev.target);"
+            + "if(!n||ev.touches.length!==1)return;sx=ev.touches[0].clientX;sy=ev.touches[0].clientY;"
+            + "timer=setTimeout(function(){timer=0;ask(n);},450);},{capture:true,passive:true});"
+            // Once per long press: the timer and the WebView's own long press (contextmenu) both ask.
+            + "function ask(n){if(!J||!J.ready()||Date.now()-eat<1200)return;eat=Date.now();"
+            + "if(navigator.vibrate)try{navigator.vibrate(20);}catch(e){}"
+            + "J.blockAuthor(n);}"
+            + "document.addEventListener('touchmove',function(ev){if(!timer)return;var t=ev.touches[0];"
+            + "if(Math.abs(t.clientX-sx)>10||Math.abs(t.clientY-sy)>10)stop();},{capture:true,passive:true});"
+            + "document.addEventListener('touchend',stop,true);document.addEventListener('touchcancel',stop,true);"
+            + "window.addEventListener('scroll',stop,true);"
+            // The WebView's long press on a name: ask instead of its menu or selection.
+            + "document.addEventListener('contextmenu',function(ev){var n=who(ev.target);if(!n)return;"
+            + "ev.preventDefault();ev.stopPropagation();stop();ask(n);},true);"
+            // The tap that ends a long press shouldn't open the profile.
+            + "document.addEventListener('click',function(ev){"
+            + "if(Date.now()-eat<1200){ev.preventDefault();ev.stopPropagation();eat=0;}},true);";
+
+    /**
      * Injection point: start of QWebViewClient.onPageFinished.
      *
      * @param names Comma separated author names or Space names, as Quora shows them.
@@ -105,11 +142,13 @@ public final class ReadingPatch {
         if (!PatchSettings.active(webView, "blockAuthors", "Block authors and Spaces")) return;
         names = PatchSettings.text(webView, "authors", "Authors and Spaces", names);
         String list = jsonList(names);
-        if (list.equals("[]")) return;
         evaluate(webView, "(function(){"
                 + "if(window.__jofslashAuthors)return;window.__jofslashAuthors=1;"
                 + "var norm=function(s){return (s||'').toLowerCase().replace(/[-_]+/g,' ').replace(/\\s+/g,' ').trim();};"
                 + "var names=" + list + ".map(norm);"
+                // Patch settings adds a name picked with a long press, without loading the page again.
+                + "window.__jofslashAuthorsAdd=function(n){n=norm(n);if(n&&names.indexOf(n)<0)names.push(n);run();};"
+                + LONG_PRESS_AUTHOR
                 + "function slug(a){var m=(a.getAttribute('href')||'').match(/\\/profile\\/([^/?#]+)/);return m?norm(decodeURIComponent(m[1]).replace(/-\\d+$/,'')):'';}"
                 + "function space(a){try{var h=new URL(a.href).hostname.split('.');return h.length>2&&h[h.length-2]==='quora'&&!/^(www|[a-z]{2})$/.test(h[0])?norm(h[0]):'';}catch(e){return '';}}"
                 // People in "Upvoted by …" lines didn't write the item.
@@ -120,7 +159,7 @@ public final class ReadingPatch {
                 + "var c=[norm(a.textContent),slug(a),space(a)];for(var j=0;j<c.length;j++)if(c[j]&&names.indexOf(c[j])>=0)return true;}"
                 + "var t=u.querySelectorAll('.puppeteer_test_tribe_name');for(var k=0;k<t.length;k++)if(names.indexOf(norm(t[k].textContent))>=0)return true;"
                 + "return false;}"
-                + "function run(){document.querySelectorAll('" + UNITS + "').forEach(function(u){"
+                + "function run(){if(!names.length)return;document.querySelectorAll('" + UNITS + "').forEach(function(u){"
                 + "if(u.hasAttribute('data-jofslash-filtered'))return;"
                 + "if(hit(u)){u.setAttribute('data-jofslash-filtered','');u.style.setProperty('display','none','important');}"
                 + "});}"
