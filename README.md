@@ -117,7 +117,7 @@ What the feed and question pages show.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
-| Block authors and Spaces | off | Hides answers and posts by the people and Spaces you pick. Long-press a name in the feed to add it. Options: Authors and Spaces. |
+| Block authors and Spaces | on | Hides answers and posts by the people and Spaces you pick. Long-press a name in the feed to add it. Options: Authors and Spaces. |
 | Filter keywords | off | Hides answers, posts and questions that mention words you pick. Options: Keywords. |
 | Hide AI answers | on | Hides answers written by Poe bots. |
 | Hide ask box | on | Hides the "What do you want to ask or share?" box with Ask, Answer and Post at the top of the feed. |
