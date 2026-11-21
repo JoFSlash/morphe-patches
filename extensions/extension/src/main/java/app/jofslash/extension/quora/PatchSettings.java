@@ -123,7 +123,7 @@ public final class PatchSettings {
             });
             showHintOnce(home);
             FilterUpdates.check(home.getContext());
-            UpdateCheck.check(home);
+            UpdateCheck.check(home.getContext());
         } catch (Exception ex) {
             Log.e(TAG, "Failed to attach the patch settings", ex);
         }

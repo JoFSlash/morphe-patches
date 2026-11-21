@@ -297,13 +297,6 @@ final class TextsCs {
         // Update notice.
         m.put("Switch many patches at once: everything, a clean feed, for reading, or ads only.",
                 "Přepni hodně patchů najednou: vše, čistý feed, na čtení nebo jen reklamy.");
-        m.put("Says when newer patches are out, from GitHub once a day.",
-                "Řekne, když vyjdou novější patche, z GitHubu jednou denně.");
-        m.put("New Quora patches: ", "Nové patche pro Quoru: ");
-        m.put("This app has ", "Tato aplikace má ");
-        m.put("Patch Quora again in Morphe Manager to get the new version, and install it over this app: you stay signed in and keep your settings.",
-                "Pro novou verzi napatchuj Quoru znovu v Morphe Manageru a nainstaluj ji přes tuto aplikaci: zůstaneš přihlášený a nastavení zůstane.");
-        m.put("What's new", "Co je nového");
         m.put("Patches ", "Patche ");
         m.put("A newer version is out: ", "Vyšla novější verze: ");
         m.put("the newest.", "nejnovější.");
@@ -323,5 +316,8 @@ final class TextsCs {
         m.put("Quora+ answers", "Odpovědi Quora+");
         m.put("Suggestions", "Návrhy");
         m.put("Your filters", "Tvoje filtry");
+        // Update notice, settings line only.
+        m.put("Shows here when newer patches are out, from GitHub once a day.",
+                "Ukáže tady, když vyjdou novější patche, z GitHubu jednou denně.");
     }
 }
