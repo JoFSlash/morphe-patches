@@ -34,6 +34,11 @@ public final class GmsCoreCheck {
         } catch (PackageManager.NameNotFoundException e) {
             final Context app = context.getApplicationContext() != null
                     ? context.getApplicationContext() : context;
+            // Once: the patch is on by default, and not everyone wants MicroG-RE. Patch settings >
+            // More > Notifications keeps saying it.
+            android.content.SharedPreferences prefs = app.getSharedPreferences("jofslash_gmscore", Context.MODE_PRIVATE);
+            if (prefs.getBoolean("missingHint", false)) return;
+            prefs.edit().putBoolean("missingHint", true).apply();
             new Handler(Looper.getMainLooper()).postDelayed(() -> Toast.makeText(app,
                     Texts.t("Install MicroG-RE to sign in with Google and get notifications."),
                     Toast.LENGTH_LONG).show(), 3000);
