@@ -105,7 +105,6 @@ final class TextsPl {
         m.put("Turkish", "Turecki");
         m.put("Saving image to Pictures/Quora", "Zapisywanie obrazu w Pictures/Quora");
         m.put("Couldn't save the image", "Nie udało się zapisać obrazu");
-<<<<<<< HEAD
         m.put("Backup file",
                 "Plik kopii");
         m.put("Also keeps the saved texts of your bookmarks, which don't fit in the text above.",
@@ -120,7 +119,6 @@ final class TextsPl {
                 "To nie jest plik kopii.");
         m.put("Saved texts restored: ",
                 "Przywrócone teksty: ");
-=======
         m.put("Battery saving holds MicroG-RE back, so notifications come late or not at all. Tap, then set its battery use to Unrestricted.",
                 "Oszczędzanie baterii blokuje MicroG-RE, więc powiadomienia przychodzą późno albo wcale. Dotknij i ustaw jego użycie baterii na Bez ograniczeń.");
         m.put("Notifications are off for this app. Tap to turn them on.",
@@ -131,7 +129,6 @@ final class TextsPl {
                 "Gotowe: MicroG-RE dostarcza powiadomienia do tej aplikacji.");
         m.put("Battery saving blocks notifications. Fix it in Patch settings.",
                 "Oszczędzanie baterii blokuje powiadomienia. Napraw to w Patch settings.");
->>>>>>> origin/dev
         m.put("Install MicroG-RE to sign in with Google and get notifications.",
                 "Zainstaluj MicroG-RE, aby logować się przez Google i dostawać powiadomienia.");
         m.put("Quora changed its pages, so some patches may not work. Long-press Home for details.",
