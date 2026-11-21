@@ -116,8 +116,8 @@ final class OfflineCopies {
         for (ReadingHistory.Item item : items) {
             Copy copy = load(context, item.url);
             out.append("## ").append(oneLine(item.title)).append("\n\n");
-            String by = item.author.isEmpty() ? "" : item.author + " · ";
-            out.append('*').append(oneLine(by)).append(date.format(new java.util.Date(item.time))).append("*  \n");
+            String by = item.author.isEmpty() ? "" : oneLine(item.author) + " · ";
+            out.append('*').append(by).append(date.format(new java.util.Date(item.time))).append("*  \n");
             out.append(item.url).append("\n\n");
             if (copy != null && !copy.text.isEmpty()) out.append(copy.text.trim()).append("\n\n");
             out.append("---\n\n");

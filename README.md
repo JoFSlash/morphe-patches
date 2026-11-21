@@ -119,7 +119,7 @@ What the feed and question pages show.
 | Hide old answers | off | Hides answers and posts older than the number of years you pick, in the feed and on question pages. Options: Older than. |
 | Hide people suggestions | off | Hides "People you may know" and other people to follow in the feed. |
 | Hide Poe | on | Hides links and buttons that open Poe or Quora's AI assistant. |
-| Hide Quora+ answers | on | Hides answers and posts that can only be read with a Quora+ subscription. |
+| Hide Quora+ answers | on | Hides answers and posts that show only their start, with a Quora+ lock over the rest. |
 | Hide Quora+ promotions | on | Hides buttons that ask you to try or join Quora+. |
 | Hide related questions | off | Hides the related questions lists on question pages. |
 | Hide seen items | off | Dims or hides feed items you already opened when the feed shows them again. The list of opened items stays on your phone. Options: Seen items. |
