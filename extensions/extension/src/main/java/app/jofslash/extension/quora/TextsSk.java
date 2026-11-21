@@ -107,10 +107,14 @@ final class TextsSk {
         m.put("Couldn't save the image", "Obrázok sa nepodarilo uložiť");
         m.put("Battery saving holds MicroG-RE back, so notifications come late or not at all. Tap, then set its battery use to Unrestricted.",
                 "Úspora batérie brzdí MicroG-RE, takže upozornenia chodia neskoro alebo vôbec. Ťukni a nastav mu spotrebu batérie na Bez obmedzení.");
-        m.put("MicroG-RE is ready. If none come, check Cloud Messaging in the MicroG RE app.",
-                "MicroG-RE je pripravený. Ak žiadne nechodia, skontroluj Cloud Messaging v aplikácii MicroG RE.");
         m.put("Notifications are off for this app. Tap to turn them on.",
                 "Upozornenia sú pre túto aplikáciu vypnuté. Ťukni a zapni ich.");
+        m.put("This app isn't registered for notifications yet. Open the MicroG RE app and check that Cloud Messaging is on.",
+                "Táto aplikácia ešte nie je zaregistrovaná na upozornenia. Otvor aplikáciu MicroG RE a skontroluj, či je zapnuté Cloud Messaging.");
+        m.put("Ready: MicroG-RE delivers notifications to this app.",
+                "Pripravené: MicroG-RE doručuje upozornenia do tejto aplikácie.");
+        m.put("Battery saving blocks notifications. Fix it in Patch settings.",
+                "Úspora batérie blokuje upozornenia. Oprav to v Patch settings.");
         m.put("Install MicroG-RE to sign in with Google and get notifications.",
                 "Na prihlásenie cez Google a notifikácie nainštaluj MicroG-RE.");
         m.put("Quora changed its pages, so some patches may not work. Long-press Home for details.",

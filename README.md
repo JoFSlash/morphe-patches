@@ -211,7 +211,7 @@ services. Sign in with email instead, or use Google sign-in through MicroG-RE:
 
 **Notifications don't come.**
 With **GmsCore support**, notifications come through MicroG-RE, and Patch settings > More > Notifications
-shows what stops them, if anything. Most often it's battery saving: Android doesn't let MicroG-RE keep its
+shows what stops them, if anything. The app also says so once at start when battery saving is the problem. Most often it's battery saving: Android doesn't let MicroG-RE keep its
 connection to Google open in the background, so notifications come late or not at all. Open Android's
 Settings > Apps > MicroG RE > Battery and set it to Unrestricted. Also check that Cloud Messaging is on in the
 MicroG RE app, and that Quora lists it there after you open Quora once.

@@ -30,6 +30,7 @@ public final class GmsCoreCheck {
         applied = true;
         try {
             context.getPackageManager().getPackageInfo(GMS_CORE_PACKAGE, 0);
+            batteryHint(context.getApplicationContext() != null ? context.getApplicationContext() : context);
         } catch (PackageManager.NameNotFoundException e) {
             final Context app = context.getApplicationContext() != null
                     ? context.getApplicationContext() : context;
@@ -87,7 +88,44 @@ public final class GmsCoreCheck {
         } catch (Throwable ignored) {
             // Then we can't tell.
         }
-        return new Status("MicroG-RE is ready. If none come, check Cloud Messaging in the MicroG RE app.", gmsCore);
+        if (!registered(context)) {
+            return new Status("This app isn't registered for notifications yet. Open the MicroG RE app and check that Cloud Messaging is on.",
+                    gmsCore);
+        }
+        return new Status("Ready: MicroG-RE delivers notifications to this app.", gmsCore);
+    }
+
+    /** Whether Firebase got a push token for this app, which it keeps in its own preferences file. */
+    private static boolean registered(Context context) {
+        try {
+            for (java.util.Map.Entry<String, ?> entry : context
+                    .getSharedPreferences("com.google.android.gms.appid", Context.MODE_PRIVATE).getAll().entrySet()) {
+                Object value = entry.getValue();
+                if (entry.getKey().contains("|T|") && value instanceof String && !((String) value).isEmpty()) return true;
+            }
+        } catch (Throwable ignored) {
+            // Then we can't tell.
+        }
+        return false;
+    }
+
+    /**
+     * Once, when battery saving holds MicroG-RE back: says so at start, as nobody looks for
+     * the notifications row before missing a notification.
+     */
+    private static void batteryHint(Context app) {
+        try {
+            PowerManager power = app.getSystemService(PowerManager.class);
+            if (power == null || power.isIgnoringBatteryOptimizations(GMS_CORE_PACKAGE)) return;
+            android.content.SharedPreferences prefs = app.getSharedPreferences("jofslash_gmscore", Context.MODE_PRIVATE);
+            if (prefs.getBoolean("batteryHint", false)) return;
+            prefs.edit().putBoolean("batteryHint", true).apply();
+            new Handler(Looper.getMainLooper()).postDelayed(() -> Toast.makeText(app,
+                    Texts.t("Battery saving blocks notifications. Fix it in Patch settings."),
+                    Toast.LENGTH_LONG).show(), 3000);
+        } catch (Throwable ignored) {
+            // Never break the app start.
+        }
     }
 
     private static Intent gmsCoreApp(Context context) {

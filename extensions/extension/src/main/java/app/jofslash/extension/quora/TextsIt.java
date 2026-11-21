@@ -107,10 +107,14 @@ final class TextsIt {
         m.put("Couldn't save the image", "Impossibile salvare l'immagine");
         m.put("Battery saving holds MicroG-RE back, so notifications come late or not at all. Tap, then set its battery use to Unrestricted.",
                 "Il risparmio batteria frena MicroG-RE, quindi le notifiche arrivano in ritardo o non arrivano. Tocca e imposta il suo utilizzo della batteria su Senza restrizioni.");
-        m.put("MicroG-RE is ready. If none come, check Cloud Messaging in the MicroG RE app.",
-                "MicroG-RE è pronto. Se non ne arriva nessuna, controlla Cloud Messaging nell'app MicroG RE.");
         m.put("Notifications are off for this app. Tap to turn them on.",
                 "Le notifiche sono disattivate per questa app. Tocca per attivarle.");
+        m.put("This app isn't registered for notifications yet. Open the MicroG RE app and check that Cloud Messaging is on.",
+                "Questa app non è ancora registrata per le notifiche. Apri l'app MicroG RE e controlla che Cloud Messaging sia attivo.");
+        m.put("Ready: MicroG-RE delivers notifications to this app.",
+                "Pronto: MicroG-RE consegna le notifiche a questa app.");
+        m.put("Battery saving blocks notifications. Fix it in Patch settings.",
+                "Il risparmio batteria blocca le notifiche. Correggilo in Patch settings.");
         m.put("Install MicroG-RE to sign in with Google and get notifications.",
                 "Installa MicroG-RE per accedere con Google e ricevere le notifiche.");
         m.put("Quora changed its pages, so some patches may not work. Long-press Home for details.",
