@@ -44,6 +44,8 @@ final class SettingsPage {
     // The lists a backup holds, by their key in it.
     private static final String LISTS_KEY = "lists";
     private static final Map<String, ReadingHistory> LISTS = new LinkedHashMap<>();
+    // The saved texts of Bookmarks, only in a backup file.
+    private static final String OFFLINE_KEY = "offline";
 
     static {
         LISTS.put("history", ReadingHistory.HISTORY);
@@ -294,16 +296,23 @@ final class SettingsPage {
      * permission, the file goes to the app's own folder on the phone's storage instead.
      */
     private void saveBookmarksFile() {
-        String name = "Quora bookmarks " + new java.text.SimpleDateFormat("yyyy-MM-dd HH-mm", java.util.Locale.ROOT)
-                .format(new java.util.Date()) + ".md";
-        byte[] data = OfflineCopies.markdown(activity, ReadingHistory.BOOKMARKS.load(activity))
-                .getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        saveToDownloads("Quora bookmarks " + fileDate() + ".md", "text/markdown",
+                OfflineCopies.markdown(activity, ReadingHistory.BOOKMARKS.load(activity))
+                        .getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    private static String fileDate() {
+        return new java.text.SimpleDateFormat("yyyy-MM-dd HH-mm", java.util.Locale.ROOT).format(new java.util.Date());
+    }
+
+    /** Saves a file to Downloads (before Android 10, to the app's own Documents folder) and says where. */
+    private void saveToDownloads(String name, String type, byte[] data) {
         try {
             String where;
             if (android.os.Build.VERSION.SDK_INT >= 29) {
                 android.content.ContentValues values = new android.content.ContentValues();
                 values.put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, name);
-                values.put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "text/markdown");
+                values.put(android.provider.MediaStore.MediaColumns.MIME_TYPE, type);
                 values.put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH,
                         android.os.Environment.DIRECTORY_DOWNLOADS);
                 android.net.Uri uri = activity.getContentResolver().insert(
@@ -327,7 +336,7 @@ final class SettingsPage {
             }
             Toast.makeText(activity, Texts.t("Saved to") + " " + where, Toast.LENGTH_LONG).show();
         } catch (Exception ex) {
-            Log.e(TAG, "Failed to save the bookmarks file", ex);
+            Log.e(TAG, "Failed to save " + name, ex);
             Toast.makeText(activity, Texts.t("Couldn't save the file."), Toast.LENGTH_LONG).show();
         }
     }
@@ -449,7 +458,8 @@ final class SettingsPage {
                 .show();
     }
 
-    private void backup(SharedPreferences prefs) {
+    /** Your settings and the lists, as a backup holds them. */
+    private JSONObject backupJson(SharedPreferences prefs) {
         JSONObject json = new JSONObject();
         try {
             for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
@@ -468,6 +478,48 @@ final class SettingsPage {
         } catch (Exception ex) {
             Log.e(TAG, "Failed to write the backup", ex);
         }
+        return json;
+    }
+
+    /**
+     * Puts back the settings of a backup and adds its list items and saved texts that aren't on
+     * the phone yet, and says what it did.
+     */
+    private void restore(SharedPreferences prefs, JSONObject saved) throws Exception {
+        SharedPreferences.Editor editor = prefs.edit();
+        for (Iterator<String> it = saved.keys(); it.hasNext(); ) {
+            String key = it.next();
+            Object value = saved.get(key);
+            if (value instanceof Boolean) editor.putBoolean(key, (Boolean) value);
+            else if (value instanceof String) editor.putString(key, (String) value);
+        }
+        editor.apply();
+        PatchSettings.reload();
+        // Lists are merged: what is already on the phone stays.
+        int added = 0;
+        JSONObject lists = saved.optJSONObject(LISTS_KEY);
+        if (lists != null) {
+            for (Map.Entry<String, ReadingHistory> list : LISTS.entrySet()) {
+                added += list.getValue().merge(activity, lists.optJSONArray(list.getKey()));
+            }
+        }
+        // Saved texts, only in a backup file; after the bookmarks, which they belong to.
+        int texts = 0;
+        org.json.JSONArray copies = saved.optJSONArray(OFFLINE_KEY);
+        for (int i = 0; copies != null && i < copies.length(); i++) {
+            if (OfflineCopies.restore(activity, copies.optJSONObject(i))) texts++;
+        }
+        Toast.makeText(activity, added > 0
+                ? Texts.t("Settings restored. Items added to your lists: ") + added
+                : Texts.t("Settings restored."), Toast.LENGTH_SHORT).show();
+        // Its own toast, as Android cuts a toast after two lines.
+        if (texts > 0) {
+            Toast.makeText(activity, Texts.t("Saved texts restored: ") + texts, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void backup(SharedPreferences prefs) {
+        JSONObject json = backupJson(prefs);
         LinearLayout content = column();
         LinearLayout box = section("Your settings and lists");
         EditText field = field(json.toString());
@@ -483,33 +535,59 @@ final class SettingsPage {
         }));
         add(actions, linkRow("Restore", "Paste a saved text above first.", () -> {
             try {
-                JSONObject saved = new JSONObject(field.getText().toString().trim());
-                SharedPreferences.Editor editor = prefs.edit();
-                for (Iterator<String> it = saved.keys(); it.hasNext(); ) {
-                    String key = it.next();
-                    Object value = saved.get(key);
-                    if (value instanceof Boolean) editor.putBoolean(key, (Boolean) value);
-                    else if (value instanceof String) editor.putString(key, (String) value);
-                }
-                editor.apply();
-                PatchSettings.reload();
-                // Lists are merged: what is already on the phone stays.
-                int added = 0;
-                JSONObject lists = saved.optJSONObject(LISTS_KEY);
-                if (lists != null) {
-                    for (Map.Entry<String, ReadingHistory> list : LISTS.entrySet()) {
-                        added += list.getValue().merge(activity, lists.optJSONArray(list.getKey()));
-                    }
-                }
-                Toast.makeText(activity, added > 0
-                        ? Texts.t("Settings restored. Items added to your lists: ") + added
-                        : Texts.t("Settings restored."), Toast.LENGTH_SHORT).show();
+                restore(prefs, new JSONObject(field.getText().toString().trim()));
             } catch (Exception ex) {
                 Toast.makeText(activity, Texts.t("That is not a saved settings text."), Toast.LENGTH_LONG).show();
             }
         }));
         content.addView(actions);
+
+        LinearLayout files = section("Backup file");
+        add(files, linkRow("Save to Downloads", "Also keeps the saved texts of your bookmarks, which don't fit in the text above.",
+                () -> saveBackupFile(prefs)));
+        add(files, linkRow("Restore from a file", "Pick a backup file you saved.", () -> {
+            boolean opened = FilePicker.pick(activity, new String[]{"application/json", "application/octet-stream", "text/plain"},
+                    (uri) -> restoreBackupFile(prefs, uri));
+            if (!opened) Toast.makeText(activity, Texts.t("Couldn't open the file."), Toast.LENGTH_LONG).show();
+        }));
+        content.addView(files);
         show("Backup", content, null);
+    }
+
+    /** The backup with every saved text of Bookmarks, as a file in Downloads. */
+    private void saveBackupFile(SharedPreferences prefs) {
+        StringBuilder out = new StringBuilder(backupJson(prefs).toString());
+        // The texts can be large, so they are added one by one instead of as one JSON object.
+        out.setLength(out.length() - 1);
+        if (out.length() > 1) out.append(',');
+        out.append(JSONObject.quote(OFFLINE_KEY)).append(":[");
+        boolean first = true;
+        for (ReadingHistory.Item item : ReadingHistory.BOOKMARKS.load(activity)) {
+            JSONObject copy = OfflineCopies.toJson(activity, item.url);
+            if (copy == null) continue;
+            if (!first) out.append(',');
+            out.append(copy.toString());
+            first = false;
+        }
+        out.append("]}");
+        saveToDownloads("Quora patches backup " + fileDate() + ".json", "application/json",
+                out.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    private void restoreBackupFile(SharedPreferences prefs, android.net.Uri uri) {
+        try (java.io.InputStream in = activity.getContentResolver().openInputStream(uri)) {
+            if (in == null) throw new java.io.IOException("No input stream");
+            java.io.ByteArrayOutputStream data = new java.io.ByteArrayOutputStream();
+            byte[] buffer = new byte[64 * 1024];
+            for (int n; (n = in.read(buffer)) > 0; ) {
+                data.write(buffer, 0, n);
+                if (data.size() > 200 * 1024 * 1024) throw new java.io.IOException("Too large");
+            }
+            restore(prefs, new JSONObject(data.toString("UTF-8").trim()));
+        } catch (Exception ex) {
+            Log.e(TAG, "Failed to restore the backup file", ex);
+            Toast.makeText(activity, Texts.t("That is not a backup file."), Toast.LENGTH_LONG).show();
+        }
     }
 
     // ------------------------------------------------------------------ frame

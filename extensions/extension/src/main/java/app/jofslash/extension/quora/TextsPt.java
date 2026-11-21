@@ -105,6 +105,20 @@ final class TextsPt {
         m.put("Turkish", "Turco");
         m.put("Saving image to Pictures/Quora", "Salvando a imagem em Pictures/Quora");
         m.put("Couldn't save the image", "Não foi possível salvar a imagem");
+        m.put("Backup file",
+                "Arquivo de backup");
+        m.put("Also keeps the saved texts of your bookmarks, which don't fit in the text above.",
+                "Também guarda os textos dos favoritos, que não cabem no texto acima.");
+        m.put("Restore from a file",
+                "Restaurar de um arquivo");
+        m.put("Pick a backup file you saved.",
+                "Escolha um arquivo de backup que você salvou.");
+        m.put("Couldn't open the file.",
+                "Não foi possível abrir o arquivo.");
+        m.put("That is not a backup file.",
+                "Isto não é um arquivo de backup.");
+        m.put("Saved texts restored: ",
+                "Textos restaurados: ");
         m.put("Install MicroG-RE to sign in with Google and get notifications.",
                 "Instale o MicroG-RE para entrar com o Google e receber notificações.");
         m.put("Quora changed its pages, so some patches may not work. Long-press Home for details.",

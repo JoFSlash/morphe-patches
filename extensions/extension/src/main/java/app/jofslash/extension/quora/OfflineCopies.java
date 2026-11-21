@@ -53,19 +53,23 @@ final class OfflineCopies {
             o.put("a", author == null ? "" : author.trim());
             o.put("x", body);
             o.put("d", System.currentTimeMillis());
-            File file = file(context, url);
-            File parent = file.getParentFile();
-            if (parent != null && !parent.isDirectory() && !parent.mkdirs()) return false;
-            // Written next to it first, so a crash never leaves half a file.
-            File temp = new File(file.getPath() + ".tmp");
-            try (FileOutputStream out = new FileOutputStream(temp)) {
-                out.write(o.toString().getBytes(StandardCharsets.UTF_8));
-            }
-            return temp.renameTo(file);
+            return write(context, url, o);
         } catch (Exception ex) {
             Log.e(TAG, "Failed to save the offline copy", ex);
             return false;
         }
+    }
+
+    private static boolean write(Context context, String url, JSONObject o) throws Exception {
+        File file = file(context, url);
+        File parent = file.getParentFile();
+        if (parent != null && !parent.isDirectory() && !parent.mkdirs()) return false;
+        // Written next to it first, so a crash never leaves half a file.
+        File temp = new File(file.getPath() + ".tmp");
+        try (FileOutputStream out = new FileOutputStream(temp)) {
+            out.write(o.toString().getBytes(StandardCharsets.UTF_8));
+        }
+        return temp.renameTo(file);
     }
 
     /** The saved copy, or null when there is none. */
@@ -89,6 +93,48 @@ final class OfflineCopies {
         } catch (Exception ex) {
             Log.e(TAG, "Failed to read the offline copy", ex);
             return null;
+        }
+    }
+
+    /** The saved copy as it is kept, for a backup file; null when there is none. */
+    static synchronized JSONObject toJson(Context context, String url) {
+        Copy copy = load(context, url);
+        if (copy == null) return null;
+        try {
+            JSONObject o = new JSONObject();
+            o.put("u", url);
+            o.put("t", copy.title);
+            o.put("a", copy.author);
+            o.put("x", copy.text);
+            o.put("d", copy.time);
+            return o;
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    /**
+     * Puts back a copy from a backup file, keeping its date. Only for a page in Bookmarks that has
+     * no copy yet: the one on the phone is newer. Returns whether it was put back.
+     */
+    static synchronized boolean restore(Context context, JSONObject o) {
+        if (context == null || o == null) return false;
+        String url = o.optString("u");
+        if (!ReadingHistory.BOOKMARKS.contains(context, url) || has(context, url)) return false;
+        String body = o.optString("x").trim();
+        if (body.length() < 20) return false;
+        if (body.length() > MAX_CHARS) body = body.substring(0, MAX_CHARS);
+        try {
+            JSONObject copy = new JSONObject();
+            copy.put("u", url);
+            copy.put("t", o.optString("t").trim());
+            copy.put("a", o.optString("a").trim());
+            copy.put("x", body);
+            copy.put("d", o.optLong("d", System.currentTimeMillis()));
+            return write(context, url, copy);
+        } catch (Exception ex) {
+            Log.e(TAG, "Failed to restore the offline copy", ex);
+            return false;
         }
     }
 

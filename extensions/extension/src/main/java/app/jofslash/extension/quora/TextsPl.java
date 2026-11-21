@@ -105,6 +105,20 @@ final class TextsPl {
         m.put("Turkish", "Turecki");
         m.put("Saving image to Pictures/Quora", "Zapisywanie obrazu w Pictures/Quora");
         m.put("Couldn't save the image", "Nie udało się zapisać obrazu");
+        m.put("Backup file",
+                "Plik kopii");
+        m.put("Also keeps the saved texts of your bookmarks, which don't fit in the text above.",
+                "Zapisuje też teksty zakładek, które nie mieszczą się w tekście powyżej.");
+        m.put("Restore from a file",
+                "Przywróć z pliku");
+        m.put("Pick a backup file you saved.",
+                "Wybierz zapisany plik kopii.");
+        m.put("Couldn't open the file.",
+                "Nie udało się otworzyć pliku.");
+        m.put("That is not a backup file.",
+                "To nie jest plik kopii.");
+        m.put("Saved texts restored: ",
+                "Przywrócone teksty: ");
         m.put("Install MicroG-RE to sign in with Google and get notifications.",
                 "Zainstaluj MicroG-RE, aby logować się przez Google i dostawać powiadomienia.");
         m.put("Quora changed its pages, so some patches may not work. Long-press Home for details.",

@@ -105,6 +105,20 @@ final class TextsSk {
         m.put("Turkish", "Turečtina");
         m.put("Saving image to Pictures/Quora", "Obrázok sa ukladá do Pictures/Quora");
         m.put("Couldn't save the image", "Obrázok sa nepodarilo uložiť");
+        m.put("Backup file",
+                "Súbor so zálohou");
+        m.put("Also keeps the saved texts of your bookmarks, which don't fit in the text above.",
+                "Uloží aj texty záložiek, ktoré sa do textu vyššie nezmestia.");
+        m.put("Restore from a file",
+                "Obnoviť zo súboru");
+        m.put("Pick a backup file you saved.",
+                "Vyber súbor so zálohou, ktorý si uložil.");
+        m.put("Couldn't open the file.",
+                "Súbor sa nepodarilo otvoriť.");
+        m.put("That is not a backup file.",
+                "Toto nie je súbor so zálohou.");
+        m.put("Saved texts restored: ",
+                "Obnovené uložené texty: ");
         m.put("Install MicroG-RE to sign in with Google and get notifications.",
                 "Na prihlásenie cez Google a notifikácie nainštaluj MicroG-RE.");
         m.put("Quora changed its pages, so some patches may not work. Long-press Home for details.",
