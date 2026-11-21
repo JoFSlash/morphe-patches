@@ -209,6 +209,13 @@ services. Sign in with email instead, or use Google sign-in through MicroG-RE:
 3. Patch Quora with **GmsCore support** on. Google sign-in and push notifications then go through MicroG-RE.
    Without MicroG-RE the app shows a reminder at start, and Google sign-in won't work.
 
+**Notifications don't come.**
+With **GmsCore support**, notifications come through MicroG-RE, and Patch settings > More > Notifications
+shows what stops them, if anything. Most often it's battery saving: Android doesn't let MicroG-RE keep its
+connection to Google open in the background, so notifications come late or not at all. Open Android's
+Settings > Apps > MicroG RE > Battery and set it to Unrestricted. Also check that Cloud Messaging is on in the
+MicroG RE app, and that Quora lists it there after you open Quora once.
+
 **Can my Quora account get banned for this?**
 Nobody has reported it. The patches change what the app shows and what it sends, they don't post, vote or do anything
 in your name. Still, it's a modified app, so there's no guarantee.

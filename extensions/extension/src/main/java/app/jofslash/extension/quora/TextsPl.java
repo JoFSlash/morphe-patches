@@ -105,6 +105,12 @@ final class TextsPl {
         m.put("Turkish", "Turecki");
         m.put("Saving image to Pictures/Quora", "Zapisywanie obrazu w Pictures/Quora");
         m.put("Couldn't save the image", "Nie udało się zapisać obrazu");
+        m.put("Battery saving holds MicroG-RE back, so notifications come late or not at all. Tap, then set its battery use to Unrestricted.",
+                "Oszczędzanie baterii blokuje MicroG-RE, więc powiadomienia przychodzą późno albo wcale. Dotknij i ustaw jego użycie baterii na Bez ograniczeń.");
+        m.put("MicroG-RE is ready. If none come, check Cloud Messaging in the MicroG RE app.",
+                "MicroG-RE jest gotowy. Jeśli żadne nie przychodzą, sprawdź Cloud Messaging w aplikacji MicroG RE.");
+        m.put("Notifications are off for this app. Tap to turn them on.",
+                "Powiadomienia są wyłączone dla tej aplikacji. Dotknij, aby je włączyć.");
         m.put("Install MicroG-RE to sign in with Google and get notifications.",
                 "Zainstaluj MicroG-RE, aby logować się przez Google i dostawać powiadomienia.");
         m.put("Quora changed its pages, so some patches may not work. Long-press Home for details.",

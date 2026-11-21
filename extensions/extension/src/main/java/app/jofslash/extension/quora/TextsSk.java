@@ -105,6 +105,12 @@ final class TextsSk {
         m.put("Turkish", "Turečtina");
         m.put("Saving image to Pictures/Quora", "Obrázok sa ukladá do Pictures/Quora");
         m.put("Couldn't save the image", "Obrázok sa nepodarilo uložiť");
+        m.put("Battery saving holds MicroG-RE back, so notifications come late or not at all. Tap, then set its battery use to Unrestricted.",
+                "Úspora batérie brzdí MicroG-RE, takže upozornenia chodia neskoro alebo vôbec. Ťukni a nastav mu spotrebu batérie na Bez obmedzení.");
+        m.put("MicroG-RE is ready. If none come, check Cloud Messaging in the MicroG RE app.",
+                "MicroG-RE je pripravený. Ak žiadne nechodia, skontroluj Cloud Messaging v aplikácii MicroG RE.");
+        m.put("Notifications are off for this app. Tap to turn them on.",
+                "Upozornenia sú pre túto aplikáciu vypnuté. Ťukni a zapni ich.");
         m.put("Install MicroG-RE to sign in with Google and get notifications.",
                 "Na prihlásenie cez Google a notifikácie nainštaluj MicroG-RE.");
         m.put("Quora changed its pages, so some patches may not work. Long-press Home for details.",
