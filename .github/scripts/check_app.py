@@ -6,10 +6,12 @@ the patched app on a phone or emulator over adb, starts it and looks for a crash
 
 Usage:
     python .github/scripts/check_app.py <google-health.apkm> --cli <morphe-cli.jar> [--mpp <bundle.mpp>]
-        [--install [--expect-welcome]] [--adb <adb>]
+        [--install [--expect-welcome]] [--clone] [--dexdump <dexdump>] [--adb <adb>]
 
-With --install, Clone app is left out (it would install under another package name). The emulator
-test in .github/workflows/emulator.yml runs this with --install --expect-welcome.
+With --install, Clone app is left out (it would install under another package name), unless --clone
+is given: then the clone is installed and started under its package name. With --dexdump, the patched
+code is checked for the change each applied patch makes (verify_patched.py). The emulator test in
+.github/workflows/emulator.yml runs this with --install --expect-welcome, with and without --clone.
 
 Build the bundle first (./gradlew buildAndroid); by default the newest .mpp in patches/build/libs is used.
 """
@@ -25,6 +27,10 @@ import time
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 CONSTANTS = ROOT / "patches/src/main/kotlin/app/jofslash/patches/googlehealth/shared/Constants.kt"
 PACKAGE = "com.fitbit.FitbitMobile"
+# The clone's default package name (Clone app's packageName option).
+CLONE_PACKAGE = PACKAGE + ".clone"
+# The package that is installed and started: PACKAGE, or CLONE_PACKAGE with --clone.
+TARGET = PACKAGE
 
 
 def newest_mpp():
@@ -71,14 +77,20 @@ def main():
                         help="With --install: when the check fails, try the original app the same way")
     parser.add_argument("--exclude", action="append", default=[], metavar="PATCH",
                         help="Leave this patch out (can be given more than once)")
+    parser.add_argument("--clone", action="store_true",
+                        help="Also apply Clone app, and with --install start the clone")
+    parser.add_argument("--dexdump", help="dexdump, to check that each applied patch changed the code")
     args = parser.parse_args()
+    global TARGET
+    if args.clone:
+        TARGET = CLONE_PACKAGE
 
     mpp = pathlib.Path(args.mpp) if args.mpp else newest_mpp()
     work = pathlib.Path(tempfile.mkdtemp(prefix="google-health-check-"))
     result_file, out_apk = work / "result.json", work / "patched.apk"
 
     names = patch_names(args.cli, mpp)
-    if args.install:
+    if args.install and not args.clone:
         # Clone app would install under another package name than the one started below.
         names = [n for n in names if n != "Clone app"]
     unknown = [n for n in args.exclude if n not in names]
@@ -104,7 +116,7 @@ def main():
         sys.exit(f"Patching did not finish. Full log: {work / 'patch.log'}")
 
     result = json.loads(result_file.read_text(encoding="utf8"))
-    if result.get("packageName") != PACKAGE:
+    if result.get("packageName") not in (PACKAGE, TARGET):
         sys.exit(f"\nThis is {result.get('packageName')}, not Google Health ({PACKAGE}).")
     version = result.get("packageVersion", "?")
     applied = result.get("appliedPatches", [])
@@ -127,6 +139,13 @@ def main():
               "then try the patches in the app on a phone.")
     print(f"Log and patched APK: {work}")
 
+    if args.dexdump and out_apk.exists():
+        sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+        import verify_patched
+        print("\nChecking that each applied patch changed the code ...")
+        if not verify_patched.verify(str(out_apk), args.dexdump, applied):
+            failed.append(("patched code", "an applied patch changed nothing (see above)"))
+
     if args.install and out_apk.exists():
         print("\nInstalling on the phone ...")
         ok = start_and_check(args.adb, [str(out_apk)], args.expect_welcome, patched=True)
@@ -139,7 +158,8 @@ def main():
             # Whether the app itself works here tells a broken patch from an Android version
             # the app doesn't support.
             print("\nTrying the original app, without the patches ...")
-            original = start_and_check(args.adb, apk_splits(args.apk, work), args.expect_welcome, patched=False)
+            TARGET = PACKAGE  # The original app has no clone package name.
+            original =start_and_check(args.adb, apk_splits(args.apk, work), args.expect_welcome, patched=False)
             print("The original app works here, so the patches break it." if original else
                   "The original app fails here too, so it's not the patches.")
         if not ok:
@@ -165,7 +185,7 @@ def apk_splits(apk, work):
 def start_and_check(adb, apks, expect_welcome, patched):
     """Installs, starts and checks the app; prints what went wrong. Returns whether it passed."""
     # The patched and the original app are signed differently, so one can't replace the other.
-    subprocess.run([adb, "uninstall", PACKAGE], capture_output=True)
+    subprocess.run([adb, "uninstall", TARGET], capture_output=True)
     command = [adb, "install-multiple", "-r", *apks] if len(apks) > 1 else [adb, "install", "-r", apks[0]]
     install = subprocess.run(command, capture_output=True, text=True)
     output = (install.stdout + install.stderr).strip()
@@ -174,13 +194,13 @@ def start_and_check(adb, apks, expect_welcome, patched):
         print("Install failed: " + (output.splitlines()[-1] if output else "no output"))
         return False
     subprocess.run([adb, "logcat", "-c"])
-    launch = [adb, "shell", "monkey", "-p", PACKAGE, "-c", "android.intent.category.LAUNCHER", "1"]
+    launch = [adb, "shell", "monkey", "-p", TARGET, "-c", "android.intent.category.LAUNCHER", "1"]
     subprocess.run(launch, capture_output=True)
     # A busy emulator can take a while, or miss the first launch: wait, and launch once more.
     pid = ""
     for second in range(45):
         time.sleep(1)
-        pid = subprocess.run([adb, "shell", "pidof", PACKAGE], capture_output=True, text=True).stdout.strip()
+        pid = subprocess.run([adb, "shell", "pidof", TARGET], capture_output=True, text=True).stdout.strip()
         if pid and second >= 14:
             break
         if not pid and second == 15:
@@ -218,7 +238,7 @@ def describe_screen(adb):
                             capture_output=True, text=True, errors="replace").stdout
     texts = [t for t in re.findall(r'(?:text|content-desc)="([^"]+)"', screen) if t.strip()]
     print("  On screen: " + (" | ".join(texts[:25]) if texts else "no text"))
-    pid = subprocess.run([adb, "shell", "pidof", PACKAGE], capture_output=True, text=True).stdout.split()
+    pid = subprocess.run([adb, "shell", "pidof", TARGET], capture_output=True, text=True).stdout.split()
     log = subprocess.run([adb, "logcat", "-d", "-v", "brief"], capture_output=True, text=True,
                          errors="replace").stdout
     mine = [l for l in log.splitlines() if pid and re.match(r"^[EW]/[^(]*\(\s*(%s)\)" % "|".join(pid), l)]
