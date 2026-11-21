@@ -11,11 +11,11 @@ and they take out the pressure: scarcity messages, sponsored results, start-up p
 Works with Booking.com <!-- VERSIONS_START -->71.1<!-- VERSIONS_END --> on Android 8 or newer. No root needed.
 All patches are on by default; you can switch any of them off when you patch.
 
-> **Status: work in progress.** These patches are made for **browsing and comparing**, not for signing in or
-> booking. Booking.com runs anti-fraud checks (ThreatMetrix, FingerprintJS) that these patches leave switched on,
-> and a re-signed app has not been tested through sign-in or payment. Social sign-in (Google, Facebook) won't work
-> in a patched app. **Use a throwaway account if you sign in at all, and book in the official app, on the website,
-> or directly with the hotel.** See [Account and booking](#account-and-booking).
+> **Status: work in progress.** Booking.com runs anti-fraud checks (ThreatMetrix, FingerprintJS) that these patches
+> leave switched on. In one test on a throwaway account, email sign-in and a free-cancellation booking both went
+> through, and Google sign-in worked through microG-RE — but that's one test, not a guarantee. Facebook sign-in
+> doesn't work. **Use a throwaway account, not your main one, and don't rely on it for an important booking yet.**
+> See [Account and booking](#account-and-booking).
 
 ## Install
 
@@ -39,7 +39,7 @@ All patches are on by default; you can switch any of them off when you patch.
 ## Patches
 
 <!-- PATCHES_START -->
-6 patches, all on by default. Supported Booking.com versions: 71.1.
+7 patches, all on by default. Supported Booking.com versions: 71.1.
 
 <details open>
 <summary><b>Price</b> (2)</summary>
@@ -66,13 +66,14 @@ What the search results show.
 </details>
 
 <details>
-<summary><b>App</b> (1)</summary>
+<summary><b>App</b> (2)</summary>
 
 The app around the search.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
 | Disable start-up promotions | on | Stops the promotional sheets the app shows on start, such as the "Black Friday Deals" sheet and the app's own Genius sign-in, wallet and credit-card prompts. The cookie dialog and Android's notification prompt are left alone. |
+| GmsCore support | on | Makes "Continue with Google" work through [MicroG-RE](https://github.com/MorpheApp/MicroG-RE) instead of Google Play services, which won't sign in an app it didn't sign. Needs MicroG-RE installed with your Google account added; without it the app says so once and Google sign-in won't work. Email sign-in works either way. Push notifications stay off in the patched app. |
 
 </details>
 
@@ -100,12 +101,23 @@ different signature. The same is why the patched app doesn't update from the Pla
 
 <a name="account-and-booking"></a>
 **Can I sign in and book with the patched app?**
-It isn't tested, and it's the one part that carries real risk. Booking.com profiles the device at sign-in and
-payment with anti-fraud services (ThreatMetrix, FingerprintJS) that these patches leave on. A re-signed app may be
-let through, may be refused, or may make the account look suspicious. Social sign-in (Google, Facebook) won't work
-at all, because Google and Facebook only sign in apps signed by their maker. **Treat the patched app as a way to
-search and compare.** If you want to book, do it in the official app, on the website, or directly with the hotel —
-and if you sign in to the patched app to test, use a throwaway account, not your main one.
+In one test on a throwaway account it worked: email sign-in went through, Google sign-in went through MicroG-RE,
+and a free-cancellation booking completed. That's one test, not a promise. Booking.com profiles the device at
+sign-in and payment with anti-fraud services (ThreatMetrix, FingerprintJS) that these patches leave on, so a
+re-signed app might still be refused or make the account look suspicious on another account or version. **Use a
+throwaway account, not your main one, and don't put an important booking on it yet.** Facebook sign-in doesn't work.
+
+**Signing in with Google.**
+Google only signs in apps signed by their maker, so a patched app can't use Google sign-in through Google Play
+services. Use email, or Google through MicroG-RE (the **GmsCore support** patch, on by default):
+1. Install [MicroG-RE](https://github.com/MorpheApp/MicroG-RE/releases) (the same one Morphe-patched YouTube uses).
+   It runs next to Google Play services and doesn't replace them.
+2. Open the MicroG RE app, go to Accounts > Add Google account, and sign in.
+3. In the patched Booking.com app, tap **Continue with Google**: the MicroG account picker appears and sign-in
+   completes. Without MicroG-RE the app says so once, and Google sign-in won't work.
+
+Push notifications don't work in the patched app (the Google key only accepts the original app), and these patches
+don't try to fix that.
 
 **Can my Booking.com account get banned for this?**
 Unknown — this isn't released or widely used. The patches change what the app shows and what it sends for
