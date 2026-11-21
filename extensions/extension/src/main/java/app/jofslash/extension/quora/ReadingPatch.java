@@ -137,16 +137,21 @@ public final class ReadingPatch {
             + "function stop(){if(timer){clearTimeout(timer);timer=0;}}"
             + "document.addEventListener('touchstart',function(ev){stop();var n=who(ev.target);"
             + "if(!n||ev.touches.length!==1)return;sx=ev.touches[0].clientX;sy=ev.touches[0].clientY;"
-            + "timer=setTimeout(function(){timer=0;if(!J||!J.ready())return;eat=Date.now();"
+            + "timer=setTimeout(function(){timer=0;ask(n);},450);},{capture:true,passive:true});"
+            // Once per long press: the timer and the WebView's own long press (contextmenu) both ask.
+            + "function ask(n){if(!J||!J.ready()||Date.now()-eat<1200)return;eat=Date.now();"
             + "if(navigator.vibrate)try{navigator.vibrate(20);}catch(e){}"
-            + "J.blockAuthor(n);},550);},{capture:true,passive:true});"
+            + "J.blockAuthor(n);}"
             + "document.addEventListener('touchmove',function(ev){if(!timer)return;var t=ev.touches[0];"
             + "if(Math.abs(t.clientX-sx)>10||Math.abs(t.clientY-sy)>10)stop();},{capture:true,passive:true});"
             + "document.addEventListener('touchend',stop,true);document.addEventListener('touchcancel',stop,true);"
             + "window.addEventListener('scroll',stop,true);"
-            // The tap and the menu that end a long press shouldn't open the profile.
-            + "['click','contextmenu'].forEach(function(type){document.addEventListener(type,function(ev){"
-            + "if(Date.now()-eat<1200){ev.preventDefault();ev.stopPropagation();if(type==='click')eat=0;}},true);});";
+            // The WebView's long press on a name: ask instead of its menu or selection.
+            + "document.addEventListener('contextmenu',function(ev){var n=who(ev.target);if(!n)return;"
+            + "ev.preventDefault();ev.stopPropagation();stop();ask(n);},true);"
+            // The tap that ends a long press shouldn't open the profile.
+            + "document.addEventListener('click',function(ev){"
+            + "if(Date.now()-eat<1200){ev.preventDefault();ev.stopPropagation();eat=0;}},true);";
 
     /**
      * Injection point: start of QWebViewClient.onPageFinished.
