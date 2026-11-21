@@ -285,5 +285,13 @@ final class TextsCs {
         m.put("Done.", "Hotovo.");
         m.put("Done. Some changes show after restarting the app.",
                 "Hotovo. Některé změny se projeví až po restartu aplikace.");
+        // Filter updates.
+        m.put("Fixes for hiding things when Quora changes its pages, from GitHub once a day.",
+                "Opravy skrývání, když Quora změní své stránky, jednou denně z GitHubu.");
+        m.put("Filter updates are off.", "Aktualizace filtrů jsou vypnuté.");
+        m.put("Filter updates: not downloaded yet.", "Aktualizace filtrů: zatím nestaženo.");
+        m.put("Filter updates: checked ", "Aktualizace filtrů: zkontrolováno ");
+        m.put("No fixes needed right now.", "Teď nejsou potřeba žádné opravy.");
+        m.put("Fixes in use: ", "Použité opravy: ");
     }
 }

@@ -35,11 +35,13 @@ final class Presets {
             "hideDismissedQuestions", "filterKeywords", "blockAuthors",
             "copyAnswerText", "shareAnswerText", "readingHistory", "bookmarks", "translateAnswerText", "readAloud",
             "wordCount", "enableTextSelection", "disableVideoAutoplay", "dataSaverOnWifi",
-            "openLinksInBrowser", "disableTabPrefetching", "disableSignInPrompts", "blockPromotionalNotifications"));
+            "openLinksInBrowser", "disableTabPrefetching", "disableSignInPrompts", "blockPromotionalNotifications",
+            "filterUpdates"));
 
     /** Ads and privacy only: everything you see is as in the official app, without ads. */
     static final Set<String> ADS_ONLY = new HashSet<>(Arrays.asList(
-            "removeAds", "disableTabPrefetching", "disableSignInPrompts", "blockPromotionalNotifications"));
+            "removeAds", "disableTabPrefetching", "disableSignInPrompts", "blockPromotionalNotifications",
+            "filterUpdates"));
 
     private Presets() {
     }
