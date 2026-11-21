@@ -232,19 +232,12 @@ final class SettingsPage {
                         : android.text.format.DateUtils.getRelativeTimeSpanString(
                                 item.time, now, android.text.format.DateUtils.MINUTE_IN_MILLIS).toString();
                 String line = item.author.isEmpty() ? when : byline(item.author) + " · " + when;
+                boolean bookmark = store == ReadingHistory.BOOKMARKS;
+                if (bookmark && OfflineCopies.has(activity, item.url)) line += " · " + Texts.t("Saved offline");
                 View row = linkRow(item.title, line, () -> {
-                    if (!ReadingHistory.isQuoraUrl(item.url)) return;
-                    try {
-                        // Quora opens its own links in the app.
-                        android.content.Intent open = new android.content.Intent(
-                                android.content.Intent.ACTION_VIEW, android.net.Uri.parse(item.url));
-                        open.setPackage(activity.getPackageName());
-                        activity.startActivity(open);
-                        if (page[0] != null) page[0].dismiss();
-                        if (mainPage != null) mainPage.dismiss();
-                    } catch (Exception ex) {
-                        Log.e(TAG, "Failed to open " + title, ex);
-                    }
+                    // A bookmark with its text saved opens that copy, which works offline.
+                    if (bookmark && OfflineCopies.has(activity, item.url)) savedCopy(item, page[0]);
+                    else openInApp(item, page[0]);
                 });
                 if (removeAsk != null) {
                     row.setOnLongClickListener((v) -> {
@@ -289,6 +282,71 @@ final class SettingsPage {
             if (page[0] != null) page[0].dismiss();
         });
         page[0] = show(title, content, null, "Clear", clear);
+    }
+
+    /** Opens an answer, post or question in the app and closes the given pages and the settings. */
+    private void openInApp(ReadingHistory.Item item, Dialog... close) {
+        if (!ReadingHistory.isQuoraUrl(item.url)) return;
+        try {
+            // Quora opens its own links in the app.
+            android.content.Intent open = new android.content.Intent(
+                    android.content.Intent.ACTION_VIEW, android.net.Uri.parse(item.url));
+            open.setPackage(activity.getPackageName());
+            activity.startActivity(open);
+            for (Dialog d : close) if (d != null) d.dismiss();
+            if (mainPage != null) mainPage.dismiss();
+        } catch (Exception ex) {
+            Log.e(TAG, "Failed to open " + item.url, ex);
+        }
+    }
+
+    /**
+     * The text of a bookmarked answer or post as it was saved, readable without internet. Open in
+     * the top bar shows the page in Quora; Read aloud reads it when that patch is on.
+     */
+    private void savedCopy(ReadingHistory.Item item, Dialog listPage) {
+        OfflineCopies.Copy copy = OfflineCopies.load(activity, item.url);
+        if (copy == null) {
+            openInApp(item, listPage);
+            return;
+        }
+        LinearLayout content = column();
+        if (PatchSettings.isRegistered("readAloud") && PatchSettings.isOn("readAloud")) {
+            LinearLayout actions = section(null);
+            add(actions, linkRow("Read aloud", "Reads this text out loud. Tap again to stop.",
+                    () -> ReadAloud.toggle(content, copy.text, null, true)));
+            content.addView(actions);
+        }
+        LinearLayout box = section(null);
+        TextView head = new TextView(activity);
+        head.setText(copy.title.isEmpty() ? item.title : copy.title);
+        head.setTextSize(20);
+        head.setTypeface(Typeface.DEFAULT_BOLD);
+        head.setTextColor(text);
+        head.setTextIsSelectable(true);
+        head.setPadding(dp(16), dp(16), dp(16), dp(4));
+        box.addView(head);
+        TextView meta = new TextView(activity);
+        String saved = Texts.t("Saved offline") + " " + android.text.format.DateUtils.getRelativeTimeSpanString(
+                copy.time, System.currentTimeMillis(), android.text.format.DateUtils.MINUTE_IN_MILLIS);
+        meta.setText(copy.author.isEmpty() ? saved : byline(copy.author) + " · " + saved);
+        meta.setTextSize(13);
+        meta.setTextColor(secondary);
+        meta.setPadding(dp(16), 0, dp(16), dp(12));
+        box.addView(meta);
+        TextView body = new TextView(activity);
+        body.setText(copy.text);
+        body.setTextSize(17);
+        body.setTextColor(text);
+        body.setLineSpacing(0, 1.35f);
+        body.setTextIsSelectable(true);
+        body.setPadding(dp(16), dp(4), dp(16), dp(20));
+        box.addView(body);
+        content.addView(box);
+        content.addView(note("Saved as text: pictures, links and formatting aren't kept."));
+        Dialog[] reader = new Dialog[1];
+        reader[0] = show("Saved copy", content, () -> ReadAloud.stopFor(content), "Open",
+                () -> openInApp(item, reader[0], listPage));
     }
 
     /**

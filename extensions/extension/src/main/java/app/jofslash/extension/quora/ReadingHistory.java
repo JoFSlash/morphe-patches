@@ -144,6 +144,8 @@ final class ReadingHistory {
                 }
             }
             if (changed) save(context, items);
+            // A removed bookmark takes its offline copy with it.
+            if (this == BOOKMARKS) OfflineCopies.remove(context, url);
         } catch (Exception ex) {
             Log.e(TAG, "Failed to save " + prefsName, ex);
         }

@@ -351,6 +351,41 @@ public final class PatchSettings {
                     saved || !adding ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG).show());
             return saved;
         }
+
+        /**
+         * For Bookmarks: keeps the text of a bookmarked answer or post, to read it offline. Only for
+         * pages that are bookmarked, so a page can't fill the storage. Returns whether it was saved.
+         */
+        @android.webkit.JavascriptInterface
+        public boolean saveOffline(String key, String url, String title, String author, String text) {
+            if (!allowed(key)) return false;
+            WebView view = webView.get();
+            if (view == null) return false;
+            Context context = view.getContext().getApplicationContext();
+            if (!ReadingHistory.BOOKMARKS.contains(context, url)) return false;
+            return OfflineCopies.save(context, url, title, author, text);
+        }
+
+        /**
+         * For Read aloud: reads the text out loud, or stops. Returns whether it is reading now.
+         *
+         * @param preview Whether the text is the start of a shortened answer in the feed.
+         * @param stop    Whether the tap was on the button that is reading (then it only stops).
+         */
+        @android.webkit.JavascriptInterface
+        public boolean readAloud(String key, String text, boolean preview, boolean stop) {
+            if (!allowed(key)) return false;
+            WebView view = webView.get();
+            if (view == null) return false;
+            return ReadAloud.toggle(view, text,
+                    preview ? Texts.t("Reading the preview. Open it to hear all of it.") : null, stop);
+        }
+
+        /** For Read aloud: whether it is still reading, so the page can reset its button. */
+        @android.webkit.JavascriptInterface
+        public boolean isReadingAloud(String key) {
+            return allowed(key) && ReadAloud.isSpeaking();
+        }
     }
 
     /**

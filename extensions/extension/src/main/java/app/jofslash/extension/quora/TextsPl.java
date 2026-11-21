@@ -178,7 +178,6 @@ final class TextsPl {
         m.put("A Share text button next to Share under answers.", "Przycisk Udostępnij tekst obok Share pod odpowiedziami.");
         m.put("Questions open with answers in the order set below.", "Pytania otwierają się z odpowiedziami w kolejności ustawionej poniżej.");
         m.put("Remembers what you open (see History).", "Zapamiętuje, co otwierasz (zob. Historia).");
-        m.put("A bookmark button under open answers (see Bookmarks).", "Przycisk zakładki pod otwartymi odpowiedziami (zob. Zakładki).");
         m.put("A Translate button next to Share under answers.", "Przycisk Przetłumacz obok Share pod odpowiedziami.");
         m.put("Bars hide while you scroll down.", "Paski chowają się podczas przewijania w dół.");
         m.put("Shortened answers open in full.", "Skrócone odpowiedzi otwierają się w całości.");
@@ -224,5 +223,17 @@ final class TextsPl {
         m.put("Words: ", "Słowa: ");
         m.put("Characters: ", "Znaki: ");
         m.put("Words and characters while you write an answer or post.", "Liczba słów i znaków podczas pisania odpowiedzi lub posta.");
+        // Hide anonymous answers, offline bookmarks, Read aloud.
+        m.put("A bookmark button under open answers; saved ones read offline (see Bookmarks).", "Przycisk zakładki pod otwartymi odpowiedziami; zapisane przeczytasz też offline (zob. Zakładki).");
+        m.put("Answers written as \"Anonymous\".", "Odpowiedzi napisane jako „Anonymous”.");
+        m.put("A Read aloud button next to Share under answers.", "Przycisk Czytaj na głos obok Udostępnij pod odpowiedziami.");
+        m.put("Read aloud", "Czytaj na głos");
+        m.put("Reading aloud. Tap the button again to stop.", "Czytam na głos. Dotknij przycisku ponownie, aby zatrzymać.");
+        m.put("Reading the preview. Open it to hear all of it.", "Czytam podgląd. Otwórz odpowiedź, aby usłyszeć całość.");
+        m.put("Reads this text out loud. Tap again to stop.", "Czyta ten tekst na głos. Dotknij ponownie, aby zatrzymać.");
+        m.put("Saved as text: pictures, links and formatting aren't kept.", "Zapisano jako tekst: obrazy, linki i formatowanie nie są zachowywane.");
+        m.put("Saved copy", "Zapisana kopia");
+        m.put("Saved offline", "Zapisano offline");
+        m.put("This phone has no text-to-speech. Install one, such as Speech Services by Google.", "Ten telefon nie ma syntezatora mowy. Zainstaluj go, na przykład Speech Services od Google.");
     }
 }

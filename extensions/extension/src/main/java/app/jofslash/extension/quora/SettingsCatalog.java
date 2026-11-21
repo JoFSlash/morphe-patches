@@ -33,6 +33,7 @@ final class SettingsCatalog {
         add("hideOldAnswers", "Feed", "Answers older than the years set below.");
         add("filterKeywords", "Feed", "Items that mention your keywords (see Filters).");
         add("blockAuthors", "Feed", "Items from the people and Spaces in Filters.");
+        add("hideAnonymousAnswers", "Feed", "Answers written as \"Anonymous\".");
         add("hideCounts", "Feed", "Upvote, view, comment and share numbers.");
         add("hideDownvoteButton", "Feed", "The downvote button.");
         add("hideCommentPreviews", "Feed", "\"123 comments from … and more\" rows.");
@@ -48,8 +49,9 @@ final class SettingsCatalog {
         add("shareAnswerText", "Reading", "A Share text button next to Share under answers.");
         add("sortAnswers", "Reading", "Questions open with answers in the order set below.");
         add("readingHistory", "Reading", "Remembers what you open (see History).");
-        add("bookmarks", "Reading", "A bookmark button under open answers (see Bookmarks).");
+        add("bookmarks", "Reading", "A bookmark button under open answers; saved ones read offline (see Bookmarks).");
         add("translateAnswerText", "Reading", "A Translate button next to Share under answers.");
+        add("readAloud", "Reading", "A Read aloud button next to Share under answers.");
         add("fullscreenReading", "Reading", "Bars hide while you scroll down.");
         add("expandAnswers", "Reading", "Shortened answers open in full.");
         add("comfortableReading", "Reading", "More space between lines and paragraphs.");
