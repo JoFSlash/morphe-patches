@@ -266,8 +266,6 @@ final class TextsCs {
         m.put("Couldn't save the file.", "Soubor se nepodařilo uložit.");
         // Presets.
         m.put("Presets", "Předvolby");
-        m.put("Switch many patches at once: everything, a clean feed, or ads only.",
-                "Přepni hodně patchů najednou: vše, čistý feed nebo jen reklamy.");
         m.put("Quora patches are on", "Patche pro Quoru jsou zapnuté");
         m.put("Change them any time in Settings > Morphe, or by long-pressing the Home tab.",
                 "Kdykoli je změníš v Settings > Morphe nebo dlouhým podržením karty Home (domeček dole).");
@@ -297,5 +295,20 @@ final class TextsCs {
         m.put("For reading", "Na čtení");
         m.put("A clean feed, whole answers with more space, no numbers, and bars that hide while you read.",
                 "Čistý feed, celé odpovědi s více místem, bez čísel a lišty, které se při čtení schovají.");
+        // Update notice.
+        m.put("Switch many patches at once: everything, a clean feed, for reading, or ads only.",
+                "Přepni hodně patchů najednou: vše, čistý feed, na čtení nebo jen reklamy.");
+        m.put("Says when newer patches are out, from GitHub once a day.",
+                "Řekne, když vyjdou novější patche, z GitHubu jednou denně.");
+        m.put("New Quora patches: ", "Nové patche pro Quoru: ");
+        m.put("This app has ", "Tato aplikace má ");
+        m.put("Patch Quora again in Morphe Manager to get the new version, and install it over this app: you stay signed in and keep your settings.",
+                "Pro novou verzi napatchuj Quoru znovu v Morphe Manageru a nainstaluj ji přes tuto aplikaci: zůstaneš přihlášený a nastavení zůstane.");
+        m.put("What's new", "Co je nového");
+        m.put("Patches ", "Patche ");
+        m.put("A newer version is out: ", "Vyšla novější verze: ");
+        m.put("the newest.", "nejnovější.");
+        m.put("Get the new version", "Získat novou verzi");
+        m.put("What's new, and how to patch again.", "Co je nového a jak znovu napatchovat.");
     }
 }

@@ -266,8 +266,6 @@ final class TextsPt {
         m.put("Couldn't save the file.", "Não foi possível salvar o arquivo.");
         // Presets.
         m.put("Presets", "Predefinições");
-        m.put("Switch many patches at once: everything, a clean feed, or ads only.",
-                "Mude vários patches de uma vez: tudo, um feed limpo ou só anúncios.");
         m.put("Quora patches are on", "Os patches do Quora estão ativos");
         m.put("Change them any time in Settings > Morphe, or by long-pressing the Home tab.",
                 "Altere-os quando quiser em Settings > Morphe ou tocando e segurando a aba Home.");
@@ -297,5 +295,20 @@ final class TextsPt {
         m.put("For reading", "Para ler");
         m.put("A clean feed, whole answers with more space, no numbers, and bars that hide while you read.",
                 "Um feed limpo, respostas inteiras com mais espaço, sem números e barras que se escondem enquanto lês.");
+        // Update notice.
+        m.put("Switch many patches at once: everything, a clean feed, for reading, or ads only.",
+                "Muda muitos patches de uma vez: tudo, um feed limpo, para ler ou só anúncios.");
+        m.put("Says when newer patches are out, from GitHub once a day.",
+                "Avisa quando saem patches mais novos, do GitHub uma vez por dia.");
+        m.put("New Quora patches: ", "Novos patches do Quora: ");
+        m.put("This app has ", "Esta app tem ");
+        m.put("Patch Quora again in Morphe Manager to get the new version, and install it over this app: you stay signed in and keep your settings.",
+                "Aplica de novo os patches ao Quora no Morphe Manager para teres a nova versão e instala-a por cima desta app: continuas com sessão iniciada e manténs as definições.");
+        m.put("What's new", "Novidades");
+        m.put("Patches ", "Patches ");
+        m.put("A newer version is out: ", "Saiu uma versão mais nova: ");
+        m.put("the newest.", "a mais recente.");
+        m.put("Get the new version", "Obter a nova versão");
+        m.put("What's new, and how to patch again.", "Novidades e como voltar a aplicar os patches.");
     }
 }

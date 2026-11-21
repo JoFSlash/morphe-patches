@@ -266,8 +266,6 @@ final class TextsEs {
         m.put("Couldn't save the file.", "No se pudo guardar el archivo.");
         // Presets.
         m.put("Presets", "Ajustes predefinidos");
-        m.put("Switch many patches at once: everything, a clean feed, or ads only.",
-                "Cambia muchos parches a la vez: todo, un feed limpio o solo anuncios.");
         m.put("Quora patches are on", "Los parches de Quora están activos");
         m.put("Change them any time in Settings > Morphe, or by long-pressing the Home tab.",
                 "Cámbialos cuando quieras en Settings > Morphe o manteniendo pulsada la pestaña Home.");
@@ -297,5 +295,20 @@ final class TextsEs {
         m.put("For reading", "Para leer");
         m.put("A clean feed, whole answers with more space, no numbers, and bars that hide while you read.",
                 "Un feed limpio, respuestas completas con más espacio, sin números y barras que se ocultan mientras lees.");
+        // Update notice.
+        m.put("Switch many patches at once: everything, a clean feed, for reading, or ads only.",
+                "Cambia muchos parches a la vez: todo, un feed limpio, para leer o solo anuncios.");
+        m.put("Says when newer patches are out, from GitHub once a day.",
+                "Avisa cuando salen parches nuevos, desde GitHub una vez al día.");
+        m.put("New Quora patches: ", "Nuevos parches de Quora: ");
+        m.put("This app has ", "Esta app tiene ");
+        m.put("Patch Quora again in Morphe Manager to get the new version, and install it over this app: you stay signed in and keep your settings.",
+                "Vuelve a parchear Quora en Morphe Manager para tener la nueva versión e instálala sobre esta app: sigues con la sesión iniciada y conservas tus ajustes.");
+        m.put("What's new", "Novedades");
+        m.put("Patches ", "Parches ");
+        m.put("A newer version is out: ", "Hay una versión más nueva: ");
+        m.put("the newest.", "la más reciente.");
+        m.put("Get the new version", "Obtener la nueva versión");
+        m.put("What's new, and how to patch again.", "Novedades y cómo volver a parchear.");
     }
 }

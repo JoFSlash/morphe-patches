@@ -123,6 +123,7 @@ public final class PatchSettings {
             });
             showHintOnce(home);
             FilterUpdates.check(home.getContext());
+            UpdateCheck.check(home);
         } catch (Exception ex) {
             Log.e(TAG, "Failed to attach the patch settings", ex);
         }
@@ -582,7 +583,7 @@ public final class PatchSettings {
         }
     }
 
-    private static Activity activity(Context context) {
+    static Activity activity(Context context) {
         while (context instanceof ContextWrapper) {
             if (context instanceof Activity) return (Activity) context;
             context = ((ContextWrapper) context).getBaseContext();

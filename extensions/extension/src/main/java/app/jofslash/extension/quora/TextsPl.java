@@ -266,8 +266,6 @@ final class TextsPl {
         m.put("Couldn't save the file.", "Nie udało się zapisać pliku.");
         // Presets.
         m.put("Presets", "Ustawienia gotowe");
-        m.put("Switch many patches at once: everything, a clean feed, or ads only.",
-                "Przełącz wiele łatek naraz: wszystko, czysty kanał albo tylko reklamy.");
         m.put("Quora patches are on", "Łatki Quora są włączone");
         m.put("Change them any time in Settings > Morphe, or by long-pressing the Home tab.",
                 "Zmienisz je w każdej chwili w Settings > Morphe lub przytrzymując kartę Home.");
@@ -297,5 +295,20 @@ final class TextsPl {
         m.put("For reading", "Do czytania");
         m.put("A clean feed, whole answers with more space, no numbers, and bars that hide while you read.",
                 "Czysty feed, całe odpowiedzi z większymi odstępami, bez liczb i z paskami, które chowają się podczas czytania.");
+        // Update notice.
+        m.put("Switch many patches at once: everything, a clean feed, for reading, or ads only.",
+                "Przełącz wiele łatek naraz: wszystko, czysty feed, do czytania albo tylko reklamy.");
+        m.put("Says when newer patches are out, from GitHub once a day.",
+                "Informuje, gdy wyjdą nowsze łatki, z GitHuba raz dziennie.");
+        m.put("New Quora patches: ", "Nowe łatki do Quory: ");
+        m.put("This app has ", "Ta aplikacja ma ");
+        m.put("Patch Quora again in Morphe Manager to get the new version, and install it over this app: you stay signed in and keep your settings.",
+                "Załataj Quorę ponownie w Morphe Manager, aby dostać nową wersję, i zainstaluj ją na tę aplikację: zostaniesz zalogowany i zachowasz ustawienia.");
+        m.put("What's new", "Co nowego");
+        m.put("Patches ", "Łatki ");
+        m.put("A newer version is out: ", "Jest nowsza wersja: ");
+        m.put("the newest.", "najnowsza.");
+        m.put("Get the new version", "Pobierz nową wersję");
+        m.put("What's new, and how to patch again.", "Co nowego i jak załatać ponownie.");
     }
 }

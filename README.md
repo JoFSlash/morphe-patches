@@ -32,7 +32,8 @@ The privacy patches are on by default. Everything else is off until you pick it.
 - **New patches:** a new version of these patches comes out on a Thursday, every other week, so you don't
   have to patch the app again each week. A fix for something broken comes out the same week. To get new patches on Monday already, turn on **Pre-release patches** for this source
   in Morphe Manager; pre-releases are less tested, and you can turn it off again at any time. Morphe Manager then marks the patched app with an Update badge. Patch the same Quora file again and install it over the patched app. No need to uninstall:
-  you stay signed in and your patch settings stay.
+  you stay signed in and your patch settings stay. With **Update notice** patched in (on by default), the app
+  itself says once when newer patches are out, and Patch settings shows the version you have.
 - **New Quora version:** the patched app doesn't update from the Play Store. Wait until a release of these
   patches lists the new version as supported, then patch that version the same way.
 - **Quora stops accepting your version:** Quora then shows "Upgrade Needed" with a button to Google Play,

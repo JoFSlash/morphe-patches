@@ -2,6 +2,7 @@ package app.jofslash.patches.quora.app
 
 import app.jofslash.patches.quora.ads.PageFinishedFingerprint
 import app.jofslash.patches.quora.shared.Constants.COMPATIBILITY_QUORA
+import app.jofslash.patches.quora.shared.PATCHES_VERSION
 import app.jofslash.patches.quora.shared.registerSetting
 import app.jofslash.patches.quora.video.InitWebViewFingerprint
 import app.jofslash.patches.quora.tabs.SetupTabsFingerprint
@@ -81,6 +82,34 @@ val filterUpdatesPatch = bytecodePatch(
 
     execute {
         registerSetting("filterUpdates", "Filter updates")
+    }
+}
+
+@Suppress("unused")
+val updateNoticePatch = bytecodePatch(
+    name = "Update notice",
+    description = "Says when newer patches are out, since a patched app doesn't update from Google Play: once a day the app " +
+            "reads the newest version number from this project's GitHub repository, shows a newer one once, and keeps it " +
+            "in Patch settings. The check sends nothing but a normal web request.",
+    default = true
+) {
+    category("App")
+    compatibleWith(COMPATIBILITY_QUORA)
+
+    extendWith("extensions/extension.mpe")
+    // The check starts where Patch settings hooks the tab bar, and the switch is on its page.
+    dependsOn(patchSettingsPatch)
+
+    execute {
+        // v0 is free at the start of setupTabs.
+        SetupTabsFingerprint.method.addInstructions(
+            0,
+            """
+                const-string v0, "$PATCHES_VERSION"
+                invoke-static { v0 }, Lapp/jofslash/extension/quora/UpdateCheck;->setVersion(Ljava/lang/String;)V
+            """
+        )
+        registerSetting("updateNotice", "Update notice")
     }
 }
 

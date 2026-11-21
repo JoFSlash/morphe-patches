@@ -93,8 +93,15 @@ final class SettingsPage {
 
         String status = PageCheck.status(prefs);
         String updates = FilterUpdates.status(activity);
-        if (status != null || updates != null) {
+        String version = UpdateCheck.status(activity);
+        String newer = UpdateCheck.newer(prefs);
+        if (status != null || updates != null || version != null) {
             LinearLayout box = section(null);
+            if (version != null) box.addView(note(version));
+            if (newer != null) {
+                add(box, linkRow("Get the new version", "What's new, and how to patch again.",
+                        () -> UpdateCheck.openRelease(activity, newer)));
+            }
             if (status != null) box.addView(note(status));
             if (updates != null) box.addView(note(updates));
             content.addView(box);
@@ -129,7 +136,7 @@ final class SettingsPage {
             add(more, linkRow("Dismissed questions", "Questions whose answers the feed hides.", this::dismissedQuestions));
         }
         if (GmsCoreCheck.applied) add(more, notificationsRow());
-        add(more, linkRow("Presets", "Switch many patches at once: everything, a clean feed, or ads only.", () -> {
+        add(more, linkRow("Presets", "Switch many patches at once: everything, a clean feed, for reading, or ads only.", () -> {
             if (mainPage != null) mainPage.dismiss();
             Presets.ask(activity, prefs, false);
         }));
@@ -422,6 +429,7 @@ final class SettingsPage {
             // Leave it as "?".
         }
         text.append("Quora: ").append(quora).append('\n');
+        if (UpdateCheck.version() != null) text.append("Patches: ").append(UpdateCheck.version()).append('\n');
         text.append("Android: ").append(android.os.Build.VERSION.RELEASE)
                 .append(" (API ").append(android.os.Build.VERSION.SDK_INT).append(")\n");
         List<String> on = new ArrayList<>();
