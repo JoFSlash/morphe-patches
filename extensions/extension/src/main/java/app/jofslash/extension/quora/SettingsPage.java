@@ -130,6 +130,7 @@ final class SettingsPage {
         if (switches.containsKey("hideDismissedQuestions")) {
             add(more, linkRow("Dismissed questions", "Questions whose answers the feed hides.", this::dismissedQuestions));
         }
+        if (GmsCoreCheck.applied) add(more, notificationsRow());
         add(more, linkRow("Backup", "Your settings and lists as text, to keep or restore.", () -> backup(prefs)));
         add(more, linkRow("Report a problem", "Copies the app details and opens a bug report on GitHub.",
                 () -> report(prefs, switches)));
@@ -784,6 +785,27 @@ final class SettingsPage {
         chevron.setTextColor(secondary);
         row.addView(chevron);
         if (action != null) row.setOnClickListener((v) -> action.run());
+        return row;
+    }
+
+    /**
+     * What keeps notifications from coming, if anything. A tap opens the setting to change, and
+     * the line is checked again when you come back to the page.
+     */
+    private View notificationsRow() {
+        GmsCoreCheck.Status[] status = {GmsCoreCheck.status(activity)};
+        View row = linkRow("Notifications", status[0].line, null);
+        TextView line = (TextView) ((ViewGroup) ((ViewGroup) row).getChildAt(0)).getChildAt(1);
+        row.setOnClickListener((v) -> {
+            if (!GmsCoreCheck.open(activity, status[0])) {
+                Toast.makeText(activity, Texts.t(status[0].line), Toast.LENGTH_LONG).show();
+            }
+        });
+        row.getViewTreeObserver().addOnWindowFocusChangeListener((focused) -> {
+            if (!focused) return;
+            status[0] = GmsCoreCheck.status(activity);
+            line.setText(Texts.t(status[0].line));
+        });
         return row;
     }
 
