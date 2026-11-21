@@ -55,10 +55,11 @@ private fun readingOptionPatch(
     optionDescription: String,
     optionDefault: String,
     optionValues: Map<String, String>? = null,
+    patchDefault: Boolean = false,
 ) = bytecodePatch(
     name = name,
     description = description,
-    default = false
+    default = patchDefault
 ) {
     category(patchCategory)
     compatibleWith(COMPATIBILITY_QUORA)
@@ -108,6 +109,8 @@ val blockAuthorsPatch = readingOptionPatch(
     optionTitle = "Authors and Spaces",
     optionDescription = "Names as Quora shows them, separated by commas. Example: Jane Doe, Cats of Quora",
     optionDefault = "",
+    // On: it hides nothing until you add a name, and the long press to add one needs it.
+    patchDefault = true,
 )
 
 @Suppress("unused")
