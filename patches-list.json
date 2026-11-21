@@ -91,8 +91,55 @@
             "Default": "Health Clone",
             "Health": "Health"
           }
+        },
+        {
+          "key": "iconColor",
+          "title": "Icon color",
+          "description": "Background color of the clone's launcher icon, as #RRGGBB, so it looks different from the official app's white icon. The clone's icon then stays in color with themed icons too. White keeps the original icon.",
+          "required": true,
+          "type": "kotlin.String",
+          "default": "#1F1F1F",
+          "values": {
+            "Dark": "#1F1F1F",
+            "Blue": "#3084FF",
+            "White (as the original)": "#FFFFFF"
+          }
         }
       ]
+    },
+    {
+      "name": "Disable review prompts",
+      "description": "Stops the app from asking you to rate it on Google Play.",
+      "default": true,
+      "category": "App",
+      "compatiblePackages": [
+        {
+          "packageName": "com.fitbit.FitbitMobile",
+          "name": "Google Health",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#3084FF",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "5.13.health-mobile-1104148438-1023845615",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
     },
     {
       "name": "Disable surveys",
@@ -199,6 +246,74 @@
     {
       "name": "Hide Premium offer sheets",
       "description": "Hides the sheets that pop up to offer Premium, such as the 3 months of Premium offer and the reminder that your Premium trial is ending. Premium itself keeps working.",
+      "default": false,
+      "category": "App",
+      "compatiblePackages": [
+        {
+          "packageName": "com.fitbit.FitbitMobile",
+          "name": "Google Health",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#3084FF",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "5.13.health-mobile-1104148438-1023845615",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Hide Shop devices",
+      "description": "Hides the Shop devices button on the Connections screen, which opens the Google Store.",
+      "default": true,
+      "category": "App",
+      "compatiblePackages": [
+        {
+          "packageName": "com.fitbit.FitbitMobile",
+          "name": "Google Health",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#3084FF",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "5.13.health-mobile-1104148438-1023845615",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Open links in browser",
+      "description": "Opens links, such as the Google Store, in your browser instead of a browser tab inside the app.",
       "default": false,
       "category": "App",
       "compatiblePackages": [

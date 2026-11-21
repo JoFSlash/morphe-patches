@@ -12,17 +12,60 @@ import java.util.logging.Logger
 
 private const val DEFAULT_CLONE_PACKAGE = "com.fitbit.FitbitMobile.clone"
 private const val DEFAULT_CLONE_NAME = "Health Clone"
+private const val DEFAULT_ICON_COLOR = "#1F1F1F"
+
+/** The launcher icon's new background, added by the patch. */
+private const val ICON_BACKGROUND = "jofslash_clone_icon_background"
 
 /** The launcher label in the original manifest. */
 private const val ORIGINAL_LABEL = "Health"
 
 private lateinit var packageNameOption: Option<String>
 private lateinit var appNameOption: Option<String>
+private lateinit var iconColorOption: Option<String>
 
 private fun clonePackageName(): String = packageNameOption.value ?: DEFAULT_CLONE_PACKAGE
 
 private fun renamed(value: String, newPackage: String) =
     if (value.startsWith("$PACKAGE_NAME.")) newPackage + value.removePrefix(PACKAGE_NAME) else value
+
+/**
+ * Points each adaptive version of the [name] mipmap at a new background in [color], and drops its
+ * monochrome layer.
+ */
+private fun app.morphe.patcher.patch.ResourcePatchContext.recolorIcon(name: String, color: String) {
+    // Resources are decoded on request, so list them by pattern instead of walking res/.
+    val icons = listDecodableFiles("res/mipmap*/$name.xml")
+        .filter { get(it).readText().contains("<adaptive-icon") }
+    if (icons.isEmpty()) {
+        Logger.getLogger("CloneApp").warning("The launcher icon isn't adaptive, so it keeps its color")
+        return
+    }
+
+    get("res/drawable/$ICON_BACKGROUND.xml").apply { parentFile.mkdirs() }.writeText(
+        """
+        <?xml version="1.0" encoding="utf-8"?>
+        <vector xmlns:android="http://schemas.android.com/apk/res/android"
+            android:width="108dp" android:height="108dp"
+            android:viewportWidth="108" android:viewportHeight="108">
+            <path android:fillColor="$color" android:pathData="M0,0h108v108H0z" />
+        </vector>
+        """.trimIndent()
+    )
+    icons.forEach { path ->
+        document(path).use { icon ->
+            val backgrounds = icon.getElementsByTagName("background")
+            for (i in 0 until backgrounds.length) {
+                (backgrounds.item(i) as Element).setAttribute("android:drawable", "@drawable/$ICON_BACKGROUND")
+            }
+            // Without a monochrome layer, launchers with themed icons show the clone in color too.
+            val monochrome = icon.getElementsByTagName("monochrome")
+            for (i in monochrome.length - 1 downTo 0) {
+                monochrome.item(i).let { it.parentNode.removeChild(it) }
+            }
+        }
+    }
+}
 
 /**
  * Renames the package, the app's own permissions and its content provider authorities,
@@ -53,6 +96,14 @@ private val cloneAppResourcePatch = resourcePatch {
                     val element = nodes.item(i) as Element
                     element.setAttribute("android:name", renamed(element.getAttribute("android:name"), newPackage))
                 }
+            }
+
+            // Give the launcher icon its own background color.
+            val iconColor = iconColorOption.value ?: DEFAULT_ICON_COLOR
+            val application = document.getElementsByTagName("application").item(0) as Element
+            val icon = application.getAttribute("android:icon")
+            if (!iconColor.equals("#FFFFFF", ignoreCase = true) && icon.startsWith("@mipmap/")) {
+                recolorIcon(icon.removePrefix("@mipmap/"), iconColor)
             }
 
             // Two installs can't declare the same authority.
@@ -102,6 +153,17 @@ val cloneAppPatch = bytecodePatch(
         description = "Name shown under the clone's launcher icon.",
         required = true,
     ) { !it.isNullOrBlank() }
+
+    iconColorOption = stringOption(
+        key = "iconColor",
+        default = DEFAULT_ICON_COLOR,
+        values = mapOf("Dark" to DEFAULT_ICON_COLOR, "Blue" to "#3084FF", "White (as the original)" to "#FFFFFF"),
+        title = "Icon color",
+        description = "Background color of the clone's launcher icon, as #RRGGBB, so it looks different " +
+                "from the official app's white icon. The clone's icon then stays in color with themed icons " +
+                "too. White keeps the original icon.",
+        required = true,
+    ) { it != null && it.matches(Regex("^#[0-9a-fA-F]{6}$")) }
 
     dependsOn(cloneAppResourcePatch)
 
