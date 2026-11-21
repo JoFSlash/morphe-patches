@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Used by the Hide sponsored listings, Hide urgency messages and Label Preferred properties
- * patches. Search results are a server-driven ("Saba") page that the app gets as JSON. Before the
+ * Used by the Hide sponsored listings, Hide urgency messages, Label Preferred properties and Show
+ * full price up front patches. Search results are a server-driven ("Saba") page that the app gets as JSON. Before the
  * app reads that JSON, the parts the enabled patches hide are taken out and the Preferred badges
  * get their label. On any problem the JSON is left as it is.
  */
@@ -76,6 +76,11 @@ public final class SabaJsonFilter {
         return false;
     }
 
+    /** Changed by the Show full price up front patch to return true. */
+    private static boolean upfrontPrice() {
+        return false;
+    }
+
     /** Changed by the Hide sponsored listings patch to return true. */
     private static boolean hideSponsored() {
         return false;
@@ -95,7 +100,8 @@ public final class SabaJsonFilter {
             boolean preferred = labelPreferred() && (json.contains(PREFERRED_ICON)
                     || json.contains(PREFERRED_PLUS_ICON) || json.contains(A11Y_PREFERRED)
                     || json.contains(A11Y_PREFERRED_PLUS));
-            if (!sponsored && !urgency && !preferred) return json;
+            boolean upfront = upfrontPrice() && UpfrontPrice.mayApply(json);
+            if (!sponsored && !urgency && !preferred && !upfront) return json;
 
             String trimmed = json.trim();
             Object root;
@@ -111,9 +117,10 @@ public final class SabaJsonFilter {
                 if (!texts.isEmpty()) cleanAccessibilityLabels(root, texts);
             }
             int labels = preferred ? addPreferredLabels(root) : 0;
-            if (ads + urgencies + labels == 0) return json;
+            int prices = upfront ? UpfrontPrice.rewriteCards(root) : 0;
+            if (ads + urgencies + labels + prices == 0) return json;
             Log.d(TAG, "Removed " + ads + " sponsored results and " + urgencies + " urgency messages, labelled "
-                    + labels + " Preferred badges and card texts");
+                    + labels + " Preferred badges and card texts, showed " + prices + " full prices");
             return root.toString();
         } catch (Throwable t) {
             Log.w(TAG, "Couldn't filter a server-driven page", t);
