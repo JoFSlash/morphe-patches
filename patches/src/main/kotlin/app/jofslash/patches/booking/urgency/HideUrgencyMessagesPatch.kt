@@ -34,9 +34,9 @@ val hideUrgencyMessagesPatch = bytecodePatch(
     dependsOn(sabaJsonFilterPatch)
 
     execute {
-        // Search results are a server-driven page: urgency text fields ("urgencyMessage",
-        // "lastReservationMessage") and card parts whose id names an urgency message are taken out
-        // of its JSON.
+        // Search results are a server-driven page: the red "We have 3 left at this price" line of
+        // each card (a red bui.Label or bui.ComposedLabel, with its red dot) is taken out of its JSON,
+        // and out of the card's screen reader text.
         enableSabaJsonFilter("hideUrgency")
 
         // Property data the app gets from Booking. Each getter (by the field it reads) answers

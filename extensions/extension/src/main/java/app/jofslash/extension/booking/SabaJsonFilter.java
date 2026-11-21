@@ -7,8 +7,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.Set;
 
 /**
  * Used by the Hide sponsored listings and Hide urgency messages patches. Search results are a
@@ -30,22 +31,26 @@ public final class SabaJsonFilter {
     private static final String TEMPLATED_VERTICAL_LIST = "core.TemplatedVerticalList";
 
     // Urgency messages.
+    //
+    // On a search result card, "We have 3 left at this price" is drawn as
+    //   core.layout.Row { items: [ core.OnAppear { actions: [core.et.TrackCustomGoal],
+    //       component: bui.Label { color: "destructive_foreground", text: "We have 3 left ..." } },
+    //     core.layout.Spacer ] }
+    // or, in the other arm of Booking's experiment, with the OnAppear holding a core.layout.Row of
+    // a red bui.Icon (dot, in a core.Margin) and a bui.ComposedLabel whose text spans are red.
+    // The card's accessibilityLabel repeats it as "\nWe have 3 left at this price.". No other
+    // label on the page uses the destructive (red) foreground; free cancellation, breakfast and
+    // "No prepayment needed" are constructive (green), the price is plain (a struck-out old price
+    // uses destructive_background).
 
-    /**
-     * Text fields that only carry urgency, such as "We have 1 left at this price" and "Last booked
-     * 2 hours ago" ("abu.search.sr.PropertyCardPrice" has the first two; both are optional there).
-     */
-    private static final String[] URGENCY_KEYS = {
-            "urgencyMessage", "lastReservationMessage",
-            "urgency_message", "last_reservation_text", "only_x_left_message", "onlyXLeftMessage",
-    };
-    /** Test and component ids of urgency parts of a card, such as "urgency_message" or "rooms-left". */
-    private static final Pattern URGENCY_ID = Pattern.compile(
-            "urgency|scarcity|only[-_]?x[-_]?left|rooms?[-_]left|last[-_]?reservation|last[-_]?booked"
-                    + "|high[-_]?demand|rare[-_]?find|booked[-_]?times|people[-_]?(looking|viewing)",
-            Pattern.CASE_INSENSITIVE);
-    /** Sold out messages are useful, even when their id says "urgency" ("clear urgency"). */
-    private static final Pattern KEEP_ID = Pattern.compile("sold[-_]?out|soldout", Pattern.CASE_INSENSITIVE);
+    private static final String LABEL = "bui.Label";
+    private static final String COMPOSED_LABEL = "bui.ComposedLabel";
+    private static final String ICON = "bui.Icon";
+    private static final String MARGIN = "core.Margin";
+    private static final String URGENCY_COLOR = "destructive_foreground";
+    private static final String ON_APPEAR = "core.OnAppear";
+    private static final String SPACER = "core.layout.Spacer";
+    private static final String LAYOUT_PREFIX = "core.layout.";
 
     private SabaJsonFilter() {
     }
@@ -65,7 +70,7 @@ public final class SabaJsonFilter {
         try {
             if (json == null) return null;
             boolean sponsored = hideSponsored() && (json.contains(NATIVE_AD_PREFIX) || json.contains(SPONSORED_PREFIX));
-            boolean urgency = hideUrgency() && mayHaveUrgency(json);
+            boolean urgency = hideUrgency() && json.contains(URGENCY_COLOR);
             if (!sponsored && !urgency) return json;
 
             String trimmed = json.trim();
@@ -74,10 +79,15 @@ public final class SabaJsonFilter {
             else if (trimmed.startsWith("[")) root = new JSONArray(trimmed);
             else return json;
 
-            int[] counts = new int[2];
-            visit(root, sponsored, urgency, counts);
-            if (counts[0] + counts[1] == 0) return json;
-            Log.d(TAG, "Removed " + counts[0] + " sponsored results and " + counts[1] + " urgency messages");
+            int ads = sponsored ? removeAds(root) : 0;
+            int urgencies = 0;
+            if (urgency) {
+                Set<String> texts = new LinkedHashSet<>();
+                urgencies = removeUrgency(root, texts);
+                if (!texts.isEmpty()) cleanAccessibilityLabels(root, texts);
+            }
+            if (ads + urgencies == 0) return json;
+            Log.d(TAG, "Removed " + ads + " sponsored results and " + urgencies + " urgency messages");
             return root.toString();
         } catch (Throwable t) {
             Log.w(TAG, "Couldn't filter a server-driven page", t);
@@ -85,93 +95,28 @@ public final class SabaJsonFilter {
         }
     }
 
-    private static boolean mayHaveUrgency(String json) {
-        for (String key : URGENCY_KEYS) {
-            if (json.contains(key)) return true;
-        }
-        return URGENCY_ID.matcher(json).find();
-    }
+    // Sponsored listings.
 
-    private static void visit(Object node, boolean sponsored, boolean urgency, int[] counts) throws Exception {
+    private static int removeAds(Object node) {
+        int removed = 0;
         if (node instanceof JSONObject) {
             JSONObject object = (JSONObject) node;
             String type = object.optString("type");
             JSONObject props = object.optJSONObject("props");
-            if (sponsored && props != null && (VERTICAL_LIST.equals(type) || TEMPLATED_VERTICAL_LIST.equals(type))) {
+            if (props != null && (VERTICAL_LIST.equals(type) || TEMPLATED_VERTICAL_LIST.equals(type))) {
                 JSONArray items = props.optJSONArray("items");
-                if (items != null) counts[0] += removeAds(items);
+                if (items != null) removed += removeAdItems(items);
             }
-            if (urgency) {
-                for (String key : URGENCY_KEYS) {
-                    if (object.opt(key) instanceof String) {
-                        object.remove(key);
-                        counts[1]++;
-                    }
-                }
-            }
-            List<String> keys = new ArrayList<>();
-            Iterator<String> it = object.keys();
-            while (it.hasNext()) keys.add(it.next());
-            for (String key : keys) {
-                Object child = object.opt(key);
-                if (urgency && isUrgencyComponent(child)) {
-                    object.put(key, blank());
-                    counts[1]++;
-                } else {
-                    visit(child, sponsored, urgency, counts);
-                }
-            }
+            for (String key : keysOf(object)) removed += removeAds(object.opt(key));
         } else if (node instanceof JSONArray) {
             JSONArray array = (JSONArray) node;
-            for (int i = 0; i < array.length(); i++) {
-                Object child = array.opt(i);
-                if (urgency && isUrgencyComponent(child)) {
-                    array.put(i, blank());
-                    counts[1]++;
-                } else {
-                    visit(child, sponsored, urgency, counts);
-                }
-            }
+            for (int i = 0; i < array.length(); i++) removed += removeAds(array.opt(i));
         }
-    }
-
-    /** A component ({"type": ..., "props": {...}}) whose test id or id names an urgency message. */
-    private static boolean isUrgencyComponent(Object node) {
-        if (!(node instanceof JSONObject)) return false;
-        JSONObject object = (JSONObject) node;
-        if (!isComponentType(object.optString("type"))) return false;
-        JSONObject props = object.optJSONObject("props");
-        if (props == null) return false;
-        return isUrgencyId(props.opt("idForTests")) || isUrgencyId(props.opt("id"));
-    }
-
-    /**
-     * Types that are surely components that draw something, so an empty component can stand in for
-     * them. Actions and data types also have a "type", and putting a component there would break the page.
-     */
-    private static boolean isComponentType(String type) {
-        if (type.equals("core.Accessibility") || type.equals("core.NativeComponent") || type.equals("core.Box")
-                || type.equals("core.VisibilityContainer") || type.startsWith("core.layout.")) {
-            return true;
-        }
-        return type.startsWith("bui.") && !type.startsWith("bui.types.") && !type.startsWith("bui.forms.")
-                && !type.equals("bui.OpenSheet") && !type.equals("bui.DismissSheet") && !type.equals("bui.ShowToast")
-                && !type.equals("bui.TextAction") && !type.equals("bui.AssetMetadata") && !type.equals("bui.Edges");
-    }
-
-    private static boolean isUrgencyId(Object id) {
-        if (!(id instanceof String)) return false;
-        String value = (String) id;
-        return URGENCY_ID.matcher(value).find() && !KEEP_ID.matcher(value).find();
-    }
-
-    /** An empty component in place of a removed one, so the card keeps its layout. */
-    private static JSONObject blank() throws Exception {
-        return new JSONObject().put("type", "core.Blank").put("props", new JSONObject());
+        return removed;
     }
 
     /** Takes out the items that are ads. Keeps the list as it is when every item looks like one. */
-    private static int removeAds(JSONArray items) {
+    private static int removeAdItems(JSONArray items) {
         int ads = 0;
         boolean[] isAd = new boolean[items.length()];
         for (int i = 0; i < items.length(); i++) {
@@ -201,5 +146,150 @@ public final class SabaJsonFilter {
             }
         }
         return false;
+    }
+
+    // Urgency messages.
+
+    /**
+     * A red label: the urgency line. Its text is added to [texts]. Booking tests two forms: a
+     * bui.Label with color "destructive_foreground", and a bui.ComposedLabel whose text spans all
+     * have that color (shown after a red dot).
+     */
+    private static boolean isUrgencyLabel(Object node, Set<String> texts) {
+        if (!(node instanceof JSONObject)) return false;
+        JSONObject object = (JSONObject) node;
+        String type = object.optString("type");
+        JSONObject props = object.optJSONObject("props");
+        if (props == null) return false;
+        if (LABEL.equals(type)) {
+            if (!URGENCY_COLOR.equals(props.optString("color"))) return false;
+            Object text = props.opt("text");
+            if (text instanceof String && isSoldOut((String) text)) return false;
+            if (text instanceof String) texts.add((String) text);
+            return true;
+        }
+        if (COMPOSED_LABEL.equals(type)) {
+            JSONArray spans = props.optJSONArray("text");
+            if (spans == null || spans.length() == 0) return false;
+            List<String> found = new ArrayList<>();
+            for (int i = 0; i < spans.length(); i++) {
+                JSONObject span = spans.optJSONObject(i);
+                if (span == null || !URGENCY_COLOR.equals(span.optString("color"))) return false;
+                String text = span.optString("text");
+                if (isSoldOut(text)) return false;
+                found.add(text);
+            }
+            texts.addAll(found);
+            return true;
+        }
+        return false;
+    }
+
+    /** Sold out is useful to know, so a red line that says so stays. */
+    private static boolean isSoldOut(String text) {
+        String lower = text.toLowerCase(java.util.Locale.ROOT);
+        return lower.contains("sold out") || lower.contains("no availability");
+    }
+
+    /** The red dot shown before the urgency line. */
+    private static boolean isUrgencyDot(Object node) {
+        if (!(node instanceof JSONObject)) return false;
+        JSONObject object = (JSONObject) node;
+        JSONObject props = object.optJSONObject("props");
+        if (props == null) return false;
+        String type = object.optString("type");
+        if (ICON.equals(type)) return URGENCY_COLOR.equals(props.optString("color"));
+        if (MARGIN.equals(type)) return isUrgencyDot(props.opt("component"));
+        return false;
+    }
+
+    /**
+     * A part that shows nothing but the urgency line: the red label, the OnAppear around it (which
+     * only tracks that the line was seen), a margin around it, or a layout row of only those, red
+     * dots and spacers.
+     */
+    private static boolean isOnlyUrgency(Object node, Set<String> texts) {
+        if (isUrgencyLabel(node, texts)) return true;
+        if (!(node instanceof JSONObject)) return false;
+        JSONObject object = (JSONObject) node;
+        String type = object.optString("type");
+        JSONObject props = object.optJSONObject("props");
+        if (props == null) return false;
+        if (ON_APPEAR.equals(type) || MARGIN.equals(type)) return isOnlyUrgency(props.opt("component"), texts);
+        if (type.startsWith(LAYOUT_PREFIX) && !SPACER.equals(type)) {
+            JSONArray items = props.optJSONArray("items");
+            if (items == null || items.length() == 0) return false;
+            boolean found = false;
+            for (int i = 0; i < items.length(); i++) {
+                Object item = items.opt(i);
+                if (item instanceof JSONObject && SPACER.equals(((JSONObject) item).optString("type"))) continue;
+                if (isUrgencyDot(item)) continue;
+                if (!isOnlyUrgency(item, texts)) return false;
+                found = true;
+            }
+            return found;
+        }
+        return false;
+    }
+
+    /**
+     * Takes urgency-only parts out of the lists they are in. Where one is not in a list (a single
+     * component slot), it becomes an empty component, so the card keeps its layout.
+     */
+    private static int removeUrgency(Object node, Set<String> texts) throws Exception {
+        int removed = 0;
+        if (node instanceof JSONArray) {
+            JSONArray array = (JSONArray) node;
+            for (int i = array.length() - 1; i >= 0; i--) {
+                Object child = array.opt(i);
+                if (isOnlyUrgency(child, texts)) {
+                    array.remove(i);
+                    removed++;
+                } else {
+                    removed += removeUrgency(child, texts);
+                }
+            }
+        } else if (node instanceof JSONObject) {
+            JSONObject object = (JSONObject) node;
+            for (String key : keysOf(object)) {
+                Object child = object.opt(key);
+                if (isOnlyUrgency(child, texts)) {
+                    object.put(key, new JSONObject().put("type", "core.Blank").put("props", new JSONObject()));
+                    removed++;
+                } else {
+                    removed += removeUrgency(child, texts);
+                }
+            }
+        }
+        return removed;
+    }
+
+    /** Takes the removed lines out of the cards' screen reader text ("...\nWe have 3 left at this price."). */
+    private static void cleanAccessibilityLabels(Object node, Set<String> texts) throws Exception {
+        if (node instanceof JSONObject) {
+            JSONObject object = (JSONObject) node;
+            for (String key : keysOf(object)) {
+                Object child = object.opt(key);
+                if ("accessibilityLabel".equals(key) && child instanceof String) {
+                    String label = (String) child;
+                    for (String text : texts) {
+                        label = label.replace("\n" + text + ".", "").replace(text + ".", "").replace(text, "");
+                    }
+                    object.put(key, label);
+                } else {
+                    cleanAccessibilityLabels(child, texts);
+                }
+            }
+        } else if (node instanceof JSONArray) {
+            JSONArray array = (JSONArray) node;
+            for (int i = 0; i < array.length(); i++) cleanAccessibilityLabels(array.opt(i), texts);
+        }
+    }
+
+    private static List<String> keysOf(JSONObject object) {
+        List<String> keys = new ArrayList<>();
+        Iterator<String> it = object.keys();
+        while (it.hasNext()) keys.add(it.next());
+        return keys;
     }
 }
