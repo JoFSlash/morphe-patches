@@ -39,7 +39,7 @@ All patches are on by default; you can switch any of them off when you patch.
 ## Patches
 
 <!-- PATCHES_START -->
-7 patches, all on by default. Supported Booking.com versions: 71.1.
+8 patches, all on by default. Supported Booking.com versions: 71.1.
 
 <details open>
 <summary><b>Price</b> (2)</summary>
@@ -54,7 +54,7 @@ Added features. They show you more; they don't change what you book.
 </details>
 
 <details>
-<summary><b>Search</b> (2)</summary>
+<summary><b>Search</b> (3)</summary>
 
 What the search results show.
 
@@ -62,6 +62,7 @@ What the search results show.
 | --- | --- | --- |
 | Hide urgency messages | on | Hides scarcity and pressure lines on hotel pages and in search results, such as "We have 1 left at this price", "Rare find", "booked N times" and "in high demand". Keeps the real information: the price, free cancellation and whether a hotel is sold out. |
 | Hide sponsored listings | on | Removes sponsored ("Ad") properties from the results list and sponsored markers from the map, so you see only the ranked results. |
+| Review check | on | On a hotel's reviews screen, scans the reviews the app has loaded for red flags: extra charges and hidden fees, paying outside Booking.com, "not as described", bookings not honoured, and scams or money taken. A banner above the booking button says how many reviews mention them ("3 of 25 recent reviews mention extra charges or booking problems"), in red when guests report a possible scam; tap it to read those reviews. It's keyword matching on your phone, a heads-up and not a verdict: not AI, not fake-review detection, and English keywords only. |
 
 </details>
 

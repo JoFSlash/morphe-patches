@@ -156,22 +156,26 @@ public final class ReviewCheck {
         return banner;
     }
 
+    /** Height of the reviews screen's sticky bottom button plus a small gap. */
+    private static final int CTA_DP = 64;
+
     private static FrameLayout.LayoutParams bannerParams(final Activity activity, final TextView banner) {
         final float density = activity.getResources().getDisplayMetrics().density;
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP);
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM);
         lp.leftMargin = Math.round(8 * density);
         lp.rightMargin = Math.round(8 * density);
-        lp.topMargin = Math.round(64 * density); // Until insets arrive: status bar + toolbar.
-        // Keep the banner below the status bar and the screen's own toolbar.
+        lp.bottomMargin = Math.round(CTA_DP * density); // Until insets arrive.
+        // Sit just above the screen's sticky "See your options" button, so the banner never covers
+        // the reviews heading at the top (the list can always be scrolled past it down here).
         banner.setOnApplyWindowInsetsListener((v, insets) -> {
-            int top = Build.VERSION.SDK_INT >= 30
-                    ? insets.getInsets(WindowInsets.Type.systemBars()).top
-                    : insets.getSystemWindowInsetTop();
+            int bottom = Build.VERSION.SDK_INT >= 30
+                    ? insets.getInsets(WindowInsets.Type.systemBars()).bottom
+                    : insets.getSystemWindowInsetBottom();
             FrameLayout.LayoutParams p = (FrameLayout.LayoutParams) v.getLayoutParams();
-            int want = top + Math.round(56 * density) + Math.round(4 * density);
-            if (p.topMargin != want) {
-                p.topMargin = want;
+            int want = bottom + Math.round(CTA_DP * density);
+            if (p.bottomMargin != want) {
+                p.bottomMargin = want;
                 v.setLayoutParams(p);
             }
             return insets;

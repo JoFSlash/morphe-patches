@@ -39,7 +39,7 @@ val reviewCheckPatch = bytecodePatch(
     name = "Review check",
     description = "Scans the reviews already shown on a hotel's reviews screen for scam, money and " +
             "booking red flags (extra charges, pay-outside-platform, not as described, bookings " +
-            "not honoured, fraud) and shows a small banner at the top. Tap it to read the flagged " +
+            "not honoured, fraud) and shows a small banner above the booking button. Tap it to read the flagged " +
             "reviews. It's keyword matching on your phone, a heads-up and not a verdict — not AI, " +
             "not fake-review detection, and English keywords only.",
     default = true
