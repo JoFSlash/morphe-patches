@@ -58,6 +58,26 @@ public final class ReadingPatch {
             + "return '';}";
 
     /**
+     * images(bar): the pictures in the open answer or post a button bar belongs to, at most 20, as
+     * {s: address, a: the end of the text before it}. The app keeps them with the offline copy and
+     * puts each one back after that text. Only Quora's own image servers, and no small icons.
+     */
+    private static final String ITEM_IMAGES_JS = "function images(bar){var c=null;"
+            + "for(var a=bar.parentElement;a&&a!==document.body&&!c;a=a.parentElement){"
+            + "c=a.querySelector('" + ANSWER_TEXT + "');"
+            + "if(!c){var p=a.querySelector('p.q-text');if(p)c=p.closest('div.q-text')||p.parentElement;}}"
+            + "if(!c)return [];var out=[];"
+            + "c.querySelectorAll('img').forEach(function(m){if(out.length>=20)return;"
+            + "var s=m.getAttribute('data-src')||m.currentSrc||m.src||'';"
+            + "if(!/^https:\\/\\/[a-z0-9.-]+\\.quoracdn\\.net\\//.test(s))return;"
+            + "var w=m.naturalWidth||m.width||0;if(w&&w<48)return;"
+            // The text before it: its own paragraph when it sits in one, else the closest one above.
+            + "var b=m;while(b.parentElement&&b.parentElement!==c)b=b.parentElement;"
+            + "var t=b!==m?(b.innerText||b.textContent||'').trim():'';"
+            + "for(var e=b.previousElementSibling;e&&!t;e=e.previousElementSibling)t=(e.innerText||e.textContent||'').trim();"
+            + "out.push({s:s,a:t.replace(/\\s+/g,' ').slice(-60)});});return out;}";
+
+    /**
      * preview(t): the text without the "Read more" link a shortened answer in the feed ends with,
      * and whether it was shortened; a shortened text ends with "…".
      */
@@ -802,6 +822,7 @@ public final class ReadingPatch {
                 + PAGE_ITEM_JS
                 + SHARE_BUTTONS_JS
                 + ITEM_TEXT_JS
+                + ITEM_IMAGES_JS
                 + "var n=0;"
                 // Waits up to 20 s for the bridge, the page's data and its Share button.
                 // retry: keep trying for up to 20 s while the bridge, the page's data or Share is missing.
@@ -825,7 +846,7 @@ public final class ReadingPatch {
                 // The text of a bookmarked page is kept to read offline (Bookmarks in Patch settings).
                 // The Share button as it is now: a redraw may have replaced the one this run found.
                 + "function keep(x){try{var s2=shareButtons()[0],at=s2?(s2.parentElement&&s2.parentElement.children.length===1?s2.parentElement:s2):item;"
-                + "J.saveOffline(x.url,x.title,x.author,text(at));}catch(e){}}"
+                + "J.saveOffline(x.url,x.title,x.author,text(at));J.saveOfflineImages(x.url,JSON.stringify(images(at)));}catch(e){}}"
                 + "var on=J.isBookmarked(it.url);show(on);"
                 // Opening a bookmarked page again refreshes its copy, once the text has loaded.
                 // Once per page: Quora redraws the action bar, which runs this again.

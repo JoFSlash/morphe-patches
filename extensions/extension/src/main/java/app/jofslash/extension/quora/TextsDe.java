@@ -324,5 +324,8 @@ final class TextsDe {
         m.put("Quora+ answers", "Quora+-Antworten");
         m.put("Suggestions", "Vorschläge");
         m.put("Your filters", "Deine Filter");
+        // Offline pictures.
+        m.put("Saved as text with its pictures: links and formatting aren't kept.",
+                "Als Text mit den Bildern gespeichert: Links und Formatierung bleiben nicht erhalten.");
     }
 }

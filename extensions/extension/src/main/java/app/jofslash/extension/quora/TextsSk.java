@@ -323,5 +323,8 @@ final class TextsSk {
         m.put("Quora+ answers", "Odpovede Quora+");
         m.put("Suggestions", "Návrhy");
         m.put("Your filters", "Tvoje filtre");
+        // Offline pictures.
+        m.put("Saved as text with its pictures: links and formatting aren't kept.",
+                "Uložené ako text aj s obrázkami: odkazy a formátovanie sa neukladajú.");
     }
 }

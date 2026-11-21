@@ -371,6 +371,14 @@ public final class PatchSettings {
             return OfflineCopies.save(context, url, title, author, text);
         }
 
+        /** For Bookmarks: the pictures of a bookmarked page, kept with its offline copy. */
+        @android.webkit.JavascriptInterface
+        public void saveOfflineImages(String key, String url, String json) {
+            if (!allowed(key)) return;
+            WebView view = webView.get();
+            if (view != null) OfflineCopies.saveImages(view.getContext(), url, json);
+        }
+
         /**
          * For Read aloud: reads the text out loud, or stops. Returns whether it is reading now.
          *

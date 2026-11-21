@@ -323,5 +323,8 @@ final class TextsPl {
         m.put("Quora+ answers", "Odpowiedzi Quora+");
         m.put("Suggestions", "Propozycje");
         m.put("Your filters", "Twoje filtry");
+        // Offline pictures.
+        m.put("Saved as text with its pictures: links and formatting aren't kept.",
+                "Zapisano jako tekst z obrazkami: linki i formatowanie nie są zachowywane.");
     }
 }

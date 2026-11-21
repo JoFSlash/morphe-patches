@@ -58,7 +58,8 @@ another one any time under **More > Presets**.
 It also keeps your lists, each with a search field and **Copy as text**:
 
 - **History**: the answers, posts and questions you opened (Reading history).
-- **Bookmarks**: the answers and posts you saved with the bookmark button under them. Long-press one to remove it.
+- **Bookmarks**: the answers and posts you saved with the bookmark button under them, with their text and pictures
+  to read without internet. Long-press one to remove it.
 - **Dismissed questions**: questions you marked "Not interested in this question" (Hide dismissed questions).
 
 **Report a problem** copies the Quora and Android versions, the patches you have on and the page check, then opens

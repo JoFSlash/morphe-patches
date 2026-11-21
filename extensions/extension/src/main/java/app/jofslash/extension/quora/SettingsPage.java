@@ -403,19 +403,60 @@ final class SettingsPage {
         meta.setTextColor(secondary);
         meta.setPadding(dp(16), 0, dp(16), dp(12));
         box.addView(meta);
-        TextView body = new TextView(activity);
-        body.setText(copy.text);
-        body.setTextSize(17);
-        body.setTextColor(text);
-        body.setLineSpacing(0, 1.35f);
-        body.setTextIsSelectable(true);
-        body.setPadding(dp(16), dp(4), dp(16), dp(20));
-        box.addView(body);
+        // The text in pieces, with each saved picture after the text it came after on the page.
+        int from = 0;
+        for (OfflineCopies.Image image : copy.images) {
+            int at = OfflineCopies.after(copy.text, image.after, from);
+            if (at > from) box.addView(bodyText(copy.text.substring(from, at).trim(), text));
+            from = Math.max(from, at);
+            View picture = picture(image.file);
+            if (picture != null) box.addView(picture);
+        }
+        if (from < copy.text.length()) box.addView(bodyText(copy.text.substring(from).trim(), text));
         content.addView(box);
-        content.addView(note("Saved as text: pictures, links and formatting aren't kept."));
+        content.addView(note(copy.images.isEmpty() ? "Saved as text: pictures, links and formatting aren't kept."
+                : "Saved as text with its pictures: links and formatting aren't kept."));
         Dialog[] reader = new Dialog[1];
         reader[0] = show("Saved copy", content, () -> ReadAloud.stopFor(content), "Open",
                 () -> openInApp(item, reader[0], listPage));
+    }
+
+    private TextView bodyText(String value, int color) {
+        TextView body = new TextView(activity);
+        body.setText(value);
+        body.setTextSize(17);
+        body.setTextColor(color);
+        body.setLineSpacing(0, 1.35f);
+        body.setTextIsSelectable(true);
+        body.setPadding(dp(16), dp(4), dp(16), dp(12));
+        return body;
+    }
+
+    /** A saved picture as wide as the page, made smaller when it is larger than the screen. */
+    private View picture(java.io.File file) {
+        try {
+            android.graphics.BitmapFactory.Options bounds = new android.graphics.BitmapFactory.Options();
+            bounds.inJustDecodeBounds = true;
+            android.graphics.BitmapFactory.decodeFile(file.getPath(), bounds);
+            if (bounds.outWidth <= 0) return null;
+            int width = activity.getResources().getDisplayMetrics().widthPixels;
+            android.graphics.BitmapFactory.Options options = new android.graphics.BitmapFactory.Options();
+            options.inSampleSize = 1;
+            while (bounds.outWidth / (options.inSampleSize * 2) >= width) options.inSampleSize *= 2;
+            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeFile(file.getPath(), options);
+            if (bitmap == null) return null;
+            android.widget.ImageView view = new android.widget.ImageView(activity);
+            view.setImageBitmap(bitmap);
+            view.setAdjustViewBounds(true);
+            view.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
+            view.setPadding(dp(16), dp(4), dp(16), dp(12));
+            view.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT));
+            return view;
+        } catch (Throwable ex) {
+            Log.e(TAG, "Failed to show a saved picture", ex);
+            return null;
+        }
     }
 
     /**
