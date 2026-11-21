@@ -36,7 +36,7 @@ final class SettingsCatalog {
         add("hideSeen", "Feed", "Items you already opened, when they come back.");
         add("hideOldAnswers", "Feed", "Answers older than the years set below.");
         add("filterKeywords", "Feed", "Items that mention your keywords (see Filters).");
-        add("blockAuthors", "Feed", "Items from the people and Spaces in Filters.");
+        add("blockAuthors", "Feed", "Items from the people and Spaces in Filters. Long-press a name to add it.");
         add("hideAnonymousAnswers", "Feed", "Answers written as \"Anonymous\".");
         add("hideCounts", "Feed", "Upvote, view, comment and share numbers.");
         add("hideDownvoteButton", "Feed", "The downvote button.");

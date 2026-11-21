@@ -172,7 +172,6 @@ final class TextsFr {
         m.put("Items you already opened, when they come back.", "Éléments déjà ouverts, quand ils réapparaissent.");
         m.put("Answers older than the years set below.", "Réponses plus anciennes que le nombre d'années défini ci-dessous.");
         m.put("Items that mention your keywords (see Filters).", "Éléments contenant vos mots-clés (voir Filtres).");
-        m.put("Items from the people and Spaces in Filters.", "Éléments des personnes et Spaces indiqués dans Filtres.");
         m.put("Upvote, view, comment and share numbers.", "Compteurs de votes positifs, de vues, de commentaires et de partages.");
         m.put("The downvote button.", "Le bouton de vote négatif.");
         m.put("\"123 comments from … and more\" rows.", "Lignes « 123 comments from … and more ».");
@@ -310,5 +309,12 @@ final class TextsFr {
         m.put("the newest.", "la plus récente.");
         m.put("Get the new version", "Obtenir la nouvelle version");
         m.put("What's new, and how to patch again.", "Les nouveautés, et comment patcher à nouveau.");
+        // Block an author with a long press.
+        m.put("Items from the people and Spaces in Filters. Long-press a name to add it.",
+                "Les contenus des personnes et Espaces des Filtres. Appui long sur un nom pour l'ajouter.");
+        m.put("Hide everything by ", "Tout masquer de ");
+        m.put("Their answers and posts won't show in the feed or on question pages. You can remove the name again in Patch settings > More > Filters.",
+                "Ses réponses et publications n'apparaîtront plus dans le fil ni sur les pages de questions. Tu peux retirer le nom dans Patch settings > Plus > Filtres.");
+        m.put("hidden.", "masqué.");
     }
 }

@@ -386,6 +386,16 @@ public final class PatchSettings {
                     preview ? Texts.t("Reading the preview. Open it to hear all of it.") : null, stop);
         }
 
+        /** For Block authors and Spaces: you long-pressed this name; asks whether to hide everything by them. */
+        @android.webkit.JavascriptInterface
+        public void blockAuthor(String key, String name) {
+            if (!allowed(key) || name == null) return;
+            String clean = name.replaceAll("[,\\s]+", " ").trim();
+            WebView view = webView.get();
+            if (view == null || clean.isEmpty() || clean.length() > 80) return;
+            view.post(() -> askBlockAuthor(view, clean));
+        }
+
         /** For Read aloud: whether it is still reading, so the page can reset its button. */
         @android.webkit.JavascriptInterface
         public boolean isReadingAloud(String key) {
@@ -450,6 +460,49 @@ public final class PatchSettings {
             }
             prefs.edit().putBoolean("hint_shown", true).apply();
         }, 6000);
+    }
+
+    /**
+     * Asks whether to hide everything by a name you long-pressed, and adds it to the Authors and
+     * Spaces filter. The page hides their items at once; other pages do on their next load.
+     */
+    private static void askBlockAuthor(WebView view, String name) {
+        Activity activity = activity(view.getContext());
+        SharedPreferences prefs = prefs(view);
+        if (activity == null || prefs == null || activity.isFinishing()) return;
+        boolean dark = (activity.getResources().getConfiguration().uiMode
+                & android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+        try {
+            new android.app.AlertDialog.Builder(activity, dark
+                    ? android.R.style.Theme_DeviceDefault_Dialog_Alert
+                    : android.R.style.Theme_DeviceDefault_Light_Dialog_Alert)
+                    .setTitle(Texts.t("Hide everything by ") + name + "?")
+                    .setMessage(Texts.t("Their answers and posts won't show in the feed or on question pages. You can remove the name again in Patch settings > More > Filters."))
+                    .setPositiveButton(Texts.t("Hide"), (d, w) -> {
+                        addAuthor(prefs, name);
+                        view.evaluateJavascript("window.__jofslashAuthorsAdd&&window.__jofslashAuthorsAdd("
+                                + org.json.JSONObject.quote(name) + ")", null);
+                        Toast.makeText(activity, name + ": " + Texts.t("hidden."), Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton(Texts.t("Cancel"), null)
+                    .show();
+        } catch (Exception ex) {
+            Log.e(TAG, "Failed to ask about blocking an author", ex);
+        }
+    }
+
+    /** Adds a name to the Authors and Spaces filter, unless it is there already. */
+    static void addAuthor(SharedPreferences prefs, String name) {
+        String[] text;
+        synchronized (TEXTS) {
+            text = TEXTS.get("authors");
+        }
+        String current = prefs.getString("authors", text == null ? "" : text[1]);
+        for (String part : current.split(",")) {
+            if (part.trim().equalsIgnoreCase(name)) return;
+        }
+        String joined = current.trim().isEmpty() ? name : current.trim().replaceAll(",\\s*$", "") + ", " + name;
+        prefs.edit().putString("authors", joined).putBoolean("blockAuthors", true).apply();
     }
 
     private static void show(Context context) {
