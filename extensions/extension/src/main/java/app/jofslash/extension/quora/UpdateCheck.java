@@ -1,13 +1,8 @@
 package app.jofslash.extension.quora;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
-import android.view.View;
 
 import org.json.JSONObject;
 
@@ -19,8 +14,8 @@ import java.net.HttpURLConnection;
  * Says when a newer version of these patches is out. A patched app doesn't update from Google
  * Play, so without this nobody inside the app learns about new patches or fixes. Once a day it
  * downloads patches-bundle.json from the repository (the file Morphe Manager reads too): from the
- * main branch for a stable version, from dev for a pre-release. A newer version is shown once in a
- * dialog, and in Patch settings until the app has it.
+ * main branch for a stable version, from dev for a pre-release. A newer version only shows in Patch
+ * settings: nothing pops up, since most releases aren't worth patching again for.
  */
 public final class UpdateCheck {
 
@@ -105,24 +100,19 @@ public final class UpdateCheck {
         }
     }
 
-    /** Called when the tab bar is set up: checks when the last try is a day old. */
-    static void check(View home) {
-        Context context = home == null ? null : home.getContext();
+    /** Called when the tab bar is set up: checks when the last try is a day old. Shows nothing. */
+    static void check(Context context) {
         if (context == null || !enabled() || checking) return;
         SharedPreferences prefs = prefs(context);
-        if (System.currentTimeMillis() - prefs.getLong("update_tried", 0) >= DAY) {
-            checking = true;
-            new Thread(() -> {
-                try {
-                    download(prefs);
-                } finally {
-                    checking = false;
-                }
-                home.post(() -> offer(home, prefs));
-            }, "JoFSlashUpdateCheck").start();
-        } else {
-            offer(home, prefs);
-        }
+        if (System.currentTimeMillis() - prefs.getLong("update_tried", 0) < DAY) return;
+        checking = true;
+        new Thread(() -> {
+            try {
+                download(prefs);
+            } finally {
+                checking = false;
+            }
+        }, "JoFSlashUpdateCheck").start();
     }
 
     private static void download(SharedPreferences prefs) {
@@ -162,41 +152,6 @@ public final class UpdateCheck {
             }
             return out.toString("UTF-8");
         }
-    }
-
-    /**
-     * Shows a newer version once. Not on the first start after patching, which has the presets
-     * dialog, and a few seconds after the start, when the feed is there.
-     */
-    private static void offer(View home, SharedPreferences prefs) {
-        String latest = newer(prefs);
-        if (latest == null || latest.equals(prefs.getString("update_shown", null))) return;
-        if (!prefs.getBoolean("hint_shown", false)) return;
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            Activity activity = PatchSettings.activity(home.getContext());
-            if (activity == null || activity.isFinishing() || activity.isDestroyed() || !home.isAttachedToWindow()) return;
-            if (latest.equals(prefs.getString("update_shown", null))) return;
-            prefs.edit().putString("update_shown", latest).apply();
-            try {
-                show(activity, latest);
-            } catch (Exception ex) {
-                Log.e(TAG, "Update notice: failed to show", ex);
-            }
-        }, 4000);
-    }
-
-    static void show(Activity activity, String latest) {
-        boolean dark = (activity.getResources().getConfiguration().uiMode
-                & android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES;
-        new AlertDialog.Builder(activity, dark
-                ? android.R.style.Theme_DeviceDefault_Dialog_Alert
-                : android.R.style.Theme_DeviceDefault_Light_Dialog_Alert)
-                .setTitle(Texts.t("New Quora patches: ") + latest)
-                .setMessage(Texts.t("This app has ") + version + ". "
-                        + Texts.t("Patch Quora again in Morphe Manager to get the new version, and install it over this app: you stay signed in and keep your settings."))
-                .setPositiveButton(Texts.t("What's new"), (d, w) -> openRelease(activity, latest))
-                .setNegativeButton(Texts.t("Later"), null)
-                .show();
     }
 
     static void openRelease(Context context, String latest) {

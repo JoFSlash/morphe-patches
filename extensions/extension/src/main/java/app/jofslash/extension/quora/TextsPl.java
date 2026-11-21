@@ -297,13 +297,6 @@ final class TextsPl {
         // Update notice.
         m.put("Switch many patches at once: everything, a clean feed, for reading, or ads only.",
                 "Przełącz wiele łatek naraz: wszystko, czysty feed, do czytania albo tylko reklamy.");
-        m.put("Says when newer patches are out, from GitHub once a day.",
-                "Informuje, gdy wyjdą nowsze łatki, z GitHuba raz dziennie.");
-        m.put("New Quora patches: ", "Nowe łatki do Quory: ");
-        m.put("This app has ", "Ta aplikacja ma ");
-        m.put("Patch Quora again in Morphe Manager to get the new version, and install it over this app: you stay signed in and keep your settings.",
-                "Załataj Quorę ponownie w Morphe Manager, aby dostać nową wersję, i zainstaluj ją na tę aplikację: zostaniesz zalogowany i zachowasz ustawienia.");
-        m.put("What's new", "Co nowego");
         m.put("Patches ", "Łatki ");
         m.put("A newer version is out: ", "Jest nowsza wersja: ");
         m.put("the newest.", "najnowsza.");
@@ -326,5 +319,8 @@ final class TextsPl {
         // Offline pictures.
         m.put("Saved as text with its pictures: links and formatting aren't kept.",
                 "Zapisano jako tekst z obrazkami: linki i formatowanie nie są zachowywane.");
+        // Update notice, settings line only.
+        m.put("Shows here when newer patches are out, from GitHub once a day.",
+                "Pokazuje tutaj, gdy wyjdą nowsze łatki, z GitHuba raz dziennie.");
     }
 }
