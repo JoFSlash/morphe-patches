@@ -417,15 +417,32 @@ public final class PatchSettings {
                 + "})();", null);
     }
 
-    /** Long-pressing Home is hard to discover, so the first start after patching says so once. */
+    /**
+     * The first start after patching offers the presets once, which also says where the settings
+     * are: long-pressing Home is hard to discover. Apps that already showed the old hint skip it, so
+     * an update never changes switches someone set.
+     */
     private static void showHintOnce(View home) {
         // The app's context: the activity may be replaced while the app starts, which cancels its toasts.
         Context context = home.getContext().getApplicationContext();
         SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         if (prefs.getBoolean("hint_shown", false)) return;
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            Toast.makeText(context, Texts.t("Quora patches: change them in Settings > Morphe, or long-press the Home tab."),
-                    Toast.LENGTH_LONG).show();
+            if (prefs.getBoolean("hint_shown", false)) return;
+            Activity activity = activity(home.getContext());
+            boolean asked = false;
+            if (activity != null && !activity.isFinishing() && !activity.isDestroyed() && home.isAttachedToWindow()) {
+                try {
+                    Presets.ask(activity, prefs, true);
+                    asked = true;
+                } catch (Exception ex) {
+                    Log.e(TAG, "Failed to offer the presets", ex);
+                }
+            }
+            if (!asked) {
+                Toast.makeText(context, Texts.t("Quora patches: change them in Settings > Morphe, or long-press the Home tab."),
+                        Toast.LENGTH_LONG).show();
+            }
             prefs.edit().putBoolean("hint_shown", true).apply();
         }, 6000);
     }

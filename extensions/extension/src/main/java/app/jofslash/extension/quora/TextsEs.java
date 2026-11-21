@@ -264,5 +264,26 @@ final class TextsEs {
         m.put("All bookmarks with their saved text, as a Markdown file.", "Todos los marcadores con su texto guardado, como archivo Markdown.");
         m.put("Saved to", "Guardado en");
         m.put("Couldn't save the file.", "No se pudo guardar el archivo.");
+        // Presets.
+        m.put("Presets", "Ajustes predefinidos");
+        m.put("Switch many patches at once: everything, a clean feed, or ads only.",
+                "Cambia muchos parches a la vez: todo, un feed limpio o solo anuncios.");
+        m.put("Quora patches are on", "Los parches de Quora están activos");
+        m.put("Change them any time in Settings > Morphe, or by long-pressing the Home tab.",
+                "Cámbialos cuando quieras en Settings > Morphe o manteniendo pulsada la pestaña Home.");
+        m.put("Everything you patched", "Todo lo que parcheaste");
+        m.put("Every patch you picked in Morphe stays on.", "Cada parche que elegiste en Morphe sigue activo.");
+        m.put("Clean feed", "Feed limpio");
+        m.put("No ads, AI answers, promotions or suggestions. Answers and the app look as usual.",
+                "Sin anuncios, respuestas de IA, promociones ni sugerencias. Las respuestas y la aplicación se ven como siempre.");
+        m.put("Ads and privacy only", "Solo anuncios y privacidad");
+        m.put("Everything looks as in the official app, without ads and tracking.",
+                "Todo se ve como en la aplicación oficial, pero sin anuncios ni rastreo.");
+        m.put("Use", "Aplicar");
+        m.put("Later", "Más tarde");
+        m.put("Choose myself", "Elegir yo");
+        m.put("Done.", "Listo.");
+        m.put("Done. Some changes show after restarting the app.",
+                "Listo. Algunos cambios se aplican al reiniciar la aplicación.");
     }
 }
