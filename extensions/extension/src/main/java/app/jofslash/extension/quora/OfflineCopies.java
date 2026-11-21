@@ -14,7 +14,8 @@ import java.security.MessageDigest;
 /**
  * For Bookmarks: the text of each saved answer or post, so it can be read without internet and
  * stays readable when its author deletes it. One file per bookmark in the app's own storage; the
- * text only, without images. A copy goes when its bookmark is removed. Backups don't hold them.
+ * text only, without images. A copy goes when its bookmark is removed. Backups don't hold them;
+ * Save to Downloads under Bookmarks writes them to a Markdown file.
  */
 final class OfflineCopies {
 
@@ -103,6 +104,29 @@ final class OfflineCopies {
         } catch (Exception ex) {
             Log.e(TAG, "Failed to remove the offline copy", ex);
         }
+    }
+
+    /**
+     * All bookmarks as one Markdown text, newest first: each title, author, link and, when there
+     * is one, the saved text. For keeping them outside the app (Save to Downloads).
+     */
+    static String markdown(Context context, java.util.List<ReadingHistory.Item> items) {
+        StringBuilder out = new StringBuilder("# Quora bookmarks\n\n");
+        java.text.DateFormat date = java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM);
+        for (ReadingHistory.Item item : items) {
+            Copy copy = load(context, item.url);
+            out.append("## ").append(oneLine(item.title)).append("\n\n");
+            String by = item.author.isEmpty() ? "" : item.author + " · ";
+            out.append('*').append(oneLine(by)).append(date.format(new java.util.Date(item.time))).append("*  \n");
+            out.append(item.url).append("\n\n");
+            if (copy != null && !copy.text.isEmpty()) out.append(copy.text.trim()).append("\n\n");
+            out.append("---\n\n");
+        }
+        return out.toString();
+    }
+
+    private static String oneLine(String s) {
+        return s == null ? "" : s.replaceAll("\\s+", " ").trim();
     }
 
     /** The file of a page: the SHA-256 of its link, so any link makes a safe file name. */

@@ -235,5 +235,10 @@ final class TextsPl {
         m.put("Saved copy", "Zapisana kopia");
         m.put("Saved offline", "Zapisano offline");
         m.put("This phone has no text-to-speech. Install one, such as Speech Services by Google.", "Ten telefon nie ma syntezatora mowy. Zainstaluj go, na przykład Speech Services od Google.");
+        // Hide anonymous answers, offline bookmarks, Read aloud.
+        m.put("Save to Downloads", "Zapisz w Pobranych");
+        m.put("All bookmarks with their saved text, as a Markdown file.", "Wszystkie zakładki z zapisanym tekstem jako plik Markdown.");
+        m.put("Saved to", "Zapisano w");
+        m.put("Couldn't save the file.", "Nie udało się zapisać pliku.");
     }
 }

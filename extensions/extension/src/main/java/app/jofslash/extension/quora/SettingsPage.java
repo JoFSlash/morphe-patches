@@ -269,6 +269,10 @@ final class SettingsPage {
                 clipboard.setPrimaryClip(ClipData.newPlainText(title, list.toString().trim()));
                 Toast.makeText(activity, Texts.t(title + " copied."), Toast.LENGTH_SHORT).show();
             }));
+            if (store == ReadingHistory.BOOKMARKS) {
+                add(actions, linkRow("Save to Downloads", "All bookmarks with their saved text, as a Markdown file.",
+                        this::saveBookmarksFile));
+            }
             content.addView(actions);
 
             TextView none = note("Nothing matches.");
@@ -282,6 +286,50 @@ final class SettingsPage {
             if (page[0] != null) page[0].dismiss();
         });
         page[0] = show(title, content, null, "Clear", clear);
+    }
+
+    /**
+     * Writes every bookmark with its saved text to a Markdown file in Downloads, so they outlast the
+     * app (an uninstall removes the saved copies). Before Android 10, where that needs a storage
+     * permission, the file goes to the app's own folder on the phone's storage instead.
+     */
+    private void saveBookmarksFile() {
+        String name = "Quora bookmarks " + new java.text.SimpleDateFormat("yyyy-MM-dd HH-mm", java.util.Locale.ROOT)
+                .format(new java.util.Date()) + ".md";
+        byte[] data = OfflineCopies.markdown(activity, ReadingHistory.BOOKMARKS.load(activity))
+                .getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        try {
+            String where;
+            if (android.os.Build.VERSION.SDK_INT >= 29) {
+                android.content.ContentValues values = new android.content.ContentValues();
+                values.put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, name);
+                values.put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "text/markdown");
+                values.put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH,
+                        android.os.Environment.DIRECTORY_DOWNLOADS);
+                android.net.Uri uri = activity.getContentResolver().insert(
+                        android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+                if (uri == null) throw new java.io.IOException("No Downloads entry");
+                try (java.io.OutputStream out = activity.getContentResolver().openOutputStream(uri)) {
+                    if (out == null) throw new java.io.IOException("No output stream");
+                    out.write(data);
+                }
+                where = android.os.Environment.DIRECTORY_DOWNLOADS + "/" + name;
+            } else {
+                java.io.File folder = activity.getExternalFilesDir(android.os.Environment.DIRECTORY_DOCUMENTS);
+                if (folder == null || (!folder.isDirectory() && !folder.mkdirs())) {
+                    throw new java.io.IOException("No folder");
+                }
+                java.io.File file = new java.io.File(folder, name);
+                try (java.io.FileOutputStream out = new java.io.FileOutputStream(file)) {
+                    out.write(data);
+                }
+                where = file.getPath();
+            }
+            Toast.makeText(activity, Texts.t("Saved to") + " " + where, Toast.LENGTH_LONG).show();
+        } catch (Exception ex) {
+            Log.e(TAG, "Failed to save the bookmarks file", ex);
+            Toast.makeText(activity, Texts.t("Couldn't save the file."), Toast.LENGTH_LONG).show();
+        }
     }
 
     /** Opens an answer, post or question in the app and closes the given pages and the settings. */
