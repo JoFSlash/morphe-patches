@@ -27,7 +27,7 @@ version = str(data["version"]).lstrip("v")
 ORDER = ["Privacy", "App"]
 INTRO = {
     "Privacy": "On by default. They change nothing you see.",
-    "App": "Signing in and how the app behaves.",
+    "App": "Signing in, prompts and how the app behaves.",
 }
 
 versions = []

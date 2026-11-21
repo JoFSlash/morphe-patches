@@ -40,28 +40,31 @@ subscription.
 ## Patches
 
 <!-- PATCHES_START -->
-Version 0.1.0, 3 patches. Supported Google Health versions: 5.13.health-mobile-1104148438-1023845615.
+Version 0.1.0, 6 patches. Supported Google Health versions: 5.13.health-mobile-1104148438-1023845615.
 
 <details>
-<summary><b>Privacy</b> (1)</summary>
+<summary><b>Privacy</b> (2)</summary>
 
 On by default. They change nothing you see.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
+| Disable surveys | on | Stops the app from asking Google for surveys, such as "How satisfied are you with Google Health?", so none are shown. |
 | Spoof installer | on | Reports Google Play as the app installer, so the app doesn't treat the patched app as installed from an unknown source. |
 
 </details>
 
 <details>
-<summary><b>App</b> (2)</summary>
+<summary><b>App</b> (4)</summary>
 
-Signing in and how the app behaves.
+Signing in, prompts and how the app behaves.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
 | Allow screenshots | off | Lets you take screenshots and record the screen on every screen of the app. Some screens, such as sharing a health summary, block them. |
+| Disable update prompts | on | Stops the app from asking you to update it from Google Play. A patched app can't be updated from Google Play; patch the new version instead. |
 | GmsCore support | on | Makes signing in work through MicroG-RE instead of Google Play services. A patched app can't sign in through Play services, because it is no longer signed by Google. Needs MicroG-RE installed, with your Google account added to it. |
+| Hide Premium offer sheets | off | Hides the sheets that pop up to offer Premium, such as the 3 months of Premium offer and the reminder that your Premium trial is ending. Premium itself keeps working. |
 
 </details>
 <!-- PATCHES_END -->
@@ -83,6 +86,17 @@ No. Both use the same package name, so only one can be installed.
 Your data is stored in your Google account, so it shows up again after you sign in. Pairing and syncing a watch
 or tracker use Bluetooth and the app's own servers, but they haven't been tried with the patched app yet.
 If something doesn't work, please [open an issue](https://github.com/JoFSlash/google-health-patches/issues/new?template=bug_report.yml).
+
+**Is there a patch that blocks tracking?**
+Not as a separate patch, because GmsCore support already does it. The app sends its usage logs and performance
+data (Clearcut and Primes) through Google Play services, and with GmsCore support they go to MicroG-RE, which
+drops them without sending anything. The app has no Firebase Analytics.
+
+**Can the AI coach, Labs or Premium cards be hidden?**
+Not yet. They are on screens that only some accounts see, for example with a watch or tracker paired or after a
+Premium trial, and a patch has to be tried where they show up. If you see them, please
+[suggest a patch](https://github.com/JoFSlash/google-health-patches/issues/new?template=feature_request.yml)
+with a screenshot.
 
 **Will you unlock Premium?**
 No. Premium features (the AI coach, advanced insights) are computed on Google's servers for paying members, and

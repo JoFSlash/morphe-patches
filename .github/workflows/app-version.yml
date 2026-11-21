@@ -1,0 +1,51 @@
+name: Google Health version
+
+# Every day, looks on APKMirror for a Google Health version newer than the ones this bundle
+# supports, and opens the issue "Google Health <version> is out" once per version, with what to
+# do next. Nothing is downloaded or changed here: the new version is tried with check_app.py and
+# added to Constants.kt in a pull request.
+
+on:
+  schedule:
+    - cron: '30 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    name: Look for a new version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Look on APKMirror
+        id: watch
+        run: python3 .github/scripts/watch_app_version.py --github-output "$GITHUB_OUTPUT"
+
+      - name: Open an issue for a new version
+        if: steps.watch.outputs.new != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NEW: ${{ steps.watch.outputs.new }}
+          SUPPORTED: ${{ steps.watch.outputs.supported }}
+        run: |
+          title="Google Health $NEW is out"
+          existing=$(gh issue list --state all --search "\"$title\" in:title" --json number,title \
+            --jq ".[] | select(.title == \"$title\") | .number" | head -1)
+          if [ -n "$existing" ]; then
+            echo "Issue #$existing already covers $NEW."
+            exit 0
+          fi
+          body=$(printf '%s\n\n%s\n\n%s\n%s\n%s\n%s\n' \
+            "APKMirror has Google Health $NEW. The patches support $SUPPORTED." \
+            "To support it:" \
+            "1. Download its APKM from https://www.apkmirror.com/apk/google-inc/google-health-fitbit/ and run \`python .github/scripts/check_app.py <apkm> --cli <morphe-cli.jar> --install\`." \
+            "2. Fix the patches that no longer apply, and try sign-in and the patches on a phone." \
+            "3. Add \`AppTarget(version = \"$NEW\")\` first in Constants.kt and upload the APKM to JoFSlash/google-health-apks as release google-health-$NEW." \
+            "4. Open a pull request with \`bump:\` in its title; the emulator test then runs on the new version.")
+          gh issue create --title "$title" --label enhancement --body "$body"

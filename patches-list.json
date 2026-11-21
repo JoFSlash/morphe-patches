@@ -37,9 +37,111 @@
       "options": []
     },
     {
+      "name": "Disable surveys",
+      "description": "Stops the app from asking Google for surveys, such as \"How satisfied are you with Google Health?\", so none are shown.",
+      "default": true,
+      "category": "Privacy",
+      "compatiblePackages": [
+        {
+          "packageName": "com.fitbit.FitbitMobile",
+          "name": "Google Health",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#3084FF",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "5.13.health-mobile-1104148438-1023845615",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Disable update prompts",
+      "description": "Stops the app from asking you to update it from Google Play. A patched app can't be updated from Google Play; patch the new version instead.",
+      "default": true,
+      "category": "App",
+      "compatiblePackages": [
+        {
+          "packageName": "com.fitbit.FitbitMobile",
+          "name": "Google Health",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#3084FF",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "5.13.health-mobile-1104148438-1023845615",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
       "name": "GmsCore support",
       "description": "Makes signing in work through MicroG-RE instead of Google Play services. A patched app can't sign in through Play services, because it is no longer signed by Google. Needs MicroG-RE installed, with your Google account added to it.",
       "default": true,
+      "category": "App",
+      "compatiblePackages": [
+        {
+          "packageName": "com.fitbit.FitbitMobile",
+          "name": "Google Health",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#3084FF",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "5.13.health-mobile-1104148438-1023845615",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Hide Premium offer sheets",
+      "description": "Hides the sheets that pop up to offer Premium, such as the 3 months of Premium offer and the reminder that your Premium trial is ending. Premium itself keeps working.",
+      "default": false,
       "category": "App",
       "compatiblePackages": [
         {
