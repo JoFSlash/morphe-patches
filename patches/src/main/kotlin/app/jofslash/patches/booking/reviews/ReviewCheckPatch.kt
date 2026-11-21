@@ -41,7 +41,8 @@ val reviewCheckPatch = bytecodePatch(
             "booking red flags (extra charges, pay-outside-platform, not as described, bookings " +
             "not honoured, fraud) and shows a small banner above the booking button. Tap it to read the flagged " +
             "reviews. It's keyword matching on your phone, a heads-up and not a verdict — not AI, " +
-            "not fake-review detection, and English keywords only.",
+            "not fake-review detection. Keywords cover English, Slovak, Czech, German, Polish, " +
+            "Hungarian, Italian, French and Spanish.",
     default = true
 ) {
     category("Search")
