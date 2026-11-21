@@ -9,7 +9,7 @@ Patches for the [Booking.com](https://play.google.com/store/apps/details?id=com.
 and they take out the pressure: scarcity messages, sponsored results, start-up promotions and tracking.
 
 Works with Booking.com <!-- VERSIONS_START -->71.1<!-- VERSIONS_END --> on Android 8 or newer. No root needed.
-All patches are on by default; you can switch any of them off when you patch.
+All patches but Hide insurance offers are on by default; you can switch any of them on or off when you patch.
 
 > **Status: work in progress.** Booking.com runs anti-fraud checks (ThreatMetrix, FingerprintJS) that these patches
 > leave switched on. In one test on a throwaway account, email sign-in and a free-cancellation booking both went
@@ -39,7 +39,7 @@ All patches are on by default; you can switch any of them off when you patch.
 ## Patches
 
 <!-- PATCHES_START -->
-13 patches, all on by default. Supported Booking.com versions: 71.1.
+15 patches, all on by default except Hide insurance offers. Supported Booking.com versions: 71.1.
 
 <details open>
 <summary><b>Price</b> (2)</summary>
@@ -69,13 +69,15 @@ What the search results show.
 </details>
 
 <details>
-<summary><b>App</b> (5)</summary>
+<summary><b>App</b> (7)</summary>
 
 The app around the search.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
 | Disable start-up promotions | on | Stops the promotional sheets the app shows on start, such as the "Black Friday Deals" sheet and the app's own Genius sign-in, wallet and credit-card prompts, and the full-screen sign-in page on the first start. You can still sign in from My account, or when booking or saving. The cookie dialog and Android's notification prompt are left alone. |
+| Hide upsells | on | Hides marketing that sells you something besides your stay: Booking.com's promotional areas on the hotel page, in the booking form, on the confirmation and in My account; offers to add a taxi, car rental, flight or attraction ("Plan ahead", "Add to your stay") on the hotel, room and cancellation pages, in the booking form, after booking and in your booking details; the Booking.com credit card banners and sign-up sheet; the Genius VIP price-match banner on hotel pages, the "book 1 more stay to reach Genius Level 2" nudge in the room list and the "Year in travel" sheet. Prices, Genius discounts and badges, and rewards you have earned stay. Insurance is the next patch. |
+| Hide insurance offers | off | Hides the offers to add room cancellation or travel insurance in the booking form, and its extra "Protect your trip" page. Off by default, because some people want insurance: turn it on if you never do. It only hides the offers: insurance you have added still shows, with its price and the option to remove it, and nothing is added or removed for you. |
 | Disable update and rating prompts | on | Stops the "update available" and "this version is no longer supported" prompts, which you can't act on in a patched app (it doesn't update from the Play Store), and the Google Play "rate this app" card after a booking. |
 | Allow screenshots | on | Lets you take screenshots and record the screen on booking and payment screens, which the app normally blocks (they come out black). Bank verification (3-D Secure) screens still block them. |
 | Follow system theme | on | Makes the app light or dark to match your phone. Booking.com has a dark theme built in (**My account > Settings > Theme**), but it starts on Light; this makes it start on **System** instead. A theme you pick there yourself still wins. |
