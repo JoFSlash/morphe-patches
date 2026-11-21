@@ -71,11 +71,12 @@ public final class ReadingPatch {
             + "var s=m.getAttribute('data-src')||m.currentSrc||m.src||'';"
             + "if(!/^https:\\/\\/[a-z0-9.-]+\\.quoracdn\\.net\\//.test(s))return;"
             + "var w=m.naturalWidth||m.width||0;if(w&&w<48)return;"
-            // The text before it: its own paragraph when it sits in one, else the closest one above.
-            + "var b=m;while(b.parentElement&&b.parentElement!==c)b=b.parentElement;"
-            + "var t=b!==m?(b.innerText||b.textContent||'').trim():'';"
-            + "for(var e=b.previousElementSibling;e&&!t;e=e.previousElementSibling)t=(e.innerText||e.textContent||'').trim();"
-            + "out.push({s:s,a:t.replace(/\\s+/g,' ').slice(-60)});});return out;}";
+            // The text right before it: the text pieces above it in the page, joined with spaces, as
+            // paragraphs are separate pieces whose text runs together otherwise.
+            + "var w=document.createTreeWalker(c,NodeFilter.SHOW_TEXT),n,t=[];"
+            + "while((n=w.nextNode())){if(m.compareDocumentPosition(n)&Node.DOCUMENT_POSITION_FOLLOWING)break;"
+            + "if(n.nodeValue.trim())t.push(n.nodeValue.trim());}"
+            + "out.push({s:s,a:t.join(' ').replace(/\\s+/g,' ').slice(-60)});});return out;}";
 
     /**
      * preview(t): the text without the "Read more" link a shortened answer in the feed ends with,
