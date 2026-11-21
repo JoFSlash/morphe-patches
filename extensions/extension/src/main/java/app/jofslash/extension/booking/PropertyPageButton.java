@@ -39,6 +39,8 @@ final class PropertyPageButton {
         boolean compare;
         boolean history;
         boolean contact;
+        /** Save the prices the page shows (Price history or Check crossed-out prices is on). */
+        boolean record;
         /** The hotel loaded again by the page (for example for new dates) and its stay. */
         Object refreshedHotel;
         Stay refreshedStay;
@@ -60,6 +62,12 @@ final class PropertyPageButton {
         state.history |= history;
         state.contact |= contact;
         if (first) listen(activity);
+    }
+
+    /** Called from the property page's constructor when a patch that needs saved prices is on. */
+    static synchronized void attachRecorder(Activity activity) {
+        attach(activity, false, false, false);
+        STATES.get(activity).record = true;
     }
 
     private static void listen(final Activity activity) {
@@ -116,7 +124,7 @@ final class PropertyPageButton {
             PriceHistory.setContext(activity);
             addButton(activity);
             State state = state(activity);
-            if (state != null && state.history) {
+            if (state != null && state.record) {
                 recordNow(activity);
                 // The hotel's price can arrive a moment after the page opens.
                 MAIN.postDelayed(() -> recordNow(activity), 2500);
@@ -145,7 +153,7 @@ final class PropertyPageButton {
             state.refreshedHotel = hotel;
             state.refreshedStay = stay;
         }
-        if (state.history && stay != null && info.hasPrice()) {
+        if (state.record && stay != null && info.hasPrice()) {
             PriceHistory.record(info, stay, PriceDb.SOURCE_PROPERTY);
         }
     }
@@ -159,12 +167,12 @@ final class PropertyPageButton {
     }
 
     /** The hotel and stay the page shows now. */
-    private static final class Current {
+    static final class Current {
         HotelInfo hotel;
         Stay stay;
     }
 
-    private static Current current(Activity activity) {
+    static Current current(Activity activity) {
         Current c = new Current();
         State state = state(activity);
         if (state != null && state.refreshedHotel != null) {
@@ -198,7 +206,7 @@ final class PropertyPageButton {
         return HotelInfo.call(HotelInfo.call(activity, "getSearchContextRepository"), "getQueryValue");
     }
 
-    private static int pageHotelId(Activity activity) {
+    static int pageHotelId(Activity activity) {
         Object id = HotelInfo.call(HotelInfo.field(activity, "propertyId"), "getValue");
         if (id instanceof Integer) return (Integer) id;
         HotelInfo opened = HotelInfo.of(HotelInfo.field(activity, "hotel"));
@@ -211,7 +219,7 @@ final class PropertyPageButton {
         FrameLayout frame = (FrameLayout) content;
         if (frame.findViewWithTag(BUTTON_TAG) != null) return;
         State state = state(activity);
-        if (state == null) return;
+        if (state == null || !(state.compare || state.history || state.contact)) return;
 
         float density = activity.getResources().getDisplayMetrics().density;
         LinearLayout buttons = new LinearLayout(activity);
@@ -289,7 +297,7 @@ final class PropertyPageButton {
                 Toast.makeText(activity, Strings.LOADING, Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (state.history && c.stay != null && c.hotel.hasPrice()) {
+            if (state.record && c.stay != null && c.hotel.hasPrice()) {
                 PriceHistory.record(c.hotel, c.stay, PriceDb.SOURCE_PROPERTY);
             }
             new Panel(activity, c.hotel, c.stay, state.history, state.compare, state.contact, tab).show();

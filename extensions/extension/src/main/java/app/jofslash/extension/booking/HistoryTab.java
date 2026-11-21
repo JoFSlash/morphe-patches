@@ -181,17 +181,11 @@ final class HistoryTab {
             content.addView(panel.spaced(panel.text(Strings.HISTORY_FIRST, 14, colors.secondaryText, false), 8));
         }
 
-        if (!Double.isNaN(hotel.strike)) {
-            String note;
-            if (rows.size() < 3) {
-                note = String.format(Strings.STRIKE_FEW, Panel.money(hotel.strike, currency));
-            } else if (hotel.strike > max.price + 0.5) {
-                note = String.format(Strings.STRIKE_HIGHER, Panel.money(hotel.strike, currency),
-                        Panel.money(max.price, currency));
-            } else {
-                note = String.format(Strings.STRIKE_SEEN, Panel.money(hotel.strike, currency), Panel.day(max.time));
-            }
-            content.addView(panel.spaced(panel.card(panel.text(note, 14, colors.text, false)), 12));
+        // The same check as the line under the price on the property page.
+        StrikeCheck.Verdict strike = StrikeCheck.check(hotel, stay, all, System.currentTimeMillis());
+        if (strike != null) {
+            content.addView(panel.spaced(panel.card(panel.text(strike.text, 14,
+                    StrikeCheck.color(colors, strike.tone), false)), 12));
         }
     }
 

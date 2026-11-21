@@ -74,14 +74,26 @@ public final class Strings {
     public static final String VERDICT_SAME = "The price hasn't changed";
     public static final String VERDICT_FEW = "Too few prices yet to say whether this one is low or high";
 
-    public static final String STRIKE_HIGHER =
-            "Booking.com shows a crossed-out price of %1$s. The highest price saved for these dates "
-                    + "is %2$s: you never saw the crossed-out price here.";
-    public static final String STRIKE_SEEN =
-            "Booking.com shows a crossed-out price of %1$s. You saw a price this high on %2$s.";
+    // Crossed-out price check (property page line and Price history tab)
+    /** Crossed-out price, number of prices saved for these dates. */
     public static final String STRIKE_FEW =
-            "Booking.com shows a crossed-out price of %1$s. With more saved prices you'll see "
-                    + "whether it was ever the real price.";
+            "Crossed-out %1$s: not enough saved prices for these dates yet to check it (%2$d so far)";
+    public static final String STRIKE_FEW_NONE =
+            "Crossed-out %1$s: no saved prices for these dates yet to check it";
+    /** Crossed-out price, the highest price seen, the day it was seen. */
+    public static final String STRIKE_SEEN =
+            "Crossed-out %1$s: you saw %2$s for these dates on %3$s";
+    /** Crossed-out price, lowest and highest seen, first day, number of saved prices. */
+    public static final String STRIKE_NEVER =
+            "Crossed-out %1$s: you only saw %2$s–%3$s for these dates since %4$s (%5$d prices)";
+    public static final String STRIKE_NEVER_ONE_PRICE =
+            "Crossed-out %1$s: you only saw %2$s for these dates since %4$s (%5$d prices)";
+    /** Times it was crossed out, prices saved. */
+    public static final String STRIKE_ALWAYS = ", crossed out on %1$d of them";
+    public static final String STRIKE_GENIUS =
+            "Crossed-out %1$s is the price without your Genius discount: a real discount for you";
+    public static final String STRIKE_MOBILE =
+            "Crossed-out %1$s is the price without the app-only discount: a real discount in the app";
 
     // Official site tab
     public static final String OFFICIAL_LOADING = "Looking up the hotel on Google Hotels…";
@@ -283,4 +295,5 @@ public final class Strings {
             "Simple keyword matching, not AI and not fake-review detection. Keywords cover "
                     + REVIEW_LANGUAGES + "; reviews in other languages may be missed.";
     public static final String REVIEW_CLOSE = "Close";
+
 }

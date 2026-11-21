@@ -25,6 +25,14 @@ public final class HotelInfo {
     /** Crossed-out ("original") total price, or NaN. */
     public double strike = Double.NaN;
     public String currency;
+    /**
+     * "genius" or "mobile" when the price includes a Genius or app-only discount, which the
+     * crossed-out price leaves out: a real discount for this user. Null otherwise.
+     */
+    public String memberDiscount;
+    /** The overall review score out of 10 and the number of reviews, or NaN and 0. */
+    public double reviewScore = Double.NaN;
+    public int reviewCount;
 
     private HotelInfo() {
     }
@@ -65,12 +73,32 @@ public final class HotelInfo {
                         && info.currency.equals(str(call(strike, "getCurrency")))) {
                     info.strike = strikeValue;
                 }
+                info.memberDiscount = memberDiscount(breakdown);
             }
+            Object score = call(hotel, "getReviewScore");
+            Object count = call(hotel, "getReviewsNumber");
+            if (score instanceof Double && (Double) score > 0) info.reviewScore = (Double) score;
+            if (count instanceof Integer) info.reviewCount = (Integer) count;
             return info;
         } catch (Throwable t) {
             Log.w(TAG, "Couldn't read the hotel", t);
             return null;
         }
+    }
+
+    /** The discounts in the price breakdown (BProductPrice items of kind "discount"). */
+    private static String memberDiscount(Object breakdown) {
+        Object discounts = call(breakdown, "getAllDiscounts");
+        if (!(discounts instanceof Iterable)) return null;
+        String found = null;
+        for (Object item : (Iterable<?>) discounts) {
+            String id = str(call(item, "getIdentifier"));
+            if (id == null) continue;
+            id = id.toLowerCase(java.util.Locale.ROOT);
+            if (id.contains("genius")) return "genius";
+            if (id.contains("mobile")) found = "mobile";
+        }
+        return found;
     }
 
     public boolean hasPrice() {

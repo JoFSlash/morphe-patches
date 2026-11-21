@@ -39,10 +39,10 @@ All patches are on by default; you can switch any of them off when you patch.
 ## Patches
 
 <!-- PATCHES_START -->
-13 patches, all on by default. Supported Booking.com versions: 71.1.
+14 patches, all on by default. Supported Booking.com versions: 71.1.
 
 <details open>
-<summary><b>Price</b> (2)</summary>
+<summary><b>Price</b> (3)</summary>
 
 Added features. They show you more; they don't change what you book.
 
@@ -50,6 +50,7 @@ Added features. They show you more; they don't change what you book.
 | --- | --- | --- |
 | Compare prices | on | Adds a **Compare prices** button to a hotel's page. It opens one panel. The **Official site** tab loads Google Hotels for that hotel, your dates and guests inside the app, reads the price from the hotel's own website and puts it next to the Booking.com price, with a link to book there. Prices load for your own region and currency. When Google rates the price against the hotel's usual prices ("great deal, 32% less than usual"), that line shows too; Google rarely shows it in the EU, so a **Check Google's deal rating (US data)** link reads it from the US version of the page on request, without changing the prices shown. |
 | Price history | on | Saves the prices the app shows you (at most 5000, the same price only once per 6 hours) and shows them for your dates as a chart, with the lowest, highest and current price and a check of crossed-out "original" prices. A second chart shows the hotel over the past year across all stay dates (the lowest price per night each day). **1M / 6M / 1Y / All** buttons pick the period. The history starts when the patch is installed; prices from before that can't be fetched, because no site publishes past hotel prices. |
+| Check crossed-out prices | on | When a hotel's page shows a crossed-out "original" price, a line under the price compares it with the prices saved on your phone in the last 30 days for the same dates, guests, rooms and currency: "Crossed-out € 79: you only saw € 58–62 for these dates since 3 Nov (6 prices)", in red, or "you saw € 79 for these dates on 5 Nov" when it was the real price before. It adds when the price was crossed out on nearly every check, which means the "discount" is the normal price. With fewer than 3 saved prices, or all from one day, it says there aren't enough yet instead of judging. A Genius or app-only discount is a real discount for you, so then it says just that. It saves prices like Price history (the two share the same history), also when Price history is off. It compares the hotel's headline price (the cheapest room, which the page shows); prices of single rooms on the room list aren't saved or checked. |
 
 </details>
 
