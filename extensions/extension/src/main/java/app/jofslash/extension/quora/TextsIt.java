@@ -285,5 +285,13 @@ final class TextsIt {
         m.put("Done.", "Fatto.");
         m.put("Done. Some changes show after restarting the app.",
                 "Fatto. Alcune modifiche si vedono dopo il riavvio dell'app.");
+        // Filter updates.
+        m.put("Fixes for hiding things when Quora changes its pages, from GitHub once a day.",
+                "Correzioni per nascondere gli elementi quando Quora cambia le sue pagine, da GitHub una volta al giorno.");
+        m.put("Filter updates are off.", "Gli aggiornamenti dei filtri sono disattivati.");
+        m.put("Filter updates: not downloaded yet.", "Aggiornamenti dei filtri: non ancora scaricati.");
+        m.put("Filter updates: checked ", "Aggiornamenti dei filtri: controllati ");
+        m.put("No fixes needed right now.", "Per ora non servono correzioni.");
+        m.put("Fixes in use: ", "Correzioni in uso: ");
     }
 }

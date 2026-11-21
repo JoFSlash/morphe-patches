@@ -285,5 +285,13 @@ final class TextsSk {
         m.put("Done.", "Hotovo.");
         m.put("Done. Some changes show after restarting the app.",
                 "Hotovo. Niektoré zmeny sa prejavia až po reštarte aplikácie.");
+        // Filter updates.
+        m.put("Fixes for hiding things when Quora changes its pages, from GitHub once a day.",
+                "Opravy skrývania, keď Quora zmení svoje stránky, raz denne z GitHubu.");
+        m.put("Filter updates are off.", "Aktualizácie filtrov sú vypnuté.");
+        m.put("Filter updates: not downloaded yet.", "Aktualizácie filtrov: zatiaľ nestiahnuté.");
+        m.put("Filter updates: checked ", "Aktualizácie filtrov: skontrolované ");
+        m.put("No fixes needed right now.", "Teraz nie sú potrebné žiadne opravy.");
+        m.put("Fixes in use: ", "Použité opravy: ");
     }
 }

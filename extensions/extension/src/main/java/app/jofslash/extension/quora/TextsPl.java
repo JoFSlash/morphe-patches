@@ -285,5 +285,13 @@ final class TextsPl {
         m.put("Done.", "Gotowe.");
         m.put("Done. Some changes show after restarting the app.",
                 "Gotowe. Niektóre zmiany zadziałają dopiero po ponownym uruchomieniu aplikacji.");
+        // Filter updates.
+        m.put("Fixes for hiding things when Quora changes its pages, from GitHub once a day.",
+                "Poprawki ukrywania, gdy Quora zmieni swoje strony, raz dziennie z GitHuba.");
+        m.put("Filter updates are off.", "Aktualizacje filtrów są wyłączone.");
+        m.put("Filter updates: not downloaded yet.", "Aktualizacje filtrów: jeszcze nie pobrane.");
+        m.put("Filter updates: checked ", "Aktualizacje filtrów: sprawdzone ");
+        m.put("No fixes needed right now.", "Teraz nie są potrzebne żadne poprawki.");
+        m.put("Fixes in use: ", "Używane poprawki: ");
     }
 }

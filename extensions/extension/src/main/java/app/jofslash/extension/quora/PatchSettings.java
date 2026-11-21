@@ -56,7 +56,10 @@ public final class PatchSettings {
             if (!PATCHES.containsKey(key)) PATCHES.put(key, name);
         }
         SharedPreferences prefs = prefs(webView);
-        return prefs == null || prefs.getBoolean(key, true);
+        boolean on = prefs == null || prefs.getBoolean(key, true);
+        // Selectors downloaded by Filter updates for this patch, if any.
+        if (on) FilterUpdates.apply(webView, key);
+        return on;
     }
 
     /**
@@ -119,6 +122,7 @@ public final class PatchSettings {
                 return true;
             });
             showHintOnce(home);
+            FilterUpdates.check(home.getContext());
         } catch (Exception ex) {
             Log.e(TAG, "Failed to attach the patch settings", ex);
         }

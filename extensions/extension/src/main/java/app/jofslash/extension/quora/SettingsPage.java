@@ -92,9 +92,11 @@ final class SettingsPage {
         Set<String> changed = new HashSet<>();
 
         String status = PageCheck.status(prefs);
-        if (status != null) {
+        String updates = FilterUpdates.status(activity);
+        if (status != null || updates != null) {
             LinearLayout box = section(null);
-            box.addView(note(status));
+            if (status != null) box.addView(note(status));
+            if (updates != null) box.addView(note(updates));
             content.addView(box);
         }
 

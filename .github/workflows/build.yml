@@ -41,3 +41,6 @@ jobs:
 
       - name: Check settings translations
         run: python3 .github/scripts/check_texts.py
+
+      - name: Check filter updates file
+        run: python3 .github/scripts/check_filters.py

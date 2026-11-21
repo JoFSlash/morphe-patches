@@ -160,6 +160,9 @@ jobs:
       - name: Check settings translations
         run: python3 .github/scripts/check_texts.py
 
+      - name: Check filter updates file
+        run: python3 .github/scripts/check_filters.py
+
       # Downloads the Gradle plugins and dependencies with retries, so the build semantic-release
       # runs below finds them in the cache instead of failing on a network hiccup. "clean" removes
       # this build's .mpp again, so only the released one is uploaded.

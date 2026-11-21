@@ -247,11 +247,15 @@ Google only when you tap the button.
 **A patch stopped working.**
 Quora probably changed its pages. Check the warning on the settings page (long-press the Home tab), then tap
 **Report a problem** there: it copies the details a report needs and opens the bug report form.
+With **Filter updates** patched in, fixes for the patches that hide things can reach your app without a new
+release: once a day it downloads a short list of selectors from this repository ([filters](filters/README.md)).
+The list can only hide things, and the download sends nothing but a normal web request. It's off by default.
 
 ## Known issues
 
 - Most patches work on Quora's web pages, which can change without a new app version. When that happens,
-  a patch stops working without any error. The page check on the settings page catches the common cases.
+  a patch stops working without any error. The page check on the settings page catches the common cases,
+  and Filter updates can fix the patches that hide things without a release.
 - The patches expect Quora in English (www.quora.com). On Quora in other languages (de.quora.com,
   es.quora.com and so on) the ones that look for Quora's English texts may not work: Hide dismissed
   questions, Hide comment box, Hide credentials, Hide Follow buttons, Hide surveys, Hide old answers and
