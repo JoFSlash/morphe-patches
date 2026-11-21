@@ -24,12 +24,22 @@ public final class PresetsTest {
                 failures++;
             }
         }
+        for (String key : Presets.READING) {
+            if (!keys.contains(key)) {
+                System.err.println("FAIL Presets: For reading names " + key + ", which SettingsCatalog doesn't list");
+                failures++;
+            }
+        }
+        if (!Presets.READING.containsAll(Presets.CLEAN_FEED)) {
+            System.err.println("FAIL Presets: For reading must keep everything Clean feed keeps");
+            failures++;
+        }
         if (!Presets.ADS_ONLY.contains("removeAds")) {
             System.err.println("FAIL Presets: Ads and privacy only must keep Remove ads on");
             failures++;
         }
         if (failures > 0) System.exit(1);
         System.out.println("Presets: " + keys.size() + " switches, Clean feed keeps " + Presets.CLEAN_FEED.size()
-                + ", Ads and privacy only keeps " + Presets.ADS_ONLY.size());
+                + ", For reading keeps " + Presets.READING.size() + ", Ads and privacy only keeps " + Presets.ADS_ONLY.size());
     }
 }

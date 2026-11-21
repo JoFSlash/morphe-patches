@@ -293,5 +293,9 @@ final class TextsPl {
         m.put("Filter updates: checked ", "Aktualizacje filtrów: sprawdzone ");
         m.put("No fixes needed right now.", "Teraz nie są potrzebne żadne poprawki.");
         m.put("Fixes in use: ", "Używane poprawki: ");
+        // For reading preset.
+        m.put("For reading", "Do czytania");
+        m.put("A clean feed, whole answers with more space, no numbers, and bars that hide while you read.",
+                "Czysty feed, całe odpowiedzi z większymi odstępami, bez liczb i z paskami, które chowają się podczas czytania.");
     }
 }

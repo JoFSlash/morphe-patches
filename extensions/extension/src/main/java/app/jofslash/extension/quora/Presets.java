@@ -38,6 +38,18 @@ final class Presets {
             "openLinksInBrowser", "disableTabPrefetching", "disableSignInPrompts", "blockPromotionalNotifications",
             "filterUpdates"));
 
+    /**
+     * For reading: the clean feed, plus whole answers, more space, no numbers or credentials, and
+     * bars that hide while you read.
+     */
+    static final Set<String> READING = new HashSet<>(CLEAN_FEED);
+
+    static {
+        READING.addAll(Arrays.asList(
+                "expandAnswers", "fullscreenReading", "comfortableReading", "amoledDark", "hideCounts",
+                "hideCredentials", "hideCommentPreviews", "hideFollowButtons", "keepPlaceOnReturn"));
+    }
+
     /** Ads and privacy only: everything you see is as in the official app, without ads. */
     static final Set<String> ADS_ONLY = new HashSet<>(Arrays.asList(
             "removeAds", "disableTabPrefetching", "disableSignInPrompts", "blockPromotionalNotifications",
@@ -66,6 +78,8 @@ final class Presets {
                         Texts.t("Every patch you picked in Morphe stays on."), secondary),
                 item(Texts.t("Clean feed"),
                         Texts.t("No ads, AI answers, promotions or suggestions. Answers and the app look as usual."), secondary),
+                item(Texts.t("For reading"),
+                        Texts.t("A clean feed, whole answers with more space, no numbers, and bars that hide while you read."), secondary),
                 item(Texts.t("Ads and privacy only"),
                         Texts.t("Everything looks as in the official app, without ads and tracking."), secondary),
         };
@@ -124,10 +138,10 @@ final class Presets {
         return text;
     }
 
-    /** 0: everything on, 1: clean feed, 2: ads and privacy only. */
+    /** 0: everything on, 1: clean feed, 2: for reading, 3: ads and privacy only. */
     static void apply(Activity activity, SharedPreferences prefs, int preset) {
         try {
-            Set<String> on = preset == 1 ? CLEAN_FEED : preset == 2 ? ADS_ONLY : null;
+            Set<String> on = preset == 1 ? CLEAN_FEED : preset == 2 ? READING : preset == 3 ? ADS_ONLY : null;
             SharedPreferences.Editor editor = prefs.edit();
             boolean restart = false;
             for (String key : SettingsCatalog.keys()) {

@@ -293,5 +293,9 @@ final class TextsFr {
         m.put("Filter updates: checked ", "Mises à jour des filtres : vérifiées ");
         m.put("No fixes needed right now.", "Aucun correctif nécessaire pour l'instant.");
         m.put("Fixes in use: ", "Correctifs utilisés : ");
+        // For reading preset.
+        m.put("For reading", "Pour lire");
+        m.put("A clean feed, whole answers with more space, no numbers, and bars that hide while you read.",
+                "Un fil épuré, des réponses entières plus aérées, sans chiffres, et des barres qui se cachent pendant la lecture.");
     }
 }
