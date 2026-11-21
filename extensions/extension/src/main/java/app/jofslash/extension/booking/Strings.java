@@ -10,12 +10,14 @@ public final class Strings {
     // Property page button
     public static final String BUTTON_COMPARE = "Compare prices";
     public static final String BUTTON_HISTORY = "Price history";
+    public static final String BUTTON_CONTACT = "Contact";
 
     // Panel
     public static final String DIALOG_TITLE = "Compare prices";
     public static final String CLOSE = "Close";
     public static final String TAB_HISTORY = "Price history";
     public static final String TAB_OFFICIAL = "Official site";
+    public static final String TAB_CONTACT = "Contact";
     public static final String LOADING = "The hotel is still loading. Try again in a moment.";
     public static final String NO_BROWSER = "No app can open the link.";
 
@@ -120,6 +122,30 @@ public final class Strings {
     public static final String RELOAD = "Read the prices again";
     /** Appended to the hotel name and city when searching for the hotel's website. */
     public static final String WEBSITE_QUERY_SUFFIX = " official website";
+
+    // Contact tab
+    public static final String CONTACT_ADDRESS = "Address";
+    public static final String CONTACT_NO_ADDRESS = "The address hasn't loaded yet.";
+    public static final String CONTACT_OPEN_MAPS = "Open in Maps";
+    public static final String CONTACT_COPY_ADDRESS = "Copy address";
+    public static final String CONTACT_COPIED = "Copied";
+    public static final String CONTACT_HEADER = "Contact the property";
+    public static final String CONTACT_PHONE = "Phone";
+    public static final String CONTACT_EMAIL = "Email";
+    public static final String CONTACT_BUSINESS = "Business";
+    public static final String CONTACT_BUSINESS_ADDRESS = "Business address";
+    public static final String CONTACT_REGISTRATION = "Registration";
+    public static final String CONTACT_NOT_LOADED =
+            "Booking.com sent no contact details for this property. They're only sent for properties "
+                    + "in the EU and a few other countries.";
+    public static final String CONTACT_PRIVATE_HOST =
+            "The host is a private person, not a business, so Booking.com doesn't share their contact "
+                    + "details. You can message them through Booking.com after you book.";
+    public static final String CONTACT_NONE = "Booking.com sent no phone number or email for this business.";
+    public static final String CONTACT_SOURCE =
+            "From the business details Booking.com has to show under EU consumer law (in the app under "
+                    + "Legal information). They can belong to the company that runs the property rather "
+                    + "than its front desk. Long-press a detail to copy it.";
 
     // Preferred label
     /**

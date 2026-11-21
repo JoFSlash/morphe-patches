@@ -13,6 +13,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,9 +22,10 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * Adds one button to the property page (com.booking.property.detail.PropertyPageActivity) that
- * opens the {@link Panel}. The page is Compose, so the button is a plain View put on top of it,
- * in the activity's content frame, above the "Select rooms" bar at the bottom.
+ * Adds the buttons that open the {@link Panel} to the property page
+ * (com.booking.property.detail.PropertyPageActivity): "Compare prices" (or "Price history") and
+ * "Contact". The page is Compose, so the buttons are plain Views put on top of it, in the
+ * activity's content frame, above the "Select rooms" bar at the bottom.
  */
 final class PropertyPageButton {
     private PropertyPageButton() {
@@ -36,6 +38,7 @@ final class PropertyPageButton {
     private static final class State {
         boolean compare;
         boolean history;
+        boolean contact;
         /** The hotel loaded again by the page (for example for new dates) and its stay. */
         Object refreshedHotel;
         Stay refreshedStay;
@@ -46,7 +49,7 @@ final class PropertyPageButton {
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
 
     /** Called from the property page's constructor by each patch that's on. */
-    static synchronized void attach(Activity activity, boolean compare, boolean history) {
+    static synchronized void attach(Activity activity, boolean compare, boolean history, boolean contact) {
         State state = STATES.get(activity);
         boolean first = state == null;
         if (first) {
@@ -55,6 +58,7 @@ final class PropertyPageButton {
         }
         state.compare |= compare;
         state.history |= history;
+        state.contact |= contact;
         if (first) listen(activity);
     }
 
@@ -210,9 +214,55 @@ final class PropertyPageButton {
         if (state == null) return;
 
         float density = activity.getResources().getDisplayMetrics().density;
+        LinearLayout buttons = new LinearLayout(activity);
+        buttons.setTag(BUTTON_TAG);
+        buttons.setOrientation(LinearLayout.VERTICAL);
+        buttons.setGravity(Gravity.END);
+        // The buttons' shadows reach outside them.
+        buttons.setClipChildren(false);
+        buttons.setClipToPadding(false);
+        int shadow = Math.round(8 * density);
+        buttons.setPadding(shadow, shadow, shadow, shadow);
+        if (state.contact) {
+            buttons.addView(pill(activity, Strings.BUTTON_CONTACT, Panel.TAB_CONTACT), new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        }
+        if (state.compare || state.history) {
+            TextView main = pill(activity, state.compare ? Strings.BUTTON_COMPARE : Strings.BUTTON_HISTORY,
+                    state.history ? Panel.TAB_HISTORY : Panel.TAB_OFFICIAL);
+            if (buttons.getChildCount() > 0) {
+                LinearLayout.LayoutParams gap = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                gap.topMargin = Math.round(10 * density);
+                main.setLayoutParams(gap);
+            }
+            buttons.addView(main);
+        }
+
+        final FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM | Gravity.END);
+        // Less the padding that leaves room for the shadows.
+        lp.rightMargin = Math.round(16 * density) - shadow;
+        lp.bottomMargin = Math.round(BOTTOM_BAR_DP * density) - shadow;
+        buttons.setOnApplyWindowInsetsListener((v, insets) -> {
+            int bottom = insets.getSystemWindowInsetBottom();
+            FrameLayout.LayoutParams p = (FrameLayout.LayoutParams) v.getLayoutParams();
+            int want = bottom + Math.round(BOTTOM_BAR_DP * density) - shadow;
+            if (p.bottomMargin != want) {
+                p.bottomMargin = want;
+                v.setLayoutParams(p);
+            }
+            return insets;
+        });
+        frame.addView(buttons, lp);
+        buttons.requestApplyInsets();
+    }
+
+    /** One round button that opens the panel on [tab]. */
+    private static TextView pill(final Activity activity, String text, final int tab) {
+        float density = activity.getResources().getDisplayMetrics().density;
         TextView button = new TextView(activity);
-        button.setTag(BUTTON_TAG);
-        button.setText(state.compare ? Strings.BUTTON_COMPARE : Strings.BUTTON_HISTORY);
+        button.setText(text);
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
         button.setTextColor(0xFFFFFFFF);
         button.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
@@ -225,28 +275,12 @@ final class PropertyPageButton {
         bg.setStroke(Math.round(density), 0xFFFFFFFF);
         button.setBackground(bg);
         button.setElevation(6 * density);
-        button.setContentDescription(button.getText());
-        button.setOnClickListener(v -> open(activity));
-
-        final FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM | Gravity.END);
-        lp.rightMargin = Math.round(16 * density);
-        lp.bottomMargin = Math.round(BOTTOM_BAR_DP * density);
-        button.setOnApplyWindowInsetsListener((v, insets) -> {
-            int bottom = insets.getSystemWindowInsetBottom();
-            FrameLayout.LayoutParams p = (FrameLayout.LayoutParams) v.getLayoutParams();
-            int want = bottom + Math.round(BOTTOM_BAR_DP * density);
-            if (p.bottomMargin != want) {
-                p.bottomMargin = want;
-                v.setLayoutParams(p);
-            }
-            return insets;
-        });
-        frame.addView(button, lp);
-        button.requestApplyInsets();
+        button.setContentDescription(text);
+        button.setOnClickListener(v -> open(activity, tab));
+        return button;
     }
 
-    private static void open(Activity activity) {
+    private static void open(Activity activity, int tab) {
         try {
             State state = state(activity);
             if (state == null) return;
@@ -258,7 +292,7 @@ final class PropertyPageButton {
             if (state.history && c.stay != null && c.hotel.hasPrice()) {
                 PriceHistory.record(c.hotel, c.stay, PriceDb.SOURCE_PROPERTY);
             }
-            new Panel(activity, c.hotel, c.stay, state.history, state.compare).show();
+            new Panel(activity, c.hotel, c.stay, state.history, state.compare, state.contact, tab).show();
         } catch (Throwable t) {
             Log.e(HotelInfo.TAG, "Couldn't open the panel", t);
         }

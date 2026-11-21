@@ -29,8 +29,9 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * The full-screen panel the property page button opens. It has a tab for each patch that is on:
- * "Price history" (prices saved on this phone) and "Official site" (Google Hotels in a WebView).
+ * The full-screen panel the property page buttons open. It has a tab for each patch that is on:
+ * "Price history" (prices saved on this phone), "Official site" (Google Hotels in a WebView) and
+ * "Contact" (the property's address and contact details).
  */
 final class Panel {
     /** Colors for the light and dark theme. */
@@ -66,23 +67,31 @@ final class Panel {
         }
     }
 
+    /** The tab the panel opens on. */
+    static final int TAB_HISTORY = 0, TAB_OFFICIAL = 1, TAB_CONTACT = 2;
+
     private final Activity activity;
     private final Colors colors;
     private final HotelInfo hotel;
     private final Stay stay;
     private final boolean showHistory;
     private final boolean showOfficial;
+    private final boolean showContact;
+    private final int firstTab;
     private final float density;
     private Dialog dialog;
     private OfficialSiteTab officialTab;
 
-    Panel(Activity activity, HotelInfo hotel, Stay stay, boolean showHistory, boolean showOfficial) {
+    Panel(Activity activity, HotelInfo hotel, Stay stay, boolean showHistory, boolean showOfficial,
+          boolean showContact, int firstTab) {
         this.activity = activity;
         this.colors = Colors.of(activity);
         this.hotel = hotel;
         this.stay = stay;
         this.showHistory = showHistory;
         this.showOfficial = showOfficial;
+        this.showContact = showContact;
+        this.firstTab = firstTab;
         this.density = activity.getResources().getDisplayMetrics().density;
     }
 
@@ -106,30 +115,46 @@ final class Panel {
 
         root.addView(header());
 
-        final FrameLayout content = new FrameLayout(activity);
-        final View historyView = showHistory ? new HistoryTab(activity, this, colors, hotel, stay).view() : null;
-        if (showOfficial) officialTab = new OfficialSiteTab(activity, this, colors, hotel, stay);
-        final View officialView = officialTab != null ? officialTab.view() : null;
+        // The tabs of the patches that are on, in this order.
+        final java.util.List<Integer> ids = new java.util.ArrayList<>();
+        final java.util.List<String> labels = new java.util.ArrayList<>();
+        final java.util.List<View> views = new java.util.ArrayList<>();
+        if (showHistory) {
+            ids.add(TAB_HISTORY);
+            labels.add(Strings.TAB_HISTORY);
+            views.add(new HistoryTab(activity, this, colors, hotel, stay).view());
+        }
+        if (showOfficial) {
+            officialTab = new OfficialSiteTab(activity, this, colors, hotel, stay);
+            ids.add(TAB_OFFICIAL);
+            labels.add(Strings.TAB_OFFICIAL);
+            views.add(officialTab.view());
+        }
+        if (showContact) {
+            ids.add(TAB_CONTACT);
+            labels.add(Strings.TAB_CONTACT);
+            views.add(new ContactTab(activity, this, colors, hotel).view());
+        }
 
-        if (historyView != null && officialView != null) {
-            final TextView[] tabs = new TextView[2];
+        final FrameLayout content = new FrameLayout(activity);
+        int first = Math.max(0, ids.indexOf(firstTab));
+        if (views.size() > 1) {
+            final TextView[] tabs = new TextView[views.size()];
             LinearLayout tabRow = new LinearLayout(activity);
             tabRow.setOrientation(LinearLayout.HORIZONTAL);
-            tabs[0] = tab(Strings.TAB_HISTORY);
-            tabs[1] = tab(Strings.TAB_OFFICIAL);
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < tabs.length; i++) {
                 final int index = i;
+                tabs[i] = tab(labels.get(i));
                 tabRow.addView(tabs[i], new LinearLayout.LayoutParams(0, dp(48), 1));
-                tabs[i].setOnClickListener(v -> select(index, tabs, historyView, officialView));
+                tabs[i].setOnClickListener(v -> select(index, tabs, views, ids));
             }
             root.addView(tabRow);
             root.addView(divider());
-            select(0, tabs, historyView, officialView);
+            select(first, tabs, views, ids);
         } else if (officialTab != null) {
             officialTab.start();
         }
-        if (historyView != null) content.addView(historyView, matchParent());
-        if (officialView != null) content.addView(officialView, matchParent());
+        for (View view : views) content.addView(view, matchParent());
         root.addView(content, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
 
         dialog.setContentView(root);
@@ -153,16 +178,15 @@ final class Panel {
         dialog.show();
     }
 
-    private void select(int index, TextView[] tabs, View historyView, View officialView) {
+    private void select(int index, TextView[] tabs, java.util.List<View> views, java.util.List<Integer> ids) {
         for (int i = 0; i < tabs.length; i++) {
             boolean on = i == index;
             tabs[i].setTextColor(on ? colors.accent : colors.secondaryText);
             tabs[i].setBackground(on ? underlineDrawable() : null);
+            views.get(i).setVisibility(on ? View.VISIBLE : View.GONE);
         }
-        historyView.setVisibility(index == 0 ? View.VISIBLE : View.GONE);
-        officialView.setVisibility(index == 1 ? View.VISIBLE : View.GONE);
         // Google is only loaded when the user opens its tab.
-        if (index == 1) officialTab.start();
+        if (ids.get(index) == TAB_OFFICIAL) officialTab.start();
     }
 
     private android.graphics.drawable.Drawable underlineDrawable() {

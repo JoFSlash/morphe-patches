@@ -10,6 +10,6 @@ public final class ComparePrices {
 
     /** Called from the property page's constructor. */
     public static void onPropertyPage(Activity activity) {
-        PropertyPageButton.attach(activity, true, false);
+        PropertyPageButton.attach(activity, true, false, false);
     }
 }
