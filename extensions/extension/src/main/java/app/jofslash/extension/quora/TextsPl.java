@@ -316,6 +316,9 @@ final class TextsPl {
         m.put("Quora+ answers", "Odpowiedzi Quora+");
         m.put("Suggestions", "Propozycje");
         m.put("Your filters", "Twoje filtry");
+        // Offline pictures.
+        m.put("Saved as text with its pictures: links and formatting aren't kept.",
+                "Zapisano jako tekst z obrazkami: linki i formatowanie nie są zachowywane.");
         // Update notice, settings line only.
         m.put("Shows here when newer patches are out, from GitHub once a day.",
                 "Pokazuje tutaj, gdy wyjdą nowsze łatki, z GitHuba raz dziennie.");

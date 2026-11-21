@@ -316,6 +316,9 @@ final class TextsCs {
         m.put("Quora+ answers", "Odpovědi Quora+");
         m.put("Suggestions", "Návrhy");
         m.put("Your filters", "Tvoje filtry");
+        // Offline pictures.
+        m.put("Saved as text with its pictures: links and formatting aren't kept.",
+                "Uloženo jako text i s obrázky: odkazy a formátování se neukládají.");
         // Update notice, settings line only.
         m.put("Shows here when newer patches are out, from GitHub once a day.",
                 "Ukáže tady, když vyjdou novější patche, z GitHubu jednou denně.");
