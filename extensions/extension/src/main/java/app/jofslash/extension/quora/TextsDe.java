@@ -317,5 +317,12 @@ final class TextsDe {
         m.put("Their answers and posts won't show in the feed or on question pages. You can remove the name again in Patch settings > More > Filters.",
                 "Ihre Antworten und Beiträge erscheinen nicht mehr im Feed oder auf Fragenseiten. Du kannst den Namen in Patch settings > Mehr > Filter wieder entfernen.");
         m.put("hidden.", "ausgeblendet.");
+        // Hidden counts.
+        m.put("Hidden in the last 7 days: ", "In den letzten 7 Tagen ausgeblendet: ");
+        m.put("Ads", "Werbung");
+        m.put("AI answers", "KI-Antworten");
+        m.put("Quora+ answers", "Quora+-Antworten");
+        m.put("Suggestions", "Vorschläge");
+        m.put("Your filters", "Deine Filter");
     }
 }

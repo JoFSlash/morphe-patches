@@ -316,5 +316,12 @@ final class TextsPt {
         m.put("Their answers and posts won't show in the feed or on question pages. You can remove the name again in Patch settings > More > Filters.",
                 "As suas respostas e publicações não vão aparecer no feed nem nas páginas de perguntas. Podes remover o nome em Patch settings > Mais > Filtros.");
         m.put("hidden.", "oculto.");
+        // Hidden counts.
+        m.put("Hidden in the last 7 days: ", "Ocultado nos últimos 7 dias: ");
+        m.put("Ads", "Anúncios");
+        m.put("AI answers", "Respostas de IA");
+        m.put("Quora+ answers", "Respostas Quora+");
+        m.put("Suggestions", "Sugestões");
+        m.put("Your filters", "Os teus filtros");
     }
 }

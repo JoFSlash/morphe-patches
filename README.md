@@ -44,8 +44,9 @@ The privacy patches are on by default. Everything else is off until you pick it.
 
 Most patches and their options (text size, tabs, font, how old is too old) can be changed in the app without
 patching again: open **Settings > Morphe > Quora patches**, or long-press the **Home** tab. The same page has a
-search field, edits the keyword and author filters, backs up your settings as text, and tells you when Quora has
-changed its pages in a way that breaks some patches.
+search field, edits the keyword and author filters, backs up your settings as text, tells you when Quora has
+changed its pages in a way that breaks some patches, and counts what the patches hid in the last 7 days (ads, AI
+answers, Quora+ answers, suggestions and your filters; the counts stay on your phone).
 
 On the first start after patching, the app offers four presets: **Everything you patched**, **Clean feed** (no
 ads, AI answers, promotions or suggestions, but answers and the app look as usual), **For reading** (the clean feed

@@ -23,7 +23,8 @@ private const val TAB_BAR = "Lcom/quora/android/controls/QTabBar;"
 val patchSettingsPatch = bytecodePatch(
     name = "Patch settings",
     description = "Long-press the Home tab, or open Settings > Morphe > Quora patches, to switch the page patches on and off and edit the filters, " +
-            "without patching again. It also tells you when Quora changes its pages so that some patches stop working.",
+            "without patching again. It also tells you when Quora changes its pages so that some patches stop working, " +
+            "and how many ads and other items the patches hid in the last 7 days (counted only on your phone).",
     default = true
 ) {
     category("App")
@@ -52,6 +53,11 @@ val patchSettingsPatch = bytecodePatch(
         PageFinishedFingerprint.method.addInstruction(
             0,
             "invoke-static { p1 }, Lapp/jofslash/extension/quora/PageCheck;->onPageFinished(Landroid/webkit/WebView;)V"
+        )
+        // Counts what the patches hid, for a line in Patch settings.
+        PageFinishedFingerprint.method.addInstruction(
+            0,
+            "invoke-static { p1 }, Lapp/jofslash/extension/quora/HiddenStats;->onPageFinished(Landroid/webkit/WebView;)V"
         )
         // A "Morphe" section with a "Quora patches" entry on Quora's settings page opens the same dialog.
         PageFinishedFingerprint.method.addInstruction(

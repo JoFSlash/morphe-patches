@@ -316,5 +316,12 @@ final class TextsCs {
         m.put("Their answers and posts won't show in the feed or on question pages. You can remove the name again in Patch settings > More > Filters.",
                 "Jejich odpovědi a příspěvky se nezobrazí ve feedu ani na stránkách otázek. Jméno můžeš znovu odebrat v Patch settings > Další > Filtry.");
         m.put("hidden.", "skryto.");
+        // Hidden counts.
+        m.put("Hidden in the last 7 days: ", "Skryto za posledních 7 dní: ");
+        m.put("Ads", "Reklamy");
+        m.put("AI answers", "AI odpovědi");
+        m.put("Quora+ answers", "Odpovědi Quora+");
+        m.put("Suggestions", "Návrhy");
+        m.put("Your filters", "Tvoje filtry");
     }
 }

@@ -316,5 +316,12 @@ final class TextsSk {
         m.put("Their answers and posts won't show in the feed or on question pages. You can remove the name again in Patch settings > More > Filters.",
                 "Ich odpovede a príspevky sa nezobrazia vo feede ani na stránkach otázok. Meno môžeš znova odstrániť v Patch settings > Ďalšie > Filtre.");
         m.put("hidden.", "skryté.");
+        // Hidden counts.
+        m.put("Hidden in the last 7 days: ", "Skryté za posledných 7 dní: ");
+        m.put("Ads", "Reklamy");
+        m.put("AI answers", "AI odpovede");
+        m.put("Quora+ answers", "Odpovede Quora+");
+        m.put("Suggestions", "Návrhy");
+        m.put("Your filters", "Tvoje filtre");
     }
 }

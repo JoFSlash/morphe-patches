@@ -396,6 +396,14 @@ public final class PatchSettings {
             view.post(() -> askBlockAuthor(view, clean));
         }
 
+        /** For the hidden counts in Patch settings: what this page hid since it last said, as {"ads":2,…}. */
+        @android.webkit.JavascriptInterface
+        public void countHidden(String key, String json) {
+            if (!allowed(key)) return;
+            WebView view = webView.get();
+            if (view != null) HiddenStats.add(view.getContext(), json);
+        }
+
         /** For Read aloud: whether it is still reading, so the page can reset its button. */
         @android.webkit.JavascriptInterface
         public boolean isReadingAloud(String key) {

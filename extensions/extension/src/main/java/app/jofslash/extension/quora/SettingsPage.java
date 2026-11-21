@@ -94,14 +94,16 @@ final class SettingsPage {
         String status = PageCheck.status(prefs);
         String updates = FilterUpdates.status(activity);
         String version = UpdateCheck.status(activity);
+        String hidden = HiddenStats.status(prefs);
         String newer = UpdateCheck.newer(prefs);
-        if (status != null || updates != null || version != null) {
+        if (status != null || updates != null || version != null || hidden != null) {
             LinearLayout box = section(null);
             if (version != null) box.addView(note(version));
             if (newer != null) {
                 add(box, linkRow("Get the new version", "What's new, and how to patch again.",
                         () -> UpdateCheck.openRelease(activity, newer)));
             }
+            if (hidden != null) box.addView(note(hidden));
             if (status != null) box.addView(note(status));
             if (updates != null) box.addView(note(updates));
             content.addView(box);
