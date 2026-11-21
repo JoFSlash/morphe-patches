@@ -12,9 +12,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Used by the Hide sponsored listings and Hide urgency messages patches. Search results are a
- * server-driven ("Saba") page that the app gets as JSON. Before the app reads that JSON, the parts
- * the enabled patches hide are taken out. On any problem the JSON is left as it is.
+ * Used by the Hide sponsored listings, Hide urgency messages and Label Preferred properties
+ * patches. Search results are a server-driven ("Saba") page that the app gets as JSON. Before the
+ * app reads that JSON, the parts the enabled patches hide are taken out and the Preferred badges
+ * get their label. On any problem the JSON is left as it is.
  */
 @SuppressWarnings("unused")
 public final class SabaJsonFilter {
@@ -52,7 +53,27 @@ public final class SabaJsonFilter {
     private static final String SPACER = "core.layout.Spacer";
     private static final String LAYOUT_PREFIX = "core.layout.";
 
+    // Preferred properties.
+    //
+    // On a search result card, the Preferred badge is an icon after the property's name:
+    //   core.layout.Flow { items: [ bui.Icon { name: { mappingName: "BrandThumbsUpSquare", ... } },
+    //     bui.IconBranded { name: "genius_badge" } ] }
+    // and "PreferredPlusBadge" for Preferred Plus. The card's accessibilityLabel says "This is a
+    // Preferred property." (or "Preferred Plus").
+
+    private static final String PREFERRED_ICON = "BrandThumbsUpSquare";
+    private static final String PREFERRED_PLUS_ICON = "PreferredPlusBadge";
+    private static final String A11Y_PREFERRED = "This is a Preferred property.";
+    private static final String A11Y_PREFERRED_PLUS = "This is a Preferred Plus property.";
+    private static final String LABEL_FONT = "small_1";
+    private static final String LABEL_COLOR = "foreground_alt";
+
     private SabaJsonFilter() {
+    }
+
+    /** Changed by the Label Preferred properties patch to return true. */
+    private static boolean labelPreferred() {
+        return false;
     }
 
     /** Changed by the Hide sponsored listings patch to return true. */
@@ -71,7 +92,10 @@ public final class SabaJsonFilter {
             if (json == null) return null;
             boolean sponsored = hideSponsored() && (json.contains(NATIVE_AD_PREFIX) || json.contains(SPONSORED_PREFIX));
             boolean urgency = hideUrgency() && json.contains(URGENCY_COLOR);
-            if (!sponsored && !urgency) return json;
+            boolean preferred = labelPreferred() && (json.contains(PREFERRED_ICON)
+                    || json.contains(PREFERRED_PLUS_ICON) || json.contains(A11Y_PREFERRED)
+                    || json.contains(A11Y_PREFERRED_PLUS));
+            if (!sponsored && !urgency && !preferred) return json;
 
             String trimmed = json.trim();
             Object root;
@@ -86,8 +110,10 @@ public final class SabaJsonFilter {
                 urgencies = removeUrgency(root, texts);
                 if (!texts.isEmpty()) cleanAccessibilityLabels(root, texts);
             }
-            if (ads + urgencies == 0) return json;
-            Log.d(TAG, "Removed " + ads + " sponsored results and " + urgencies + " urgency messages");
+            int labels = preferred ? addPreferredLabels(root) : 0;
+            if (ads + urgencies + labels == 0) return json;
+            Log.d(TAG, "Removed " + ads + " sponsored results and " + urgencies + " urgency messages, labelled "
+                    + labels + " Preferred badges and card texts");
             return root.toString();
         } catch (Throwable t) {
             Log.w(TAG, "Couldn't filter a server-driven page", t);
@@ -284,6 +310,93 @@ public final class SabaJsonFilter {
             JSONArray array = (JSONArray) node;
             for (int i = 0; i < array.length(); i++) cleanAccessibilityLabels(array.opt(i), texts);
         }
+    }
+
+    // Preferred properties.
+
+    /** The Preferred badge icon: 1 for Preferred, 2 for Preferred Plus, 0 when it isn't one. */
+    private static int preferredIcon(Object node) {
+        if (!(node instanceof JSONObject)) return 0;
+        JSONObject object = (JSONObject) node;
+        if (!ICON.equals(object.optString("type"))) return 0;
+        JSONObject props = object.optJSONObject("props");
+        if (props == null) return 0;
+        JSONObject name = props.optJSONObject("name");
+        String mapping = name != null ? name.optString("mappingName") : props.optString("name");
+        if (PREFERRED_ICON.equals(mapping)) return 1;
+        if (PREFERRED_PLUS_ICON.equals(mapping)) return 2;
+        return 0;
+    }
+
+    private static boolean isLabel(Object node, String text) {
+        if (!(node instanceof JSONObject)) return false;
+        JSONObject object = (JSONObject) node;
+        JSONObject props = object.optJSONObject("props");
+        return LABEL.equals(object.optString("type")) && props != null && text.equals(props.optString("text"));
+    }
+
+    /**
+     * Puts the label right after each Preferred badge icon in a layout (the row of badges after
+     * the property's name), and adds what the badge means to the cards' screen reader text.
+     * Returns how many labels and texts were changed.
+     */
+    private static int addPreferredLabels(Object node) throws Exception {
+        int labelled = 0;
+        if (node instanceof JSONObject) {
+            JSONObject object = (JSONObject) node;
+            String type = object.optString("type");
+            JSONObject props = object.optJSONObject("props");
+            if (props != null && type.startsWith(LAYOUT_PREFIX)) {
+                JSONArray items = props.optJSONArray("items");
+                if (items != null) labelled += labelBadges(items);
+            }
+            for (String key : keysOf(object)) {
+                Object child = object.opt(key);
+                if ("accessibilityLabel".equals(key) && child instanceof String) {
+                    String explained = explainPreferred((String) child);
+                    if (!explained.equals(child)) {
+                        object.put(key, explained);
+                        labelled++;
+                    }
+                } else {
+                    labelled += addPreferredLabels(child);
+                }
+            }
+        } else if (node instanceof JSONArray) {
+            JSONArray array = (JSONArray) node;
+            for (int i = 0; i < array.length(); i++) labelled += addPreferredLabels(array.opt(i));
+        }
+        return labelled;
+    }
+
+    /** Adds a label after each Preferred icon of a layout's items. org.json can't insert, so the items are rebuilt. */
+    private static int labelBadges(JSONArray items) throws Exception {
+        int labelled = 0;
+        List<Object> rebuilt = new ArrayList<>();
+        for (int i = 0; i < items.length(); i++) {
+            Object item = items.opt(i);
+            rebuilt.add(item);
+            int icon = preferredIcon(item);
+            if (icon == 0) continue;
+            String text = PreferredLabel.label(icon == 2);
+            if (isLabel(items.opt(i + 1), text)) continue;
+            rebuilt.add(new JSONObject().put("type", LABEL).put("props", new JSONObject()
+                    .put("font", LABEL_FONT).put("color", LABEL_COLOR).put("text", text)));
+            labelled++;
+        }
+        if (labelled == 0) return 0;
+        for (int i = items.length() - 1; i >= 0; i--) items.remove(i);
+        for (Object item : rebuilt) items.put(item);
+        return labelled;
+    }
+
+    private static String explainPreferred(String label) {
+        if (label.contains(Strings.PREFERRED_A11Y)) return label;
+        // The Plus text first: the plain one is not a part of it ("Preferred Plus property.").
+        if (label.contains(A11Y_PREFERRED_PLUS)) {
+            return label.replace(A11Y_PREFERRED_PLUS, A11Y_PREFERRED_PLUS + " " + Strings.PREFERRED_A11Y);
+        }
+        return label.replace(A11Y_PREFERRED, A11Y_PREFERRED + " " + Strings.PREFERRED_A11Y);
     }
 
     private static List<String> keysOf(JSONObject object) {

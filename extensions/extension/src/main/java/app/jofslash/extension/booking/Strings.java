@@ -1,8 +1,7 @@
 package app.jofslash.extension.booking;
 
 /**
- * Every text the Compare prices and Price history patches show, in one place so translations can
- * be added later.
+ * Every text the patches show, in one place so translations can be added later.
  */
 public final class Strings {
     private Strings() {
@@ -121,6 +120,15 @@ public final class Strings {
     public static final String RELOAD = "Read the prices again";
     /** Appended to the hotel name and city when searching for the hotel's website. */
     public static final String WEBSITE_QUERY_SUFFIX = " official website";
+
+    // Preferred label
+    /**
+     * Next to the Preferred and Preferred Plus badges. Booking.com: Preferred Partners pay a higher
+     * commission. Short, so it fits next to the badge on a search result card.
+     */
+    public static final String PREFERRED_LABEL = "Pays Booking higher commission";
+    /** Added to the screen reader text after "This is a Preferred property." */
+    public static final String PREFERRED_A11Y = "Preferred properties pay Booking.com a higher commission.";
 
     // -------------------------------------------------------------------------------------------
     // Review check
