@@ -82,7 +82,7 @@ final class SettingsCatalog {
         add("disableVibration", "App", "No vibration when you tap buttons.");
         add("disableSignInPrompts", "App", "No \"Save password?\" or automatic sign-in.");
         add("blockPromotionalNotifications", "App", "Drops digests and promotions.");
-        add("updateNotice", "App", "Says when newer patches are out, from GitHub once a day.");
+        add("updateNotice", "App", "Shows here when newer patches are out, from GitHub once a day.");
         add("filterUpdates", "App", "Fixes for hiding things when Quora changes its pages, from GitHub once a day.");
     }
 

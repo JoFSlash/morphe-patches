@@ -297,13 +297,6 @@ final class TextsFr {
         // Update notice.
         m.put("Switch many patches at once: everything, a clean feed, for reading, or ads only.",
                 "Changer beaucoup de patchs d'un coup : tout, un fil épuré, pour lire ou seulement les pubs.");
-        m.put("Says when newer patches are out, from GitHub once a day.",
-                "Signale quand de nouveaux patchs sont sortis, depuis GitHub une fois par jour.");
-        m.put("New Quora patches: ", "Nouveaux patchs Quora : ");
-        m.put("This app has ", "Cette appli a ");
-        m.put("Patch Quora again in Morphe Manager to get the new version, and install it over this app: you stay signed in and keep your settings.",
-                "Patche à nouveau Quora dans Morphe Manager pour avoir la nouvelle version, et installe-la par-dessus cette appli : tu restes connecté et gardes tes réglages.");
-        m.put("What's new", "Nouveautés");
         m.put("Patches ", "Patchs ");
         m.put("A newer version is out: ", "Une version plus récente est sortie : ");
         m.put("the newest.", "la plus récente.");
@@ -316,5 +309,8 @@ final class TextsFr {
         m.put("Their answers and posts won't show in the feed or on question pages. You can remove the name again in Patch settings > More > Filters.",
                 "Ses réponses et publications n'apparaîtront plus dans le fil ni sur les pages de questions. Tu peux retirer le nom dans Patch settings > Plus > Filtres.");
         m.put("hidden.", "masqué.");
+        // Update notice, settings line only.
+        m.put("Shows here when newer patches are out, from GitHub once a day.",
+                "Indique ici quand de nouveaux patchs sont sortis, depuis GitHub une fois par jour.");
     }
 }

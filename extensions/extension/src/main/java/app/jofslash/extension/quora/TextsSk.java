@@ -297,13 +297,6 @@ final class TextsSk {
         // Update notice.
         m.put("Switch many patches at once: everything, a clean feed, for reading, or ads only.",
                 "Prepni veľa patchov naraz: všetko, čistý feed, na čítanie alebo len reklamy.");
-        m.put("Says when newer patches are out, from GitHub once a day.",
-                "Povie, keď vyjdú novšie patche, z GitHubu raz denne.");
-        m.put("New Quora patches: ", "Nové patche pre Quoru: ");
-        m.put("This app has ", "Táto aplikácia má ");
-        m.put("Patch Quora again in Morphe Manager to get the new version, and install it over this app: you stay signed in and keep your settings.",
-                "Pre novú verziu napatchuj Quoru znova v Morphe Manageri a nainštaluj ju cez túto aplikáciu: ostaneš prihlásený a nastavenia zostanú.");
-        m.put("What's new", "Čo je nové");
         m.put("Patches ", "Patche ");
         m.put("A newer version is out: ", "Vyšla novšia verzia: ");
         m.put("the newest.", "najnovšie.");
@@ -316,5 +309,8 @@ final class TextsSk {
         m.put("Their answers and posts won't show in the feed or on question pages. You can remove the name again in Patch settings > More > Filters.",
                 "Ich odpovede a príspevky sa nezobrazia vo feede ani na stránkach otázok. Meno môžeš znova odstrániť v Patch settings > Ďalšie > Filtre.");
         m.put("hidden.", "skryté.");
+        // Update notice, settings line only.
+        m.put("Shows here when newer patches are out, from GitHub once a day.",
+                "Ukáže tu, keď vyjdú novšie patche, z GitHubu raz denne.");
     }
 }
