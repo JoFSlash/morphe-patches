@@ -83,6 +83,10 @@ final class HistoryTab {
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             lp.bottomMargin = panel.dp(16);
             list.addView(watchBox, lp);
+            // Back from Android's notification prompt or settings: show whether they're on now.
+            watchBox.getViewTreeObserver().addOnWindowFocusChangeListener(focused -> {
+                if (focused && watches != null) renderWatch();
+            });
         }
 
         LinearLayout ranges = new LinearLayout(activity);
@@ -176,6 +180,24 @@ final class HistoryTab {
         return null;
     }
 
+    /**
+     * The hotel with the price to start the watch from: the page's price, or else the newest
+     * price saved for this stay (a page opened from a link can come without one).
+     */
+    private HotelInfo watchable() {
+        if (hotel.hasPrice()) return hotel;
+        if (stay == null || all == null) return null;
+        for (int i = all.size() - 1; i >= 0; i--) {
+            PriceDb.Row r = all.get(i);
+            if (r.checkIn.equals(stay.checkIn) && r.checkOut.equals(stay.checkOut) && r.adults == stay.adults
+                    && r.rooms == stay.rooms) {
+                return HotelInfo.ofPrice(hotel.id, hotel.name != null ? hotel.name : r.name, r.price, Double.NaN,
+                        r.currency);
+            }
+        }
+        return null;
+    }
+
     /** The card with the "Watch this price" button, at the top of the tab. */
     private void renderWatch() {
         watchBox.removeAllViews();
@@ -183,7 +205,7 @@ final class HistoryTab {
         card.setOrientation(LinearLayout.VERTICAL);
         card.addView(panel.text(Strings.WATCH_HEADER, 16, colors.text, true));
         final PriceDb.Watch watch = thisWatch();
-        if (stay == null || (watch == null && !hotel.hasPrice())) {
+        if (stay == null || (watch == null && watchable() == null)) {
             card.addView(panel.spaced(panel.text(stay == null ? Strings.HISTORY_NONE : Strings.WATCH_NEEDS_PRICE, 14,
                     colors.secondaryText, false), 6));
             watchBox.addView(panel.card(card));
@@ -215,8 +237,9 @@ final class HistoryTab {
 
     private void startWatching() {
         final Context context = activity.getApplicationContext();
-        final HotelInfo h = hotel;
+        final HotelInfo h = watchable();
         final Stay s = stay;
+        if (h == null) return;
         PriceHistory.load(activity, db -> new Object[]{PriceWatch.watch(context, h, s), db.watches()}, result -> {
             if (result == null) return;
             if ((Integer) result[0] == PriceWatch.WATCH_FULL) {

@@ -97,7 +97,9 @@ public final class PriceWatch {
 
     /** Called from the property page's constructor: keeps the daily job scheduled while stays are watched. */
     public static void onPropertyPage(Activity activity) {
-        final Context context = activity.getApplicationContext();
+        // The activity has no context yet while it is being constructed.
+        final Context context = PriceHistory.currentApplication();
+        if (context == null) return;
         new Thread(() -> {
             try {
                 if (isAvailable(context)) updateSchedule(context);
@@ -226,7 +228,7 @@ public final class PriceWatch {
                 }
             }
             requests++;
-            checkOne(context, db, client, base, w, testDrop);
+            checkOne(context, db, client, base, w, force, testDrop);
         }
         Log.i(HotelInfo.TAG, "Price watch: checked " + requests + " of " + watches.size() + " stays");
         return true;
@@ -253,7 +255,7 @@ public final class PriceWatch {
     }
 
     private static void checkOne(Context context, PriceDb db, Object client, String base, PriceDb.Watch w,
-                                 boolean testDrop) {
+                                 boolean force, boolean testDrop) {
         long now = System.currentTimeMillis();
         PriceDb.Row before = db.latest(w.hotelId, w.stay, w.currency);
         double previous = before != null ? before.price : w.lastPrice;
@@ -271,7 +273,7 @@ public final class PriceWatch {
         if (STATUS_OK.equals(f.status)) {
             w.lastPrice = f.price;
             db.add(HotelInfo.ofPrice(w.hotelId, w.name, f.price, f.strike, f.currency), w.stay,
-                    PriceDb.SOURCE_WATCH, now);
+                    PriceDb.SOURCE_WATCH, now, force);
             Log.i(HotelInfo.TAG, "Price watch: hotel " + w.hotelId + " " + w.stay + " costs " + f.price + " "
                     + f.currency + " (was " + previous + ")");
             if (testDrop) previous = (Double.isNaN(previous) ? f.price : previous) * 1.1;

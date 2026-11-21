@@ -51,7 +51,7 @@ public final class PriceHistory {
         }
     }
 
-    private static Context currentApplication() {
+    static Context currentApplication() {
         try {
             return (Context) Class.forName("android.app.ActivityThread").getMethod("currentApplication").invoke(null);
         } catch (Throwable t) {

@@ -17,7 +17,8 @@ import android.util.Log;
  * <pre>adb shell am broadcast -a app.jofslash.booking.PRICE_WATCH_NOW -n
  *     com.booking/app.jofslash.extension.booking.PriceWatchReceiver [--ez test_drop true]</pre>
  *
- * With test_drop each price is compared with one 10% higher, so a notification shows. The check
+ * A forced check always saves its price, even the same one as minutes ago, so it shows in the
+ * chart. With test_drop each price is compared with one 10% higher, so a notification shows. The check
  * runs as a one-off job, so it isn't cut short like a long broadcast.
  */
 public final class PriceWatchReceiver extends BroadcastReceiver {

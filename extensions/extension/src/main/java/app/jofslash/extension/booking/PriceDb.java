@@ -76,12 +76,17 @@ final class PriceDb extends SQLiteOpenHelper {
 
     /** Saves a price unless the same one was saved for this stay recently. Returns true when saved. */
     synchronized boolean add(HotelInfo hotel, Stay stay, String source, long now) {
+        return add(hotel, stay, source, now, false);
+    }
+
+    /** With [always] the price is saved even when the same one was saved recently. */
+    synchronized boolean add(HotelInfo hotel, Stay stay, String source, long now, boolean always) {
         SQLiteDatabase db = getWritableDatabase();
         String[] key = keyArgs(hotel.id, stay);
         try (Cursor c = db.rawQuery("SELECT price, currency FROM prices WHERE hotel_id=? AND checkin=? "
                 + "AND checkout=? AND adults=? AND rooms=? AND time>? ORDER BY time DESC LIMIT 1",
                 new String[]{key[0], key[1], key[2], key[3], key[4], String.valueOf(now - DEDUPE_MS)})) {
-            if (c.moveToFirst() && Math.abs(c.getDouble(0) - hotel.price) < 0.005
+            if (!always && c.moveToFirst() && Math.abs(c.getDouble(0) - hotel.price) < 0.005
                     && hotel.currency.equals(c.getString(1))) {
                 return false;
             }
