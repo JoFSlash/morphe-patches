@@ -78,7 +78,7 @@ The app around the search.
 | Disable start-up promotions | on | Stops the promotional sheets the app shows on start, such as the "Black Friday Deals" sheet and the app's own Genius sign-in, wallet and credit-card prompts, and the full-screen sign-in page on the first start. You can still sign in from My account, or when booking or saving. The cookie dialog and Android's notification prompt are left alone. |
 | Disable update and rating prompts | on | Stops the "update available" and "this version is no longer supported" prompts, which you can't act on in a patched app (it doesn't update from the Play Store), and the Google Play "rate this app" card after a booking. |
 | Allow screenshots | on | Lets you take screenshots and record the screen on booking and payment screens, which the app normally blocks (they come out black). Bank verification (3-D Secure) screens still block them. |
-| GmsCore support | on | Makes "Continue with Google" work through [MicroG-RE](https://github.com/MorpheApp/MicroG-RE) instead of Google Play services, which won't sign in an app it didn't sign. Needs MicroG-RE installed with your Google account added; without it the app says so once and Google sign-in won't work. Email sign-in works either way. Push notifications stay off in the patched app. |
+| GmsCore support | on | Makes "Continue with Google" work through [MicroG-RE](https://github.com/MorpheApp/MicroG-RE) instead of Google Play services, which won't sign in an app it didn't sign. Needs MicroG-RE installed with your Google account added; without it the app says so once and Google sign-in won't work. Email sign-in works either way. Push notifications stay off in the patched app. With MicroG-RE the app's maps are MicroG's (MapLibre, not Google's own tiles); the patch also works around a MicroG bug that crashed the app when a map opened or switched between the default and satellite view. |
 
 </details>
 
@@ -156,6 +156,9 @@ See [SECURITY.md](SECURITY.md) for how to report it privately.
   bookings stop working, patch a newer supported version (see [Updating](#updating)).
 - **Bank verification still blocks screenshots.** The 3-D Secure screens of the payment providers (and the Klarna
   and Alipay pages) block them on their own; the patch only changes Booking.com's screens.
+- **Maps look different with MicroG-RE.** With MicroG-RE installed, the search results and property maps are drawn
+  by MicroG (MapLibre, with a MapLibre logo) instead of Google Maps, so streets and places look a little different.
+  Prices, markers and the satellite view work.
 - **Sign-in and payment are untested** in a patched app. See the FAQ above.
 
 Something else wrong? [Open an issue](https://github.com/JoFSlash/booking-patches/issues/new/choose).
