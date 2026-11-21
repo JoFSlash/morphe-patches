@@ -90,10 +90,16 @@ final class PriceChartView extends View {
         long t0 = rows.get(0).time, t1 = rows.get(rows.size() - 1).time;
         int n = rows.size();
         float[] xs = new float[n], ys = new float[n];
+        // Over a few days or more, place points by when they were seen. Over a shorter time the
+        // prices come in bursts, and even spacing reads better.
+        boolean byTime = n > 1 && t1 - t0 >= 2L * 24 * 60 * 60 * 1000;
         for (int i = 0; i < n; i++) {
             PriceDb.Row r = rows.get(i);
-            // Even spacing reads better than real time when prices come in bursts.
-            xs[i] = n == 1 ? (left + right) / 2 : left + (right - left) * i / (n - 1f);
+            if (byTime) {
+                xs[i] = left + (right - left) * (float) ((r.time - t0) / (double) (t1 - t0));
+            } else {
+                xs[i] = n == 1 ? (left + right) / 2 : left + (right - left) * i / (n - 1f);
+            }
             ys[i] = (float) (bottom - (r.price - lo) / (hi - lo) * (bottom - top));
         }
 
@@ -140,7 +146,7 @@ final class PriceChartView extends View {
 
         SimpleDateFormat day = new SimpleDateFormat("d MMM", Locale.getDefault());
         float base = getHeight() - 6 * density;
-        if (n > 1 && n <= 5) {
+        if (n > 1 && n <= 5 && !byTime) {
             // Few points: date each one.
             for (int i = 0; i < n; i++) {
                 text.setTextAlign(i == 0 ? Paint.Align.LEFT : i == n - 1 ? Paint.Align.RIGHT : Paint.Align.CENTER);

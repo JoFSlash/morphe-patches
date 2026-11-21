@@ -33,6 +33,10 @@ final class GoogleHotels {
         if (stay != null) b.appendQueryParameter("ts", ts(stay, currency));
         // English page, so the scripts below can find "Official Site".
         b.appendQueryParameter("hl", "en");
+        // Google shows its "DEAL, 19% less than usual" judgment only to some regions, not to
+        // the EU. With the US region the offers and their prices stayed the same in every hotel
+        // checked (Vienna and New York, EUR and USD), and the judgment appeared.
+        b.appendQueryParameter("gl", "us");
         return b.build().toString();
     }
 
@@ -214,9 +218,43 @@ final class GoogleHotels {
                 + "offers.push({provider:provider,official:/official site/i.test(text),"
                 + "member:/member/i.test(text),prices:prices,url:a.href});});"
                 + "var title=document.querySelector('h1');"
-                + "return JSON.stringify({offers:offers,title:title?title.textContent.trim():null});"
+                + SIGNAL_JS
+                + "return JSON.stringify({offers:offers,title:title?title.textContent.trim():null,signal:signal});"
                 + "})()";
     }
+
+    /**
+     * Google's own judgment of the price against the hotel's usual prices, when the page shows
+     * one. Google compares with the hotel's prices over about the past year and, only for some
+     * hotels and regions, shows it at the top of the hotel's page: a "DEAL" or "GREAT DEAL" chip
+     * with "54% less than usual", in the aria-label of the header button ("$114 for dates
+     * Dec 10 – 12, GREAT DEAL 54% less than usual") and as text. Similar hotels further down
+     * have their own chips, so only elements above the first offer that aren't links to another
+     * hotel count. Sets `signal` to {deal: "GREAT DEAL" or null, text: "54% less than usual" or
+     * "prices are currently high"}, or null when the page shows nothing.
+     */
+    private static final String SIGNAL_JS = ""
+            + "var signal=null;"
+            + "var first=document.querySelector('a[href*=\"/travel/lodging/clk\"]');"
+            + "var own=function(e){if(!e||e.closest('a[href*=\"/entity/\"]'))return false;"
+            + "return !first||!!(e.compareDocumentPosition(first)&Node.DOCUMENT_POSITION_FOLLOWING);};"
+            + "var usual=/(\\d+\\s?%|[^\\d\\s]{0,4}\\s?\\d[\\d.,]*\\s?[^\\d\\s]{0,4})\\s+(less|more|lower|higher|cheaper) than usual/i;"
+            + "var level=/prices? (are|is) (currently |usually |typically )?(unusually )?(low|typical|high)/i;"
+            + "var dealRe=/GREAT DEAL|\\bDEAL\\b/i;"
+            + "var found=null;"
+            + "var labelled=document.querySelectorAll('[aria-label]');"
+            + "for(var i=0;i<labelled.length&&!found;i++){var a=labelled[i].getAttribute('aria-label')||'';"
+            + "if((usual.test(a)||level.test(a))&&own(labelled[i]))found=a;}"
+            + "var deal=null;"
+            + "var walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);var n;"
+            + "while((n=walker.nextNode())){var t=n.textContent.trim();if(!t||t.length>120)continue;"
+            + "if(!own(n.parentElement))continue;"
+            + "if(!found&&(usual.test(t)||level.test(t)))found=t;"
+            + "if(!deal&&/^(GREAT )?DEAL$/i.test(t))deal=t;}"
+            + "if(found){var d=found.match(dealRe);if(d)deal=d[0];}"
+            + "if(found||deal){var rest=found?found.replace(/GREAT DEAL|\\bDEAL\\b/ig,' '):'';"
+            + "var m=found?(rest.match(usual)||rest.match(level)):null;"
+            + "signal={deal:deal,text:m?m[0]:null};}";
 
     /** Clicks "View more options" under the offers. Returns true when it found the button. */
     static String showMoreOffersScript() {

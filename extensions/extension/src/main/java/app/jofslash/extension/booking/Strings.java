@@ -30,8 +30,10 @@ public final class Strings {
     // Price history tab
     public static final String HISTORY_HEADER = "Prices you've seen for these dates";
     public static final String HISTORY_EMPTY =
-            "No saved prices for these dates yet. From now on, every price the app shows you for "
-                    + "this hotel is saved on your phone, so the history builds up as you look.";
+            "No saved prices for these dates yet. Booking.com keeps no price history and older "
+                    + "prices can't be fetched, so the history starts when this patch was installed: "
+                    + "from now on, every price the app shows you is saved on your phone.";
+    public static final String HISTORY_NONE_IN_RANGE = "No prices for these dates in this period.";
     public static final String HISTORY_NONE = "The dates of this stay aren't known yet.";
     public static final String HISTORY_NOW = "Now";
     public static final String HISTORY_LOWEST = "Lowest";
@@ -44,6 +46,25 @@ public final class Strings {
             "This is the first price saved for these dates. Open the hotel again later to see how "
                     + "it changes.";
     public static final String HISTORY_OTHER_DATES = "This hotel on other dates";
+
+    // Range buttons
+    public static final String RANGE_1M = "1M";
+    public static final String RANGE_6M = "6M";
+    public static final String RANGE_1Y = "1Y";
+    public static final String RANGE_ALL = "All";
+
+    // Hotel chart: every saved price of the hotel, any dates
+    public static final String HOTEL_HEADER = "This hotel over the past year";
+    public static final String HOTEL_EXPLAIN =
+            "All stay dates together, not one stay: the lowest price per night you saw each day, "
+                    + "for any dates and guests. Shows the hotel's general trend and seasons.";
+    public static final String HOTEL_EMPTY =
+            "No prices saved for this hotel in this period. Prices are saved from when this patch "
+                    + "was installed; older ones can't be fetched.";
+    public static final String HOTEL_LOWEST = "Lowest per night";
+    public static final String HOTEL_HIGHEST = "Highest per night";
+    /** Days with a price, different stays. */
+    public static final String HOTEL_COUNT = "%1$d days with prices, %2$d different stays";
     /** Check-in, check-out, price, day it was seen. */
     public static final String HISTORY_OTHER_ROW = "%1$s – %2$s: %3$s (seen %4$s)";
     public static final String VERDICT_LOW = "The price is low compared with what you've seen";
@@ -73,6 +94,10 @@ public final class Strings {
             "Google doesn't list a price from the hotel's own website for these dates. Other "
                     + "sites' prices are on the page below.";
     public static final String OFFICIAL_SITE = "Official site";
+    /** Google's own judgment of the price against the hotel's usual prices, as Google words it. */
+    public static final String GOOGLE_SIGNAL = "Google: %1$s";
+    public static final String GOOGLE_DEAL = "deal";
+    public static final String GOOGLE_GREAT_DEAL = "great deal";
     /** The hotel's name on Google Hotels. */
     public static final String GOOGLE_LISTING = "On Google Hotels: %1$s";
     public static final String OFFICIAL_MEMBER = "Member rate: %1$s";

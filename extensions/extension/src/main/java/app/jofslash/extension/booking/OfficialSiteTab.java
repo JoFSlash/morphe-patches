@@ -53,6 +53,8 @@ final class OfficialSiteTab {
     private boolean retriedWithHotelWord;
     /** The hotel's name on Google, shown so the user can tell it found the right one. */
     private String googleName;
+    /** Google's judgment of the price against the hotel's usual prices, when the page shows one. */
+    private String googleSignal;
     private int readGeneration;
     /** The page generation a read is already running for, so a page that reports "finished" twice is read once. */
     private int readingGeneration = -1;
@@ -203,6 +205,7 @@ final class OfficialSiteTab {
             JSONObject json = parse(value);
             final JSONArray offers = json == null ? null : json.optJSONArray("offers");
             if (json != null && !json.isNull("title")) googleName = json.optString("title");
+            if (json != null) googleSignal = signalText(json.optJSONObject("signal"));
             int count = offers == null ? 0 : offers.length();
             boolean hasOfficial = false;
             for (int i = 0; i < count; i++) {
@@ -229,6 +232,23 @@ final class OfficialSiteTab {
             Log.i(HotelInfo.TAG, "Google offers (" + count + "): " + (offers == null ? "none" : offers.toString()));
             show(offers);
         });
+    }
+
+    /**
+     * "great deal, 54% less than usual", "prices are currently high", or just "deal". Null when
+     * Google shows nothing: the line is left out rather than guessed.
+     */
+    private static String signalText(JSONObject signal) {
+        if (signal == null) return null;
+        String deal = signal.isNull("deal") ? null : signal.optString("deal").trim();
+        String text = signal.isNull("text") ? null : signal.optString("text").trim().replaceAll("\\s+", " ");
+        String dealWord = deal == null || deal.isEmpty() ? null
+                : deal.toUpperCase(Locale.ROOT).startsWith("GREAT") ? Strings.GOOGLE_GREAT_DEAL : Strings.GOOGLE_DEAL;
+        if (text != null && !text.isEmpty()) {
+            text = Character.toLowerCase(text.charAt(0)) + text.substring(1);
+            return dealWord == null ? text : dealWord + ", " + text;
+        }
+        return dealWord;
     }
 
     private static JSONObject parse(String value) {
@@ -306,6 +326,11 @@ final class OfficialSiteTab {
 
     private void show(JSONArray offers) {
         summary.removeAllViews();
+        if (googleSignal != null) {
+            Log.i(HotelInfo.TAG, "Google signal: " + googleSignal);
+            summary.addView(panel.spaced(panel.text(String.format(Strings.GOOGLE_SIGNAL, googleSignal), 15,
+                    colors.text, true), 0));
+        }
         if (googleName != null && !googleName.isEmpty()) {
             summary.addView(panel.spaced(panel.text(String.format(Strings.GOOGLE_LISTING, googleName), 13,
                     colors.secondaryText, false), 0));

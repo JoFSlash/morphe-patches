@@ -19,7 +19,6 @@ import android.view.Window;
 import android.view.WindowInsets;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,7 +26,6 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Currency;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -109,7 +107,7 @@ final class Panel {
         root.addView(header());
 
         final FrameLayout content = new FrameLayout(activity);
-        final View historyView = showHistory ? historyTab() : null;
+        final View historyView = showHistory ? new HistoryTab(activity, this, colors, hotel, stay).view() : null;
         if (showOfficial) officialTab = new OfficialSiteTab(activity, this, colors, hotel, stay);
         final View officialView = officialTab != null ? officialTab.view() : null;
 
@@ -203,126 +201,6 @@ final class Panel {
         close.setOnClickListener(v -> dialog.dismiss());
         row.addView(close, new LinearLayout.LayoutParams(dp(48), dp(48)));
         return row;
-    }
-
-    // ---------------------------------------------------------------------------------------
-    // Price history tab
-
-    private View historyTab() {
-        ScrollView scroll = new ScrollView(activity);
-        final LinearLayout list = new LinearLayout(activity);
-        list.setOrientation(LinearLayout.VERTICAL);
-        list.setPadding(dp(16), dp(12), dp(16), dp(24));
-        scroll.addView(list);
-
-        if (stay == null) {
-            list.addView(text(Strings.HISTORY_NONE, 14, colors.secondaryText, false));
-            return scroll;
-        }
-        final int hotelId = hotel.id;
-        PriceHistory.load(activity, db -> new Object[]{db.forStay(hotelId, stay), db.otherStays(hotelId, stay, 6)},
-                result -> fillHistory(list, result));
-        return scroll;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void fillHistory(LinearLayout list, Object[] result) {
-        List<PriceDb.Row> rows = result == null ? null : (List<PriceDb.Row>) result[0];
-        List<PriceDb.Row> others = result == null ? null : (List<PriceDb.Row>) result[1];
-
-        // Only chart prices in the currency shown now.
-        String currency = hotel.currency;
-        if (rows != null && !rows.isEmpty()) {
-            if (currency == null) currency = rows.get(rows.size() - 1).currency;
-            java.util.ArrayList<PriceDb.Row> same = new java.util.ArrayList<>();
-            for (PriceDb.Row r : rows) if (r.currency.equals(currency)) same.add(r);
-            rows = same;
-        }
-
-        list.addView(text(Strings.HISTORY_HEADER, 16, colors.text, true));
-        if (rows == null || rows.isEmpty()) {
-            list.addView(spaced(text(Strings.HISTORY_EMPTY, 14, colors.secondaryText, false), 8));
-        } else {
-            PriceDb.Row min = rows.get(0), max = rows.get(0), last = rows.get(rows.size() - 1);
-            for (PriceDb.Row r : rows) {
-                if (r.price < min.price) min = r;
-                if (r.price > max.price) max = r;
-            }
-            double now = hotel.hasPrice() ? hotel.price : last.price;
-
-            PriceChartView chart = new PriceChartView(activity, colors);
-            chart.setData(rows, hotel.strike, currency);
-            list.addView(spaced(chart, 12));
-
-            LinearLayout stats = new LinearLayout(activity);
-            stats.setOrientation(LinearLayout.HORIZONTAL);
-            stats.addView(stat(Strings.HISTORY_NOW, money(now, currency), null), weight());
-            stats.addView(stat(Strings.HISTORY_LOWEST, money(min.price, currency), day(min.time)), weight());
-            stats.addView(stat(Strings.HISTORY_HIGHEST, money(max.price, currency), day(max.time)), weight());
-            list.addView(spaced(stats, 8));
-
-            list.addView(spaced(verdict(now, min.price, max.price, rows.size()), 12));
-            String checks = rows.size() == 1 ? String.format(Strings.HISTORY_CHECKS_ONE, day(rows.get(0).time))
-                    : String.format(Locale.getDefault(), Strings.HISTORY_CHECKS, rows.size(), day(rows.get(0).time));
-            list.addView(spaced(text(checks, 13, colors.secondaryText, false), 6));
-            if (rows.size() == 1) {
-                list.addView(spaced(text(Strings.HISTORY_FIRST, 14, colors.secondaryText, false), 8));
-            }
-
-            if (!Double.isNaN(hotel.strike)) {
-                String note;
-                if (rows.size() < 3) {
-                    note = String.format(Strings.STRIKE_FEW, money(hotel.strike, currency));
-                } else if (hotel.strike > max.price + 0.5) {
-                    note = String.format(Strings.STRIKE_HIGHER, money(hotel.strike, currency), money(max.price, currency));
-                } else {
-                    note = String.format(Strings.STRIKE_SEEN, money(hotel.strike, currency), day(max.time));
-                }
-                list.addView(spaced(card(text(note, 14, colors.text, false)), 12));
-            }
-        }
-
-        if (others != null && !others.isEmpty()) {
-            list.addView(spaced(text(Strings.HISTORY_OTHER_DATES, 16, colors.text, true), 20));
-            for (PriceDb.Row r : others) {
-                list.addView(spaced(text(String.format(Strings.HISTORY_OTHER_ROW, shortDate(r.checkIn),
-                        shortDate(r.checkOut), money(r.price, r.currency), day(r.time)), 14, colors.text, false), 6));
-            }
-        }
-    }
-
-    private View verdict(double now, double min, double max, int count) {
-        String label;
-        int color;
-        if (count < 3) {
-            label = Strings.VERDICT_FEW;
-            color = colors.secondaryText;
-        } else if (max - min < 0.5) {
-            label = Strings.VERDICT_SAME;
-            color = colors.secondaryText;
-        } else {
-            double pos = (now - min) / (max - min);
-            if (pos <= 0.25) {
-                label = Strings.VERDICT_LOW;
-                color = colors.good;
-            } else if (pos >= 0.75) {
-                label = Strings.VERDICT_HIGH;
-                color = colors.bad;
-            } else {
-                label = Strings.VERDICT_TYPICAL;
-                color = colors.text;
-            }
-        }
-        return text(label, 15, color, true);
-    }
-
-    private View stat(String label, String value, String sub) {
-        LinearLayout box = new LinearLayout(activity);
-        box.setOrientation(LinearLayout.VERTICAL);
-        box.addView(text(label, 12, colors.secondaryText, false));
-        box.addView(text(value, 16, colors.text, true));
-        if (sub != null) box.addView(text(sub, 12, colors.secondaryText, false));
-        return box;
     }
 
     // ---------------------------------------------------------------------------------------
@@ -420,10 +298,6 @@ final class Panel {
         lp.topMargin = dp(topDp);
         v.setLayoutParams(lp);
         return v;
-    }
-
-    private static LinearLayout.LayoutParams weight() {
-        return new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1);
     }
 
     private static FrameLayout.LayoutParams matchParent() {

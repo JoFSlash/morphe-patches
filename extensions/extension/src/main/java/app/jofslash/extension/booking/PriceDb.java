@@ -107,6 +107,11 @@ final class PriceDb extends SQLiteOpenHelper {
                 "time ASC", null);
     }
 
+    /** Every price saved for this hotel, for any stay, oldest first. */
+    synchronized List<Row> forHotel(int hotelId) {
+        return query("hotel_id=?", new String[]{String.valueOf(hotelId)}, "time ASC", null);
+    }
+
     /** The latest price for each other stay at this hotel, newest first. */
     synchronized List<Row> otherStays(int hotelId, Stay stay, int limit) {
         List<Row> rows = query("hotel_id=? AND NOT (checkin=? AND checkout=? AND adults=? AND rooms=?) "
