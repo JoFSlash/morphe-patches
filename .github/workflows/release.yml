@@ -52,12 +52,24 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Semantic release runs its own Gradle build command.
+      # patches-bundle.json lists morphe-signing.pub, so Morphe Manager expects a signed bundle.
+      - name: Check for the signing key
+        env:
+          KEY: ${{ secrets.MORPHE_SIGNING_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "::error::MORPHE_SIGNING_KEY isn't set, so the bundle can't be signed."
+            exit 1
+          fi
+
+      # Semantic release runs its own Gradle build command. The Morphe Gradle plugin signs the
+      # bundle with MORPHE_SIGNING_KEY and checks it against morphe-signing.pub.
       - name: Release
         uses: cycjimmy/semantic-release-action@v8
         id: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MORPHE_SIGNING_KEY: ${{ secrets.MORPHE_SIGNING_KEY }}
 
       - name: Attest
         if: steps.release.outputs.new_release_published == 'true'
