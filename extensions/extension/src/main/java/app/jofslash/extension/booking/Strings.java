@@ -97,6 +97,12 @@ public final class Strings {
     /** Google's own judgment of the price against the hotel's usual prices, as Google words it. */
     public static final String GOOGLE_SIGNAL = "Google: %1$s";
     public static final String GOOGLE_DEAL = "deal";
+    /** The same judgment, read from the US version of the page on request. */
+    public static final String GOOGLE_SIGNAL_US = "Google (US data): %1$s";
+    public static final String US_RATING = "Check Google's deal rating (US data)";
+    public static final String US_RATING_LOADING = "Checking Google's deal rating (US data)…";
+    public static final String US_RATING_NONE = "no deal rating for this hotel";
+    public static final String US_RATING_FAILED = "couldn't read it";
     public static final String GOOGLE_GREAT_DEAL = "great deal";
     /** The hotel's name on Google Hotels. */
     public static final String GOOGLE_LISTING = "On Google Hotels: %1$s";

@@ -51,10 +51,17 @@ final class OfficialSiteTab {
     private boolean openedHotel;
     private boolean expanded;
     private boolean retriedWithHotelWord;
+    private boolean triedWebSearch;
     /** The hotel's name on Google, shown so the user can tell it found the right one. */
     private String googleName;
     /** Google's judgment of the price against the hotel's usual prices, when the page shows one. */
     private String googleSignal;
+    /** The hotel's prices page as loaded, in the user's own region. */
+    private String pricesPageUrl;
+    /** The optional "deal rating (US data)" read: its link, result line and hidden page. */
+    private TextView usLink;
+    private TextView usResult;
+    private WebView usWeb;
     private int readGeneration;
     /** The page generation a read is already running for, so a page that reports "finished" twice is read once. */
     private int readingGeneration = -1;
@@ -80,6 +87,13 @@ final class OfficialSiteTab {
         summary = new LinearLayout(activity);
         summary.setOrientation(LinearLayout.VERTICAL);
         top.addView(summary);
+        usResult = panel.text("", 14, colors.text, true);
+        usResult.setVisibility(View.GONE);
+        usResult.setPadding(0, panel.dp(10), 0, 0);
+        top.addView(usResult);
+        usLink = panel.link(Strings.US_RATING, v -> readUsRating());
+        usLink.setVisibility(View.GONE);
+        top.addView(usLink);
         top.addView(panel.link(Strings.FIND_WEBSITE,
                 v -> panel.openInBrowser(GoogleHotels.websiteSearchUrl(hotel.name, hotel.city))));
         root.addView(top);
@@ -135,6 +149,7 @@ final class OfficialSiteTab {
 
     void destroy() {
         main.removeCallbacksAndMessages(null);
+        destroyUsWeb();
         if (web != null) {
             web.stopLoading();
             web.destroy();
@@ -149,6 +164,7 @@ final class OfficialSiteTab {
             return;
         }
         if (GoogleHotels.isPricesPage(url)) {
+            pricesPageUrl = url;
             if (readingGeneration != readGeneration) {
                 readingGeneration = readGeneration;
                 status.setText(Strings.OFFICIAL_LOADING);
@@ -161,7 +177,36 @@ final class OfficialSiteTab {
             }
         } else if (GoogleHotels.isResultsPage(url)) {
             findHotel(readGeneration, 0);
+        } else if (GoogleHotels.isWebSearchPage(url) && triedWebSearch && !openedHotel) {
+            findInWebSearch(readGeneration, 0);
         }
+    }
+
+    /** Last try: Google Hotels found nothing, so look for the hotel with a plain web search. */
+    private void webSearchFallback() {
+        if (web == null || triedWebSearch) {
+            status.setText(Strings.OFFICIAL_NOT_FOUND);
+            return;
+        }
+        Log.i(HotelInfo.TAG, "No match on Google Hotels, trying a web search");
+        triedWebSearch = true;
+        web.loadUrl(GoogleHotels.webSearchUrl(hotel.name, hotel.city));
+    }
+
+    private void findInWebSearch(final int generation, final int attempt) {
+        if (web == null || openedHotel || generation != readGeneration) return;
+        web.evaluateJavascript(GoogleHotels.entityFromWebSearchScript(), value -> {
+            String id = value == null || "null".equals(value) ? null : value.replace("\"", "");
+            if (id != null && !id.isEmpty() && web != null && !openedHotel) {
+                Log.i(HotelInfo.TAG, "Google Hotels page from the web search: " + id);
+                openedHotel = true;
+                web.loadUrl(GoogleHotels.entityPricesUrl(id, stay, hotel.currency));
+            } else if (attempt + 1 < 6) {
+                main.postDelayed(() -> findInWebSearch(generation, attempt + 1), READ_DELAY_MS);
+            } else {
+                status.setText(Strings.OFFICIAL_NOT_FOUND);
+            }
+        });
     }
 
     /** On the results list: open the hotel that matches by name, once. */
@@ -183,10 +228,10 @@ final class OfficialSiteTab {
                 Log.i(HotelInfo.TAG, "Google result " + json.optString("name") + " score " + json.optDouble("score"));
                 openedHotel = true;
                 web.loadUrl(GoogleHotels.pricesUrl(url));
-            } else if (!noResults && attempt + 1 < READ_TRIES) {
+            } else if (!noResults && !onlyOthers && attempt + 1 < READ_TRIES) {
                 main.postDelayed(() -> findHotel(generation, attempt + 1), READ_DELAY_MS);
             } else {
-                status.setText(Strings.OFFICIAL_NOT_FOUND);
+                webSearchFallback();
             }
         });
     }
@@ -232,6 +277,87 @@ final class OfficialSiteTab {
             Log.i(HotelInfo.TAG, "Google offers (" + count + "): " + (offers == null ? "none" : offers.toString()));
             show(offers);
         });
+    }
+
+    /**
+     * Reads Google's deal rating for this hotel as the US region sees it, once per tap. It loads
+     * the same prices page with gl=us in a hidden WebView, takes only the rating from it and
+     * throws the page away: the prices shown stay the local ones.
+     */
+    @SuppressLint("SetJavaScriptEnabled")
+    private void readUsRating() {
+        if (pricesPageUrl == null || usWeb != null) return;
+        usLink.setEnabled(false);
+        usLink.setText(Strings.US_RATING_LOADING);
+        try {
+            usWeb = new WebView(activity);
+        } catch (Throwable t) {
+            usDone(null);
+            return;
+        }
+        usWeb.getSettings().setJavaScriptEnabled(true);
+        usWeb.getSettings().setDomStorageEnabled(true);
+        final boolean[] reading = {false};
+        usWeb.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                return !"www.google.com".equals(request.getUrl().getHost());
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                if (reading[0] || !GoogleHotels.isPricesPage(url)) {
+                    if (GoogleHotels.isBlockedPage(url)) usDone(null);
+                    return;
+                }
+                reading[0] = true;
+                readUsSignal(0);
+            }
+        });
+        // It has to be in the window to run its scripts, but nobody needs to see it.
+        root.addView(usWeb, new LinearLayout.LayoutParams(1, 1));
+        usWeb.setVisibility(View.INVISIBLE);
+        String url = GoogleHotels.usRegionUrl(pricesPageUrl);
+        Log.i(HotelInfo.TAG, "Reading the US deal rating from " + url);
+        usWeb.loadUrl(url);
+        // Give up after a while rather than wait forever.
+        main.postDelayed(() -> {
+            if (usWeb != null) usDone(null);
+        }, 25_000);
+    }
+
+    private void readUsSignal(final int attempt) {
+        if (usWeb == null) return;
+        usWeb.evaluateJavascript(GoogleHotels.readOffersScript(), value -> {
+            JSONObject json = parse(value);
+            String signal = json == null ? null : signalText(json.optJSONObject("signal"));
+            int offers = json == null || json.optJSONArray("offers") == null ? 0 : json.optJSONArray("offers").length();
+            // The rating sits at the top of the page; once the offers below it are drawn, it's
+            // there or it isn't.
+            if (signal == null && (offers == 0 || attempt < 3) && attempt + 1 < READ_TRIES) {
+                main.postDelayed(() -> readUsSignal(attempt + 1), READ_DELAY_MS);
+                return;
+            }
+            usDone(signal != null ? signal : Strings.US_RATING_NONE);
+        });
+    }
+
+    private void usDone(String result) {
+        destroyUsWeb();
+        Log.i(HotelInfo.TAG, "US deal rating: " + result);
+        usResult.setText(String.format(Strings.GOOGLE_SIGNAL_US, result != null ? result : Strings.US_RATING_FAILED));
+        usResult.setVisibility(View.VISIBLE);
+        usLink.setText(Strings.US_RATING);
+        usLink.setEnabled(true);
+    }
+
+    private void destroyUsWeb() {
+        if (usWeb == null) return;
+        WebView w = usWeb;
+        usWeb = null;
+        w.stopLoading();
+        root.removeView(w);
+        w.destroy();
     }
 
     /**
@@ -326,6 +452,8 @@ final class OfficialSiteTab {
 
     private void show(JSONArray offers) {
         summary.removeAllViews();
+        // The optional US rating, only once the local page is read and showed no rating itself.
+        usLink.setVisibility(pricesPageUrl != null && googleSignal == null ? View.VISIBLE : View.GONE);
         if (googleSignal != null) {
             Log.i(HotelInfo.TAG, "Google signal: " + googleSignal);
             summary.addView(panel.spaced(panel.text(String.format(Strings.GOOGLE_SIGNAL, googleSignal), 15,

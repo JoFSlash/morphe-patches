@@ -33,11 +33,54 @@ final class GoogleHotels {
         if (stay != null) b.appendQueryParameter("ts", ts(stay, currency));
         // English page, so the scripts below can find "Official Site".
         b.appendQueryParameter("hl", "en");
-        // Google shows its "DEAL, 19% less than usual" judgment only to some regions, not to
-        // the EU. With the US region the offers and their prices stayed the same in every hotel
-        // checked (Vienna and New York, EUR and USD), and the judgment appeared.
-        b.appendQueryParameter("gl", "us");
+        // No "gl": Google uses the user's own region, so prices and taxes are the local ones.
         return b.build().toString();
+    }
+
+    /**
+     * The same hotel page as seen from the US region. Google shows its "DEAL, 19% less than
+     * usual" judgment only to some regions, not to the EU; this page is read only for that
+     * judgment, never for prices.
+     */
+    static String usRegionUrl(String pageUrl) {
+        Uri u = Uri.parse(pageUrl);
+        Uri.Builder b = u.buildUpon().clearQuery();
+        for (String name : u.getQueryParameterNames()) {
+            if (name.equals("gl")) continue;
+            for (String value : u.getQueryParameters(name)) b.appendQueryParameter(name, value);
+        }
+        return b.appendQueryParameter("gl", "us").build().toString();
+    }
+
+    /**
+     * Plain Google web search for the hotel. When Google Hotels' own search finds nothing for a
+     * hotel (it sometimes answers "No results" for a hotel's exact name), the web results still
+     * have the hotel's panel, with links to its Google Hotels page.
+     */
+    static String webSearchUrl(String hotelName, String city) {
+        return Uri.parse("https://www.google.com/search").buildUpon()
+                .appendQueryParameter("q", query(hotelName, city))
+                .appendQueryParameter("hl", "en")
+                .build().toString();
+    }
+
+    static boolean isWebSearchPage(String url) {
+        return url != null && Uri.parse(url).getPath() != null && Uri.parse(url).getPath().equals("/search");
+    }
+
+    /** Finds the hotel panel's link to Google Hotels on a web search page. Returns the entity id or null. */
+    static String entityFromWebSearchScript() {
+        // The panel's links are often built by scripts, so look in the whole page source.
+        return "(function(){var m=document.documentElement.innerHTML"
+                + ".match(/\\/travel\\/hotels\\/(?:[^\\/\"'<>\\s]+\\/)?entity\\/([A-Za-z0-9_-]{8,})/);"
+                + "return m?m[1]:null;})()";
+    }
+
+    /** The prices page of a Google Hotels entity, for the stay and currency. */
+    static String entityPricesUrl(String entityId, Stay stay, String currency) {
+        Uri.Builder b = Uri.parse("https://www.google.com/travel/hotels/entity/" + entityId + "/prices").buildUpon();
+        if (stay != null) b.appendQueryParameter("ts", ts(stay, currency));
+        return b.appendQueryParameter("hl", "en").build().toString();
     }
 
     /** Plain Google search for the hotel's own website. */
