@@ -121,4 +121,113 @@ public final class Strings {
     public static final String RELOAD = "Read the prices again";
     /** Appended to the hotel name and city when searching for the hotel's website. */
     public static final String WEBSITE_QUERY_SUFFIX = " official website";
+
+    // -------------------------------------------------------------------------------------------
+    // Review check
+    //
+    // Keyword matching is a heads-up, not a verdict, and not fake-review detection. Matching is a
+    // case-insensitive substring test on each review's text, so the lists are easy to extend: add
+    // a phrase to the right row. Note that a few entries (for example "walked", "credit card")
+    // can also match innocent sentences; that's accepted for a heads-up banner. Keywords are
+    // English, so reviews written in other languages are only caught through Booking's own
+    // English translation when the app loaded one.
+
+    // Two severity tiers. Tier 1 is the hard scam case (a guest who was outright ripped off or had
+    // money taken); it leads the banner and sorts first in the dialog. Tier 2 is the milder
+    // complaints. A review in tier 1 is counted once and shown with the tier-1 label first.
+
+    /** Tier 1 (top severity): outright scam / money taken. */
+    public static final String FLAG_TIER1_LABEL = "Scam / money taken";
+
+    /**
+     * Tier-1 keywords (lowercase). These are the phrases guests write when they were actually
+     * scammed or lost money, kept specific so a top-severity flag is credible. A few entries from
+     * the brief were left out or tightened because bare forms also match innocent sentences:
+     * "doesn't exist"/"didn't exist" (e.g. "hot water doesn't exist"), bare "no room" ("no room in
+     * the fridge"), bare "money back"/"stole"/"charged me for" ("charged me for breakfast"). The
+     * tightened forms are used instead. Bare "cash only" stays in tier 2, since small legitimate
+     * guesthouses are cash only; tier 1 keeps "demanded cash" / "forced to pay".
+     */
+    public static final String[] FLAG_TIER1_KEYWORDS = {
+            "scam", "scammed", "fraud", "fraudulent", "credit card fraud",
+            "rip off", "ripoff", "ripped off", "con artist",
+            "robbed", "stole my", "stole our", "stolen", "took my money", "took our money",
+            "kept my money", "kept our money",
+            "never refunded", "not refunded", "no refund", "wouldn't refund", "would not refund",
+            "refused to refund", "never got my money back", "didn't get my money back",
+            "want my money back", "no money back",
+            "charged twice", "double charged", "charged me twice", "charged without",
+            "unauthorized charge", "unauthorised charge", "card was charged",
+            "had to pay again", "paid twice", "made me pay again",
+            "demanded cash", "forced to pay", "forced to pay cash",
+            "room wasn't there", "reservation didn't exist", "booking didn't exist",
+            "property doesn't exist", "hotel doesn't exist", "fake listing",
+            "chargeback", "disputed with my bank", "reported to police",
+    };
+
+    /** Tier-2 labels, in the same order as {@link #FLAG_KEYWORDS}. */
+    public static final String[] FLAG_LABELS = {
+            "Extra charges / hidden fees",
+            "Asked to pay outside Booking",
+            "Not as described",
+            "Booking not honoured",
+    };
+
+    /** Tier-2 keywords per category (lowercase), in the same order as {@link #FLAG_LABELS}. */
+    public static final String[][] FLAG_KEYWORDS = {
+            // Hidden / extra fees & overcharging
+            {
+                    "hidden fee", "hidden fees", "extra charge", "extra charges", "extra fee",
+                    "charged extra", "charged me extra", "overcharged", "over charged",
+                    "charged more than", "charged more", "surprise fee", "surprise charge",
+                    "additional charge", "additional fee", "resort fee", "deposit not returned",
+                    "did not return my deposit", "didn't return the deposit", "kept my deposit",
+                    "city tax",
+            },
+            // Pay outside the platform
+            {
+                    "pay cash", "pay in cash", "cash only", "cash payment",
+                    "asked to pay outside", "pay outside", "bank transfer", "wire transfer",
+                    "pay in person only", "pay directly", "off booking", "western union",
+            },
+            // Not as described
+            {
+                    "not as described", "not as pictured", "not as advertised",
+                    "nothing like the photos", "nothing like the pictures", "not like the pictures",
+                    "misleading", "false advertising", "not what was advertised", "photos are fake",
+            },
+            // Booking not honoured
+            {
+                    "cancelled my booking", "canceled my booking", "cancelled my reservation",
+                    "overbooked", "double booked", "no reservation", "no record of my booking",
+                    "did not have my reservation", "turned away", "room not available",
+                    "no room available", "gave away my room", "were walked", "got walked",
+                    "walked us",
+            },
+    };
+
+    // Banner
+    public static final String REVIEW_CHECKING = "Checking recent reviews…";
+    public static final String REVIEW_NONE = "No scam or money red flags in the %d recent reviews";
+    public static final String REVIEW_NONE_FEW = "No scam or money red flags in the recent reviews";
+    // Tier 1 (leads the banner when any hard scam case is found). Kept honest: "report", "possible".
+    public static final String REVIEW_TIER1_ONE =
+            "⚠ 1 review reports a possible scam or money taken — tap to read";
+    public static final String REVIEW_TIER1_MANY =
+            "⚠ %d reviews report a possible scam or money taken — tap to read";
+    // Tier 2 only (the milder complaints).
+    public static final String REVIEW_FLAGGED_ONE =
+            "1 of %d recent reviews mentions extra charges or booking problems — tap to read";
+    public static final String REVIEW_FLAGGED_MANY =
+            "%1$d of %2$d recent reviews mention extra charges or booking problems — tap to read";
+
+    // Flagged-reviews dialog
+    public static final String REVIEW_DIALOG_TITLE = "Reviews worth reading";
+    public static final String REVIEW_DIALOG_SUBTITLE =
+            "Keyword matches in the recent reviews — a heads-up, not a verdict. These are things "
+                    + "other guests mentioned; read them and decide for yourself.";
+    public static final String REVIEW_DIALOG_NOTE =
+            "Simple keyword matching, not AI and not fake-review detection. Keywords are English, "
+                    + "so reviews in other languages may be missed.";
+    public static final String REVIEW_CLOSE = "Close";
 }
