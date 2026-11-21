@@ -15,25 +15,32 @@ final class ReviewScanner {
     private ReviewScanner() {
     }
 
-    /** One flagged review: a short snippet and the categories it matched. */
+    /** One flagged review: a short snippet, the categories it matched, and its severity tier. */
     static final class Flag {
         final String snippet;
         final String labels;
+        /** True when the review matched a tier-1 (hard scam / money taken) keyword. */
+        final boolean tier1;
 
-        Flag(String snippet, String labels) {
+        Flag(String snippet, String labels, boolean tier1) {
             this.snippet = snippet;
             this.labels = labels;
+            this.tier1 = tier1;
         }
     }
 
     static final class Result {
         /** How many reviews were looked at (the loaded "recent reviews"). */
         final int scanned;
+        /** Flagged reviews, tier-1 (hard scam) first. */
         final List<Flag> flags;
+        /** How many of the flags are tier-1. */
+        final int tier1Count;
 
-        Result(int scanned, List<Flag> flags) {
+        Result(int scanned, List<Flag> flags, int tier1Count) {
             this.scanned = scanned;
             this.flags = flags;
+            this.tier1Count = tier1Count;
         }
 
         int flaggedCount() {
@@ -42,7 +49,9 @@ final class ReviewScanner {
     }
 
     static Result scan(List<?> reviews) {
-        List<Flag> flags = new ArrayList<>();
+        // Keep tier-1 (hard scam) flags first, tier-2 after, each in the order seen.
+        List<Flag> tier1Flags = new ArrayList<>();
+        List<Flag> tier2Flags = new ArrayList<>();
         int scanned = 0;
         if (reviews != null) {
             for (Object review : reviews) {
@@ -60,23 +69,38 @@ final class ReviewScanner {
                 String haystack = lower(join(pros, cons, title, tPros, tCons, tTitle));
                 if (haystack.isEmpty()) continue;
 
-                Set<String> matched = new LinkedHashSet<>();
+                // Tier 1: hard scam / money taken.
+                boolean tier1 = false;
+                for (String keyword : Strings.FLAG_TIER1_KEYWORDS) {
+                    if (haystack.contains(keyword)) {
+                        tier1 = true;
+                        break;
+                    }
+                }
+
+                // Tier 2: the milder complaint categories.
+                Set<String> labels = new LinkedHashSet<>();
+                if (tier1) labels.add(Strings.FLAG_TIER1_LABEL); // Tier-1 label leads.
                 for (int i = 0; i < Strings.FLAG_KEYWORDS.length; i++) {
                     for (String keyword : Strings.FLAG_KEYWORDS[i]) {
                         if (haystack.contains(keyword)) {
-                            matched.add(Strings.FLAG_LABELS[i]);
+                            labels.add(Strings.FLAG_LABELS[i]);
                             break;
                         }
                     }
                 }
-                if (!matched.isEmpty()) {
+
+                if (!labels.isEmpty()) {
                     // Count the review once even if it hit several categories.
-                    flags.add(new Flag(snippet(cons, pros, title, tCons, tPros, tTitle),
-                            joinLabels(matched)));
+                    Flag flag = new Flag(snippet(cons, pros, title, tCons, tPros, tTitle),
+                            joinLabels(labels), tier1);
+                    (tier1 ? tier1Flags : tier2Flags).add(flag);
                 }
             }
         }
-        return new Result(scanned, flags);
+        List<Flag> flags = new ArrayList<>(tier1Flags);
+        flags.addAll(tier2Flags);
+        return new Result(scanned, flags, tier1Flags.size());
     }
 
     /** First non-empty text, collapsed to a single line and trimmed to a snippet. */

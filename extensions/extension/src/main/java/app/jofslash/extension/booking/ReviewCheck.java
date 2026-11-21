@@ -208,6 +208,16 @@ public final class ReviewCheck {
             banner.setBackground(bg);
             banner.setOnClickListener(null);
             banner.setClickable(false);
+        } else if (result.tier1Count > 0) {
+            // A hard scam case: lead with it in stronger, filled-red wording.
+            banner.setText(result.tier1Count == 1
+                    ? Strings.REVIEW_TIER1_ONE
+                    : String.format(Locale.getDefault(), Strings.REVIEW_TIER1_MANY, result.tier1Count));
+            boolean dark = colors.background != 0xFFFFFFFF;
+            bg.setColor(dark ? 0xFF7A1C1C : 0xFFC30011);
+            banner.setTextColor(dark ? 0xFFFFE2E2 : 0xFFFFFFFF);
+            banner.setBackground(bg);
+            banner.setOnClickListener(v -> openDialog(activity, result));
         } else {
             banner.setText(flagged == 1
                     ? String.format(Locale.getDefault(), Strings.REVIEW_FLAGGED_ONE, result.scanned)
@@ -304,6 +314,8 @@ public final class ReviewCheck {
         GradientDrawable bg = new GradientDrawable();
         bg.setColor(colors.surface);
         bg.setCornerRadius(8 * density);
+        // Tier-1 (hard scam) cards get a red border so they stand out above the milder ones.
+        if (flag.tier1) bg.setStroke(Math.round(2 * density), colors.bad);
         box.setBackground(bg);
 
         box.addView(text(activity, flag.labels, 13, colors.bad, true));

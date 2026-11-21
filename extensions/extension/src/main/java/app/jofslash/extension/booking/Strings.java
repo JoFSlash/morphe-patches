@@ -132,16 +132,48 @@ public final class Strings {
     // English, so reviews written in other languages are only caught through Booking's own
     // English translation when the app loaded one.
 
-    /** One label per flag category, in the same order as {@link #FLAG_KEYWORDS}. */
+    // Two severity tiers. Tier 1 is the hard scam case (a guest who was outright ripped off or had
+    // money taken); it leads the banner and sorts first in the dialog. Tier 2 is the milder
+    // complaints. A review in tier 1 is counted once and shown with the tier-1 label first.
+
+    /** Tier 1 (top severity): outright scam / money taken. */
+    public static final String FLAG_TIER1_LABEL = "Scam / money taken";
+
+    /**
+     * Tier-1 keywords (lowercase). These are the phrases guests write when they were actually
+     * scammed or lost money, kept specific so a top-severity flag is credible. A few entries from
+     * the brief were left out or tightened because bare forms also match innocent sentences:
+     * "doesn't exist"/"didn't exist" (e.g. "hot water doesn't exist"), bare "no room" ("no room in
+     * the fridge"), bare "money back"/"stole"/"charged me for" ("charged me for breakfast"). The
+     * tightened forms are used instead. Bare "cash only" stays in tier 2, since small legitimate
+     * guesthouses are cash only; tier 1 keeps "demanded cash" / "forced to pay".
+     */
+    public static final String[] FLAG_TIER1_KEYWORDS = {
+            "scam", "scammed", "fraud", "fraudulent", "credit card fraud",
+            "rip off", "ripoff", "ripped off", "con artist",
+            "robbed", "stole my", "stole our", "stolen", "took my money", "took our money",
+            "kept my money", "kept our money",
+            "never refunded", "not refunded", "no refund", "wouldn't refund", "would not refund",
+            "refused to refund", "never got my money back", "didn't get my money back",
+            "want my money back", "no money back",
+            "charged twice", "double charged", "charged me twice", "charged without",
+            "unauthorized charge", "unauthorised charge", "card was charged",
+            "had to pay again", "paid twice", "made me pay again",
+            "demanded cash", "forced to pay", "forced to pay cash",
+            "room wasn't there", "reservation didn't exist", "booking didn't exist",
+            "property doesn't exist", "hotel doesn't exist", "fake listing",
+            "chargeback", "disputed with my bank", "reported to police",
+    };
+
+    /** Tier-2 labels, in the same order as {@link #FLAG_KEYWORDS}. */
     public static final String[] FLAG_LABELS = {
             "Extra charges / hidden fees",
             "Asked to pay outside Booking",
             "Not as described",
             "Booking not honoured",
-            "Scam / fraud / card",
     };
 
-    /** Keywords per category (lowercase), in the same order as {@link #FLAG_LABELS}. */
+    /** Tier-2 keywords per category (lowercase), in the same order as {@link #FLAG_LABELS}. */
     public static final String[][] FLAG_KEYWORDS = {
             // Hidden / extra fees & overcharging
             {
@@ -172,18 +204,18 @@ public final class Strings {
                     "no room available", "gave away my room", "were walked", "got walked",
                     "walked us",
             },
-            // Scam / fraud / card
-            {
-                    "scam", "scammed", "fraud", "fraudulent", "rip off", "ripoff", "ripped off",
-                    "credit card", "card charged", "charged my card", "unauthorized charge",
-                    "unauthorised charge", "card details", "money stolen", "stolen",
-            },
     };
 
     // Banner
     public static final String REVIEW_CHECKING = "Checking recent reviews…";
     public static final String REVIEW_NONE = "No scam or money red flags in the %d recent reviews";
     public static final String REVIEW_NONE_FEW = "No scam or money red flags in the recent reviews";
+    // Tier 1 (leads the banner when any hard scam case is found). Kept honest: "report", "possible".
+    public static final String REVIEW_TIER1_ONE =
+            "⚠ 1 review reports a possible scam or money taken — tap to read";
+    public static final String REVIEW_TIER1_MANY =
+            "⚠ %d reviews report a possible scam or money taken — tap to read";
+    // Tier 2 only (the milder complaints).
     public static final String REVIEW_FLAGGED_ONE =
             "1 of %d recent reviews mentions extra charges or booking problems — tap to read";
     public static final String REVIEW_FLAGGED_MANY =
