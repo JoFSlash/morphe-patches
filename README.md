@@ -14,6 +14,10 @@ Android 12L or newer. No root needed.
 These patches don't unlock Google Health Premium. Premium features run on Google's servers and need a
 subscription.
 
+| Signed in through MicroG-RE | No Shop devices button | Clone app next to the original |
+| --- | --- | --- |
+| <img src="assets/home.png" width="260" alt="Google Health home screen, patched"> | <img src="assets/connections.png" width="260" alt="Connections screen without the Shop devices button"> | <img src="assets/clone-icon.png" width="260" alt="Health and Health Clone in the app drawer"> |
+
 ## Install
 
 1. Install [MicroG-RE](https://github.com/MorpheApp/MicroG-RE/releases) and add your Google account to it
@@ -105,9 +109,9 @@ drops them without sending anything. The app has no Firebase Analytics.
 
 **Can the AI coach, Labs or Premium cards be hidden?**
 Not yet. They are on screens that only some accounts see, for example with a watch or tracker paired or after a
-Premium trial, and a patch has to be tried where they show up. If you see them, please
-[suggest a patch](https://github.com/JoFSlash/google-health-patches/issues/new?template=feature_request.yml)
-with a screenshot.
+Premium trial, and a patch has to be tried where they show up. If you see them,
+[send a screenshot](https://github.com/JoFSlash/google-health-patches/issues/new?template=hide_card.yml) with the
+card's text, and if you can, try the test build we send back.
 
 **Will you unlock Premium?**
 No. Premium features (the AI coach, advanced insights) are computed on Google's servers for paying members, and
