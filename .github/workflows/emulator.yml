@@ -1,8 +1,10 @@
 name: Emulator test
 
-# Patches Google Health with every patch, installs it on Android 15, 16 and 17 emulators and checks
+# Patches Google Health with every patch, installs it on Android 12L to 17 emulators and checks
 # that it starts without a crash or errors from the patches and shows its welcome screen with the
-# sign-in button. When a check fails, the original app is tried the same way, to tell a broken patch
+# sign-in button. The same is done for the clone (Clone app). On Android 15, the patched code is also
+# checked for the change each patch makes (verify_patched.py), since a patch can apply and change
+# nothing. When a check fails, the original app is tried the same way, to tell a broken patch
 # from an Android version the app itself doesn't work on. Signing in needs a Google account in
 # MicroG-RE, so it is tried by hand on a phone.
 #
@@ -35,10 +37,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Google Health needs Android 12L or newer. These are the versions people run now, and the
-        # next one, whose image is only in the SDK's canary channel so far.
+        # Google Health needs Android 12L or newer: every version from there, and the next one,
+        # whose image is only in the SDK's canary channel so far.
         include:
-          - { api: '35', android: '15', channel: 'stable' }
+          - { api: '32', android: '12L', channel: 'stable' }
+          - { api: '33', android: '13', channel: 'stable' }
+          - { api: '34', android: '14', channel: 'stable' }
+          - { api: '35', android: '15', channel: 'stable', verify: true }
           - { api: '36', android: '16', channel: 'stable' }
           - { api: '37.0', android: '17', channel: 'canary' }
     steps:
@@ -107,6 +112,12 @@ jobs:
           api-level: ${{ matrix.api }}
           channel: ${{ matrix.channel }}
 
+      - name: Find dexdump
+        if: steps.token.outputs.skip != 'true' && matrix.verify
+        run: |
+          tools="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          echo "DEXDUMP=$tools/dexdump" >> "$GITHUB_ENV"
+
       - name: Patch, install and start
         if: steps.token.outputs.skip != 'true'
         uses: reactivecircus/android-emulator-runner@v2
@@ -116,4 +127,7 @@ jobs:
           target: google_apis
           arch: x86_64
           disable-animations: true
-          script: python3 .github/scripts/check_app.py "$RUNNER_TEMP/google-health.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-welcome --compare-original --adb adb
+          # The second line tries the clone. Each line has to pass.
+          script: |
+            python3 .github/scripts/check_app.py "$RUNNER_TEMP/google-health.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-welcome --compare-original --adb adb ${DEXDUMP:+--dexdump "$DEXDUMP"}
+            python3 .github/scripts/check_app.py "$RUNNER_TEMP/google-health.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-welcome --clone --adb adb

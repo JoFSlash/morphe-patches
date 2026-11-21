@@ -4,7 +4,7 @@ name: Release
 # fix can be released right away by running this workflow by hand.
 #
 # Before releasing, the bundle has to pass the emulator test (emulator.yml: every patch applies and
-# the patched app starts on Android 15, 16 and 17). When it doesn't, nothing is released and the
+# the patched app and the clone start on Android 12L to 17). When it doesn't, nothing is released and the
 # issue "Weekly release stopped" says why; the next release that goes through closes it.
 on:
   schedule:

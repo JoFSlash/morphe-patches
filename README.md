@@ -36,7 +36,9 @@ subscription.
 4. Download a supported version of Google Health as an APKM file from
    [APKMirror](https://www.apkmirror.com/apk/google-inc/google-health-fitbit/). Pick the file in Morphe Manager,
    then pick the patches you want. Keep **GmsCore support** on.
-5. Uninstall the Play Store version before installing the patched one. It is signed with a different key,
+5. If you have a watch or tracker, sync it in the Play Store version first: data that hasn't reached your
+   Google account yet is lost when you uninstall the app.
+6. Uninstall the Play Store version before installing the patched one. It is signed with a different key,
    so Android won't install it over the original. Your data stays in your Google account, so sign in again in
    the patched app and it comes back. To keep the Play Store version, turn on **Clone app** instead.
 
@@ -93,6 +95,12 @@ Signing in, prompts and how the app behaves.
 Google Play services only signs in apps signed by their maker. A patched app is signed with your own key, so
 Play services refuses it. MicroG-RE signs the app in with your Google account instead. Without it, the app
 stops at "Sign in with Google".
+
+**What if signing in stops working?**
+The patched app signs in because MicroG-RE knows Google Health by the certificate Fitbit signed it with.
+If MicroG-RE or Google change that, signing in stops working for every patched app at once, and no patch
+here can fix it until MicroG-RE does. If it happens to you, please
+[open an issue](https://github.com/JoFSlash/google-health-patches/issues/new?template=bug_report.yml).
 
 **"Sign in" opens MicroG-RE's Add account screen.**
 MicroG-RE has no Google account yet. Add yours there, then tap Sign in in Google Health again.

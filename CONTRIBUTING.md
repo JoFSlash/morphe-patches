@@ -54,7 +54,8 @@ as a release named `google-health-<version>`, so the emulator test can use it.
 
 - **Build** (pull requests): builds the bundle and checks the scripts.
 - **Emulator test** (pull requests and before each release): applies every patch to the newest supported
-  version and starts the app on Android 15, 16 and 17 emulators. It needs the `GOOGLE_HEALTH_APKS_TOKEN`
+  version and starts the app, and the clone, on Android 12L to 17 emulators. On Android 15 it also checks
+  the patched code for the change each patch makes (`verify_patched.py`). It needs the `GOOGLE_HEALTH_APKS_TOKEN`
   secret (a fine-grained token with read and write access to the contents of `JoFSlash/google-health-apks`);
   without it, pull requests skip the test.
 - **Release** (Mondays 08:00 UTC, or by hand): runs the emulator test, then semantic-release publishes the
