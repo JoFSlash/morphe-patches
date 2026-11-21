@@ -1,0 +1,300 @@
+package app.jofslash.extension.booking;
+
+import android.app.Activity;
+import android.graphics.drawable.GradientDrawable;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+/**
+ * The "Price history" tab. Everything comes from prices saved on this phone: Booking.com keeps no
+ * price history and no site publishes past hotel prices, so the history starts when the patch was
+ * installed.
+ *
+ * <p>Two charts, both over the time the prices were seen, limited by the range buttons:
+ * <ol>
+ * <li>the prices of this exact stay (dates, adults, rooms);</li>
+ * <li>every price saved for this hotel over the past year, for any dates, per night, the lowest
+ * of each day, to show the hotel's general trend and seasons.</li>
+ * </ol>
+ */
+final class HistoryTab {
+    private static final long DAY = 24L * 60 * 60 * 1000;
+    private static final String[] RANGE_LABELS = {Strings.RANGE_1M, Strings.RANGE_6M, Strings.RANGE_1Y, Strings.RANGE_ALL};
+    private static final long[] RANGE_DAYS = {30, 182, 365, -1};
+    /** The hotel chart never looks back further than this. */
+    private static final long HOTEL_CHART_DAYS = 365;
+    /** Most points one chart draws; older ones are left out so the line stays readable. */
+    private static final int MAX_POINTS = 90;
+
+    private final Activity activity;
+    private final Panel panel;
+    private final Panel.Colors colors;
+    private final HotelInfo hotel;
+    private final Stay stay;
+
+    private LinearLayout content;
+    private final TextView[] rangeButtons = new TextView[RANGE_LABELS.length];
+    private List<PriceDb.Row> all;
+    private List<PriceDb.Row> others;
+    private int range = RANGE_LABELS.length - 1;
+
+    HistoryTab(Activity activity, Panel panel, Panel.Colors colors, HotelInfo hotel, Stay stay) {
+        this.activity = activity;
+        this.panel = panel;
+        this.colors = colors;
+        this.hotel = hotel;
+        this.stay = stay;
+    }
+
+    View view() {
+        ScrollView scroll = new ScrollView(activity);
+        LinearLayout list = new LinearLayout(activity);
+        list.setOrientation(LinearLayout.VERTICAL);
+        list.setPadding(panel.dp(16), panel.dp(12), panel.dp(16), panel.dp(24));
+        scroll.addView(list);
+
+        LinearLayout ranges = new LinearLayout(activity);
+        ranges.setOrientation(LinearLayout.HORIZONTAL);
+        for (int i = 0; i < RANGE_LABELS.length; i++) {
+            final int index = i;
+            TextView b = panel.text(RANGE_LABELS[i], 14, colors.text, true);
+            b.setGravity(Gravity.CENTER);
+            b.setPadding(panel.dp(12), panel.dp(6), panel.dp(12), panel.dp(6));
+            b.setOnClickListener(v -> {
+                range = index;
+                render();
+            });
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.rightMargin = panel.dp(8);
+            ranges.addView(b, lp);
+            rangeButtons[i] = b;
+        }
+        list.addView(ranges);
+
+        content = new LinearLayout(activity);
+        content.setOrientation(LinearLayout.VERTICAL);
+        list.addView(content);
+
+        final int hotelId = hotel.id;
+        PriceHistory.load(activity, db -> new Object[]{db.forHotel(hotelId),
+                stay == null ? null : db.otherStays(hotelId, stay, 6)}, result -> {
+            all = result == null ? new ArrayList<>() : cast(result[0]);
+            others = result == null ? null : cast(result[1]);
+            render();
+        });
+        return scroll;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<PriceDb.Row> cast(Object o) {
+        return o == null ? new ArrayList<>() : (List<PriceDb.Row>) o;
+    }
+
+    private void render() {
+        for (int i = 0; i < rangeButtons.length; i++) {
+            boolean on = i == range;
+            GradientDrawable bg = new GradientDrawable();
+            bg.setCornerRadius(panel.dp(16));
+            bg.setColor(on ? colors.accent : colors.surface);
+            rangeButtons[i].setBackground(bg);
+            rangeButtons[i].setTextColor(on ? colors.onAccent : colors.text);
+        }
+        content.removeAllViews();
+        if (all == null) return;
+
+        String currency = hotel.currency;
+        if (currency == null && !all.isEmpty()) currency = all.get(all.size() - 1).currency;
+        long now = System.currentTimeMillis();
+        long since = RANGE_DAYS[range] < 0 ? 0 : now - RANGE_DAYS[range] * DAY;
+
+        stayChart(currency, since);
+        hotelChart(currency, Math.max(since, now - HOTEL_CHART_DAYS * DAY));
+
+        if (others != null && !others.isEmpty()) {
+            content.addView(panel.spaced(panel.text(Strings.HISTORY_OTHER_DATES, 16, colors.text, true), 24));
+            for (PriceDb.Row r : others) {
+                content.addView(panel.spaced(panel.text(String.format(Strings.HISTORY_OTHER_ROW,
+                        Panel.shortDate(r.checkIn), Panel.shortDate(r.checkOut), Panel.money(r.price, r.currency),
+                        Panel.day(r.time)), 14, colors.text, false), 6));
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // This stay
+
+    private void stayChart(String currency, long since) {
+        content.addView(panel.spaced(panel.text(Strings.HISTORY_HEADER, 16, colors.text, true), 16));
+        if (stay == null) {
+            content.addView(panel.spaced(panel.text(Strings.HISTORY_NONE, 14, colors.secondaryText, false), 8));
+            return;
+        }
+        List<PriceDb.Row> rows = new ArrayList<>();
+        boolean any = false;
+        for (PriceDb.Row r : all) {
+            if (!r.checkIn.equals(stay.checkIn) || !r.checkOut.equals(stay.checkOut) || r.adults != stay.adults
+                    || r.rooms != stay.rooms || !r.currency.equals(currency)) continue;
+            any = true;
+            if (r.time >= since) rows.add(r);
+        }
+        if (rows.isEmpty()) {
+            content.addView(panel.spaced(panel.text(any ? Strings.HISTORY_NONE_IN_RANGE : Strings.HISTORY_EMPTY, 14,
+                    colors.secondaryText, false), 8));
+            return;
+        }
+        rows = latest(rows);
+        PriceDb.Row min = rows.get(0), max = rows.get(0), last = rows.get(rows.size() - 1);
+        for (PriceDb.Row r : rows) {
+            if (r.price < min.price) min = r;
+            if (r.price > max.price) max = r;
+        }
+        double now = hotel.hasPrice() ? hotel.price : last.price;
+
+        PriceChartView chart = new PriceChartView(activity, colors);
+        chart.setData(rows, hotel.strike, currency);
+        content.addView(panel.spaced(chart, 12));
+
+        LinearLayout stats = new LinearLayout(activity);
+        stats.setOrientation(LinearLayout.HORIZONTAL);
+        stats.addView(stat(Strings.HISTORY_NOW, Panel.money(now, currency), null), weight());
+        stats.addView(stat(Strings.HISTORY_LOWEST, Panel.money(min.price, currency), Panel.day(min.time)), weight());
+        stats.addView(stat(Strings.HISTORY_HIGHEST, Panel.money(max.price, currency), Panel.day(max.time)), weight());
+        content.addView(panel.spaced(stats, 8));
+
+        content.addView(panel.spaced(verdict(now, min.price, max.price, rows.size()), 12));
+        String checks = rows.size() == 1 ? String.format(Strings.HISTORY_CHECKS_ONE, Panel.day(rows.get(0).time))
+                : String.format(Locale.getDefault(), Strings.HISTORY_CHECKS, rows.size(), Panel.day(rows.get(0).time));
+        content.addView(panel.spaced(panel.text(checks, 13, colors.secondaryText, false), 6));
+        if (rows.size() == 1) {
+            content.addView(panel.spaced(panel.text(Strings.HISTORY_FIRST, 14, colors.secondaryText, false), 8));
+        }
+
+        if (!Double.isNaN(hotel.strike)) {
+            String note;
+            if (rows.size() < 3) {
+                note = String.format(Strings.STRIKE_FEW, Panel.money(hotel.strike, currency));
+            } else if (hotel.strike > max.price + 0.5) {
+                note = String.format(Strings.STRIKE_HIGHER, Panel.money(hotel.strike, currency),
+                        Panel.money(max.price, currency));
+            } else {
+                note = String.format(Strings.STRIKE_SEEN, Panel.money(hotel.strike, currency), Panel.day(max.time));
+            }
+            content.addView(panel.spaced(panel.card(panel.text(note, 14, colors.text, false)), 12));
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // This hotel, any dates
+
+    private void hotelChart(String currency, long since) {
+        content.addView(panel.spaced(panel.text(Strings.HOTEL_HEADER, 16, colors.text, true), 28));
+        content.addView(panel.spaced(panel.text(Strings.HOTEL_EXPLAIN, 13, colors.secondaryText, false), 4));
+
+        // Lowest price per night seen on each day, over all stays. Stays differ in length, so the
+        // totals aren't comparable; per night they are.
+        Map<Long, PriceDb.Row> byDay = new LinkedHashMap<>();
+        int stays = 0;
+        java.util.HashSet<String> stayKeys = new java.util.HashSet<>();
+        for (PriceDb.Row r : all) {
+            if (r.time < since || !r.currency.equals(currency)) continue;
+            int nights = new Stay(r.checkIn, r.checkOut, r.adults, r.rooms).nights();
+            double perNight = r.price / nights;
+            long day = startOfDay(r.time);
+            PriceDb.Row d = byDay.get(day);
+            if (d == null || perNight < d.price) {
+                PriceDb.Row point = new PriceDb.Row();
+                point.price = perNight;
+                point.time = day + DAY / 2;
+                point.currency = r.currency;
+                byDay.put(day, point);
+            }
+            if (stayKeys.add(r.checkIn + r.checkOut + r.adults + "/" + r.rooms)) stays++;
+        }
+        List<PriceDb.Row> points = latest(new ArrayList<>(byDay.values()));
+        if (points.isEmpty()) {
+            content.addView(panel.spaced(panel.text(Strings.HOTEL_EMPTY, 14, colors.secondaryText, false), 8));
+            return;
+        }
+        PriceDb.Row min = points.get(0), max = points.get(0);
+        for (PriceDb.Row r : points) {
+            if (r.price < min.price) min = r;
+            if (r.price > max.price) max = r;
+        }
+        PriceChartView chart = new PriceChartView(activity, colors);
+        chart.setData(points, Double.NaN, currency);
+        content.addView(panel.spaced(chart, 12));
+
+        LinearLayout stats = new LinearLayout(activity);
+        stats.setOrientation(LinearLayout.HORIZONTAL);
+        stats.addView(stat(Strings.HOTEL_LOWEST, Panel.money(min.price, currency), Panel.day(min.time)), weight());
+        stats.addView(stat(Strings.HOTEL_HIGHEST, Panel.money(max.price, currency), Panel.day(max.time)), weight());
+        content.addView(panel.spaced(stats, 8));
+        content.addView(panel.spaced(panel.text(String.format(Locale.getDefault(), Strings.HOTEL_COUNT, points.size(),
+                stays), 13, colors.secondaryText, false), 6));
+    }
+
+    private static long startOfDay(long time) {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(time);
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        return c.getTimeInMillis();
+    }
+
+    /** The newest {@link #MAX_POINTS} rows. */
+    private static List<PriceDb.Row> latest(List<PriceDb.Row> rows) {
+        return rows.size() <= MAX_POINTS ? rows : new ArrayList<>(rows.subList(rows.size() - MAX_POINTS, rows.size()));
+    }
+
+    private View verdict(double now, double min, double max, int count) {
+        String label;
+        int color;
+        if (count < 3) {
+            label = Strings.VERDICT_FEW;
+            color = colors.secondaryText;
+        } else if (max - min < 0.5) {
+            label = Strings.VERDICT_SAME;
+            color = colors.secondaryText;
+        } else {
+            double pos = (now - min) / (max - min);
+            if (pos <= 0.25) {
+                label = Strings.VERDICT_LOW;
+                color = colors.good;
+            } else if (pos >= 0.75) {
+                label = Strings.VERDICT_HIGH;
+                color = colors.bad;
+            } else {
+                label = Strings.VERDICT_TYPICAL;
+                color = colors.text;
+            }
+        }
+        return panel.text(label, 15, color, true);
+    }
+
+    private View stat(String label, String value, String sub) {
+        LinearLayout box = new LinearLayout(activity);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.addView(panel.text(label, 12, colors.secondaryText, false));
+        box.addView(panel.text(value, 16, colors.text, true));
+        if (sub != null) box.addView(panel.text(sub, 12, colors.secondaryText, false));
+        return box;
+    }
+
+    private static LinearLayout.LayoutParams weight() {
+        return new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+    }
+}
