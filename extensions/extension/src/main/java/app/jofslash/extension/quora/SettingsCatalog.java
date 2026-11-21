@@ -13,6 +13,10 @@ final class SettingsCatalog {
 
     private static final Map<String, String[]> ENTRIES = new HashMap<>();
 
+    /** Switches whose change only shows after the app restarts. */
+    static final java.util.Set<String> RESTART = new java.util.HashSet<>(java.util.Arrays.asList(
+            "hideTabs", "startTab", "textSize", "disablePullToRefresh", "disableSwipeBetweenFeeds"));
+
     private static void add(String key, String category, String help) {
         ENTRIES.put(key, new String[]{category, help});
     }
@@ -81,6 +85,11 @@ final class SettingsCatalog {
     }
 
     private SettingsCatalog() {
+    }
+
+    /** Every switch listed here. */
+    static java.util.Set<String> keys() {
+        return new java.util.HashSet<>(ENTRIES.keySet());
     }
 
     static String category(String key) {

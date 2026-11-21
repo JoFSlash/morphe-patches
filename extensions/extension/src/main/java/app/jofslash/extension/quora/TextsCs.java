@@ -264,5 +264,26 @@ final class TextsCs {
         m.put("All bookmarks with their saved text, as a Markdown file.", "Všechny záložky s uloženým textem jako soubor Markdown.");
         m.put("Saved to", "Uloženo do");
         m.put("Couldn't save the file.", "Soubor se nepodařilo uložit.");
+        // Presets.
+        m.put("Presets", "Předvolby");
+        m.put("Switch many patches at once: everything, a clean feed, or ads only.",
+                "Přepni hodně patchů najednou: vše, čistý feed nebo jen reklamy.");
+        m.put("Quora patches are on", "Patche pro Quoru jsou zapnuté");
+        m.put("Change them any time in Settings > Morphe, or by long-pressing the Home tab.",
+                "Kdykoli je změníš v Settings > Morphe nebo dlouhým podržením karty Home (domeček dole).");
+        m.put("Everything you patched", "Vše, co jsi napatchoval");
+        m.put("Every patch you picked in Morphe stays on.", "Každý patch, který jsi vybral v Morphe, zůstane zapnutý.");
+        m.put("Clean feed", "Čistý feed");
+        m.put("No ads, AI answers, promotions or suggestions. Answers and the app look as usual.",
+                "Bez reklam, AI odpovědí, propagace a návrhů. Odpovědi a aplikace vypadají jako obvykle.");
+        m.put("Ads and privacy only", "Jen reklamy a soukromí");
+        m.put("Everything looks as in the official app, without ads and tracking.",
+                "Vše vypadá jako v oficiální aplikaci, jen bez reklam a sledování.");
+        m.put("Use", "Použít");
+        m.put("Later", "Později");
+        m.put("Choose myself", "Vyberu si sám");
+        m.put("Done.", "Hotovo.");
+        m.put("Done. Some changes show after restarting the app.",
+                "Hotovo. Některé změny se projeví až po restartu aplikace.");
     }
 }

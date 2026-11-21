@@ -46,6 +46,11 @@ patching again: open **Settings > Morphe > Quora patches**, or long-press the **
 search field, edits the keyword and author filters, backs up your settings as text, and tells you when Quora has
 changed its pages in a way that breaks some patches.
 
+On the first start after patching, the app offers three presets: **Everything you patched**, **Clean feed** (no
+ads, AI answers, promotions or suggestions, but answers and the app look as usual) and **Ads and privacy only**.
+A preset only switches patches off or back on; it can't add a patch you didn't pick when patching. You can pick
+another one any time under **More > Presets**.
+
 It also keeps your lists, each with a search field and **Copy as text**:
 
 - **History**: the answers, posts and questions you opened (Reading history).

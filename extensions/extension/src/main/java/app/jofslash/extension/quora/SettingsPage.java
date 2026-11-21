@@ -53,10 +53,6 @@ final class SettingsPage {
         LISTS.put("dismissed", ReadingHistory.DISMISSED);
     }
 
-    /** Switches whose change only shows after the app restarts. */
-    private static final Set<String> RESTART = new HashSet<>(Arrays.asList(
-            "hideTabs", "startTab", "textSize", "disablePullToRefresh", "disableSwipeBetweenFeeds"));
-
     private final Activity activity;
     private final float density;
     private final int text, secondary, background, section, divider, bar, accent;
@@ -131,6 +127,10 @@ final class SettingsPage {
             add(more, linkRow("Dismissed questions", "Questions whose answers the feed hides.", this::dismissedQuestions));
         }
         if (GmsCoreCheck.applied) add(more, notificationsRow());
+        add(more, linkRow("Presets", "Switch many patches at once: everything, a clean feed, or ads only.", () -> {
+            if (mainPage != null) mainPage.dismiss();
+            Presets.ask(activity, prefs, false);
+        }));
         add(more, linkRow("Backup", "Your settings and lists as text, to keep or restore.", () -> backup(prefs)));
         add(more, linkRow("Report a problem", "Copies the app details and opens a bug report on GitHub.",
                 () -> report(prefs, switches)));
@@ -148,7 +148,7 @@ final class SettingsPage {
             if (changed.isEmpty()) return;
             PatchSettings.reload();
             for (String key : changed) {
-                if (RESTART.contains(key)) {
+                if (SettingsCatalog.RESTART.contains(key)) {
                     Toast.makeText(activity, Texts.t("Some changes show after restarting the app."), Toast.LENGTH_LONG).show();
                     break;
                 }

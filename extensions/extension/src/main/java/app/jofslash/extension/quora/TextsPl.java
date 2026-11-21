@@ -264,5 +264,26 @@ final class TextsPl {
         m.put("All bookmarks with their saved text, as a Markdown file.", "Wszystkie zakładki z zapisanym tekstem jako plik Markdown.");
         m.put("Saved to", "Zapisano w");
         m.put("Couldn't save the file.", "Nie udało się zapisać pliku.");
+        // Presets.
+        m.put("Presets", "Ustawienia gotowe");
+        m.put("Switch many patches at once: everything, a clean feed, or ads only.",
+                "Przełącz wiele łatek naraz: wszystko, czysty kanał albo tylko reklamy.");
+        m.put("Quora patches are on", "Łatki Quora są włączone");
+        m.put("Change them any time in Settings > Morphe, or by long-pressing the Home tab.",
+                "Zmienisz je w każdej chwili w Settings > Morphe lub przytrzymując kartę Home.");
+        m.put("Everything you patched", "Wszystko, co załatałeś");
+        m.put("Every patch you picked in Morphe stays on.", "Każda łatka wybrana w Morphe zostaje włączona.");
+        m.put("Clean feed", "Czysty kanał");
+        m.put("No ads, AI answers, promotions or suggestions. Answers and the app look as usual.",
+                "Bez reklam, odpowiedzi AI, promocji i propozycji. Odpowiedzi i aplikacja wyglądają jak zwykle.");
+        m.put("Ads and privacy only", "Tylko reklamy i prywatność");
+        m.put("Everything looks as in the official app, without ads and tracking.",
+                "Wszystko wygląda jak w oficjalnej aplikacji, tylko bez reklam i śledzenia.");
+        m.put("Use", "Zastosuj");
+        m.put("Later", "Później");
+        m.put("Choose myself", "Wybiorę sam");
+        m.put("Done.", "Gotowe.");
+        m.put("Done. Some changes show after restarting the app.",
+                "Gotowe. Niektóre zmiany zadziałają dopiero po ponownym uruchomieniu aplikacji.");
     }
 }
