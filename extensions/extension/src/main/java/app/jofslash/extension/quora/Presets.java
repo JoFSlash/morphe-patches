@@ -79,11 +79,11 @@ final class Presets {
             hint.setPadding(0, 0, 0, pad / 2);
             column.addView(hint);
         }
+        // The group gives its buttons ids of their own, which keeps one of them checked.
         android.widget.RadioGroup group = new android.widget.RadioGroup(activity);
+        android.widget.RadioButton[] buttons = new android.widget.RadioButton[items.length];
         for (int i = 0; i < items.length; i++) {
-            android.widget.RadioButton button = new android.widget.RadioButton(activity);
-            // Ids from 1: the group ignores 0 and View.NO_ID.
-            button.setId(i + 1);
+            android.widget.RadioButton button = buttons[i] = new android.widget.RadioButton(activity);
             button.setText(items[i]);
             button.setTextColor(text);
             button.setTextSize(16);
@@ -91,7 +91,7 @@ final class Presets {
             button.setPadding(pad / 2, pad / 3, 0, pad / 3);
             group.addView(button);
         }
-        group.check(1);
+        buttons[0].setChecked(true);
         column.addView(group);
         android.widget.ScrollView scroll = new android.widget.ScrollView(activity);
         scroll.addView(column);
@@ -101,8 +101,11 @@ final class Presets {
                 : android.R.style.Theme_DeviceDefault_Light_Dialog_Alert)
                 .setTitle(firstStart ? Texts.t("Quora patches are on") : Texts.t("Presets"))
                 .setView(scroll)
-                .setPositiveButton(Texts.t("Use"), (d, w) ->
-                        apply(activity, prefs, group.getCheckedRadioButtonId() - 1))
+                .setPositiveButton(Texts.t("Use"), (d, w) -> {
+                    for (int i = 0; i < buttons.length; i++) {
+                        if (buttons[i].isChecked()) apply(activity, prefs, i);
+                    }
+                })
                 .setNegativeButton(firstStart ? Texts.t("Later") : Texts.t("Cancel"), null);
         if (firstStart) {
             builder.setNeutralButton(Texts.t("Choose myself"), (d, w) -> SettingsPage.open(activity, prefs));
