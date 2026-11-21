@@ -11,6 +11,12 @@ of Google Play services, and the patches can turn off things the app does that y
 Works with Google Health <!-- VERSIONS_START -->5.13.health-mobile-1104148438-1023845615<!-- VERSIONS_END --> on
 Android 12L or newer. No root needed.
 
+- **Sign in without Google Play services:** the patched app signs in through MicroG-RE.
+- **No nagging:** no surveys, no "rate us" or "update" prompts, no Shop devices button.
+- **Your choice:** screenshots on every screen, links in your own browser, no Premium offer pop-ups.
+- **Clone app:** keep the Play Store version and install the patched one next to it, with its own name and icon.
+- **Your data stays:** it is stored in your Google account and comes back when you sign in.
+
 These patches don't unlock Google Health Premium. Premium features run on Google's servers and need a
 subscription.
 
@@ -38,8 +44,9 @@ subscription.
 - **New patches:** a new version of these patches comes out once a week, on Mondays, when there is
   something new. Morphe Manager then marks the patched app with an Update badge. Patch the same Google Health
   file again and install it over the patched app. No need to uninstall: you stay signed in.
-- **New Google Health version:** the patched app doesn't update from the Play Store. Wait until a release of
-  these patches lists the new version as supported, then patch that version the same way.
+- **New Google Health version:** the patched app doesn't update from the Play Store. New versions are tried
+  automatically every day and usually supported within a few days. When a release of these patches lists the
+  new version as supported, patch that version the same way.
 
 ## Patches
 
@@ -94,7 +101,8 @@ don't work in the clone, because Google turns away its push registration, and a 
 paired with one of the two apps.
 
 **Do notifications and Health Connect work?**
-Push notifications come through MicroG-RE: the patched app shows up under MicroG-RE settings > Cloud Messaging.
+The patched app registers for push notifications through MicroG-RE: it shows up under MicroG-RE settings >
+Cloud Messaging.
 Health Connect lists the patched app and lets you give it permissions, as with the official app.
 
 **Do my watch, tracker and data still work?**
@@ -127,6 +135,11 @@ Building needs a GitHub token with `read:packages` in `GITHUB_ACTOR` / `GITHUB_T
 `gpr.key` in `~/.gradle/gradle.properties`), because the Morphe Gradle plugin comes from GitHub Packages.
 `.github/scripts/check_app.py` applies every patch to an APKM and, with `--install`, starts the patched app
 on a connected phone or emulator. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Thanks
+
+[Morphe](https://github.com/MorpheApp) for the patcher and Morphe Manager, and
+[MicroG-RE](https://github.com/MorpheApp/MicroG-RE) for signing in without Google Play services.
 
 ## License
 
