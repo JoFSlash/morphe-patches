@@ -121,4 +121,81 @@ public final class Strings {
     public static final String RELOAD = "Read the prices again";
     /** Appended to the hotel name and city when searching for the hotel's website. */
     public static final String WEBSITE_QUERY_SUFFIX = " official website";
+
+    // -------------------------------------------------------------------------------------------
+    // Review check
+    //
+    // Keyword matching is a heads-up, not a verdict, and not fake-review detection. Matching is a
+    // case-insensitive substring test on each review's text, so the lists are easy to extend: add
+    // a phrase to the right row. Note that a few entries (for example "walked", "credit card")
+    // can also match innocent sentences; that's accepted for a heads-up banner. Keywords are
+    // English, so reviews written in other languages are only caught through Booking's own
+    // English translation when the app loaded one.
+
+    /** One label per flag category, in the same order as {@link #FLAG_KEYWORDS}. */
+    public static final String[] FLAG_LABELS = {
+            "Extra charges / hidden fees",
+            "Asked to pay outside Booking",
+            "Not as described",
+            "Booking not honoured",
+            "Scam / fraud / card",
+    };
+
+    /** Keywords per category (lowercase), in the same order as {@link #FLAG_LABELS}. */
+    public static final String[][] FLAG_KEYWORDS = {
+            // Hidden / extra fees & overcharging
+            {
+                    "hidden fee", "hidden fees", "extra charge", "extra charges", "extra fee",
+                    "charged extra", "charged me extra", "overcharged", "over charged",
+                    "charged more than", "charged more", "surprise fee", "surprise charge",
+                    "additional charge", "additional fee", "resort fee", "deposit not returned",
+                    "did not return my deposit", "didn't return the deposit", "kept my deposit",
+                    "city tax",
+            },
+            // Pay outside the platform
+            {
+                    "pay cash", "pay in cash", "cash only", "cash payment",
+                    "asked to pay outside", "pay outside", "bank transfer", "wire transfer",
+                    "pay in person only", "pay directly", "off booking", "western union",
+            },
+            // Not as described
+            {
+                    "not as described", "not as pictured", "not as advertised",
+                    "nothing like the photos", "nothing like the pictures", "not like the pictures",
+                    "misleading", "false advertising", "not what was advertised", "photos are fake",
+            },
+            // Booking not honoured
+            {
+                    "cancelled my booking", "canceled my booking", "cancelled my reservation",
+                    "overbooked", "double booked", "no reservation", "no record of my booking",
+                    "did not have my reservation", "turned away", "room not available",
+                    "no room available", "gave away my room", "were walked", "got walked",
+                    "walked us",
+            },
+            // Scam / fraud / card
+            {
+                    "scam", "scammed", "fraud", "fraudulent", "rip off", "ripoff", "ripped off",
+                    "credit card", "card charged", "charged my card", "unauthorized charge",
+                    "unauthorised charge", "card details", "money stolen", "stolen",
+            },
+    };
+
+    // Banner
+    public static final String REVIEW_CHECKING = "Checking recent reviews…";
+    public static final String REVIEW_NONE = "No scam or money red flags in the %d recent reviews";
+    public static final String REVIEW_NONE_FEW = "No scam or money red flags in the recent reviews";
+    public static final String REVIEW_FLAGGED_ONE =
+            "1 of %d recent reviews mentions extra charges or booking problems — tap to read";
+    public static final String REVIEW_FLAGGED_MANY =
+            "%1$d of %2$d recent reviews mention extra charges or booking problems — tap to read";
+
+    // Flagged-reviews dialog
+    public static final String REVIEW_DIALOG_TITLE = "Reviews worth reading";
+    public static final String REVIEW_DIALOG_SUBTITLE =
+            "Keyword matches in the recent reviews — a heads-up, not a verdict. These are things "
+                    + "other guests mentioned; read them and decide for yourself.";
+    public static final String REVIEW_DIALOG_NOTE =
+            "Simple keyword matching, not AI and not fake-review detection. Keywords are English, "
+                    + "so reviews in other languages may be missed.";
+    public static final String REVIEW_CLOSE = "Close";
 }
