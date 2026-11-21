@@ -32,5 +32,5 @@ Morphe Manager.
 
 From the next release on, each bundle is also signed with this repository's Ed25519 key. Its public key
 is in [morphe-signing.pub](morphe-signing.pub) and in `patches-bundle.json`, and the signature is in
-the comment of the `.mpp` file (`MorpheSig1 <public key> <signature>`). Morphe Manager checks it, so a
+the comment of the `.mpp` file (`MorpheSig1 <public key> <signature>`). Morphe Manager can check it, so a
 bundle that someone else changed or built doesn't pass as this one.
