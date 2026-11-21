@@ -1,14 +1,13 @@
 package app.jofslash.extension.booking;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 /**
  * Scans a list of the app's loaded review objects (com.booking.ugc.review.model.HotelReview) for
- * scam / money / booking-integrity keywords. Pure logic: it reads the review text by reflection
- * (so nothing breaks at build time) and returns a {@link Result}. It is a heads-up based on
+ * scam / money / booking-integrity keywords. It reads the review text by reflection (so nothing
+ * breaks at build time), matches it with {@link ReviewMatcher} and returns a {@link Result}. It is a heads-up based on
  * keyword matching, not AI and not fake-review detection.
  */
 final class ReviewScanner {
@@ -60,42 +59,20 @@ final class ReviewScanner {
                 String pros = HotelInfo.str(HotelInfo.call(review, "getPositiveComment"));
                 String cons = HotelInfo.str(HotelInfo.call(review, "getNegativeComment"));
                 String title = HotelInfo.str(HotelInfo.call(review, "getTitle"));
-                // Booking's own English translation, when the app loaded one.
+                // Booking's own English translation, when the app loaded one (rare on this screen).
                 Object translation = HotelInfo.call(review, "getHotelReviewTranslation");
                 String tPros = HotelInfo.str(HotelInfo.call(translation, "getPositiveComment"));
                 String tCons = HotelInfo.str(HotelInfo.call(translation, "getNegativeComment"));
                 String tTitle = HotelInfo.str(HotelInfo.call(translation, "getTitle"));
 
-                String haystack = lower(join(pros, cons, title, tPros, tCons, tTitle));
-                if (haystack.isEmpty()) continue;
+                ReviewMatcher.Match match =
+                        ReviewMatcher.match(join(pros, cons, title, tPros, tCons, tTitle));
+                if (match == null) continue;
 
-                // Tier 1: hard scam / money taken.
-                boolean tier1 = false;
-                for (String keyword : Strings.FLAG_TIER1_KEYWORDS) {
-                    if (haystack.contains(keyword)) {
-                        tier1 = true;
-                        break;
-                    }
-                }
-
-                // Tier 2: the milder complaint categories.
-                Set<String> labels = new LinkedHashSet<>();
-                if (tier1) labels.add(Strings.FLAG_TIER1_LABEL); // Tier-1 label leads.
-                for (int i = 0; i < Strings.FLAG_KEYWORDS.length; i++) {
-                    for (String keyword : Strings.FLAG_KEYWORDS[i]) {
-                        if (haystack.contains(keyword)) {
-                            labels.add(Strings.FLAG_LABELS[i]);
-                            break;
-                        }
-                    }
-                }
-
-                if (!labels.isEmpty()) {
-                    // Count the review once even if it hit several categories.
-                    Flag flag = new Flag(snippet(cons, pros, title, tCons, tPros, tTitle),
-                            joinLabels(labels), tier1);
-                    (tier1 ? tier1Flags : tier2Flags).add(flag);
-                }
+                // Count the review once even if it hit several categories.
+                Flag flag = new Flag(snippet(cons, pros, title, tCons, tPros, tTitle),
+                        joinLabels(match.labels), match.tier1);
+                (match.tier1 ? tier1Flags : tier2Flags).add(flag);
             }
         }
         List<Flag> flags = new ArrayList<>(tier1Flags);
@@ -133,9 +110,5 @@ final class ReviewScanner {
             sb.append(label);
         }
         return sb.toString();
-    }
-
-    private static String lower(String s) {
-        return s == null ? "" : s.toLowerCase(java.util.Locale.ROOT);
     }
 }

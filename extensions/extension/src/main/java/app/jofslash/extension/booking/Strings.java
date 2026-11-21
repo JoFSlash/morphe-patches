@@ -126,11 +126,14 @@ public final class Strings {
     // Review check
     //
     // Keyword matching is a heads-up, not a verdict, and not fake-review detection. Matching is a
-    // case-insensitive substring test on each review's text, so the lists are easy to extend: add
-    // a phrase to the right row. Note that a few entries (for example "walked", "credit card")
-    // can also match innocent sentences; that's accepted for a heads-up banner. Keywords are
-    // English, so reviews written in other languages are only caught through Booking's own
-    // English translation when the app loaded one.
+    // substring test on each review's text after both the text and the keywords are normalised
+    // (lower case, no diacritics, punctuation to spaces; see ReviewMatcher), so the lists are easy
+    // to extend: add a phrase to the right row. A keyword that starts or ends with a space only
+    // matches at a word boundary. Note that a few entries (for example "walked", "credit card")
+    // can also match innocent sentences; that's accepted for a heads-up banner. The English lists
+    // are here; Slovak, Czech, German, Polish, Hungarian, Italian, French and Spanish are in
+    // ReviewKeywords. Reviews in other languages are only caught through Booking's own English
+    // translation, which the reviews screen rarely has.
 
     // Two severity tiers. Tier 1 is the hard scam case (a guest who was outright ripped off or had
     // money taken); it leads the banner and sorts first in the dialog. Tier 2 is the milder
@@ -146,10 +149,11 @@ public final class Strings {
      * "doesn't exist"/"didn't exist" (e.g. "hot water doesn't exist"), bare "no room" ("no room in
      * the fridge"), bare "money back"/"stole"/"charged me for" ("charged me for breakfast"). The
      * tightened forms are used instead. Bare "cash only" stays in tier 2, since small legitimate
-     * guesthouses are cash only; tier 1 keeps "demanded cash" / "forced to pay".
+     * guesthouses are cash only; tier 1 keeps "demanded cash" / "forced to pay". "scam" is
+     * matched as a word so "scampi" on the menu doesn't count.
      */
     public static final String[] FLAG_TIER1_KEYWORDS = {
-            "scam", "scammed", "fraud", "fraudulent", "credit card fraud",
+            " scam ", " scams ", " scammed", " scammer", " scamming", "fraud", "fraudulent", "credit card fraud",
             "rip off", "ripoff", "ripped off", "con artist",
             "robbed", "stole my", "stole our", "stolen", "took my money", "took our money",
             "kept my money", "kept our money",
@@ -199,11 +203,22 @@ public final class Strings {
             // Booking not honoured
             {
                     "cancelled my booking", "canceled my booking", "cancelled my reservation",
-                    "overbooked", "double booked", "no reservation", "no record of my booking",
+                    "overbooked", "overbooking", "double booked", "no reservation", "no record of my booking",
                     "did not have my reservation", "turned away", "room not available",
                     "no room available", "gave away my room", "were walked", "got walked",
                     "walked us",
             },
+    };
+
+    /**
+     * English negations: cut out of the text before matching, so "no hidden fees" or "not a
+     * scam" don't count, and "paid twice as much" isn't read as "paid twice".
+     */
+    public static final String[] FLAG_NEGATIONS = {
+            "no hidden", "without hidden", "zero hidden", "no extra charge", "no extra fee",
+            "no additional charge", "no additional fee", "no surprise fee", "no surprise charge",
+            "not a scam", "no scam", "isn't a scam", "wasn't a scam", "twice as",
+            "stole my heart", "stole our heart", "stolen my heart", "stolen our heart",
     };
 
     // Banner
@@ -221,13 +236,17 @@ public final class Strings {
     public static final String REVIEW_FLAGGED_MANY =
             "%1$d of %2$d recent reviews mention extra charges or booking problems — tap to read";
 
+    /** The languages the keyword lists cover, for the UI. */
+    public static final String REVIEW_LANGUAGES = "English, Slovak, Czech, German, Polish, "
+            + "Hungarian, Italian, French and Spanish";
+
     // Flagged-reviews dialog
     public static final String REVIEW_DIALOG_TITLE = "Reviews worth reading";
     public static final String REVIEW_DIALOG_SUBTITLE =
             "Keyword matches in the recent reviews — a heads-up, not a verdict. These are things "
                     + "other guests mentioned; read them and decide for yourself.";
     public static final String REVIEW_DIALOG_NOTE =
-            "Simple keyword matching, not AI and not fake-review detection. Keywords are English, "
-                    + "so reviews in other languages may be missed.";
+            "Simple keyword matching, not AI and not fake-review detection. Keywords cover "
+                    + REVIEW_LANGUAGES + "; reviews in other languages may be missed.";
     public static final String REVIEW_CLOSE = "Close";
 }
