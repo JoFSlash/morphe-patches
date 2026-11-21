@@ -33,16 +33,16 @@ subscription.
 3. Add this repository as a patch source: open
    [this link](https://morphe.software/add-source?github=JoFSlash/google-health-patches) on your phone, or add
    `https://github.com/JoFSlash/google-health-patches` under sources in Morphe Manager.
-4. Download a supported version of Google Health as an APKM file from
+4. If you have a watch or tracker, sync it in the Play Store version first: data that hasn't reached your
+   Google account yet is lost when you uninstall the app.
+5. Uninstall the Play Store version. The patched app is signed with a different key, so Android won't
+   install it over the original. Your data stays in your Google account, so sign in again in the patched app
+   and it comes back. To keep the Play Store version, skip this step and turn on **Clone app** below.
+6. Download a supported version of Google Health as an APKM file from
    [APKMirror](https://www.apkmirror.com/apk/google-inc/google-health-fitbit/). Pick the file in Morphe Manager,
    then pick the patches you want. Keep **GmsCore support** on.
-   When you tap Install, Android asks you to allow Morphe Manager to install unknown apps. Google Play
-   Protect may then say it hasn't seen the app before: tap **More details** and **Install without scanning**.
-5. If you have a watch or tracker, sync it in the Play Store version first: data that hasn't reached your
-   Google account yet is lost when you uninstall the app.
-6. Uninstall the Play Store version before installing the patched one. It is signed with a different key,
-   so Android won't install it over the original. Your data stays in your Google account, so sign in again in
-   the patched app and it comes back. To keep the Play Store version, turn on **Clone app** instead.
+7. Tap Install. Android asks you to allow Morphe Manager to install unknown apps. Google Play Protect may
+   then say it hasn't seen the app before: tap **More details** and **Install without scanning**.
 
 ## Updating
 
