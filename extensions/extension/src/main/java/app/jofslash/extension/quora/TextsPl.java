@@ -105,6 +105,20 @@ final class TextsPl {
         m.put("Turkish", "Turecki");
         m.put("Saving image to Pictures/Quora", "Zapisywanie obrazu w Pictures/Quora");
         m.put("Couldn't save the image", "Nie udało się zapisać obrazu");
+        m.put("Backup file",
+                "Plik kopii");
+        m.put("Also keeps the saved texts of your bookmarks, which don't fit in the text above.",
+                "Zapisuje też teksty zakładek, które nie mieszczą się w tekście powyżej.");
+        m.put("Restore from a file",
+                "Przywróć z pliku");
+        m.put("Pick a backup file you saved.",
+                "Wybierz zapisany plik kopii.");
+        m.put("Couldn't open the file.",
+                "Nie udało się otworzyć pliku.");
+        m.put("That is not a backup file.",
+                "To nie jest plik kopii.");
+        m.put("Saved texts restored: ",
+                "Przywrócone teksty: ");
         m.put("Battery saving holds MicroG-RE back, so notifications come late or not at all. Tap, then set its battery use to Unrestricted.",
                 "Oszczędzanie baterii blokuje MicroG-RE, więc powiadomienia przychodzą późno albo wcale. Dotknij i ustaw jego użycie baterii na Bez ograniczeń.");
         m.put("Notifications are off for this app. Tap to turn them on.",

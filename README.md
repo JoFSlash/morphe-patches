@@ -59,7 +59,9 @@ The settings page follows the phone's language: Czech, French, German, Italian, 
 Spanish, otherwise English. Patch names stay in English, as Morphe Manager shows them.
 
 **Backup** copies your settings and these lists as text. Restoring adds the saved items to the lists already on
-the phone.
+the phone. The saved texts of your bookmarks are too long for that, so **Save to Downloads** there writes a backup
+file with them too, and **Restore from a file** puts it back. Keep that file off the phone if you plan to
+uninstall the app.
 
 ## Where to start
 

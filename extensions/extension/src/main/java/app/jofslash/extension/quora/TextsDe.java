@@ -105,6 +105,20 @@ final class TextsDe {
         m.put("Turkish", "Türkisch");
         m.put("Saving image to Pictures/Quora", "Bild wird in Pictures/Quora gespeichert");
         m.put("Couldn't save the image", "Bild konnte nicht gespeichert werden");
+        m.put("Backup file",
+                "Sicherungsdatei");
+        m.put("Also keeps the saved texts of your bookmarks, which don't fit in the text above.",
+                "Speichert auch die Texte deiner Lesezeichen, die nicht in den Text oben passen.");
+        m.put("Restore from a file",
+                "Aus Datei wiederherstellen");
+        m.put("Pick a backup file you saved.",
+                "Wähle eine gespeicherte Sicherungsdatei.");
+        m.put("Couldn't open the file.",
+                "Die Datei ließ sich nicht öffnen.");
+        m.put("That is not a backup file.",
+                "Das ist keine Sicherungsdatei.");
+        m.put("Saved texts restored: ",
+                "Wiederhergestellte Texte: ");
         m.put("Battery saving holds MicroG-RE back, so notifications come late or not at all. Tap, then set its battery use to Unrestricted.",
                 "Der Akkusparmodus bremst MicroG-RE, daher kommen Benachrichtigungen spät oder gar nicht. Tippe und stelle die Akkunutzung auf Uneingeschränkt.");
         m.put("Notifications are off for this app. Tap to turn them on.",

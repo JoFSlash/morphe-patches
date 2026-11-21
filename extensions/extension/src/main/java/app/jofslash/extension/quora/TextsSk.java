@@ -105,6 +105,20 @@ final class TextsSk {
         m.put("Turkish", "Turečtina");
         m.put("Saving image to Pictures/Quora", "Obrázok sa ukladá do Pictures/Quora");
         m.put("Couldn't save the image", "Obrázok sa nepodarilo uložiť");
+        m.put("Backup file",
+                "Súbor so zálohou");
+        m.put("Also keeps the saved texts of your bookmarks, which don't fit in the text above.",
+                "Uloží aj texty záložiek, ktoré sa do textu vyššie nezmestia.");
+        m.put("Restore from a file",
+                "Obnoviť zo súboru");
+        m.put("Pick a backup file you saved.",
+                "Vyber súbor so zálohou, ktorý si uložil.");
+        m.put("Couldn't open the file.",
+                "Súbor sa nepodarilo otvoriť.");
+        m.put("That is not a backup file.",
+                "Toto nie je súbor so zálohou.");
+        m.put("Saved texts restored: ",
+                "Obnovené uložené texty: ");
         m.put("Battery saving holds MicroG-RE back, so notifications come late or not at all. Tap, then set its battery use to Unrestricted.",
                 "Úspora batérie brzdí MicroG-RE, takže upozornenia chodia neskoro alebo vôbec. Ťukni a nastav mu spotrebu batérie na Bez obmedzení.");
         m.put("Notifications are off for this app. Tap to turn them on.",
