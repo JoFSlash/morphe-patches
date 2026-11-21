@@ -39,10 +39,10 @@ All patches are on by default; you can switch any of them off when you patch.
 ## Patches
 
 <!-- PATCHES_START -->
-13 patches, all on by default. Supported Booking.com versions: 71.1.
+14 patches, all on by default. Supported Booking.com versions: 71.1.
 
 <details open>
-<summary><b>Price</b> (2)</summary>
+<summary><b>Price</b> (3)</summary>
 
 Added features. They show you more; they don't change what you book.
 
@@ -50,6 +50,7 @@ Added features. They show you more; they don't change what you book.
 | --- | --- | --- |
 | Compare prices | on | Adds a **Compare prices** button to a hotel's page. It opens one panel. The **Official site** tab loads Google Hotels for that hotel, your dates and guests inside the app, reads the price from the hotel's own website and puts it next to the Booking.com price, with a link to book there. Prices load for your own region and currency. When Google rates the price against the hotel's usual prices ("great deal, 32% less than usual"), that line shows too; Google rarely shows it in the EU, so a **Check Google's deal rating (US data)** link reads it from the US version of the page on request, without changing the prices shown. |
 | Price history | on | Saves the prices the app shows you (at most 5000, the same price only once per 6 hours) and shows them for your dates as a chart, with the lowest, highest and current price and a check of crossed-out "original" prices. A second chart shows the hotel over the past year across all stay dates (the lowest price per night each day). **1M / 6M / 1Y / All** buttons pick the period. The history starts when the patch is installed; prices from before that can't be fetched, because no site publishes past hotel prices. |
+| Price watch | on | Adds a **Watch this price** button to the **Price history** tab. Once a day, on Wi-Fi and with the battery not low, the app asks Booking.com for the price of each stay you watch (hotel, dates, adults and rooms; at most 20), with the same request the hotel's page makes, saves it into the price history and shows a **Price drops** notification when it fell by more than 1%; tap it to open the hotel for those dates. The tab lists every watched stay with its last price; a watch ends by itself on the check-in day. Nothing is checked until you watch a stay. Needs **Price history**. |
 
 </details>
 
@@ -146,6 +147,11 @@ See [SECURITY.md](SECURITY.md) for how to report it privately.
 - **Price history has no past data.** It starts the day you install the patch and fills as you browse. No site
   publishes past hotel prices (unlike flights), so there's nothing to back-fill from. Google's "vs usual" rating
   is the only backward-looking signal, and it comes from Google, not from stored history.
+- **Price watch sends requests in the background.** Each watched stay costs one request a day to Booking.com, made
+  with the app's own connection, sign-in and headers, like opening the hotel's page. That is far less than
+  browsing, but it happens while you aren't using the app, and Booking.com could treat unusual background traffic
+  as suspicious; watch only stays you care about. Children aren't part of a watched stay, and Android may run the
+  daily check hours late or skip it while the phone is in battery saver.
 - **The "official site" price depends on Google.** It's read off the Google Hotels page, so it breaks if Google
   changes that page, and it isn't shown for hotels Google has no official offer for. Google's prices are for one
   room; for 2 or more rooms the panel says so.

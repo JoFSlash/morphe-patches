@@ -283,4 +283,37 @@ public final class Strings {
             "Simple keyword matching, not AI and not fake-review detection. Keywords cover "
                     + REVIEW_LANGUAGES + "; reviews in other languages may be missed.";
     public static final String REVIEW_CLOSE = "Close";
+
+    // Price watch (on the Price history tab)
+    public static final String WATCH_HEADER = "Price watch";
+    public static final String WATCH_START = "Watch this price";
+    public static final String WATCH_STOP = "Stop watching";
+    public static final String WATCH_EXPLAIN =
+            "Checks the price for these dates and guests once a day, on Wi-Fi and with the battery not "
+                    + "low, saves it here and notifies you when it drops. It asks Booking.com the way "
+                    + "this page does: one request a day for this stay, nothing else is sent.";
+    public static final String WATCH_NEEDS_PRICE =
+            "The price for these dates isn't known yet. Wait until the page shows it to watch it.";
+    /** Day and time of the last check, price or status. */
+    public static final String WATCH_LAST = "Watching. Last checked %1$s: %2$s";
+    public static final String WATCH_FIRST = "Watching. The first check runs within a day, on Wi-Fi.";
+    public static final String WATCH_FULL = "You can watch at most %1$d prices. Stop watching one first.";
+    public static final String WATCH_NOTIFICATIONS_OFF =
+            "Notifications are off for Booking.com, so you won't hear about a drop. Prices are still saved.";
+    public static final String WATCH_NOTIFICATION_SETTINGS = "Notification settings";
+    /** Count, maximum. */
+    public static final String WATCH_LIST_HEADER = "Watched prices (%1$d of %2$d)";
+    public static final String WATCH_LIST_EXPLAIN =
+            "Tap one to open the hotel for those dates. A watch ends by itself on the check-in day.";
+    public static final String WATCH_STATUS_NEW = "not checked yet";
+    public static final String WATCH_STATUS_SOLD_OUT = "sold out";
+    public static final String WATCH_STATUS_NO_PRICE = "no price";
+    public static final String WATCH_STATUS_ERROR = "the check failed";
+    public static final String WATCH_UNNAMED = "A hotel you watch";
+    public static final String WATCH_CHANNEL = "Price drops";
+    public static final String WATCH_CHANNEL_DESCRIPTION = "When the price of a stay you watch drops.";
+    /** Hotel name. */
+    public static final String WATCH_NOTIFY_TITLE = "Price drop: %1$s";
+    /** New price, old price, stay. */
+    public static final String WATCH_NOTIFY_TEXT = "Now %1$s, was %2$s. %3$s";
 }

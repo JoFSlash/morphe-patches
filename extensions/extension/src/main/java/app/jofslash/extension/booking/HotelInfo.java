@@ -29,6 +29,17 @@ public final class HotelInfo {
     private HotelInfo() {
     }
 
+    /** A price fetched without a Hotel object, by the Price watch. */
+    static HotelInfo ofPrice(int id, String name, double price, double strike, String currency) {
+        HotelInfo info = new HotelInfo();
+        info.id = id;
+        info.name = name;
+        info.price = price;
+        info.strike = strike;
+        info.currency = currency;
+        return info;
+    }
+
     /** Reads a Hotel object. Returns null when it isn't one or has no id. */
     public static HotelInfo of(Object hotel) {
         if (hotel == null) return null;

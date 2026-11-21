@@ -1,6 +1,13 @@
 package app.jofslash.extension.booking;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.provider.Settings;
+import android.text.TextUtils;
+import android.widget.Toast;
 import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
 import android.view.View;
@@ -48,6 +55,10 @@ final class HistoryTab {
     private List<PriceDb.Row> all;
     private List<PriceDb.Row> others;
     private int range = RANGE_LABELS.length - 1;
+    /** The Price watch patch is on. */
+    private final boolean watchOn;
+    private LinearLayout watchBox;
+    private List<PriceDb.Watch> watches;
 
     HistoryTab(Activity activity, Panel panel, Panel.Colors colors, HotelInfo hotel, Stay stay) {
         this.activity = activity;
@@ -55,6 +66,7 @@ final class HistoryTab {
         this.colors = colors;
         this.hotel = hotel;
         this.stay = stay;
+        this.watchOn = PriceWatch.isAvailable(activity);
     }
 
     View view() {
@@ -63,6 +75,15 @@ final class HistoryTab {
         list.setOrientation(LinearLayout.VERTICAL);
         list.setPadding(panel.dp(16), panel.dp(12), panel.dp(16), panel.dp(24));
         scroll.addView(list);
+
+        if (watchOn) {
+            watchBox = new LinearLayout(activity);
+            watchBox.setOrientation(LinearLayout.VERTICAL);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.bottomMargin = panel.dp(16);
+            list.addView(watchBox, lp);
+        }
 
         LinearLayout ranges = new LinearLayout(activity);
         ranges.setOrientation(LinearLayout.HORIZONTAL);
@@ -88,13 +109,21 @@ final class HistoryTab {
         list.addView(content);
 
         final int hotelId = hotel.id;
+        final boolean loadWatches = watchOn;
         PriceHistory.load(activity, db -> new Object[]{db.forHotel(hotelId),
-                stay == null ? null : db.otherStays(hotelId, stay, 6)}, result -> {
+                stay == null ? null : db.otherStays(hotelId, stay, 6),
+                loadWatches ? db.watches() : null}, result -> {
             all = result == null ? new ArrayList<>() : cast(result[0]);
             others = result == null ? null : cast(result[1]);
+            watches = result == null || result[2] == null ? new ArrayList<>() : castWatches(result[2]);
             render();
         });
         return scroll;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<PriceDb.Watch> castWatches(Object o) {
+        return (List<PriceDb.Watch>) o;
     }
 
     @SuppressWarnings("unchecked")
@@ -130,6 +159,156 @@ final class HistoryTab {
                         Panel.day(r.time)), 14, colors.text, false), 6));
             }
         }
+        if (watchOn) {
+            renderWatch();
+            watchList();
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // Price watch
+
+    private PriceDb.Watch thisWatch() {
+        if (stay == null || watches == null) return null;
+        for (PriceDb.Watch w : watches) {
+            if (w.hotelId == hotel.id && w.stay.sameAs(stay)) return w;
+        }
+        return null;
+    }
+
+    /** The card with the "Watch this price" button, at the top of the tab. */
+    private void renderWatch() {
+        watchBox.removeAllViews();
+        LinearLayout card = new LinearLayout(activity);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.addView(panel.text(Strings.WATCH_HEADER, 16, colors.text, true));
+        final PriceDb.Watch watch = thisWatch();
+        if (stay == null || (watch == null && !hotel.hasPrice())) {
+            card.addView(panel.spaced(panel.text(stay == null ? Strings.HISTORY_NONE : Strings.WATCH_NEEDS_PRICE, 14,
+                    colors.secondaryText, false), 6));
+            watchBox.addView(panel.card(card));
+            return;
+        }
+        if (watch == null) {
+            card.addView(panel.spaced(panel.text(Strings.WATCH_EXPLAIN, 14, colors.secondaryText, false), 6));
+            card.addView(panel.spaced(panel.button(Strings.WATCH_START, v -> startWatching()), 12));
+        } else {
+            String state = watch.lastCheck == 0 ? Strings.WATCH_FIRST
+                    : String.format(Strings.WATCH_LAST, when(watch.lastCheck), status(watch));
+            card.addView(panel.spaced(panel.text(state, 14, colors.text, false), 6));
+            if (!PriceWatch.notificationsAllowed(activity)) {
+                card.addView(panel.spaced(panel.text(Strings.WATCH_NOTIFICATIONS_OFF, 14, colors.bad, false), 8));
+                card.addView(panel.link(Strings.WATCH_NOTIFICATION_SETTINGS, v -> openNotificationSettings()));
+            }
+            TextView stop = panel.text(Strings.WATCH_STOP, 15, colors.accent, true);
+            stop.setGravity(Gravity.CENTER);
+            stop.setPadding(panel.dp(16), panel.dp(12), panel.dp(16), panel.dp(12));
+            GradientDrawable bg = new GradientDrawable();
+            bg.setCornerRadius(panel.dp(8));
+            bg.setStroke(Math.max(1, panel.dp(1)), colors.accent);
+            stop.setBackground(bg);
+            stop.setOnClickListener(v -> stopWatching(watch.hotelId, watch.stay));
+            card.addView(panel.spaced(stop, 12));
+        }
+        watchBox.addView(panel.card(card));
+    }
+
+    private void startWatching() {
+        final Context context = activity.getApplicationContext();
+        final HotelInfo h = hotel;
+        final Stay s = stay;
+        PriceHistory.load(activity, db -> new Object[]{PriceWatch.watch(context, h, s), db.watches()}, result -> {
+            if (result == null) return;
+            if ((Integer) result[0] == PriceWatch.WATCH_FULL) {
+                Toast.makeText(activity, String.format(Locale.getDefault(), Strings.WATCH_FULL, PriceWatch.MAX_WATCHES),
+                        Toast.LENGTH_LONG).show();
+            }
+            watches = castWatches(result[1]);
+            render();
+            askForNotifications();
+        });
+    }
+
+    private void stopWatching(final int hotelId, final Stay s) {
+        final Context context = activity.getApplicationContext();
+        PriceHistory.load(activity, db -> {
+            PriceWatch.unwatch(context, hotelId, s);
+            return db.watches();
+        }, result -> {
+            if (result == null) return;
+            watches = result;
+            render();
+        });
+    }
+
+    /** Android 13 and later: the app asks for the notification permission itself; ask again if needed. */
+    private void askForNotifications() {
+        if (Build.VERSION.SDK_INT >= 33 && activity.checkSelfPermission(
+                android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            activity.requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 0x4A0F);
+        }
+    }
+
+    private void openNotificationSettings() {
+        try {
+            Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                    .putExtra(Settings.EXTRA_APP_PACKAGE, activity.getPackageName());
+            activity.startActivity(intent);
+        } catch (RuntimeException e) {
+            Toast.makeText(activity, Strings.NO_BROWSER, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /** Every watched stay, at the bottom of the tab. */
+    private void watchList() {
+        if (watches == null || watches.isEmpty()) return;
+        content.addView(panel.spaced(panel.text(String.format(Locale.getDefault(), Strings.WATCH_LIST_HEADER,
+                watches.size(), PriceWatch.MAX_WATCHES), 16, colors.text, true), 28));
+        content.addView(panel.spaced(panel.text(Strings.WATCH_LIST_EXPLAIN, 13, colors.secondaryText, false), 4));
+        for (final PriceDb.Watch w : watches) {
+            LinearLayout row = new LinearLayout(activity);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            LinearLayout texts = new LinearLayout(activity);
+            texts.setOrientation(LinearLayout.VERTICAL);
+            TextView name = panel.text(w.name != null ? w.name : Strings.WATCH_UNNAMED, 14, colors.text, true);
+            name.setSingleLine(true);
+            name.setEllipsize(TextUtils.TruncateAt.END);
+            texts.addView(name);
+            texts.addView(panel.text(Panel.stayText(w.stay), 13, colors.secondaryText, false));
+            texts.addView(panel.text(w.lastCheck == 0 ? Strings.WATCH_STATUS_NEW
+                    : when(w.lastCheck) + ": " + status(w), 13, colors.secondaryText, false));
+            row.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+            texts.setOnClickListener(v -> {
+                try {
+                    activity.startActivity(PriceWatch.propertyPageIntent(activity, w.hotelId, w.stay));
+                } catch (RuntimeException e) {
+                    Toast.makeText(activity, Strings.NO_BROWSER, Toast.LENGTH_SHORT).show();
+                }
+            });
+            TextView remove = panel.text("\u2715", 18, colors.secondaryText, false);
+            remove.setGravity(Gravity.CENTER);
+            remove.setContentDescription(Strings.WATCH_STOP);
+            remove.setOnClickListener(v -> stopWatching(w.hotelId, w.stay));
+            row.addView(remove, new LinearLayout.LayoutParams(panel.dp(48), panel.dp(48)));
+            content.addView(panel.spaced(panel.card(row), 8));
+        }
+    }
+
+    private static String status(PriceDb.Watch w) {
+        if (PriceWatch.STATUS_OK.equals(w.status) && !Double.isNaN(w.lastPrice)) {
+            return Panel.money(w.lastPrice, w.currency);
+        }
+        if (PriceWatch.STATUS_SOLD_OUT.equals(w.status)) return Strings.WATCH_STATUS_SOLD_OUT;
+        if (PriceWatch.STATUS_NO_PRICE.equals(w.status)) return Strings.WATCH_STATUS_NO_PRICE;
+        if (PriceWatch.STATUS_ERROR.equals(w.status)) return Strings.WATCH_STATUS_ERROR;
+        return Strings.WATCH_STATUS_NEW;
+    }
+
+    /** Day and time, "22 Nov 14:05". */
+    private static String when(long time) {
+        return Panel.day(time) + " " + java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT)
+                .format(new java.util.Date(time));
     }
 
     // ---------------------------------------------------------------------------------------
