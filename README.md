@@ -13,7 +13,8 @@ Android 12L or newer. No root needed.
 
 - **Sign in without Google Play services:** the patched app signs in through MicroG-RE.
 - **No nagging:** no surveys, no "rate us" or "update" prompts, no Shop devices button.
-- **Your choice:** screenshots on every screen, links in your own browser, no Premium offer pop-ups.
+- **Your choice:** a pure black theme, screenshots on every screen, links in your own browser, no Premium
+  offer pop-ups, no Medical records.
 - **Clone app:** keep the Play Store version and install the patched one next to it, with its own name and icon.
 - **Your data stays:** it is stored in your Google account and comes back when you sign in.
 
@@ -51,7 +52,7 @@ subscription.
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.0.0, 10 patches. Supported Google Health versions: 5.13.health-mobile-1104148438-1023845615.
+Version 1.0.0, 12 patches. Supported Google Health versions: 5.13.health-mobile-1104148438-1023845615.
 
 <details>
 <summary><b>Privacy</b> (2)</summary>
@@ -66,17 +67,19 @@ On by default. They change nothing you see.
 </details>
 
 <details>
-<summary><b>App</b> (8)</summary>
+<summary><b>App</b> (10)</summary>
 
 Signing in, prompts and how the app behaves.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
 | Allow screenshots | off | Lets you take screenshots and record the screen on every screen of the app. Some screens, such as sharing a health summary, block them. |
+| Black theme | off | Makes the background and cards pure black instead of dark gray in the dark theme, which saves battery on OLED screens. Buttons, charts and pop-ups keep their colors. |
 | Clone app | off | Changes the package name, so the patched app installs next to the official Google Health app instead of replacing it. Both apps sign in on their own. Push notifications don't work in the clone, and a watch or tracker can only be paired with one of the two apps. Options: Package name, App name, Icon color. |
 | Disable review prompts | on | Stops the app from asking you to rate it on Google Play. |
 | Disable update prompts | on | Stops the app from asking you to update it from Google Play. A patched app can't be updated from Google Play; patch the new version instead. |
 | GmsCore support | on | Makes signing in work through MicroG-RE instead of Google Play services. A patched app can't sign in through Play services, because it is no longer signed by Google. Needs MicroG-RE installed, with your Google account added to it. |
+| Hide Medical records | off | Hides Medical records in the account menu and on the Connections screen. Medical records only work with US healthcare providers. |
 | Hide Premium offer sheets | off | Hides the sheets that pop up to offer Premium, such as the 3 months of Premium offer and the reminder that your Premium trial is ending. Premium itself keeps working. |
 | Hide Shop devices | on | Hides the Shop devices button on the Connections screen, which opens the Google Store. |
 | Open links in browser | off | Opens links, such as the Google Store, in your browser instead of a browser tab inside the app. |
