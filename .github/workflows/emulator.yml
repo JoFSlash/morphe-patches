@@ -8,7 +8,8 @@ name: Emulator test
 #
 # The APK can't be in this public repository. It comes from the private repository
 # JoFSlash/google-health-apks, read with the GOOGLE_HEALTH_APKS_TOKEN secret (a fine-grained token
-# with read access to that repository's contents only). Without the secret the test is skipped,
+# with access to that repository's contents only: read here, read and write for the Google Health
+# version workflow, which keeps new APKMs there). Without the secret the test is skipped,
 # except when the release runs it: there a skipped test would let an untested bundle through, so
 # it fails.
 
