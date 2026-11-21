@@ -293,5 +293,9 @@ final class TextsCs {
         m.put("Filter updates: checked ", "Aktualizace filtrů: zkontrolováno ");
         m.put("No fixes needed right now.", "Teď nejsou potřeba žádné opravy.");
         m.put("Fixes in use: ", "Použité opravy: ");
+        // For reading preset.
+        m.put("For reading", "Na čtení");
+        m.put("A clean feed, whole answers with more space, no numbers, and bars that hide while you read.",
+                "Čistý feed, celé odpovědi s více místem, bez čísel a lišty, které se při čtení schovají.");
     }
 }

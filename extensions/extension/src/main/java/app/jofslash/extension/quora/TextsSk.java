@@ -293,5 +293,9 @@ final class TextsSk {
         m.put("Filter updates: checked ", "Aktualizácie filtrov: skontrolované ");
         m.put("No fixes needed right now.", "Teraz nie sú potrebné žiadne opravy.");
         m.put("Fixes in use: ", "Použité opravy: ");
+        // For reading preset.
+        m.put("For reading", "Na čítanie");
+        m.put("A clean feed, whole answers with more space, no numbers, and bars that hide while you read.",
+                "Čistý feed, celé odpovede s väčšími medzerami, bez čísel a lišty, ktoré sa pri čítaní schovajú.");
     }
 }
