@@ -31,7 +31,7 @@ public final class PriceHistory {
 
     /** Called from the property page's constructor. */
     public static void onPropertyPage(Activity activity) {
-        PropertyPageButton.attach(activity, false, true);
+        PropertyPageButton.attach(activity, false, true, false);
     }
 
     static void setContext(Context context) {

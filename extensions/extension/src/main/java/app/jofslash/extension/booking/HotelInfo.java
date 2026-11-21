@@ -16,6 +16,10 @@ public final class HotelInfo {
     public String name;
     public String city;
     public String address;
+    /** The full address as Booking.com formats it ("10 Grundsteingasse, 16. Ottakring, 1160 Vienna, Austria"). */
+    public String formattedAddress;
+    /** NaN when not known. */
+    public double latitude = Double.NaN, longitude = Double.NaN;
     /** Total price for the stay as the app shows it, or NaN. */
     public double price = Double.NaN;
     /** Crossed-out ("original") total price, or NaN. */
@@ -36,6 +40,15 @@ public final class HotelInfo {
             info.name = str(call(hotel, "getHotelName"));
             info.city = str(call(hotel, "getCity"));
             info.address = str(call(hotel, "getAddress"));
+            Object location = call(call(hotel, "getPropertyInfo"), "getLocation");
+            info.formattedAddress = str(call(location, "getFormattedAddress"));
+            Object latitude = call(hotel, "getLatitude");
+            Object longitude = call(hotel, "getLongitude");
+            if (latitude instanceof Double && longitude instanceof Double
+                    && ((Double) latitude != 0 || (Double) longitude != 0)) {
+                info.latitude = (Double) latitude;
+                info.longitude = (Double) longitude;
+            }
             Object breakdown = field(hotel, "compositePriceBreakdown");
             if (breakdown != null) {
                 Object gross = call(breakdown, "getGrossAmount");

@@ -39,7 +39,7 @@ All patches are on by default; you can switch any of them off when you patch.
 ## Patches
 
 <!-- PATCHES_START -->
-10 patches, all on by default. Supported Booking.com versions: 71.1.
+12 patches, all on by default. Supported Booking.com versions: 71.1.
 
 <details open>
 <summary><b>Price</b> (2)</summary>
@@ -54,7 +54,7 @@ Added features. They show you more; they don't change what you book.
 </details>
 
 <details>
-<summary><b>Search</b> (3)</summary>
+<summary><b>Search</b> (5)</summary>
 
 What the search results show.
 
@@ -62,7 +62,9 @@ What the search results show.
 | --- | --- | --- |
 | Hide urgency messages | on | Hides scarcity and pressure lines on hotel pages and in search results, such as "We have 1 left at this price", "Rare find", "booked N times" and "in high demand". Keeps the real information: the price, free cancellation and whether a hotel is sold out. |
 | Hide sponsored listings | on | Removes sponsored ("Ad") properties from the results list and sponsored markers from the map, so you see only the ranked results. |
+| Label Preferred properties | on | Keeps the thumbs-up "Preferred" and "Preferred Plus" badges but adds "Pays Booking higher commission" next to them, in the results list and on the hotel's page. Booking.com gives the badge to properties in its Preferred Partner Programme, which pay it a higher commission; it isn't a quality rating. Screen readers hear the same. |
 | Review check | on | On a hotel's reviews screen, scans the reviews the app has loaded for red flags: extra charges and hidden fees, paying outside Booking.com, "not as described", bookings not honoured, and scams or money taken. A banner above the booking button says how many reviews mention them ("3 of 25 recent reviews mention extra charges or booking problems"), in red when guests report a possible scam; tap it to read those reviews. It's keyword matching on your phone, a heads-up and not a verdict: not AI, not fake-review detection. Keywords cover English, Slovak, Czech, German, Polish, Hungarian, Italian, French and Spanish (with or without accents); reviews in other languages may be missed. |
+| Hotel contact | on | Adds a **Contact** button above **Compare prices** on a hotel's page (a **Contact** tab in the same panel). It shows the address with **Open in Maps** (a pin at the hotel in your maps app) and **Copy address**, and the phone number, email, company name, business address and registration that the hotel gives Booking.com for EU consumer law. Tap the phone number to dial it, or the email to write with the hotel's name as the subject; long-press any detail to copy it. The app already receives these details but hides them under Legal information. For chains they can be the head office (an Ibis gives Accor's), and private hosts and hotels outside the EU and a few other countries don't have them. |
 
 </details>
 
