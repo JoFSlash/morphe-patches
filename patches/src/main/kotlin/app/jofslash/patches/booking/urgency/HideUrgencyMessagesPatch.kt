@@ -1,7 +1,9 @@
 package app.jofslash.patches.booking.urgency
 
 import app.jofslash.patches.booking.shared.Constants.COMPATIBILITY_BOOKING
+import app.jofslash.patches.booking.shared.enableSabaJsonFilter
 import app.jofslash.patches.booking.shared.fieldGettersOf
+import app.jofslash.patches.booking.shared.sabaJsonFilterPatch
 import app.jofslash.patches.booking.shared.methodOf
 import app.jofslash.patches.booking.shared.returnEarly
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
@@ -29,7 +31,14 @@ val hideUrgencyMessagesPatch = bytecodePatch(
     category("Search")
     compatibleWith(COMPATIBILITY_BOOKING)
 
+    dependsOn(sabaJsonFilterPatch)
+
     execute {
+        // Search results are a server-driven page: urgency text fields ("urgencyMessage",
+        // "lastReservationMessage") and card parts whose id names an urgency message are taken out
+        // of its JSON.
+        enableSabaJsonFilter("hideUrgency")
+
         // Property data the app gets from Booking. Each getter (by the field it reads) answers
         // "no message".
         listOf(
