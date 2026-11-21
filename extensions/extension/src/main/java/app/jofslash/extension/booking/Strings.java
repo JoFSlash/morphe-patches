@@ -296,4 +296,16 @@ public final class Strings {
                     + REVIEW_LANGUAGES + "; reviews in other languages may be missed.";
     public static final String REVIEW_CLOSE = "Close";
 
+    // Recent rating
+    /** Average, number of reviews. */
+    public static final String RECENT_6M = "Last 6 months: %1$s from %2$d reviews";
+    /** Average, number of reviews, date of the oldest. */
+    public static final String RECENT_LATEST = "Latest %2$d reviews (since %3$s): %1$s";
+    /** Overall score. */
+    public static final String RECENT_OVERALL = " · overall %1$s";
+    public static final String RECENT_FEW = "Fewer than 10 reviews in the last 6 months, too few for a recent rating";
+    public static final String RECENT_LOADING = "Loading the newest reviews for a recent rating…";
+    public static final String RECENT_NEED_SORT =
+            "Recent rating: sort the reviews by newest first once, then it shows for every hotel";
+    public static final String RECENT_FAILED = "Couldn't load the newest reviews for a recent rating";
 }

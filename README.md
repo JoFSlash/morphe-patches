@@ -39,7 +39,7 @@ All patches are on by default; you can switch any of them off when you patch.
 ## Patches
 
 <!-- PATCHES_START -->
-14 patches, all on by default. Supported Booking.com versions: 71.1.
+15 patches, all on by default. Supported Booking.com versions: 71.1.
 
 <details open>
 <summary><b>Price</b> (3)</summary>
@@ -55,7 +55,7 @@ Added features. They show you more; they don't change what you book.
 </details>
 
 <details>
-<summary><b>Search</b> (5)</summary>
+<summary><b>Search</b> (6)</summary>
 
 What the search results show.
 
@@ -65,6 +65,7 @@ What the search results show.
 | Hide sponsored listings | on | Removes sponsored ("Ad") properties from the results list and sponsored markers from the map, so you see only the ranked results. |
 | Label Preferred properties | on | Keeps the thumbs-up "Preferred" and "Preferred Plus" badges but adds "Pays Booking higher commission" next to them, in the results list and on the hotel's page. Booking.com gives the badge to properties in its Preferred Partner Programme, which pay it a higher commission; it isn't a quality rating. Screen readers hear the same. |
 | Review check | on | On a hotel's reviews screen, scans the reviews the app has loaded for red flags: extra charges and hidden fees, paying outside Booking.com, "not as described", bookings not honoured, and scams or money taken. A banner above the booking button says how many reviews mention them ("3 of 25 recent reviews mention extra charges or booking problems"), in red when guests report a possible scam; tap it to read those reviews. It's keyword matching on your phone, a heads-up and not a verdict: not AI, not fake-review detection. Keywords cover English, Slovak, Czech, German, Polish, Hungarian, Italian, French and Spanish (with or without accents); reviews in other languages may be missed. |
+| Recent rating | on | Under a hotel's name and address, shows the average score of its reviews from the last 6 months, "Last 6 months: 6.1 from 42 reviews · overall 8.5", in red when it's 0.5 or more below the overall score; the same line shows on the reviews screen above the Review check banner. Booking.com sends no recent score, so the patch loads the newest 50 reviews once per hotel while the app runs, through the app's own request for reviews (when the reviews screen is already sorted newest first, it uses those). When the 50 newest are all from the last 6 months, it says "Latest 50 reviews (since 2 Sep)". It's hidden under 10 recent reviews and leaves out reviews from guests who didn't stay. The newest-first sort is an option Booking.com's server names, so the patch learns it from the reviews screen's sort menu: until it has, open a hotel's reviews and sort them by newest first once. |
 | Hotel contact | on | Adds a **Contact** button above **Compare prices** on a hotel's page (a **Contact** tab in the same panel). It shows the address with **Open in Maps** (a pin at the hotel in your maps app) and **Copy address**, and the phone number, email, company name, business address and registration that the hotel gives Booking.com for EU consumer law. Tap the phone number to dial it, or the email to write with the hotel's name as the subject; long-press any detail to copy it. The app already receives these details but hides them under Legal information. For chains they can be the head office (an Ibis gives Accor's), and private hosts and hotels outside the EU and a few other countries don't have them. |
 
 </details>
@@ -138,8 +139,9 @@ the background.
 
 **Is it safe?**
 All the code is in this repository, and the patch files in the releases are built from it by GitHub Actions. The
-privacy patch only stops the app from sending things. The one feature that reaches the internet is **Compare
-prices**: when you open its Official site tab it loads Google Hotels, as a browser would. Found a security problem?
+privacy patch only stops the app from sending things. The one feature that reaches another site is **Compare
+prices**: when you open its Official site tab it loads Google Hotels, as a browser would. **Recent rating** asks
+Booking.com for a hotel's newest reviews, the same request the app makes when you open the reviews. Found a security problem?
 See [SECURITY.md](SECURITY.md) for how to report it privately.
 
 ## Known issues
