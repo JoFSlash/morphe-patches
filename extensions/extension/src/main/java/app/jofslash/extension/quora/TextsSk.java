@@ -178,7 +178,6 @@ final class TextsSk {
         m.put("A Share text button next to Share under answers.", "Tlačidlo Zdieľať text vedľa Share pod odpoveďami.");
         m.put("Questions open with answers in the order set below.", "Otázky sa otvoria s odpoveďami v poradí nastavenom nižšie.");
         m.put("Remembers what you open (see History).", "Pamätá si, čo otvoríš (pozri Históriu).");
-        m.put("A bookmark button under open answers (see Bookmarks).", "Tlačidlo záložky pod otvorenými odpoveďami (pozri Záložky).");
         m.put("A Translate button next to Share under answers.", "Tlačidlo Preložiť vedľa Share pod odpoveďami.");
         m.put("Bars hide while you scroll down.", "Lišty sa pri posúvaní nadol skryjú.");
         m.put("Shortened answers open in full.", "Skrátené odpovede sa otvoria celé.");
@@ -224,5 +223,17 @@ final class TextsSk {
         m.put("Words: ", "Slová: ");
         m.put("Characters: ", "Znaky: ");
         m.put("Words and characters while you write an answer or post.", "Počet slov a znakov pri písaní odpovede alebo príspevku.");
+        // Hide anonymous answers, offline bookmarks, Read aloud.
+        m.put("A bookmark button under open answers; saved ones read offline (see Bookmarks).", "Tlačidlo záložky pod otvorenými odpoveďami; uložené si prečítate aj offline (pozri Záložky).");
+        m.put("Answers written as \"Anonymous\".", "Odpovede napísané ako „Anonymous“.");
+        m.put("A Read aloud button next to Share under answers.", "Tlačidlo Čítať nahlas vedľa Zdieľať pod odpoveďami.");
+        m.put("Read aloud", "Čítať nahlas");
+        m.put("Reading aloud. Tap the button again to stop.", "Čítam nahlas. Ďalším ťuknutím na tlačidlo zastavíte.");
+        m.put("Reading the preview. Open it to hear all of it.", "Čítam ukážku. Otvorte odpoveď, ak ju chcete počuť celú.");
+        m.put("Reads this text out loud. Tap again to stop.", "Prečíta tento text nahlas. Ďalším ťuknutím zastavíte.");
+        m.put("Saved as text: pictures, links and formatting aren't kept.", "Uložené ako text: obrázky, odkazy a formátovanie sa neukladajú.");
+        m.put("Saved copy", "Uložená kópia");
+        m.put("Saved offline", "Uložené offline");
+        m.put("This phone has no text-to-speech. Install one, such as Speech Services by Google.", "Tento telefón nemá prevod textu na reč. Nainštalujte si ho, napríklad Speech Services od Googlu.");
     }
 }

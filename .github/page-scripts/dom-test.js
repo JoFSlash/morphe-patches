@@ -203,6 +203,28 @@ expect('blockAuthors-0.js', `
   ['#hers', true], ['#upvoted', false],
 ]);
 
+// Hide anonymous answers. Markup trimmed from a question page: the author is the first bold
+// q-text; an anonymous one is plain text, a named one a profile link. An anonymous commenter
+// further down doesn't hide the named author's answer.
+const author = (name) => `
+  <div class="q-box qu-flex--auto"><div class="q-box"><span class="q-box">
+    <span class="q-text qu-dynamicFontSize--small qu-bold qu-color--gray_dark qu-passColorToLinks">
+      <div class="q-inlineFlex qu-alignItems--center"><div class="q-inlineFlex qu-alignItems--center qu-wordBreak--break-word">
+      ${name}</div></div></span></span></div></div>`;
+expect('hideAnonymousAnswers-0.js', `
+  <div class="q-box dom_annotate_question_answer_item_0" id="anon">
+    ${author('<span><span>Anonymous</span></span>')}
+    <div class="puppeteer_test_answer_content"><p class="q-text">A secret.</p></div></div>
+  <div class="q-box dom_annotate_question_answer_item_1" id="named">
+    ${author('<span><a class="puppeteer_test_link" href="https://www.quora.com/profile/Jake-Williams-65">Jake Williams</a></span>')}
+    <div class="puppeteer_test_answer_content"><p class="q-text">His answer.</p></div>
+    <div class="q-box comment">${author('<span><span>Anonymous</span></span>')}<p class="q-text">A comment.</p></div></div>
+  <div class="q-box dom_annotate_multifeed_bundle_AnswersBundle" id="feed-anon">
+    ${author('<span><span>Anonymous</span></span>')}
+    <div class="puppeteer_test_answer_content"><p class="q-text">In the feed.</p></div></div>`, [
+  ['#anon', true], ['#named', false], ['#feed-anon', true],
+]);
+
 // Word count: the editor opens as its own page whose params name the modal. Markup trimmed from
 // Quora's answer editor: each paragraph is a [data-kind=section].
 function editorPage(modal, html) {

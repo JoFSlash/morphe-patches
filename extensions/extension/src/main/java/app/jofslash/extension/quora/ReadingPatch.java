@@ -129,6 +129,30 @@ public final class ReadingPatch {
     }
 
     /**
+     * Injection point: start of QWebViewClient.onPageFinished. Hides answers in the feed and on
+     * question pages whose author is "Anonymous". The author is the first bold name of an item;
+     * an anonymous one is plain text, without a link to a profile. Names in "Upvoted by" lines and
+     * in comments come later, so an anonymous commenter doesn't hide the answer.
+     */
+    public static void hideAnonymousAnswers(WebView webView) {
+        if (!PatchSettings.active(webView, "hideAnonymousAnswers", "Hide anonymous answers")) return;
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashAnon)return;window.__jofslashAnon=1;"
+                + "function anon(u){var b=u.querySelector('span.q-text.qu-bold');if(!b)return false;"
+                + "if(b.querySelector('a[href*=\"/profile/\"]'))return false;"
+                + "return (b.textContent||'').trim()==='Anonymous';}"
+                + "function run(){document.querySelectorAll('" + UNITS + "').forEach(function(u){"
+                + "if(u.hasAttribute('data-jofslash-filtered')||u.hasAttribute('data-jofslash-anon-checked'))return;"
+                // Feed items fill in as they load: check again until the author is there.
+                + "if(!u.querySelector('span.q-text.qu-bold'))return;"
+                + "u.setAttribute('data-jofslash-anon-checked','');"
+                + "if(anon(u)){u.setAttribute('data-jofslash-filtered','');u.style.setProperty('display','none','important');}"
+                + "});}"
+                + observe("run")
+                + "})();", "anonymous answers");
+    }
+
+    /**
      * Injection point: start of QWebViewClient.onPageFinished. Remembers the feed items you tap and
      * dims or hides them when the feed shows them again. The list stays in the app's own storage.
      *
@@ -646,6 +670,49 @@ public final class ReadingPatch {
                 + "})();", "translate");
     }
 
+    // ------------------------------------------------------------------ read aloud
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Adds a Read aloud button after Share
+     * under answers and posts; it reads their text with the phone's text-to-speech. Tapping it again
+     * stops; the button shows a stop square while it reads.
+     */
+    public static void readAloud(WebView webView) {
+        if (!PatchSettings.active(webView, "readAloud", "Read aloud")) return;
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashSpeak)return;window.__jofslashSpeak=1;"
+                + "var HEAD='<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\">"
+                + "<g class=\"icon_svg-stroke\" stroke=\"#666\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\">';"
+                // A speaker with sound waves: read aloud. A square: stop.
+                + "var PLAY=HEAD+'<path d=\"M4 9.5h3l4.5-4v13L7 14.5H4z\"></path><path d=\"M15 9a4 4 0 0 1 0 6M17.5 6.5a7.5 7.5 0 0 1 0 11\"></path></g></svg>';"
+                + "var STOP=HEAD+'<rect x=\"6.5\" y=\"6.5\" width=\"11\" height=\"11\" rx=\"1.5\"></rect></g></svg>';"
+                + ITEM_TEXT_JS
+                + PREVIEW_JS
+                + SHARE_BUTTONS_JS
+                + "var active=null;"
+                + "function mark(b,on){var s=b.querySelector('svg');if(s)s.outerHTML=on?STOP:PLAY;"
+                + "var btn=b.querySelector('button')||b;btn.setAttribute('aria-label',on?'Stop reading':'Read aloud');}"
+                // Puts the button back once the reading ends by itself.
+                + "function watch(){if(!active)return;var J=window.JoFSlashPatches;"
+                + "if(!J||!J.ready()||!J.isReadingAloud()){mark(active,false);active=null;return;}setTimeout(watch,1000);}"
+                + "function speak(b,t){var J=window.JoFSlashPatches;if(!J||!J.ready())return;var r=preview(t);if(!r.text)return;"
+                + "var again=b===active;if(active)mark(active,false);active=null;"
+                + "if(J.readAloud(r.text,r.cut,again)){active=b;mark(b,true);setTimeout(watch,1500);}}"
+                + "function run(){shareButtons().forEach(function(s){"
+                + "if(s.hasAttribute('data-jofslash-speak'))return;s.setAttribute('data-jofslash-speak','');"
+                + "var item=s.parentElement&&s.parentElement.children.length===1?s.parentElement:s;"
+                + "var b=item.cloneNode(true);b.setAttribute('data-jofslash-speak','');b.setAttribute('data-jofslash-clone','');"
+                + "[b].concat([].slice.call(b.querySelectorAll('*'))).forEach(function(e){"
+                + "e.classList.remove('dom_annotate_answer_action_bar_share','puppeteer_test_answer_quora_share_button','sprig_share_button');});"
+                + "if(!b.querySelector('svg'))return;"
+                + "b.querySelectorAll('.q-text').forEach(function(e){e.remove();});"
+                + "mark(b,false);"
+                + "b.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();speak(b,text(item));},true);"
+                + "item.parentElement.insertBefore(b,item.nextSibling);});}"
+                + observe("run")
+                + "})();", "read aloud");
+    }
+
     // ------------------------------------------------------------------ reading history
 
     /**
@@ -700,6 +767,7 @@ public final class ReadingPatch {
                 + "'+(on?' style=\"color:#666\"':'')+'>'+(on?FILLED:OUTLINE)+'</g></svg>';}"
                 + PAGE_ITEM_JS
                 + SHARE_BUTTONS_JS
+                + ITEM_TEXT_JS
                 + "var n=0;"
                 // Waits up to 20 s for the bridge, the page's data and its Share button.
                 // retry: keep trying for up to 20 s while the bridge, the page's data or Share is missing.
@@ -720,9 +788,18 @@ public final class ReadingPatch {
                 + "var btn=b.querySelector('button')||b;"
                 + "function show(on){var g=b.querySelector('svg');if(g)g.outerHTML=icon(on);"
                 + "btn.setAttribute('aria-label',on?'Remove bookmark':'Bookmark');btn.setAttribute('aria-pressed',on?'true':'false');}"
-                + "show(J.isBookmarked(it.url));"
+                // The text of a bookmarked page is kept to read offline (Bookmarks in Patch settings).
+                // The Share button as it is now: a redraw may have replaced the one this run found.
+                + "function keep(x){try{var s2=shareButtons()[0],at=s2?(s2.parentElement&&s2.parentElement.children.length===1?s2.parentElement:s2):item;"
+                + "J.saveOffline(x.url,x.title,x.author,text(at));}catch(e){}}"
+                + "var on=J.isBookmarked(it.url);show(on);"
+                // Opening a bookmarked page again refreshes its copy, once the text has loaded.
+                // Once per page: Quora redraws the action bar, which runs this again.
+                + "if(on&&window.__jofslashKept!==location.href){window.__jofslashKept=location.href;"
+                + "setTimeout(function(){keep(it);},1500);}"
                 + "b.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();"
-                + "var now=pageItem();show(J.toggleBookmark(now.url||it.url,now.title||it.title,now.author||it.author));},true);"
+                + "var now=pageItem(),x={url:now.url||it.url,title:now.title||it.title,author:now.author||it.author};"
+                + "var saved=J.toggleBookmark(x.url,x.title,x.author);show(saved);if(saved)keep(x);},true);"
                 + "item.parentElement.insertBefore(b,item.nextSibling);}"
                 // Quora redraws the action bar now and then, which drops the button: add it again.
                 + "run(true);var p=false;new MutationObserver(function(){if(p)return;p=true;"

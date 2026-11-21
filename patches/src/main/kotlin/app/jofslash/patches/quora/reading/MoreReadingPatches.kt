@@ -153,7 +153,8 @@ val fullscreenReadingPatch = bytecodePatch(
 val bookmarksPatch = bytecodePatch(
     name = "Bookmarks",
     description = "Adds a bookmark button next to Share under an open answer or post, to read it later. " +
-            "Saved items are listed under Bookmarks in Patch settings and stay on your phone.",
+            "Saved items are listed under Bookmarks in Patch settings with their text, which you can read " +
+            "without internet. Everything stays on your phone.",
     default = true
 ) {
     category("Reading")
@@ -187,6 +188,27 @@ val translateButtonPatch = bytecodePatch(
         PageFinishedFingerprint.method.addInstruction(
             0,
             "invoke-static { p1 }, $READING->translateAnswerText(Landroid/webkit/WebView;)V"
+        )
+        bindBridge()
+    }
+}
+
+@Suppress("unused")
+val readAloudPatch = bytecodePatch(
+    name = "Read aloud",
+    description = "Adds a Read aloud button next to Share under answers and posts. It reads their text " +
+            "with your phone's text-to-speech. Tap it again to stop.",
+    default = false
+) {
+    category("Reading")
+    compatibleWith(COMPATIBILITY_QUORA)
+
+    extendWith("extensions/extension.mpe")
+
+    execute {
+        PageFinishedFingerprint.method.addInstruction(
+            0,
+            "invoke-static { p1 }, $READING->readAloud(Landroid/webkit/WebView;)V"
         )
         bindBridge()
     }

@@ -178,7 +178,6 @@ final class TextsEs {
         m.put("A Share text button next to Share under answers.", "Un botón Compartir texto junto a Share bajo las respuestas.");
         m.put("Questions open with answers in the order set below.", "Las preguntas se abren con las respuestas en el orden indicado abajo.");
         m.put("Remembers what you open (see History).", "Recuerda lo que abres (ver Historial).");
-        m.put("A bookmark button under open answers (see Bookmarks).", "Un botón de marcador bajo las respuestas abiertas (ver Marcadores).");
         m.put("A Translate button next to Share under answers.", "Un botón Traducir junto a Share bajo las respuestas.");
         m.put("Bars hide while you scroll down.", "Las barras se ocultan al desplazarte hacia abajo.");
         m.put("Shortened answers open in full.", "Las respuestas acortadas se abren completas.");
@@ -224,5 +223,17 @@ final class TextsEs {
         m.put("Words: ", "Palabras: ");
         m.put("Characters: ", "Caracteres: ");
         m.put("Words and characters while you write an answer or post.", "Palabras y caracteres mientras escribes una respuesta o una publicación.");
+        // Hide anonymous answers, offline bookmarks, Read aloud.
+        m.put("A bookmark button under open answers; saved ones read offline (see Bookmarks).", "Un botón de marcador bajo las respuestas abiertas; las guardadas se pueden leer sin conexión (ver Marcadores).");
+        m.put("Answers written as \"Anonymous\".", "Respuestas escritas como «Anonymous».");
+        m.put("A Read aloud button next to Share under answers.", "Un botón Leer en voz alta junto a Compartir bajo las respuestas.");
+        m.put("Read aloud", "Leer en voz alta");
+        m.put("Reading aloud. Tap the button again to stop.", "Leyendo en voz alta. Toca el botón otra vez para parar.");
+        m.put("Reading the preview. Open it to hear all of it.", "Leyendo la vista previa. Ábrela para oírla entera.");
+        m.put("Reads this text out loud. Tap again to stop.", "Lee este texto en voz alta. Toca otra vez para parar.");
+        m.put("Saved as text: pictures, links and formatting aren't kept.", "Guardado como texto: no se guardan imágenes, enlaces ni formato.");
+        m.put("Saved copy", "Copia guardada");
+        m.put("Saved offline", "Guardado sin conexión");
+        m.put("This phone has no text-to-speech. Install one, such as Speech Services by Google.", "Este teléfono no tiene texto a voz. Instala uno, por ejemplo Speech Services de Google.");
     }
 }

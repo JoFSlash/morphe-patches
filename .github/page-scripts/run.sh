@@ -18,7 +18,7 @@ sep=":"; case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) sep=";";; esac
 # The stand-ins come first on the class path, so they replace the android.jar classes of the same name.
 javac -nowarn -d "$work/classes" -cp "$android_jar" \
   $(find "$here/stubs" -name '*.java') \
-  "$ext/HideContentPatch.java" "$ext/ReadingPatch.java" "$ext/RemoveAdsPatch.java" "$ext/PatchSettings.java" "$ext/PageCheck.java" "$ext/SettingsCatalog.java" "$ext/ReadingHistory.java" "$ext"/Texts*.java "$ext/TextParts.java" \
+  "$ext/HideContentPatch.java" "$ext/ReadingPatch.java" "$ext/RemoveAdsPatch.java" "$ext/PatchSettings.java" "$ext/PageCheck.java" "$ext/SettingsCatalog.java" "$ext/ReadingHistory.java" "$ext/OfflineCopies.java" "$ext/ReadAloud.java" "$ext"/Texts*.java "$ext/TextParts.java" \
   "$here/GenerateScripts.java" "$here/TextPartsTest.java"
 # On Windows (Git Bash) java needs Windows paths.
 native() { if command -v cygpath >/dev/null 2>&1; then cygpath -w "$1"; else echo "$1"; fi; }

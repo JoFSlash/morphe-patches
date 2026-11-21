@@ -192,6 +192,14 @@ val hidePeopleSuggestionsPatch = readingPatch(
 )
 
 @Suppress("unused")
+val hideAnonymousAnswersPatch = readingPatch(
+    name = "Hide anonymous answers",
+    patchCategory = "Feed",
+    description = "Hides answers written as \"Anonymous\" in the feed and on question pages.",
+    extensionMethod = "hideAnonymousAnswers",
+)
+
+@Suppress("unused")
 val amoledDarkPatch = readingPatch(
     name = "AMOLED dark mode",
     patchCategory = "Reading",
