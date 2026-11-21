@@ -173,7 +173,7 @@ The app around the pages: prompts, tabs, notifications, gestures.
 | Disable vibration | off | Stops the app from vibrating when you tap buttons such as upvote. |
 | Fix device theme | on | On a new install, follows the device's dark or light theme everywhere. Without it, Quora shows dark bars around light pages until you pick a theme again. |
 | Fix push notifications | on | Makes push notifications work in the patched app. Quora's Firebase key only accepts the official app's package and signature, so a patched app never gets a push token. |
-| GmsCore support | off | Makes Google sign-in and push notifications work through MicroG-RE instead of Google Play services. A patched app can't sign in with Google through Play services, because it is no longer signed by Quora. Needs MicroG-RE installed, with your Google account added to it. |
+| GmsCore support | on | Makes Google sign-in and push notifications work through MicroG-RE instead of Google Play services. A patched app can't sign in with Google through Play services, because it is no longer signed by Quora. Needs MicroG-RE installed, with your Google account added to it; without it the app works as before, and says so once. |
 | Hide Ask button | off | Hides the button for asking a question in the top bar and on pages. |
 | Hide badges | off | Hides the red dots and counts on the bottom bar tabs. |
 | Hide tabs | off | Removes the tabs you pick from the bottom bar. Home always stays. Options: Hide Following tab, Hide Answer tab, Hide Spaces tab, Hide Notifications tab. |
@@ -206,11 +206,11 @@ services. Sign in with email instead, or use Google sign-in through MicroG-RE:
 1. Install [MicroG-RE](https://github.com/MorpheApp/MicroG-RE/releases) (the same one YouTube patched with
    Morphe uses). It runs next to Google Play services and doesn't replace them.
 2. Open the MicroG RE app, go to Accounts > Add Google account, and sign in.
-3. Patch Quora with **GmsCore support** on. Google sign-in and push notifications then go through MicroG-RE.
-   Without MicroG-RE the app shows a reminder at start, and Google sign-in won't work.
+3. Patch Quora (**GmsCore support** is on by default). Google sign-in and push notifications then go through MicroG-RE.
+   Without MicroG-RE the app says so once at start, and Google sign-in won't work.
 
 **Notifications don't come.**
-Patch Quora with **GmsCore support** on: notifications then come through MicroG-RE. Without it they are
+Keep **GmsCore support** on (it is by default): notifications then come through MicroG-RE. Without it they are
 untested and may not come at all. Patch settings > More > Notifications shows what stops them, if anything,
 and the app says so once at start when battery saving is the problem. Most often it is: Android doesn't let MicroG-RE keep its
 connection to Google open in the background, so notifications come late or not at all. Open Android's
