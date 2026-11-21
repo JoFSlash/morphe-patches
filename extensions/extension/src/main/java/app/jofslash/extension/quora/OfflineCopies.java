@@ -379,7 +379,8 @@ final class OfflineCopies {
         if (before == null || before.trim().isEmpty()) return from;
         StringBuilder regex = new StringBuilder();
         for (String word : before.trim().split("\\s+")) {
-            if (regex.length() > 0) regex.append("\\s+");
+            // Also no space: the page joins its text pieces with spaces, as in "trail. [ 1 ]" for "trail.[1]".
+            if (regex.length() > 0) regex.append("\\s*");
             regex.append(java.util.regex.Pattern.quote(word));
         }
         java.util.regex.Matcher m = java.util.regex.Pattern.compile(regex.toString()).matcher(text);
