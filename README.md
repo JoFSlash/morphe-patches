@@ -39,7 +39,7 @@ All patches are on by default; you can switch any of them off when you patch.
 ## Patches
 
 <!-- PATCHES_START -->
-8 patches, all on by default. Supported Booking.com versions: 71.1.
+10 patches, all on by default. Supported Booking.com versions: 71.1.
 
 <details open>
 <summary><b>Price</b> (2)</summary>
@@ -67,13 +67,15 @@ What the search results show.
 </details>
 
 <details>
-<summary><b>App</b> (2)</summary>
+<summary><b>App</b> (4)</summary>
 
 The app around the search.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
 | Disable start-up promotions | on | Stops the promotional sheets the app shows on start, such as the "Black Friday Deals" sheet and the app's own Genius sign-in, wallet and credit-card prompts. The cookie dialog and Android's notification prompt are left alone. |
+| Disable update and rating prompts | on | Stops the "update available" and "this version is no longer supported" prompts, which you can't act on in a patched app (it doesn't update from the Play Store), and the Google Play "rate this app" card after a booking. |
+| Allow screenshots | on | Lets you take screenshots and record the screen on booking and payment screens, which the app normally blocks (they come out black). Bank verification (3-D Secure) screens still block them. |
 | GmsCore support | on | Makes "Continue with Google" work through [MicroG-RE](https://github.com/MorpheApp/MicroG-RE) instead of Google Play services, which won't sign in an app it didn't sign. Needs MicroG-RE installed with your Google account added; without it the app says so once and Google sign-in won't work. Email sign-in works either way. Push notifications stay off in the patched app. |
 
 </details>
@@ -147,6 +149,11 @@ See [SECURITY.md](SECURITY.md) for how to report it privately.
 - **Search results are drawn from Booking.com's servers.** The patches that hide things in the results list work
   on the data the server sends, so a message in a form the patch doesn't match can still get through. Hiding on a
   hotel's own page is more reliable.
+- **No warning when Booking.com retires a version.** With the update prompts off, the app also skips the "this
+  version is no longer supported" screen that Booking.com's server can send for an old version. If searches or
+  bookings stop working, patch a newer supported version (see [Updating](#updating)).
+- **Bank verification still blocks screenshots.** The 3-D Secure screens of the payment providers (and the Klarna
+  and Alipay pages) block them on their own; the patch only changes Booking.com's screens.
 - **Sign-in and payment are untested** in a patched app. See the FAQ above.
 
 Something else wrong? [Open an issue](https://github.com/JoFSlash/booking-patches/issues/new/choose).
