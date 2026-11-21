@@ -265,8 +265,20 @@ def welcome_shown(adb, timeout=60):
                                 capture_output=True, text=True, errors="replace").stdout
         if re.search(r'text="Sign in with Google"', screen):
             return True
+        dismiss_not_responding(adb, screen)
         time.sleep(5)
     return False
+
+
+def dismiss_not_responding(adb, screen):
+    """Taps Wait when a slow emulator shows "<some app> isn't responding" over the app."""
+    if "isn&apos;t responding" not in screen and "isn't responding" not in screen:
+        return
+    button = re.search(r'text="Wait"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', screen)
+    if button:
+        x1, y1, x2, y2 = map(int, button.groups())
+        subprocess.run([adb, "shell", "input", "tap", str((x1 + x2) // 2), str((y1 + y2) // 2)],
+                       capture_output=True)
 
 
 if __name__ == "__main__":
