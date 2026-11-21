@@ -96,7 +96,9 @@ page no longer has the class names some patches rely on, it names those patches.
 - Target the `dev` branch. Every Monday the `feat` and `fix` commits merged into `dev` that week go
   out as a pre-release (`vX.Y.Z-dev.N`) for people who turn on "Pre-release patches" in Morphe
   Manager. On Thursday that pre-release becomes the stable release on `main`, unless an open issue
-  is labelled `release blocker`. Both need the emulator and feed tests to pass; urgent fixes are
+  is labelled `release blocker`. When the last stable release is less than two weeks old, only a
+  pre-release with a `fix` commit becomes stable; new features wait a week, so people don't have
+  to patch the app again every week. Both need the emulator and feed tests to pass; urgent fixes are
   released right away by hand (see below).
 - GitHub closes the issues a pull request names with "Closes #N" only when it is merged into
   `main`. For pull requests into `dev`, close them by hand once the stable release has them.
