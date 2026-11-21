@@ -27,7 +27,7 @@ subscription.
    then pick the patches you want. Keep **GmsCore support** on.
 5. Uninstall the Play Store version before installing the patched one. It is signed with a different key,
    so Android won't install it over the original. Your data stays in your Google account, so sign in again in
-   the patched app and it comes back.
+   the patched app and it comes back. To keep the Play Store version, turn on **Clone app** instead.
 
 ## Updating
 
@@ -40,7 +40,7 @@ subscription.
 ## Patches
 
 <!-- PATCHES_START -->
-Version 0.1.0, 6 patches. Supported Google Health versions: 5.13.health-mobile-1104148438-1023845615.
+Version 0.1.0, 7 patches. Supported Google Health versions: 5.13.health-mobile-1104148438-1023845615.
 
 <details>
 <summary><b>Privacy</b> (2)</summary>
@@ -55,13 +55,14 @@ On by default. They change nothing you see.
 </details>
 
 <details>
-<summary><b>App</b> (4)</summary>
+<summary><b>App</b> (5)</summary>
 
 Signing in, prompts and how the app behaves.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
 | Allow screenshots | off | Lets you take screenshots and record the screen on every screen of the app. Some screens, such as sharing a health summary, block them. |
+| Clone app | off | Changes the package name, so the patched app installs next to the official Google Health app instead of replacing it. Both apps sign in on their own. Push notifications don't work in the clone, and a watch or tracker can only be paired with one of the two apps. Options: Package name, App name. |
 | Disable update prompts | on | Stops the app from asking you to update it from Google Play. A patched app can't be updated from Google Play; patch the new version instead. |
 | GmsCore support | on | Makes signing in work through MicroG-RE instead of Google Play services. A patched app can't sign in through Play services, because it is no longer signed by Google. Needs MicroG-RE installed, with your Google account added to it. |
 | Hide Premium offer sheets | off | Hides the sheets that pop up to offer Premium, such as the 3 months of Premium offer and the reminder that your Premium trial is ending. Premium itself keeps working. |
@@ -80,7 +81,13 @@ stops at "Sign in with Google".
 MicroG-RE has no Google account yet. Add yours there, then tap Sign in in Google Health again.
 
 **Can I keep the Play Store version too?**
-No. Both use the same package name, so only one can be installed.
+Yes, with **Clone app**: the patched app then installs under another package name, as "Health Clone", next to
+the official one. Both sign in on their own. Push notifications don't work in the clone, because Google turns
+away its push registration, and a watch or tracker can only be paired with one of the two apps.
+
+**Do notifications and Health Connect work?**
+Push notifications come through MicroG-RE: the patched app shows up under MicroG-RE settings > Cloud Messaging.
+Health Connect lists the patched app and lets you give it permissions, as with the official app.
 
 **Do my watch, tracker and data still work?**
 Your data is stored in your Google account, so it shows up again after you sign in. Pairing and syncing a watch

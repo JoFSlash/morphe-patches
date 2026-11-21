@@ -8,7 +8,8 @@ Usage:
     python .github/scripts/check_app.py <google-health.apkm> --cli <morphe-cli.jar> [--mpp <bundle.mpp>]
         [--install [--expect-welcome]] [--adb <adb>]
 
-The emulator test in .github/workflows/emulator.yml runs this with --install --expect-welcome.
+With --install, Clone app is left out (it would install under another package name). The emulator
+test in .github/workflows/emulator.yml runs this with --install --expect-welcome.
 
 Build the bundle first (./gradlew buildAndroid); by default the newest .mpp in patches/build/libs is used.
 """
@@ -77,6 +78,9 @@ def main():
     result_file, out_apk = work / "result.json", work / "patched.apk"
 
     names = patch_names(args.cli, mpp)
+    if args.install:
+        # Clone app would install under another package name than the one started below.
+        names = [n for n in names if n != "Clone app"]
     unknown = [n for n in args.exclude if n not in names]
     if unknown:
         sys.exit("Not in the bundle: " + ", ".join(unknown))
