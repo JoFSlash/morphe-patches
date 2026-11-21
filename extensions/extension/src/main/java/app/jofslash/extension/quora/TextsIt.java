@@ -235,5 +235,10 @@ final class TextsIt {
         m.put("Saved copy", "Copia salvata");
         m.put("Saved offline", "Salvato offline");
         m.put("This phone has no text-to-speech. Install one, such as Speech Services by Google.", "Questo telefono non ha la sintesi vocale. Installane una, per esempio Speech Services di Google.");
+        // Hide anonymous answers, offline bookmarks, Read aloud.
+        m.put("Save to Downloads", "Salva in Download");
+        m.put("All bookmarks with their saved text, as a Markdown file.", "Tutti i segnalibri con il testo salvato, come file Markdown.");
+        m.put("Saved to", "Salvato in");
+        m.put("Couldn't save the file.", "Impossibile salvare il file.");
     }
 }

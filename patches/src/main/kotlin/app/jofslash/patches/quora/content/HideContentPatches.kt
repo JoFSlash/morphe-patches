@@ -40,7 +40,7 @@ private fun pageScriptPatch(
 val hideQuoraPlusAnswersPatch = pageScriptPatch(
     name = "Hide Quora+ answers",
     patchCategory = "Feed",
-    description = "Hides answers and posts that can only be read with a Quora+ subscription.",
+    description = "Hides answers and posts that show only their start, with a Quora+ lock over the rest.",
     extensionMethod = "hideQuoraPlusAnswers",
     default = true,
 )

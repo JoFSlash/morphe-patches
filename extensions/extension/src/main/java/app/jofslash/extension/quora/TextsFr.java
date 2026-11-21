@@ -235,5 +235,10 @@ final class TextsFr {
         m.put("Saved copy", "Copie enregistrée");
         m.put("Saved offline", "Enregistré hors connexion");
         m.put("This phone has no text-to-speech. Install one, such as Speech Services by Google.", "Ce téléphone n'a pas de synthèse vocale. Installez-en une, par exemple Speech Services de Google.");
+        // Hide anonymous answers, offline bookmarks, Read aloud.
+        m.put("Save to Downloads", "Enregistrer dans Téléchargements");
+        m.put("All bookmarks with their saved text, as a Markdown file.", "Tous les favoris avec leur texte enregistré, dans un fichier Markdown.");
+        m.put("Saved to", "Enregistré dans");
+        m.put("Couldn't save the file.", "Impossible d'enregistrer le fichier.");
     }
 }

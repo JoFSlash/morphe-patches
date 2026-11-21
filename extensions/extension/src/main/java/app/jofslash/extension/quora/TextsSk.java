@@ -235,5 +235,10 @@ final class TextsSk {
         m.put("Saved copy", "Uložená kópia");
         m.put("Saved offline", "Uložené offline");
         m.put("This phone has no text-to-speech. Install one, such as Speech Services by Google.", "Tento telefón nemá prevod textu na reč. Nainštalujte si ho, napríklad Speech Services od Googlu.");
+        // Hide anonymous answers, offline bookmarks, Read aloud.
+        m.put("Save to Downloads", "Uložiť do Stiahnutých");
+        m.put("All bookmarks with their saved text, as a Markdown file.", "Všetky záložky s uloženým textom ako súbor Markdown.");
+        m.put("Saved to", "Uložené do");
+        m.put("Couldn't save the file.", "Súbor sa nepodarilo uložiť.");
     }
 }

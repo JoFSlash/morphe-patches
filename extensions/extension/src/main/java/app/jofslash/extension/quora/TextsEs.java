@@ -235,5 +235,10 @@ final class TextsEs {
         m.put("Saved copy", "Copia guardada");
         m.put("Saved offline", "Guardado sin conexión");
         m.put("This phone has no text-to-speech. Install one, such as Speech Services by Google.", "Este teléfono no tiene texto a voz. Instala uno, por ejemplo Speech Services de Google.");
+        // Hide anonymous answers, offline bookmarks, Read aloud.
+        m.put("Save to Downloads", "Guardar en Descargas");
+        m.put("All bookmarks with their saved text, as a Markdown file.", "Todos los marcadores con su texto guardado, como archivo Markdown.");
+        m.put("Saved to", "Guardado en");
+        m.put("Couldn't save the file.", "No se pudo guardar el archivo.");
     }
 }
