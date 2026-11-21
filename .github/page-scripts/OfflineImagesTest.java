@@ -18,6 +18,7 @@ public final class OfflineImagesTest {
         at("spaces and breaks match a space", OfflineCopies.after(text, "Second paragraph with a", 0), 54);
         at("no text before it", OfflineCopies.after(text, "", 5), 5);
         at("text that isn't there", OfflineCopies.after(text, "Not in the text", 0), text.length());
+        at("pieces joined with spaces", OfflineCopies.after("campaign trail.[1]\nNext", "trail. [ 1 ]", 0), 18);
         at("the same text as the picture before", OfflineCopies.after(text, "paragraph here.", 21), 21);
         if (failures > 0) System.exit(1);
         System.out.println("OfflineImages: ok");
