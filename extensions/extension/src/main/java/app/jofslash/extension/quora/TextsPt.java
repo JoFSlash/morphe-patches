@@ -105,6 +105,16 @@ final class TextsPt {
         m.put("Turkish", "Turco");
         m.put("Saving image to Pictures/Quora", "Salvando a imagem em Pictures/Quora");
         m.put("Couldn't save the image", "Não foi possível salvar a imagem");
+        m.put("Battery saving holds MicroG-RE back, so notifications come late or not at all. Tap, then set its battery use to Unrestricted.",
+                "A economia de bateria trava o MicroG-RE, por isso as notificações chegam tarde ou não chegam. Toque e defina o uso da bateria como Sem restrições.");
+        m.put("Notifications are off for this app. Tap to turn them on.",
+                "As notificações estão desativadas para este app. Toque para ativá-las.");
+        m.put("This app isn't registered for notifications yet. Open the MicroG RE app and check that Cloud Messaging is on.",
+                "Este app ainda não está registrado para notificações. Abra o app MicroG RE e verifique se o Cloud Messaging está ativado.");
+        m.put("Ready: MicroG-RE delivers notifications to this app.",
+                "Pronto: o MicroG-RE entrega as notificações a este app.");
+        m.put("Battery saving blocks notifications. Fix it in Patch settings.",
+                "A economia de bateria bloqueia as notificações. Corrija em Patch settings.");
         m.put("Install MicroG-RE to sign in with Google and get notifications.",
                 "Instale o MicroG-RE para entrar com o Google e receber notificações.");
         m.put("Quora changed its pages, so some patches may not work. Long-press Home for details.",
