@@ -107,7 +107,7 @@ The app around the search.
 | Patch | Default | What it does |
 | --- | --- | --- |
 | [Disable start-up promotions](docs/patches.md#disable-start-up-promotions) | on | Stops the promotional and sign-in sheets the app shows on start. |
-| [Hide upsells](docs/patches.md#hide-upsells) | on | Hides offers for taxis, cars, flights, attractions and credit cards, and Genius nudges. |
+| [Hide upsells](docs/patches.md#hide-upsells) | on | Hides home screen offers and offers for taxis, cars, flights, attractions and credit cards, and Genius nudges. |
 | [Hide insurance offers](docs/patches.md#hide-insurance-offers) | off | Hides the cancellation and travel insurance offers in the booking form. |
 | [Disable update and rating prompts](docs/patches.md#disable-update-and-rating-prompts) | on | Stops the update prompts, which a patched app can't act on, and the "rate this app" card. |
 | [Allow screenshots](docs/patches.md#allow-screenshots) | on | Lets you take screenshots on booking and payment screens. |
@@ -123,7 +123,7 @@ On by default. Stops data collection; changes nothing you see.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
-| [Block tracking](docs/patches.md#block-tracking) | on | Turns off analytics and marketing trackers; leaves anti-fraud, sign-in and payment alone. |
+| [Block tracking](docs/patches.md#block-tracking) | on | Turns off analytics, crash reporting and marketing trackers; leaves anti-fraud, sign-in and payment alone. |
 
 </details>
 <!-- PATCHES_END -->
@@ -190,9 +190,9 @@ See [SECURITY.md](SECURITY.md) for how to report it privately.
 - **The "official site" price depends on Google.** It's read off the Google Hotels page, so it breaks if Google
   changes that page, and it isn't shown for hotels Google has no official offer for. Google's prices are for one
   room; for 2 or more rooms the panel says so.
-- **Search results are drawn from Booking.com's servers.** The patches that hide things in the results list work
-  on the data the server sends, so a message in a form the patch doesn't match can still get through. Hiding on a
-  hotel's own page is more reliable.
+- **Search results and the home screen are drawn from Booking.com's servers.** The patches that hide things in the
+  results list and the home screen's offers work on the data the server sends, so a message or offer in a form the
+  patch doesn't match can still get through. Hiding on a hotel's own page is more reliable.
 - **No warning when Booking.com retires a version.** With the update prompts off, the app also skips the "this
   version is no longer supported" screen that Booking.com's server can send for an old version. If searches or
   bookings stop working, patch a newer supported version (see [Updating](#updating)).
@@ -206,8 +206,7 @@ See [SECURITY.md](SECURITY.md) for how to report it privately.
   [Can I sign in and book with the patched app?](#account-and-booking)
 - **Added texts are English only.** Buttons, tabs and lines the patches add stay in English, also when the app is
   set to another language.
-- **Block tracking doesn't block everything.** Firebase Installations and Firebase logging still reach the network,
-  and Facebook profile pictures (graph.facebook.com) load on reviews.
+- **Block tracking lets Facebook profile pictures load.** Reviews show reviewers' pictures from graph.facebook.com.
 - **Hide insurance offers is unverified.** The test account was never offered insurance, so the patch couldn't be
   checked in the app.
 - **Show full price up front does nothing from the EU.** Booking.com already includes taxes and charges in prices

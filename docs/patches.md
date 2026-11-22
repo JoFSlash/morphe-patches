@@ -187,6 +187,9 @@ Default: on.
 
 Hides marketing that sells you something besides your stay:
 
+- on the home screen: campaign banners (such as "Up to 40% off stays worldwide"), the "Offers" row ("Save 20% on
+  attractions", "Explore Black Friday Deals"), the carousels of attractions, cars and taxis for your upcoming trip and
+  your last search, and the AI trip planner card;
 - Booking.com's promotional areas on the hotel page, in the booking form, on the confirmation and in My account;
 - offers to add a taxi, car rental, flight or attraction ("Plan ahead", "Add to your stay") on the hotel, room and
   cancellation pages, in the booking form, after booking and in your booking details;
@@ -194,7 +197,12 @@ Hides marketing that sells you something besides your stay:
 - the Genius VIP price-match banner on hotel pages, the "book 1 more stay to reach Genius Level 2" nudge in the room
   list and the "Year in travel" sheet.
 
-Prices, Genius discounts and badges, and rewards you have earned stay. Insurance is the next patch.
+Prices, Genius discounts and badges, and rewards you have earned stay. On the home screen the search box, your
+recent searches, your Genius level, saved properties and your trips stay. Insurance is the next patch.
+
+The home screen is drawn from Booking.com's servers. The patch takes a block out by the name Booking.com's own
+tracking gives it (one with "offer", "deal", "campaign" or "attraction" in it), so a new block with another name can
+still show; blocks it isn't sure about stay.
 
 ### Hide insurance offers
 
@@ -254,7 +262,23 @@ Default: on.
 
 Turns off low-risk analytics and marketing: Firebase Analytics, AppsFlyer, Embrace, Booking.com's own c360 and Squeaks
 analytics, and the ID5 ad-identity service, and removes the advertising-ID and Android AdServices permissions. It
-leaves anti-fraud (ThreatMetrix, FingerprintJS), sign-in and payment untouched, so they keep working.
+leaves anti-fraud (ThreatMetrix, FingerprintJS, Riskified), sign-in and payment untouched, so they keep working.
 
-It doesn't block everything: Firebase Installations and Firebase logging still reach the network, and Facebook
-profile pictures (graph.facebook.com) load on reviews.
+It also stops Google's app services from reporting on you:
+
+- **Firebase Crashlytics** and **Firebase Sessions** (crash reports and app sessions): off by their own switches.
+  The app turns Crashlytics back on when it starts, so the patch also answers Crashlytics' "may I collect" check with
+  no.
+- **Firebase logging** (firebaselogging-pa.googleapis.com), the channel Crashlytics, Sessions, Performance, ML Kit
+  and push delivery logs are sent through: its uploader is removed, so whatever is queued for it is dropped.
+- **Firebase Installations** (firebaseinstallations.googleapis.com), the install ID the Firebase services above
+  share: its requests fail on the phone as if the service were down. The install ID is still made, but never sent.
+  Push needs it only for an extra token, and push doesn't work in the patched app anyway (see
+  [GmsCore support](#gmscore-support)).
+- **Google Tag Manager**: it only runs on Firebase Analytics events, which are off; its service and preview screen
+  are switched off too, and the app no longer builds the marketing events (search, booking, confirmation with price)
+  meant for it.
+
+Firebase Remote Config is left in place: the app's own code doesn't use it.
+
+It doesn't block everything: Facebook profile pictures (graph.facebook.com) load on reviews.
