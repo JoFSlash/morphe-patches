@@ -1,10 +1,10 @@
 name: Release
 
 # Two channels, both cut by this workflow:
-# - Monday 08:00 UTC: a pre-release (vX.Y.Z-dev.N) from dev, with what was merged there that week.
+# - Wednesday 08:00 UTC: a pre-release (vX.Y.Z-dev.N) from dev, with what was merged there that week.
 #   Morphe Manager offers it to people who turn on "Pre-release patches" for this source (it reads
 #   patches-bundle.json from dev).
-# - Thursday 08:00 UTC: the newest pre-release becomes stable. Its commit is merged into main and
+# - Saturday 08:00 UTC: the newest pre-release becomes stable. Its commit is merged into main and
 #   this workflow is started on main, which releases vX.Y.Z; the release is then merged back into dev.
 #   Nothing new since the last stable release, or an open issue labelled "release blocker": no
 #   stable release that week.
@@ -22,8 +22,8 @@ name: Release
 on:
   schedule:
     # Keep these two strings in sync with the job "Start this week's release" below.
-    - cron: '0 8 * * 1'
-    - cron: '0 8 * * 4'
+    - cron: '0 8 * * 3'
+    - cron: '0 8 * * 6'
   workflow_dispatch:
     inputs:
       skip-feed-test:
@@ -33,7 +33,7 @@ on:
 
 jobs:
   # Scheduled runs always start on the default branch (main), so they only start the real run:
-  # on dev on Mondays, on main (after merging the newest pre-release into it) on Thursdays.
+  # on dev on Wednesdays, on main (after merging the newest pre-release into it) on Saturdays.
   schedule:
     name: Start this week's release
     if: github.event_name == 'schedule'
@@ -49,13 +49,13 @@ jobs:
           fetch-depth: 0
 
       - name: Pre-release from dev
-        if: github.event.schedule == '0 8 * * 1'
+        if: github.event.schedule == '0 8 * * 3'
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run release.yml --ref dev
 
       - name: Make the newest pre-release stable
-        if: github.event.schedule == '0 8 * * 4'
+        if: github.event.schedule == '0 8 * * 6'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -228,7 +228,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash .github/scripts/gradle-retry.sh :patches:buildAndroid clean --no-daemon
 
-  # Says on GitHub when a release didn't go out, so a red run on a Monday morning isn't missed.
+  # Says on GitHub when a release didn't go out, so a red run on a release morning isn't missed.
   report:
     name: Open or close the issue
     needs: [emulator, emulator-google-health, feed, release]

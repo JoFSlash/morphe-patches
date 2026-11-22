@@ -69,7 +69,7 @@ patch.
 
 ## Updating
 
-- **New patches:** a new version of these patches comes out every Thursday when something changed (see
+- **New patches:** a new version of these patches comes out every Saturday when something changed (see
   [Updating](../../README.md#updating)). Patch the same Booking.com file again and install it over the patched app. No need to uninstall,
   and your watched prices and saved prices stay. Uninstalling or clearing the app's data deletes them.
 - **New Booking.com version:** the patched app doesn't update from the Play Store. Wait until a release of these
