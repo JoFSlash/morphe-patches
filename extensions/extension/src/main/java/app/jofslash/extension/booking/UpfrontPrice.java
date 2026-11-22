@@ -176,16 +176,16 @@ public final class UpfrontPrice {
         Map<String, String> replace = new LinkedHashMap<>();
         replace.put(gross.rounded, totalText);
         if (gross.exact != null) replace.put(gross.exact, formatLike(gross.exact, total, grouping));
-        // The screen reader text says "Current price 60 EUR".
+        // The screen reader text says "Original price 79 EUR. Current price 59 EUR.", rounded.
         if (!gross.currency.isEmpty()) {
-            replace.put(plain(gross.value) + " " + gross.currency, plain(total) + " " + gross.currency);
+            replace.put(plain(Math.rint(gross.value)) + " " + gross.currency, plain(Math.rint(total)) + " " + gross.currency);
         }
         Amount strike = Amount.of(breakdown, "strikethroughPrice");
         if (strike != null && strike.rounded != null && strike.value > gross.value) {
             double strikeTotal = strike.value + excluded.value;
             replace.put(strike.rounded, formatLike(strike.rounded, strikeTotal, grouping));
             if (!gross.currency.isEmpty()) {
-                replace.put(plain(strike.value) + " " + gross.currency, plain(strikeTotal) + " " + gross.currency);
+                replace.put(plain(Math.rint(strike.value)) + " " + gross.currency, plain(Math.rint(strikeTotal)) + " " + gross.currency);
             }
         }
         double ratio = gross.value > CENT ? total / gross.value : 1;
@@ -493,6 +493,7 @@ public final class UpfrontPrice {
             Object details = HotelInfo.field(priceData, "hotelPriceDetails");
             if (details == null) return;
             double excluded = number(HotelInfo.call(details, "getTotalExcludedCharges"));
+            if (debug()) Log.d(TAG, "PriceData: excluded=" + excluded + " gross=" + HotelInfo.call(details, "getPriceWithoutExcludedCharges") + " main=" + HotelInfo.call(HotelInfo.field(priceData, "mainPrice"), "toAmount"));
             if (!(excluded > CENT)) return;
             String currency = HotelInfo.str(HotelInfo.call(details, "getCurrencyCode"));
             Object main = HotelInfo.field(priceData, "mainPrice");
@@ -542,6 +543,40 @@ public final class UpfrontPrice {
             }
         } catch (Throwable t) {
             Log.w(TAG, "Couldn't add the excluded charges to a price", t);
+        }
+    }
+
+    /**
+     * Called first by PropertyMarkerPriceProvider.getPrice, the price on a map marker. Returns
+     * the price with the excluded charges, or null to let the app show its own.
+     */
+    public static CharSequence markerPrice(Object provider) {
+        try {
+            Object marker = HotelInfo.field(provider, "propertyMarker");
+            Object breakdown = HotelInfo.field(HotelInfo.field(marker, "priceInfo"), "compositePriceBreakdown");
+            if (breakdown == null) return null;
+            Object gross = HotelInfo.field(breakdown, "grossAmount");
+            Object excluded = HotelInfo.field(breakdown, "excludedAmount");
+            if (gross == null) return null;
+            double grossValue = number(HotelInfo.field(gross, "amountUnformatted"));
+            double excludedValue = excluded != null ? number(HotelInfo.field(excluded, "amountUnformatted")) : Double.NaN;
+            String currency = HotelInfo.str(HotelInfo.field(gross, "currency"));
+            if (!(excludedValue > CENT) || Double.isNaN(grossValue) || currency == null) return null;
+            if (!currency.equals(HotelInfo.str(HotelInfo.field(excluded, "currency")))) return null;
+            // Per-night prices on markers are an experiment; leave those to the app.
+            Object configs = HotelInfo.field(breakdown, "displayConfigs");
+            if (configs instanceof Map && Boolean.TRUE.equals(((Map<?, ?>) configs).get("use_nightly_prices"))
+                    && Boolean.TRUE.equals(((Map<?, ?>) configs).get("use_nightly_as_dominant"))) return null;
+            Class<?> simplePrice = Class.forName("com.booking.price.SimplePrice");
+            Object price = simplePrice.getMethod("create", String.class, double.class)
+                    .invoke(null, currency, grossValue + excludedValue);
+            price = simplePrice.getMethod("convertToUserCurrency").invoke(price);
+            Class<?> options = Class.forName("com.booking.price.FormattingOptions");
+            Object roundedOptions = options.getField("rounded").get(null);
+            return (CharSequence) simplePrice.getMethod("format", options).invoke(price, roundedOptions);
+        } catch (Throwable t) {
+            Log.w(TAG, "Couldn't add the excluded charges to a map marker", t);
+            return null;
         }
     }
 

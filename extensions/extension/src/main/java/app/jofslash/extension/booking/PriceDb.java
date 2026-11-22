@@ -63,6 +63,11 @@ final class PriceDb extends SQLiteOpenHelper {
         // Only one version so far.
     }
 
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // A newer build may have added columns this one doesn't use; keep the data.
+    }
+
     /** Saves a price unless the same one was saved for this stay recently. Returns true when saved. */
     synchronized boolean add(HotelInfo hotel, Stay stay, String source, long now) {
         SQLiteDatabase db = getWritableDatabase();
