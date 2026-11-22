@@ -86,12 +86,22 @@ public final class HotelInfo {
         }
     }
 
-    /** The discounts in the price breakdown (BProductPrice items of kind "discount"). */
+    /**
+     * The member discount in a price breakdown: its discount items (BProductPrice of kind
+     * "discount") and its benefit badges (BBadge, such as "Mobile Rate").
+     */
     private static String memberDiscount(Object breakdown) {
-        Object discounts = call(breakdown, "getAllDiscounts");
-        if (!(discounts instanceof Iterable)) return null;
-        String found = null;
-        for (Object item : (Iterable<?>) discounts) {
+        String found = memberDiscount(call(breakdown, "getAllDiscounts"), null);
+        return memberDiscount(call(breakdown, "getBenefits"), found);
+    }
+
+    /**
+     * "genius" when one of [items] (discounts or badges, by identifier) is a Genius discount, else
+     * "mobile" for an app-only rate, else [found].
+     */
+    static String memberDiscount(Object items, String found) {
+        if (!(items instanceof Iterable) || "genius".equals(found)) return found;
+        for (Object item : (Iterable<?>) items) {
             String id = str(call(item, "getIdentifier"));
             if (id == null) continue;
             id = id.toLowerCase(java.util.Locale.ROOT);

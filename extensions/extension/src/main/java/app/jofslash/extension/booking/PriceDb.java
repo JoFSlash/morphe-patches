@@ -49,6 +49,14 @@ final class PriceDb extends SQLiteOpenHelper {
         super(context, NAME, null, VERSION);
     }
 
+    /**
+     * A newer build of the patches left a newer database (more tables). The prices table stays
+     * the same in every version, so keep it instead of failing to open.
+     */
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE prices (_id INTEGER PRIMARY KEY AUTOINCREMENT, hotel_id INTEGER NOT NULL, "

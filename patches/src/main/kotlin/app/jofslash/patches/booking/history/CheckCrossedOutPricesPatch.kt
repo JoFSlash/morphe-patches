@@ -3,6 +3,8 @@ package app.jofslash.patches.booking.history
 import app.jofslash.patches.booking.shared.Constants.COMPATIBILITY_BOOKING
 import app.jofslash.patches.booking.shared.callAfterIn
 import app.jofslash.patches.booking.shared.priceRecordingPatch
+import app.jofslash.patches.booking.shared.methodOf
+import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
 import app.morphe.patcher.patch.bytecodePatch
 
 private const val EXTENSION_CLASS = "Lapp/jofslash/extension/booking/DiscountCheck;"
@@ -12,6 +14,10 @@ private const val EXTENSION_CLASS = "Lapp/jofslash/extension/booking/DiscountChe
 // composer, changed).
 private const val PRICE_FACET = "Lcom/booking/price/ui/marken/priceview/FacetHpPriceViewCompose"
 private const val PRICE_VIEW = "Lcom/booking/price/ui/compose/PriceViewHPComposeKt;"
+
+// The action that hands the property page's price view its PriceData (the price it shows, the
+// crossed-out price and the badges such as "Genius discount" and "Mobile-only price").
+private const val SHOW_PRICE_DATA = "Lcom/booking/price/ui/marken/priceview/ReactorPriceView\$ShowPriceData;"
 
 @Suppress("unused")
 val checkCrossedOutPricesPatch = bytecodePatch(
@@ -29,6 +35,10 @@ val checkCrossedOutPricesPatch = bytecodePatch(
     dependsOn(priceRecordingPatch)
 
     execute {
+        methodOf(SHOW_PRICE_DATA, "<init>").addInstruction(
+            0,
+            "invoke-static/range { p1 .. p1 }, $EXTENSION_CLASS->onPriceData(Ljava/lang/Object;)V"
+        )
         callAfterIn(
             PRICE_FACET,
             PRICE_VIEW,

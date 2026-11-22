@@ -46,10 +46,12 @@ import java.util.concurrent.atomic.AtomicReference;
  * screen makes, bookings.getHotelReviews) for the newest {@link #FETCH_ROWS} reviews, once per
  * hotel while the app runs. The result is only used when its dates really are newest first.</li>
  * </ul>
- * The reviews API takes the sort as a filter whose id and option come from the server, so the
- * patch learns them: from the reviews screen's sort options (an option whose id or name says
- * "newest", checked against the dates it returns), or when you sort by newest first yourself.
- * Until then, nothing is fetched.
+ * The reviews API takes the sort as a filter whose id and option come from the server
+ * ("user_sort" = "sort_recent_desc" in 71.1). The patch starts with that, follows the reviews
+ * screen's sort menu if it names another newest-first option, and only trusts a sort whose
+ * results really come newest first.
+ *
+ * <p>Review scores come on Booking.com's 1-4 scale and are shown out of 10 (x 2.5), as the app does.
  */
 @SuppressWarnings("unused")
 public final class RecentRating {
@@ -161,11 +163,12 @@ public final class RecentRating {
                 Activity a = reviewsScreen.get();
                 if (a != null) appContext = a.getApplicationContext();
             }
-            if (newestFirst(reviews)) {
+            // The list is only used when the screen is sorted newest first: "Most relevant" can
+            // also come in date order, but leave reviews out.
+            String[] newest = sortToUse();
+            String sort = appliedSort;
+            if (sort != null && newest != null && sort.equals(newest[1]) && newestFirst(reviews)) {
                 chipNeedsFetch = false;
-                // The user sorted newest first: remember that option for the property page.
-                String sort = appliedSort;
-                if (sort != null && sortFilterId != null) saveSort(sortFilterId, sort);
                 Stats loaded = stats(reviews);
                 Stats fetched = CACHE.get(hotelId);
                 Stats best = fetched != null && fetched.count >= loaded.count ? fetched : loaded;
@@ -336,7 +339,7 @@ public final class RecentRating {
         if (repository == null) throw new IllegalStateException("No review repository");
 
         Class<?> queryClass = Class.forName("com.booking.ugc.review.repository.hotel.HotelReviewQuery");
-        Object query = queryClass.newInstance();
+        Object query = newQuery(queryClass);
         set(query, "hotelId", String.valueOf(hotelId));
         set(query, "offset", 0);
         set(query, "count", FETCH_ROWS);
@@ -369,6 +372,34 @@ public final class RecentRating {
         return list instanceof List ? (List<?>) list : null;
     }
 
+    /**
+     * A new HotelReviewQuery. R8 removed its constructor (the app creates it with the
+     * superclass's), so it's allocated without one and its argument map set as that would.
+     */
+    private static Object newQuery(Class<?> queryClass) throws Exception {
+        for (java.lang.reflect.Constructor<?> c : queryClass.getDeclaredConstructors()) {
+            if (c.getParameterTypes().length == 0) {
+                c.setAccessible(true);
+                return c.newInstance();
+            }
+        }
+        Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
+        Field theUnsafe = unsafeClass.getDeclaredField("theUnsafe");
+        theUnsafe.setAccessible(true);
+        Object unsafe = theUnsafe.get(null);
+        Object query = unsafeClass.getMethod("allocateInstance", Class.class).invoke(unsafe, queryClass);
+        for (Class<?> c = queryClass; c != null && c != Object.class; c = c.getSuperclass()) {
+            for (Field f : c.getDeclaredFields()) {
+                if (java.lang.reflect.Modifier.isStatic(f.getModifiers())) continue;
+                if (f.getType() == HashMap.class || f.getType() == Map.class) {
+                    f.setAccessible(true);
+                    if (f.get(query) == null) f.set(query, new HashMap<>());
+                }
+            }
+        }
+        return query;
+    }
+
     private static void set(Object target, String name, Object value) throws Exception {
         Field f = target.getClass().getField(name);
         f.set(target, value);
@@ -377,7 +408,18 @@ public final class RecentRating {
     // ---------------------------------------------------------------------------------------
     // The sort option
 
-    /** The verified newest-first sort, or a guess from the sort options, as {filter id, option}. */
+    /**
+     * The newest-first sort as Booking.com's server named it in Nov 2026 (version 71.1): filter
+     * "user_sort", options sort_most_relevant, sort_recent_desc, sort_recent_asc, sort_score_desc,
+     * sort_score_asc. Used until the reviews screen's sort options say otherwise, and only
+     * trusted when the dates come back newest first.
+     */
+    private static final String[] KNOWN_SORT = {"user_sort", "sort_recent_desc"};
+
+    /**
+     * The newest-first sort, as {filter id, option}: the one saved after it worked, else the
+     * option of the reviews screen's sort menu that says newest, else {@link #KNOWN_SORT}.
+     */
     private static String[] sortToUse() {
         SharedPreferences prefs = prefs();
         if (prefs != null) {
@@ -386,14 +428,13 @@ public final class RecentRating {
             if (key != null && value != null) return new String[]{key, value};
         }
         String filter = sortFilterId;
-        if (filter == null) return null;
         Set<String> rejected = prefs == null ? new HashSet<>()
                 : prefs.getStringSet("rejected", new HashSet<>());
-        for (String[] option : sortOptions) {
+        for (String[] option : filter == null ? new ArrayList<String[]>() : sortOptions) {
             if (option[0] == null || rejected.contains(filter + "=" + option[0])) continue;
             if (looksNewest(option[0]) || looksNewest(option[1])) return new String[]{filter, option[0]};
         }
-        return null;
+        return rejected.contains(KNOWN_SORT[0] + "=" + KNOWN_SORT[1]) ? null : KNOWN_SORT;
     }
 
     /** "Newest first" in the option's id or (English) name. Only a guess: the dates decide. */
@@ -476,6 +517,12 @@ public final class RecentRating {
                 .format(new java.util.Date(System.currentTimeMillis() - WINDOW_DAYS * DAY));
         Stats s = new Stats();
         double sum = 0;
+        // Any score above 4 means the list is already out of 10.
+        boolean outOf10 = false;
+        for (Object r : reviews) {
+            Object raw = HotelInfo.call(r, "getAverageScore");
+            if (raw instanceof Double && (Double) raw > 4.0001) outOf10 = true;
+        }
         boolean older = false;
         for (Object r : reviews) {
             String d = dateOf(r);
@@ -486,15 +533,30 @@ public final class RecentRating {
             }
             // Booking.com leaves reviews of guests who didn't stay out of the score.
             if (Boolean.TRUE.equals(HotelInfo.call(r, "isNonStayed"))) continue;
-            Object score = HotelInfo.call(r, "getAverageScore");
-            if (!(score instanceof Double) || (Double) score <= 0) continue;
-            sum += (Double) score;
+            double score = scoreOutOf10(r, outOf10);
+            if (Double.isNaN(score)) continue;
+            sum += score;
             s.count++;
             s.since = d;
         }
         s.average = s.count == 0 ? Double.NaN : sum / s.count;
         s.fullWindow = older;
         return s;
+    }
+
+    /**
+     * A review's score out of 10. The reviews API sends "average_score" on Booking.com's old
+     * 1-4 scale (a review the app shows as 9.0 comes as 3.6), so it's multiplied by 2.5 unless
+     * [outOf10] (a score above 4 in the same list).
+     * "average_score_out_of_10" is used when the server fills it.
+     */
+    static double scoreOutOf10(Object review, boolean outOf10) {
+        Object featured = HotelInfo.call(review, "getAverageFeaturedScore");
+        if (featured instanceof Double && (Double) featured > 0) return (Double) featured;
+        Object score = HotelInfo.call(review, "getAverageScore");
+        if (!(score instanceof Double) || (Double) score <= 0) return Double.NaN;
+        double v = (Double) score;
+        return outOf10 ? v : v * 2.5;
     }
 
     static String score(double v) {

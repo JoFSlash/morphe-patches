@@ -35,6 +35,19 @@ public final class DiscountCheck {
     /** Whether the price drawn last shows a crossed-out price. */
     private static volatile boolean strikeShown;
 
+    /** The PriceData the property page's price view got last. */
+    private static volatile Object priceData;
+
+    /** Called from ReactorPriceView$ShowPriceData's constructor. */
+    public static void onPriceData(Object data) {
+        priceData = data;
+    }
+
+    /** The badges of the price the property page shows now, or null. */
+    static Object shownBadges() {
+        return HotelInfo.field(priceData, "listOfBadges");
+    }
+
     /**
      * Called right after the property page draws its price with
      * PriceViewHPComposeView(modifier, props, onClick, onReward, onDetails, composer).
@@ -97,7 +110,11 @@ public final class DiscountCheck {
             line.setVisibility(View.GONE);
             return;
         }
-        final String key = hotel.id + "|" + stay + "|" + hotel.price + "|" + hotel.strike + "|" + hotel.currency;
+        // The badges of the price shown ("Genius discount", "Mobile-only price") come with the
+        // room's price, which the hotel object may not have.
+        hotel.memberDiscount = HotelInfo.memberDiscount(shownBadges(),
+                hotel.memberDiscount);
+        final String key = hotel.id + "|" + stay + "|" + hotel.price + "|" + hotel.strike + "|" + hotel.currency + "|" + hotel.memberDiscount;
         if (key.equals(KEYS.get(line))) return;
         KEYS.put(line, key);
         final int hotelId = hotel.id;

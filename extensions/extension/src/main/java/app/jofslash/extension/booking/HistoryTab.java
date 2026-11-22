@@ -182,6 +182,7 @@ final class HistoryTab {
         }
 
         // The same check as the line under the price on the property page.
+        hotel.memberDiscount = HotelInfo.memberDiscount(DiscountCheck.shownBadges(), hotel.memberDiscount);
         StrikeCheck.Verdict strike = StrikeCheck.check(hotel, stay, all, System.currentTimeMillis());
         if (strike != null) {
             content.addView(panel.spaced(panel.card(panel.text(strike.text, 14,
