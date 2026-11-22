@@ -36,7 +36,7 @@ which). The rest are off until you pick them.
 - **New patches:** a new version of these patches comes out on a Thursday, every other week, so you don't
   have to patch the app again each week. A fix for something broken, or support for a new Quora version, comes out the same week. To get new patches on Monday already, turn on **Pre-release patches** for this source
   in Morphe Manager; pre-releases are less tested, and you can turn it off again at any time. Morphe Manager then marks the patched app with an Update badge. Patch the same Quora file again and install it over the patched app. No need to uninstall:
-  you stay signed in and your patch settings stay. With **Update notice** patched in (on by default), Patch settings
+  you stay signed in and your patch settings stay. With **Update notice** patched in (off by default), Patch settings
   shows the version you have and whether newer patches are out; nothing pops up.
 - **New Quora version:** the patched app doesn't update from the Play Store. Wait until a release of these
   patches lists the new version as supported, then patch that version the same way.
@@ -261,7 +261,7 @@ All the code is in this repository, and the patch files in the releases are buil
 The patches don't send anything about you anywhere; the privacy ones only stop the app from sending things.
 Three of them connect somewhere else: **Translate button** sends the text of an answer to Google Translate when you
 tap it, **Filter updates** (off by default) downloads a short list from this repository on GitHub once a day, and
-**Update notice** (on by default) reads the newest version number from this repository once a day.
+**Update notice** (off by default) reads the newest version number from this repository once a day.
 Found a security problem? See [SECURITY.md](../../SECURITY.md) for how to report it privately.
 
 **Quora links open in the browser instead of the app.**

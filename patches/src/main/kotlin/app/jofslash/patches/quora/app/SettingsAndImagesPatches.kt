@@ -97,7 +97,7 @@ val updateNoticePatch = bytecodePatch(
     description = "Shows in Patch settings when newer patches are out, since a patched app doesn't update from Google Play: " +
             "once a day the app reads the newest version number from this project's GitHub repository. Nothing pops up. " +
             "The check sends nothing but a normal web request.",
-    default = true
+    default = false
 ) {
     category("App")
     compatibleWith(COMPATIBILITY_QUORA)
