@@ -36,14 +36,17 @@ def newest_mpp():
 
 
 def patch_names(cli=None, mpp=None):
-    """The patches in the bundle itself; patches-list.json is only updated by a release."""
+    """This app's patches in the bundle itself; patches-list.json is only updated by a release.
+    The bundle also has the other apps' patches, which never apply to this one."""
     if cli and mpp:
-        run = subprocess.run(["java", "-jar", cli, "list-patches", f"--patches={mpp}"],
+        run = subprocess.run(["java", "-jar", cli, "list-patches", f"--patches={mpp}",
+                              f"--filter-package-name={PACKAGE}"],
                              capture_output=True, text=True, encoding="utf8", errors="replace")
         names = re.findall(r"^Name: (.+)$", run.stdout, re.M)
         if names:
             return [n.strip() for n in names]
-    return [p["name"] for p in json.loads((ROOT / "patches-list.json").read_text(encoding="utf8"))["patches"]]
+    return [p["name"] for p in json.loads((ROOT / "patches-list.json").read_text(encoding="utf8"))["patches"]
+            if any(c.get("packageName") == PACKAGE for c in p.get("compatiblePackages") or [])]
 
 
 def listed_versions():

@@ -34,7 +34,7 @@ private fun readingPatch(
     category(patchCategory)
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
 
     execute {
         PageFinishedFingerprint.method.addInstruction(
@@ -64,7 +64,7 @@ private fun readingOptionPatch(
     category(patchCategory)
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
 
     val option = stringOption(
         key = optionKey,
@@ -171,7 +171,7 @@ val copyAnswerTextPatch = bytecodePatch(
     category("Reading")
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
 
     execute {
         PageFinishedFingerprint.method.addInstruction(
@@ -243,7 +243,7 @@ val hideAskButtonPatch = bytecodePatch(
     category("App")
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
 
     execute {
         registerSetting("hideAskButton", "Hide Ask button")
@@ -275,7 +275,7 @@ val dataSaverPatch = bytecodePatch(
     category("Reading")
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
 
     val loadOnWifi = booleanOption(
         key = "loadOnWifi",

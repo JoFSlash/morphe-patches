@@ -14,7 +14,7 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 FILE = ROOT / "filters/selectors.json"
-CATALOG = ROOT / "extensions/extension/src/main/java/app/jofslash/extension/quora/SettingsCatalog.java"
+CATALOG = ROOT / "extensions/quora/src/main/java/app/jofslash/extension/quora/SettingsCatalog.java"
 
 # Keep in step with FilterUpdates.java.
 FORMAT = 1

@@ -12,7 +12,7 @@ android_jar="$(ls -d "$sdk"/platforms/android-*/android.jar | sort -V | tail -1)
 
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
-ext="$root/extensions/extension/src/main/java/app/jofslash/extension/quora"
+ext="$root/extensions/quora/src/main/java/app/jofslash/extension/quora"
 sep=":"; case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) sep=";";; esac
 
 # The stand-ins come first on the class path, so they replace the android.jar classes of the same name.

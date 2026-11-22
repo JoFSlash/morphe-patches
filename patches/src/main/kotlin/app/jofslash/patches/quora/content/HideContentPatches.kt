@@ -26,7 +26,7 @@ private fun pageScriptPatch(
     category(patchCategory)
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
 
     execute {
         PageFinishedFingerprint.method.addInstruction(
@@ -73,7 +73,7 @@ val hideDismissedQuestionsPatch = bytecodePatch(
     category("Feed")
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
 
     execute {
         PageFinishedFingerprint.method.addInstruction(
