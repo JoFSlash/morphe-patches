@@ -9,7 +9,8 @@ Patches for the [Quora](https://play.google.com/store/apps/details?id=com.quora.
 AI answers, Quora+ paywalls, suggestions, counts, old answers and so on.
 
 Works with Quora <!-- VERSIONS_START -->3.2.42<!-- VERSIONS_END --> on Android 7 or newer. No root needed.
-The privacy patches are on by default. Everything else is off until you pick it.
+The privacy patches are on by default, and so are some fixes and filters that change little (the tables below show
+which). The rest are off until you pick them.
 
 ## Install
 
@@ -23,7 +24,10 @@ The privacy patches are on by default. Everything else is off until you pick it.
    newest version; until it's on [APKMirror](https://www.apkmirror.com/apk/quora-inc/quora/), use 3.2.42.
    Older versions won't work: Quora's servers turn away old app versions.
    Pick the file in Morphe Manager, then pick the patches you want.
-4. Uninstall the Play Store version before installing the patched one. It is signed with a different key,
+4. If you sign in to Quora with Google, set up MicroG-RE first (see "Signing in with Google doesn't work" in the
+   [FAQ](#faq)): a patched app can't sign in with Google without it. To keep the official app as well, pick the
+   **Clone app** patch and skip the next step.
+5. Uninstall the Play Store version before installing the patched one. It is signed with a different key,
    so Android won't install it over the original. Uninstalling signs you out, so sign in again in the patched
    app. No root needed.
 
@@ -232,8 +236,9 @@ in your name. Still, it's a modified app, so there's no guarantee.
 
 **Is it safe?**
 All the code is in this repository, and the patch files in the releases are built from it by GitHub Actions.
-The patches don't send anything anywhere on their own; the privacy ones only stop the app from sending things.
-The only exception is **Translate button**: when you tap it, the text of that answer goes to Google Translate.
+The patches don't send anything about you anywhere; the privacy ones only stop the app from sending things.
+Two of them connect somewhere else: **Translate button** sends the text of an answer to Google Translate when you
+tap it, and **Filter updates** (off by default) downloads a short list from this repository on GitHub once a day.
 Found a security problem? See [SECURITY.md](SECURITY.md) for how to report it privately.
 
 **Quora links open in the browser instead of the app.**
