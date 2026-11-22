@@ -7,9 +7,7 @@ name: Release
 # - Thursday 08:00 UTC: the newest pre-release becomes stable. Its commit is merged into main and
 #   this workflow is started on main, which releases vX.Y.Z; the release is then merged back into dev.
 #   Nothing new since the last stable release, or an open issue labelled "release blocker": no
-#   stable release that week. Each stable release means patching the app again, so when the last
-#   one is less than two weeks old, only a fix (a "fix:" commit) or support for a new Quora version
-#   (a "bump:" commit, which the Quora version workflow makes) is released; new features wait.
+#   stable release that week.
 # Nothing new on dev: no pre-release. An urgent fix can be released right away by running this
 # workflow by hand on main (or on dev for a pre-release).
 #
@@ -66,16 +64,6 @@ jobs:
           if [ -z "$tag" ]; then echo "No pre-release on dev yet."; exit 0; fi
           if git merge-base --is-ancestor "$tag" origin/main; then
             echo "$tag is already in main: nothing new for a stable release."; exit 0
-          fi
-          # Each stable release means patching the app again, so new features wait for every other
-          # week; a fix or support for a new Quora version (Quora may turn the old one away) goes
-          # out the same week.
-          stable=$(git describe --tags --abbrev=0 --exclude '*-dev.*' --match 'v*' origin/main 2>/dev/null || true)
-          if [ -n "$stable" ]; then
-            age=$(( ($(date +%s) - $(git log -1 --format=%ct "$stable")) / 86400 ))
-            if [ "$age" -lt 13 ] && ! git log --format=%s "$stable..$tag" | grep -qE '^(fix|bump)(\(.+\))?!?:'; then
-              echo "No fix or new Quora version since $stable ($age days ago): the new features wait for next week's stable release."; exit 0
-            fi
           fi
           blockers=$(gh issue list --state open --label "release blocker" --json number --jq 'map("#\(.number)") | join(" ")')
           if [ -n "$blockers" ]; then
