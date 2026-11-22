@@ -39,10 +39,10 @@ All patches are on by default; you can switch any of them off when you patch.
 ## Patches
 
 <!-- PATCHES_START -->
-14 patches, all on by default. Supported Booking.com versions: 71.1.
+16 patches, all on by default. Supported Booking.com versions: 71.1.
 
 <details open>
-<summary><b>Price</b> (3)</summary>
+<summary><b>Price</b> (4)</summary>
 
 Added features. They show you more; they don't change what you book.
 
@@ -51,11 +51,12 @@ Added features. They show you more; they don't change what you book.
 | Compare prices | on | Adds a **Compare prices** button to a hotel's page. It opens one panel. The **Official site** tab loads Google Hotels for that hotel, your dates and guests inside the app, reads the price from the hotel's own website and puts it next to the Booking.com price, with a link to book there. Prices load for your own region and currency. When Google rates the price against the hotel's usual prices ("great deal, 32% less than usual"), that line shows too; Google rarely shows it in the EU, so a **Check Google's deal rating (US data)** link reads it from the US version of the page on request, without changing the prices shown. |
 | Price history | on | Saves the prices the app shows you (at most 5000, the same price only once per 6 hours) and shows them for your dates as a chart, with the lowest, highest and current price and a check of crossed-out "original" prices. A second chart shows the hotel over the past year across all stay dates (the lowest price per night each day). **1M / 6M / 1Y / All** buttons pick the period. The history starts when the patch is installed; prices from before that can't be fetched, because no site publishes past hotel prices. |
 | Price watch | on | Adds a **Watch this price** button to the **Price history** tab. Once a day, on Wi-Fi and with the battery not low, the app asks Booking.com for the price of each stay you watch (hotel, dates, adults and rooms; at most 20), with the same request the hotel's page makes, saves it into the price history and shows a **Price drops** notification when it fell by more than 1%; tap it to open the hotel for those dates. The tab lists every watched stay with its last price; a watch ends by itself on the check-in day. Nothing is checked until you watch a stay. Needs **Price history**. |
+| Check crossed-out prices | on | When a hotel's page shows a crossed-out "original" price, a line under the price compares it with the prices saved on your phone in the last 30 days for the same dates, guests, rooms and currency: "Crossed-out € 79: you only saw € 58–62 for these dates since 3 Nov (6 prices)", in red, or "you saw € 79 for these dates on 5 Nov" when it was the real price before. It adds when the price was crossed out on nearly every check, which means the "discount" is the normal price. With fewer than 3 saved prices, or all from one day, it says there aren't enough yet instead of judging. A Genius or app-only discount is a real discount for you, so then it says just that. It saves prices like Price history (the two share the same history), also when Price history is off. It compares the hotel's headline price (the cheapest room, which the page shows); prices of single rooms on the room list aren't saved or checked. |
 
 </details>
 
 <details>
-<summary><b>Search</b> (5)</summary>
+<summary><b>Search</b> (6)</summary>
 
 What the search results show.
 
@@ -65,6 +66,7 @@ What the search results show.
 | Hide sponsored listings | on | Removes sponsored ("Ad") properties from the results list and sponsored markers from the map, so you see only the ranked results. |
 | Label Preferred properties | on | Keeps the thumbs-up "Preferred" and "Preferred Plus" badges but adds "Pays Booking higher commission" next to them, in the results list and on the hotel's page. Booking.com gives the badge to properties in its Preferred Partner Programme, which pay it a higher commission; it isn't a quality rating. Screen readers hear the same. |
 | Review check | on | On a hotel's reviews screen, scans the reviews the app has loaded for red flags: extra charges and hidden fees, paying outside Booking.com, "not as described", bookings not honoured, and scams or money taken. A banner above the booking button says how many reviews mention them ("3 of 25 recent reviews mention extra charges or booking problems"), in red when guests report a possible scam; tap it to read those reviews. It's keyword matching on your phone, a heads-up and not a verdict: not AI, not fake-review detection. Keywords cover English, Slovak, Czech, German, Polish, Hungarian, Italian, French and Spanish (with or without accents); reviews in other languages may be missed. |
+| Recent rating | on | Under a hotel's name and address, shows the average score of its reviews from the last 6 months, "Last 6 months: 6.1 from 42 reviews · overall 8.5", in red when it's 0.5 or more below the overall score; the same line shows on the reviews screen above the Review check banner. Booking.com sends no recent score, so the patch loads the newest 50 reviews once per hotel while the app runs, through the app's own request for reviews (when the reviews screen is already sorted newest first, it uses those). When the 50 newest are all from the last 6 months, it says "Latest 50 reviews (since 3 Nov): 8.4" instead. It's hidden under 10 recent reviews and leaves out reviews from guests who didn't stay. Busy hotels get 50 reviews in a few weeks, so the line often covers less than 6 months. |
 | Hotel contact | on | Adds a **Contact** button above **Compare prices** on a hotel's page (a **Contact** tab in the same panel). It shows the address with **Open in Maps** (a pin at the hotel in your maps app) and **Copy address**, and the phone number, email, company name, business address and registration that the hotel gives Booking.com for EU consumer law. Tap the phone number to dial it, or the email to write with the hotel's name as the subject; long-press any detail to copy it. The app already receives these details but hides them under Legal information. For chains they can be the head office (an Ibis gives Accor's), and private hosts and hotels outside the EU and a few other countries don't have them. |
 
 </details>
@@ -138,8 +140,9 @@ the background.
 
 **Is it safe?**
 All the code is in this repository, and the patch files in the releases are built from it by GitHub Actions. The
-privacy patch only stops the app from sending things. The one feature that reaches the internet is **Compare
-prices**: when you open its Official site tab it loads Google Hotels, as a browser would. Found a security problem?
+privacy patch only stops the app from sending things. The one feature that reaches another site is **Compare
+prices**: when you open its Official site tab it loads Google Hotels, as a browser would. **Recent rating** asks
+Booking.com for a hotel's newest reviews, the same request the app makes when you open the reviews. Found a security problem?
 See [SECURITY.md](SECURITY.md) for how to report it privately.
 
 ## Known issues

@@ -29,9 +29,17 @@ public final class PriceHistory {
         }
     };
 
-    /** Called from the property page's constructor. */
+    /** Called from the property page's constructor by the Price history patch: the button and tab. */
     public static void onPropertyPage(Activity activity) {
         PropertyPageButton.attach(activity, false, true, false);
+    }
+
+    /**
+     * Called from the property page's constructor by every patch that needs the saved prices
+     * (Price history, Check crossed-out prices): saves the prices the page shows.
+     */
+    public static void onPropertyPageRecord(Activity activity) {
+        PropertyPageButton.attachRecorder(activity);
     }
 
     static void setContext(Context context) {

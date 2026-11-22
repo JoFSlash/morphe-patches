@@ -74,14 +74,26 @@ public final class Strings {
     public static final String VERDICT_SAME = "The price hasn't changed";
     public static final String VERDICT_FEW = "Too few prices yet to say whether this one is low or high";
 
-    public static final String STRIKE_HIGHER =
-            "Booking.com shows a crossed-out price of %1$s. The highest price saved for these dates "
-                    + "is %2$s: you never saw the crossed-out price here.";
-    public static final String STRIKE_SEEN =
-            "Booking.com shows a crossed-out price of %1$s. You saw a price this high on %2$s.";
+    // Crossed-out price check (property page line and Price history tab)
+    /** Crossed-out price, number of prices saved for these dates. */
     public static final String STRIKE_FEW =
-            "Booking.com shows a crossed-out price of %1$s. With more saved prices you'll see "
-                    + "whether it was ever the real price.";
+            "Crossed-out %1$s: not enough saved prices for these dates yet to check it (%2$d so far)";
+    public static final String STRIKE_FEW_NONE =
+            "Crossed-out %1$s: no saved prices for these dates yet to check it";
+    /** Crossed-out price, the highest price seen, the day it was seen. */
+    public static final String STRIKE_SEEN =
+            "Crossed-out %1$s: you saw %2$s for these dates on %3$s";
+    /** Crossed-out price, lowest and highest seen, first day, number of saved prices. */
+    public static final String STRIKE_NEVER =
+            "Crossed-out %1$s: you only saw %2$s–%3$s for these dates since %4$s (%5$d prices)";
+    public static final String STRIKE_NEVER_ONE_PRICE =
+            "Crossed-out %1$s: you only saw %2$s for these dates since %4$s (%5$d prices)";
+    /** Times it was crossed out, prices saved. */
+    public static final String STRIKE_ALWAYS = ", crossed out on %1$d of them";
+    public static final String STRIKE_GENIUS =
+            "Crossed-out %1$s is the price without your Genius discount: a real discount for you";
+    public static final String STRIKE_MOBILE =
+            "Crossed-out %1$s is the price without the app-only discount: a real discount in the app";
 
     // Official site tab
     public static final String OFFICIAL_LOADING = "Looking up the hotel on Google Hotels…";
@@ -316,4 +328,16 @@ public final class Strings {
     public static final String WATCH_NOTIFY_TITLE = "Price drop: %1$s";
     /** New price, old price, stay. */
     public static final String WATCH_NOTIFY_TEXT = "Now %1$s, was %2$s. %3$s";
+    // Recent rating
+    /** Average, number of reviews. */
+    public static final String RECENT_6M = "Last 6 months: %1$s from %2$d reviews";
+    /** Average, number of reviews, date of the oldest. */
+    public static final String RECENT_LATEST = "Latest %2$d reviews (since %3$s): %1$s";
+    /** Overall score. */
+    public static final String RECENT_OVERALL = " · overall %1$s";
+    public static final String RECENT_FEW = "Fewer than 10 reviews in the last 6 months, too few for a recent rating";
+    public static final String RECENT_LOADING = "Loading the newest reviews for a recent rating…";
+    public static final String RECENT_NEED_SORT =
+            "Recent rating: sort the reviews by newest first once, then it shows for every hotel";
+    public static final String RECENT_FAILED = "Couldn't load the newest reviews for a recent rating";
 }
