@@ -6,8 +6,9 @@ except [Hide insurance offers](#hide-insurance-offers); you can switch any of th
 - **Price:** [Compare prices](#compare-prices) · [Price history](#price-history) · [Price watch](#price-watch) ·
   [Check crossed-out prices](#check-crossed-out-prices) · [Show full price up front](#show-full-price-up-front)
 - **Search:** [Hide urgency messages](#hide-urgency-messages) · [Hide sponsored listings](#hide-sponsored-listings) ·
-  [Label Preferred properties](#label-preferred-properties) · [Review check](#review-check) ·
-  [Recent rating](#recent-rating) · [Hotel contact](#hotel-contact)
+  [Label Preferred properties](#label-preferred-properties) · [Remember result sort](#remember-result-sort) ·
+  [Review check](#review-check) · [Recent rating](#recent-rating) · [Newest reviews first](#newest-reviews-first) ·
+  [Hotel contact](#hotel-contact)
 - **App:** [Disable start-up promotions](#disable-start-up-promotions) · [Hide upsells](#hide-upsells) ·
   [Hide insurance offers](#hide-insurance-offers) · [Disable update and rating prompts](#disable-update-and-rating-prompts) ·
   [Allow screenshots](#allow-screenshots) · [Follow system theme](#follow-system-theme) ·
@@ -124,6 +125,18 @@ Keeps the thumbs-up "Preferred" and "Preferred Plus" badges but adds "Pays Booki
 in the results list and on the hotel's page. Booking.com gives the badge to properties in its Preferred Partner
 Programme, which pay it a higher commission; it isn't a quality rating. Screen readers hear the same.
 
+### Remember result sort
+
+Default: on.
+
+When you pick a sort for the search results, such as **Price (lowest first)** or **Review score**, new searches keep
+it. Booking.com otherwise goes back to **Our top picks** whenever you change the destination, dates or guests, a
+ranking it bases partly on the commission a property pays.
+
+Until you pick a sort, Booking.com's default stays. Picking **Our top picks** again goes back to it for new searches
+too. Distance sorts aren't kept, since they only mean something for the place you picked them for. Filters reset on a
+new destination as before; only the sort is kept.
+
 ### Review check
 
 Default: on.
@@ -152,6 +165,18 @@ the app's own request for reviews (when the reviews screen is already sorted new
 
 It's hidden under 10 recent reviews and leaves out reviews from guests who didn't stay. Busy hotels get 50 reviews in
 a few weeks, so the line often covers less than 6 months.
+
+With [Newest reviews first](#newest-reviews-first) the reviews screen already opens newest first, so Recent rating
+uses the reviews it shows and never asks you to sort them yourself.
+
+### Newest reviews first
+
+Default: on.
+
+Opens a hotel's reviews sorted **Newest first** instead of Booking.com's **Most relevant**, so you see how the hotel is
+now, not the reviews Booking.com picks. The sort menu on the reviews screen shows it, and you can still pick another
+sort there; the next hotel's reviews open newest first again. Filters, such as the family filter Booking.com sets for a
+search with children, stay as they were.
 
 ### Hotel contact
 
