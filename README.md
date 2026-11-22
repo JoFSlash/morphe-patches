@@ -55,6 +55,8 @@ patch.
    [this link](https://morphe.software/add-source?github=JoFSlash/booking-patches) on your phone, or add
    `https://github.com/JoFSlash/booking-patches` under sources in Morphe Manager. Morphe Manager then downloads
    the signed patch bundle from this repository's releases and updates it on its own.
+   The patches are also listed in the community
+   [Morphe patch index](https://morphe-patches.software/?app=com.booking&patch=booking).
 3. Download a supported version of Booking.com as an APKM file from APKMirror:
    [71.1](https://www.apkmirror.com/apk/booking-com-hotel-reservations/booking-com-hotel-reservations/booking-com-hotels-travel-71-1-release/).
    Pick the file in Morphe Manager. It patches with the patches that are on by default. To pick others, such as
