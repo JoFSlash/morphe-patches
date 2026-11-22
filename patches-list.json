@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "patches": [
     {
       "name": "Allow screenshots",
@@ -310,7 +310,7 @@
     },
     {
       "name": "Hide sponsored listings",
-      "description": "Removes the properties marked \"Ad\" (sponsored listings) from search results. On the map, sponsored properties are shown like any other property, without the ad megaphone.",
+      "description": "Removes the properties marked \"Ad\" (sponsored listings) and Google's display ads from search results. On the map, sponsored properties are shown like any other property, without the ad megaphone.",
       "default": true,
       "category": "Search",
       "compatiblePackages": [
@@ -619,6 +619,74 @@
       "description": "Keeps the sort you last picked for search results (such as price or review score) for new searches, instead of going back to \"Our top picks\", which Booking.com ranks partly by commission. Until you pick a sort, Booking.com's default stays.",
       "default": true,
       "category": "Search",
+      "compatiblePackages": [
+        {
+          "packageName": "com.booking",
+          "name": "Booking.com",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#003B95",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "71.1",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Remove microphone access",
+      "description": "Removes the microphone permission. Voice input in messages (the microphone button when you write to a property) stops working.",
+      "default": false,
+      "category": "Privacy",
+      "compatiblePackages": [
+        {
+          "packageName": "com.booking",
+          "name": "Booking.com",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#003B95",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "71.1",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Remove unneeded permissions",
+      "description": "Removes the screen recording detection permission (used only by an anti-fraud fingerprinting library) and calendar access (used only to add a flight to your calendar).",
+      "default": true,
+      "category": "Privacy",
       "compatiblePackages": [
         {
           "packageName": "com.booking",

@@ -76,7 +76,7 @@ patch.
 ## Patches
 
 <!-- PATCHES_START -->
-25 patches, all on by default except Hide insurance offers, Stays only and Remove microphone access. Supported Booking.com versions: 71.1.
+25 patches, all on by default except Hide insurance offers, Remove microphone access and Stays only. Supported Booking.com versions: 71.1.
 
 <details open>
 <summary><b>Price</b> (5)</summary>
