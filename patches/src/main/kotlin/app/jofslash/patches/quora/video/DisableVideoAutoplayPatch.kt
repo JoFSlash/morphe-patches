@@ -33,7 +33,7 @@ val disableVideoAutoplayPatch = bytecodePatch(
     category("Reading")
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
 
     execute {
         registerSetting("disableVideoAutoplay", "Disable video autoplay")

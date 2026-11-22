@@ -20,7 +20,7 @@ details and opens the form. Otherwise open a
 
 - `patches/src/main/kotlin/app/jofslash/patches/quora/` holds the patches. Each one finds a method in
   the Quora app with a fingerprint and inserts a call or a few instructions.
-- `extensions/extension/src/main/java/app/jofslash/extension/quora/` holds the code those calls run
+- `extensions/quora/src/main/java/app/jofslash/extension/quora/` holds the code those calls run
   inside the app.
 - Most visual patches inject CSS or a small script into Quora's pages when a page finishes loading
   (`QWebViewClient.onPageFinished`). They rely on Quora's stable class names, `dom_annotate_*` and
