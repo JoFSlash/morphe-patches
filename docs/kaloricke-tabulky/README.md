@@ -30,7 +30,8 @@ patches don't change what your subscription gives you.
   app signs in through [MicroG-RE](https://github.com/MorpheApp/MicroG-RE/releases) instead of Google Play
   services (keep **GmsCore support** on). Install it and add your Google account to it (MicroG-RE settings >
   Accounts). Push notifications come through MicroG-RE too. Without it, sign in with your email and password.
-- **Signing in with Facebook doesn't work,** because Facebook too only signs in the app signed by its maker. If you
+- **Signing in with Facebook may not work.** On our test phone (without the Facebook app) it failed in the patched
+  app and in the unpatched Play Store app alike, so it isn't caused by the patches. If you
   registered with Facebook and never set a password, try the password reset on the sign-in screen with your
   account's email.
 - **Google Fit doesn't sync** (MicroG-RE doesn't implement Google Fit's data), and **Samsung Health may not**,
@@ -125,8 +126,9 @@ Play services refuses it. MicroG-RE signs the app in with your Google account in
 certificate the maker signs the app with. Without it, "Sign in with Google" fails; email still works.
 
 **Why does signing in with Facebook fail?**
-Facebook only signs in the app signed by its maker, and a patched app is signed with your own key. There is no
-MicroG-RE for Facebook. Sign in with Google or with your email and password instead.
+On our test phone, without the Facebook app, signing in through Facebook in the browser ended in "Neúspěšné
+přihlášení" in the unpatched Play Store app too. With the Facebook app installed, Facebook may also refuse the
+patched app, which is signed with your own key. Sign in with Google or with your email and password instead.
 
 **Can the partner offers and praise messages be hidden?**
 The partner offers (benefits, other apps' offers) come from the app's servers, mostly inside screens you open
