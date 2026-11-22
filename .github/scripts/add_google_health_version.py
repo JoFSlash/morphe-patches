@@ -1,6 +1,6 @@
 """Lists a Google Health version as supported in Constants.kt, as the first (newest) target.
 
-Usage: python .github/scripts/add_app_version.py <version>
+Usage: python .github/scripts/add_google_health_version.py <version>
 Exits 0 when the version was added, 3 when it was already listed.
 """
 import pathlib
@@ -14,7 +14,7 @@ VERSION = re.compile(r"\d+(\.\d+)+\.health-mobile-\d+-\d+")
 
 def main():
     if len(sys.argv) != 2 or not VERSION.fullmatch(sys.argv[1]):
-        sys.exit("Usage: add_app_version.py <version, for example 5.13.health-mobile-1104148438-1023845615>")
+        sys.exit("Usage: add_google_health_version.py <version, for example 5.13.health-mobile-1104148438-1023845615>")
     version = sys.argv[1]
     raw = CONSTANTS.read_bytes().decode("utf8")
     newline = "\r\n" if "\r\n" in raw else "\n"

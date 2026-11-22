@@ -5,13 +5,13 @@ and why, and says whether the version is already listed as supported. With --ins
 the patched app on a phone or emulator over adb, starts it and looks for a crash at start.
 
 Usage:
-    python .github/scripts/check_app.py <google-health.apkm> --cli <morphe-cli.jar> [--mpp <bundle.mpp>]
+    python .github/scripts/check_google_health.py <google-health.apkm> --cli <morphe-cli.jar> [--mpp <bundle.mpp>]
         [--install [--expect-welcome]] [--clone] [--dexdump <dexdump>] [--adb <adb>]
 
 With --install, Clone app is left out (it would install under another package name), unless --clone
 is given: then the clone is installed and started under its package name. With --dexdump, the patched
-code is checked for the change each applied patch makes (verify_patched.py). The emulator test in
-.github/workflows/emulator.yml runs this with --install --expect-welcome, with and without --clone.
+code is checked for the change each applied patch makes (verify_google_health.py). The emulator test in
+.github/workflows/emulator-google-health.yml runs this with --install --expect-welcome, with and without --clone.
 
 Build the bundle first (./gradlew buildAndroid); by default the newest .mpp in patches/build/libs is used.
 """
@@ -141,9 +141,9 @@ def main():
 
     if args.dexdump and out_apk.exists():
         sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-        import verify_patched
+        import verify_google_health
         print("\nChecking that each applied patch changed the code ...")
-        if not verify_patched.verify(str(out_apk), args.dexdump, applied):
+        if not verify_google_health.verify(str(out_apk), args.dexdump, applied):
             failed.append(("patched code", "an applied patch changed nothing (see above)"))
 
     if args.install and out_apk.exists():

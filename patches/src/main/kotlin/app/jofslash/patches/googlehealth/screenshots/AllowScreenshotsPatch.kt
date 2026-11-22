@@ -19,7 +19,7 @@ val allowScreenshotsPatch = bytecodePatch(
     category("App")
     compatibleWith(COMPATIBILITY_GOOGLE_HEALTH)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/googlehealth.mpe")
 
     execute {
         val changed = redirectCalls(

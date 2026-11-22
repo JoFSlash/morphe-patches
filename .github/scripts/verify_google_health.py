@@ -6,10 +6,10 @@ code with dexdump and looks, for each patch, for the change it makes: the call t
 the instructions it puts first in a method, or the code it takes out.
 
 Usage:
-    python .github/scripts/verify_patched.py <patched.apk> --dexdump <dexdump> [--patch NAME ...]
+    python .github/scripts/verify_google_health.py <patched.apk> --dexdump <dexdump> [--patch NAME ...]
 
 Without --patch, every patch below is checked. Exits 0 when every check passed, 1 when one failed.
-Also used by check_app.py.
+Also used by check_google_health.py.
 """
 import argparse
 import pathlib

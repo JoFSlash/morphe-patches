@@ -9,7 +9,7 @@ Prints a short report. With --github-output <file> it also writes, for a GitHub 
   new=<newest APKMirror version not listed yet, or empty>
   supported=<listed versions, comma separated>
 
-Usage: python .github/scripts/watch_app_version.py [--github-output <file>]
+Usage: python .github/scripts/watch_google_health_version.py [--github-output <file>]
 Exits 0 when it could read APKMirror, 2 when it couldn't.
 """
 import argparse

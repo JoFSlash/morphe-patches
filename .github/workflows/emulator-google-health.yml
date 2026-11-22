@@ -3,7 +3,7 @@ name: Emulator test
 # Patches Google Health with every patch, installs it on Android 12L to 17 emulators and checks
 # that it starts without a crash or errors from the patches and shows its welcome screen with the
 # sign-in button. The same is done for the clone (Clone app). On Android 15, the patched code is also
-# checked for the change each patch makes (verify_patched.py), since a patch can apply and change
+# checked for the change each patch makes (verify_google_health.py), since a patch can apply and change
 # nothing. When a check fails, the original app is tried the same way, to tell a broken patch
 # from an Android version the app itself doesn't work on. Signing in needs a Google account in
 # MicroG-RE, so it is tried by hand on a phone.
@@ -129,5 +129,5 @@ jobs:
           disable-animations: true
           # The second line tries the clone. Each line has to pass.
           script: |
-            python3 .github/scripts/check_app.py "$RUNNER_TEMP/google-health.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-welcome --compare-original --adb adb ${DEXDUMP:+--dexdump "$DEXDUMP"}
-            python3 .github/scripts/check_app.py "$RUNNER_TEMP/google-health.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-welcome --clone --adb adb
+            python3 .github/scripts/check_google_health.py "$RUNNER_TEMP/google-health.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-welcome --compare-original --adb adb ${DEXDUMP:+--dexdump "$DEXDUMP"}
+            python3 .github/scripts/check_google_health.py "$RUNNER_TEMP/google-health.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-welcome --clone --adb adb

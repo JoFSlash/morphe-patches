@@ -43,7 +43,7 @@ jobs:
         id: check
         # A version asked for by hand is tried even when APKMirror can't be read right now.
         continue-on-error: ${{ inputs.version != '' }}
-        run: python3 .github/scripts/watch_app_version.py --github-output "$GITHUB_OUTPUT"
+        run: python3 .github/scripts/watch_google_health_version.py --github-output "$GITHUB_OUTPUT"
 
       - name: Pick the version to try
         id: pick
@@ -102,7 +102,7 @@ jobs:
           if GH_TOKEN="$APKS_TOKEN" gh release download "google-health-$VERSION" -R JoFSlash/google-health-apks -p "*.apkm" -O "$out" 2>/dev/null; then
             echo "Using the APKM from google-health-apks."
             echo "source=google-health-apks" >> "$GITHUB_OUTPUT"
-            set +e; python3 .github/scripts/fetch_app_apkm.py --verify-only "$out" "$VERSION" $check; code=$?; set -e
+            set +e; python3 .github/scripts/fetch_google_health_apkm.py --verify-only "$out" "$VERSION" $check; code=$?; set -e
             case $code in
               0) echo "result=ok" >> "$GITHUB_OUTPUT" ;;
               6) echo "result=bad" >> "$GITHUB_OUTPUT" ;;
@@ -111,7 +111,7 @@ jobs:
             exit 0
           fi
           echo "source=apkmirror" >> "$GITHUB_OUTPUT"
-          set +e; python3 .github/scripts/fetch_app_apkm.py "$VERSION" "$out" $check; code=$?; set -e
+          set +e; python3 .github/scripts/fetch_google_health_apkm.py "$VERSION" "$out" $check; code=$?; set -e
           case $code in
             0)
               # The asset is named after the file.
@@ -166,7 +166,7 @@ jobs:
           target: google_apis
           arch: x86_64
           disable-animations: true
-          script: python3 .github/scripts/check_app.py "$RUNNER_TEMP/google-health.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-welcome --adb adb > "$RUNNER_TEMP/check.txt" 2>&1 || touch "$RUNNER_TEMP/check.failed"
+          script: python3 .github/scripts/check_google_health.py "$RUNNER_TEMP/google-health.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-welcome --adb adb > "$RUNNER_TEMP/check.txt" 2>&1 || touch "$RUNNER_TEMP/check.failed"
 
       - name: Open a pull request or an issue
         if: always() && steps.apkm.outputs.result != ''
@@ -181,10 +181,10 @@ jobs:
           upload="gh release create google-health-$VERSION -R JoFSlash/google-health-apks --title \"Google Health $VERSION\" google-health-$VERSION.apkm"
           why=""
           if [ "$RESULT" = "ok" ] && [ -f "$RUNNER_TEMP/check.txt" ] && [ ! -f "$RUNNER_TEMP/check.failed" ]; then
-            set +e; python3 .github/scripts/add_app_version.py "$VERSION"; code=$?; set -e
+            set +e; python3 .github/scripts/add_google_health_version.py "$VERSION"; code=$?; set -e
             if [ $code -eq 3 ]; then echo "$VERSION is already listed."; exit 0; fi
             if [ $code -ne 0 ]; then
-              why="Every patch applies and the app starts, but listing the version in Constants.kt failed (add_app_version.py exited with $code). Add \`AppTarget(version = \"$VERSION\")\` by hand."
+              why="Every patch applies and the app starts, but listing the version in Constants.kt failed (add_google_health_version.py exited with $code). Add \`AppTarget(version = \"$VERSION\")\` by hand."
             else
               branch="support/google-health-$VERSION"
               title="bump: Support Google Health $VERSION"

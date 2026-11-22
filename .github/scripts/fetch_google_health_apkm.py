@@ -7,8 +7,8 @@ at the asked version, and that every APK in the bundle is signed only with the a
 Fitbit's original one (the SHA-1 in Constants.kt) and the one it was rotated to for Android 13+.
 
 Usage:
-    python .github/scripts/fetch_app_apkm.py <version> <out.apkm> [--apksigner <path>] [--aapt2 <path>]
-    python .github/scripts/fetch_app_apkm.py --verify-only <file.apkm> <version> [--apksigner ...] [--aapt2 ...]
+    python .github/scripts/fetch_google_health_apkm.py <version> <out.apkm> [--apksigner <path>] [--aapt2 <path>]
+    python .github/scripts/fetch_google_health_apkm.py --verify-only <file.apkm> <version> [--apksigner ...] [--aapt2 ...]
 
 Exit codes: 0 done, 4 APKMirror or the network turned the download away (for example Cloudflare
 or a timeout), 5 there is no APK bundle of the version on APKMirror, 6 the file isn't the app's
