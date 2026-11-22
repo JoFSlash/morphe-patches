@@ -102,7 +102,7 @@ val updateNoticePatch = bytecodePatch(
     category("App")
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
     // The check starts where Patch settings hooks the tab bar, and the switch is on its page.
     dependsOn(patchSettingsPatch)
 

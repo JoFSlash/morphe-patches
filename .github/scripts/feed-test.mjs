@@ -288,7 +288,7 @@ const ANSWER_CHECKS = `(async function(){
 // puppeteer_test_* name (or the start of one, as in [class*="dom_annotate_multifeed_bundle_"]).
 // The ones PageCheck.java uses are on every feed or answer page, so missing one fails the test.
 // The others (ads, suggestions and the like) aren't on every feed: they are only listed.
-const EXTENSION = 'extensions/extension/src/main/java/app/jofslash/extension/quora';
+const EXTENSION = 'extensions/quora/src/main/java/app/jofslash/extension/quora';
 const CLASS_NAME = /(dom_annotate_[A-Za-z0-9_]+|puppeteer_test_[A-Za-z0-9_]+)/g;
 function quoraClasses() {
   const used = new Map();
