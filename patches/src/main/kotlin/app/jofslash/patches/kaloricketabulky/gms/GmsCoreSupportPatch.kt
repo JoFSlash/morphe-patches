@@ -8,14 +8,21 @@ import app.jofslash.patches.kaloricketabulky.shared.Constants.COMPATIBILITY_KALO
 import app.jofslash.patches.kaloricketabulky.shared.Constants.PACKAGE_NAME
 import app.jofslash.patches.kaloricketabulky.shared.Constants.SIGNATURE
 import app.jofslash.patches.kaloricketabulky.shared.methodOf
+import app.jofslash.patches.kaloricketabulky.shared.methodsWhere
 import app.jofslash.patches.kaloricketabulky.shared.replaceStrings
 import app.jofslash.patches.kaloricketabulky.shared.returnBoolean
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
+import app.morphe.patcher.extensions.InstructionExtensions.replaceInstruction
+import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.resourcePatch
 import app.morphe.patcher.util.returnEarly
 import com.android.tools.smali.dexlib2.AccessFlags
+import com.android.tools.smali.dexlib2.Opcode
+import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
+import com.android.tools.smali.dexlib2.iface.reference.FieldReference
 import org.w3c.dom.Element
 import java.util.logging.Logger
 
@@ -24,6 +31,9 @@ private const val VENDOR = "app.revanced"
 private const val GMS_CORE_PACKAGE = "$VENDOR.android.gms"
 
 private const val EXTENSION_CLASS = "Lapp/jofslash/extension/kaloricketabulky/GmsCoreCheck;"
+
+/** Reads the result of a Play services credential request in androidx.credentials. */
+private const val RESPONSE_UTILS = "Landroidx/credentials/playservices/controllers/ResponseUtils\$Companion;"
 
 /** Android's own Credential Manager, as androidx.credentials uses it on Android 14 and newer. */
 private const val FRAMEWORK_CREDENTIAL_PROVIDER = "Landroidx/credentials/CredentialProviderFrameworkImpl;"
@@ -132,6 +142,25 @@ val gmsCoreSupportPatch = bytecodePatch(
         // provider, androidx.credentials uses its Play services provider, which binds to MicroG-RE
         // through the strings above, as on Android 13 and older.
         methodOf(FRAMEWORK_CREDENTIAL_PROVIDER, "isAvailableOnDevice").returnBoolean(false)
+
+        // MicroG-RE returns the credential (or the error) as a Bundle, the form Play services uses
+        // before Android 14. On Android 14 and newer androidx.credentials reads Android's own
+        // GetCredentialResponse there instead, finds none and reports a failed sign-in. Read the
+        // result as on Android 13: replace its Build.VERSION.SDK_INT checks with 33.
+        methodsWhere(RESPONSE_UTILS, "the result handler (int, int, Intent, ...)") { method ->
+            "Landroid/content/Intent;" in method.parameterTypes.map { it.toString() }
+        }.forEach { method ->
+            val reads = method.implementation!!.instructions.withIndex().filter { (_, insn) ->
+                insn.opcode == Opcode.SGET &&
+                    ((insn as ReferenceInstruction).reference as FieldReference).let {
+                        it.definingClass == "Landroid/os/Build\$VERSION;" && it.name == "SDK_INT"
+                    }
+            }
+            if (reads.isEmpty()) throw PatchException("$RESPONSE_UTILS->${method.name} doesn't read SDK_INT")
+            reads.forEach { (index, insn) ->
+                method.replaceInstruction(index, "const/16 v${(insn as OneRegisterInstruction).registerA}, 0x21")
+            }
+        }
 
         // Say once when MicroG-RE is missing. App.onCreate only calls the SafeDK-renamed original.
         methodOf("$APP/App;", "onCreate", emptyList()).addInstruction(
