@@ -66,7 +66,7 @@ All patches but Hide insurance offers are on by default; you can switch any of t
 ## Patches
 
 <!-- PATCHES_START -->
-18 patches, all on by default except Hide insurance offers. Supported Booking.com versions: 71.1.
+20 patches, all on by default except Hide insurance offers. Supported Booking.com versions: 71.1.
 
 <details open>
 <summary><b>Price</b> (4)</summary>
@@ -83,7 +83,7 @@ Added features. They show you more; they don't change what you book.
 </details>
 
 <details>
-<summary><b>Search</b> (6)</summary>
+<summary><b>Search</b> (8)</summary>
 
 What the search results show.
 
@@ -92,8 +92,10 @@ What the search results show.
 | [Hide urgency messages](docs/patches.md#hide-urgency-messages) | on | Hides scarcity and pressure lines such as "We have 1 left at this price" and "in high demand". |
 | [Hide sponsored listings](docs/patches.md#hide-sponsored-listings) | on | Removes sponsored ("Ad") properties from the results list and the map; in testing, about 2–3 per city on page 1. |
 | [Label Preferred properties](docs/patches.md#label-preferred-properties) | on | Adds "Pays Booking higher commission" next to the Preferred and Preferred Plus badges. |
+| [Remember result sort](docs/patches.md#remember-result-sort) | on | Keeps the sort you last picked, such as lowest price, for new searches instead of "Our top picks". |
 | [Review check](docs/patches.md#review-check) | on | Scans a hotel's loaded reviews for extra charges, scams and other red flags and says how many mention them. |
 | [Recent rating](docs/patches.md#recent-rating) | on | Shows a hotel's average score from the last 6 months next to its overall score. |
+| [Newest reviews first](docs/patches.md#newest-reviews-first) | on | Opens a hotel's reviews sorted newest first instead of "Most relevant". |
 | [Hotel contact](docs/patches.md#hotel-contact) | on | Adds a Contact tab with the hotel's address, phone, email and company details. |
 
 </details>

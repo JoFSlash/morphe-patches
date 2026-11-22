@@ -93,6 +93,11 @@ public final class RecentRating {
     private static volatile List<String[]> sortOptions = new ArrayList<>();
     /** The sort option the user picked on the current reviews screen, or null. */
     private static volatile String appliedSort;
+    /**
+     * The newest-first sort Newest reviews first opened the current reviews screen with, as
+     * {filter id, option}, or null.
+     */
+    private static volatile String[] defaultSort;
     private static volatile Context appContext;
 
     private static WeakReference<Activity> reviewsScreen = new WeakReference<>(null);
@@ -108,6 +113,7 @@ public final class RecentRating {
     public static void onReviewsActivity(Activity activity) {
         try {
             appliedSort = null;
+            defaultSort = null;
             chipText = null;
             reviewsHotelId = 0;
             reviewsScreen = new WeakReference<>(activity);
@@ -150,6 +156,15 @@ public final class RecentRating {
         }
     }
 
+    /**
+     * Called by Newest reviews first when it opens the reviews screen sorted by this option, as
+     * if the user had picked it.
+     */
+    static void onDefaultSort(String filterId, String option) {
+        defaultSort = new String[]{filterId, option};
+        appliedSort = option;
+    }
+
     private static volatile boolean chipNeedsFetch;
 
     /** Called from ReviewsReactor$ReviewsLoaded's constructor with the list the screen shows. */
@@ -167,7 +182,12 @@ public final class RecentRating {
             // also come in date order, but leave reviews out.
             String[] newest = sortToUse();
             String sort = appliedSort;
+            // With no newest-first sort known, trust the one Newest reviews first opened with
+            // when its dates come newest first, and keep it for the fetches.
+            String[] opened = defaultSort;
+            if (newest == null && opened != null && opened[1].equals(sort)) newest = opened;
             if (sort != null && newest != null && sort.equals(newest[1]) && newestFirst(reviews)) {
+                if (newest == opened) saveSort(opened[0], opened[1]);
                 chipNeedsFetch = false;
                 Stats loaded = stats(reviews);
                 Stats fetched = CACHE.get(hotelId);
@@ -478,8 +498,18 @@ public final class RecentRating {
         edit.apply();
     }
 
+    /**
+     * The newest-first sort for the reviews screen, as {filter id, option}: {@link #sortToUse()},
+     * or {@link #KNOWN_SORT} when every guess failed before.
+     */
+    static String[] newestSort() {
+        String[] sort = sortToUse();
+        return sort != null ? sort : KNOWN_SORT.clone();
+    }
+
     private static SharedPreferences prefs() {
         Context c = appContext;
+        if (c == null) c = appContext = PriceHistory.currentApplication();
         return c == null ? null : c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
