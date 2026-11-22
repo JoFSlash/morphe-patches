@@ -45,7 +45,8 @@ Until November 2026 each app had its own repository: `JoFSlash/quora-patches` (n
 `JoFSlash/booking-patches` and `JoFSlash/google-health-patches`. Their history, issues and patches are here now.
 
 - **Quora:** nothing to do. The old address leads here and Morphe Manager keeps updating the patches.
-- **Booking.com and Google Health:** in Morphe Manager, remove the old source and add this one (step 2 above).
+- **Booking.com and Google Health:** the old repositories are deleted, so Morphe Manager shows an error for the
+  old source. Remove the old source and add this one (step 2 above).
   Then patch the app again with this source and install it over the patched app; you stay signed in and keep
   your settings, including Booking.com's watched prices.
 
