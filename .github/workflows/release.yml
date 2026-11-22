@@ -13,8 +13,8 @@ name: Release
 #
 # Before releasing, the bundle has to pass the emulator tests (emulator.yml for Quora: every patch
 # applies and the app starts on Android 15, 16 and 17; emulator-google-health.yml for Google Health:
-# the same on Android 12L to 17, also for the clone. Booking.com has no emulator test yet) and the
-# feed test (feed-test.yml: the page patches work
+# the same on Android 12L to 17, also for the clone; emulator-booking.yml for Booking.com: the
+# same on Android 12L to 17) and the feed test (feed-test.yml: the page patches work
 # on the signed-in feed and on an answer). A skipped feed test counts as not passed. When either
 # doesn't pass, nothing is released and the issue "Weekly release stopped" says why; the next
 # release that goes through closes it. When the feed test can't run (for example while its saved
@@ -129,6 +129,15 @@ jobs:
     uses: ./.github/workflows/emulator-google-health.yml
     secrets: inherit
 
+  emulator-booking:
+    name: Booking.com emulator test
+    if: github.event_name != 'schedule'
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/emulator-booking.yml
+    secrets: inherit
+
   feed:
     name: Feed test
     if: ${{ github.event_name != 'schedule' && !inputs.skip-feed-test }}
@@ -141,11 +150,12 @@ jobs:
 
   release:
     name: Release
-    needs: [emulator, emulator-google-health, feed]
+    needs: [emulator, emulator-google-health, emulator-booking, feed]
     if: >-
       !cancelled()
       && needs.emulator.result == 'success'
       && needs.emulator-google-health.result == 'success'
+      && needs.emulator-booking.result == 'success'
       && (needs.feed.outputs.result == 'passed' || (github.event_name == 'workflow_dispatch' && inputs.skip-feed-test))
     permissions:
       contents: write
@@ -231,7 +241,7 @@ jobs:
   # Says on GitHub when a release didn't go out, so a red run on a release morning isn't missed.
   report:
     name: Open or close the issue
-    needs: [emulator, emulator-google-health, feed, release]
+    needs: [emulator, emulator-google-health, emulator-booking, feed, release]
     if: ${{ !cancelled() && github.event_name != 'schedule' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
     permissions:
       issues: write
@@ -243,6 +253,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
           EMULATOR: ${{ needs.emulator.result }}
           EMULATOR_GOOGLE_HEALTH: ${{ needs.emulator-google-health.result }}
+          EMULATOR_BOOKING: ${{ needs.emulator-booking.result }}
           FEED: ${{ needs.feed.outputs.result || needs.feed.result }}
           RELEASE: ${{ needs.release.result }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -259,6 +270,8 @@ jobs:
             why="The Quora emulator test didn't pass ($EMULATOR): a patch doesn't apply, or the patched app doesn't start."
           elif [ "$EMULATOR_GOOGLE_HEALTH" != "success" ]; then
             why="The Google Health emulator test didn't pass ($EMULATOR_GOOGLE_HEALTH): a patch doesn't apply, or the patched app or the clone doesn't start."
+          elif [ "$EMULATOR_BOOKING" != "success" ]; then
+            why="The Booking.com emulator test didn't pass ($EMULATOR_BOOKING): a patch doesn't apply, or the patched app doesn't start."
           elif [ "$RELEASE" = "skipped" ]; then
             why="The feed test didn't pass ($FEED). The issue \"Feed test needs attention\" says why."
           else
