@@ -88,7 +88,7 @@ Everything else can wait until something bothers you.
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.9.0, 75 patches. Supported Quora versions: 3.2.47, 3.2.42.
+Version 1.10.0, 75 patches. Supported Quora versions: 3.2.47, 3.2.42.
 
 <details>
 <summary><b>Privacy</b> (12)</summary>
