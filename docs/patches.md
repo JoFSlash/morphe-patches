@@ -3,7 +3,7 @@
 What each patch does, in full. The [README](../README.md#patches) has the short list. All patches are on by default
 except [Hide insurance offers](#hide-insurance-offers); you can switch any of them on or off when you patch.
 
-- **Price:** [Compare prices](#compare-prices) · [Price history](#price-history) · [Price watch](#price-watch) ·
+- **Price:** [Compare prices](#compare-prices) · [Price watch](#price-watch) ·
   [Check crossed-out prices](#check-crossed-out-prices) · [Show full price up front](#show-full-price-up-front)
 - **Search:** [Hide urgency messages](#hide-urgency-messages) · [Hide sponsored listings](#hide-sponsored-listings) ·
   [Label Preferred properties](#label-preferred-properties) · [Review check](#review-check) ·
@@ -24,7 +24,7 @@ Added features. They show you more; they don't change what you book.
 
 Default: on.
 
-Adds a **Compare prices** button to a hotel's page. It opens one panel, which also holds the **Price history** and
+Adds a **Compare prices** button to a hotel's page. It opens one panel, which also holds the **Price watch** and
 **Contact** tabs when those patches are on.
 
 The **Official site** tab loads Google Hotels for that hotel, your dates and guests inside the app, reads the price
@@ -35,26 +35,18 @@ When Google rates the price against the hotel's usual prices ("great deal, 32% l
 too. Google rarely shows it in the EU, so a **Check Google's deal rating (US data)** link reads it from the US
 version of the page on request, without changing the prices shown.
 
-### Price history
+### Price watch
 
 Default: on.
 
-Saves the prices the app shows you (at most 5000, the same price only once per 6 hours) and shows them for your
-dates as a chart, with the lowest, highest and current price and a check of crossed-out "original" prices.
+Adds a **Price watch** tab to a hotel's page (first in the panel; the button says **Price watch** when Compare prices
+is off) with a **Watch this price** button. Once a day, on Wi-Fi and with the battery not low, the app asks
+Booking.com for the price of each stay you watch (hotel, dates, adults and rooms; at most 20), with the same request
+the hotel's page makes, and saves it on your phone.
 
-A second chart shows the hotel over the past year across all stay dates (the lowest price per night each day).
-**1M / 6M / 1Y / All** buttons pick the period.
-
-The history starts when the patch is installed; prices from before that can't be fetched, because no site publishes
-past hotel prices.
-
-### Price watch
-
-Default: on. Needs [Price history](#price-history).
-
-Adds a **Watch this price** button to the **Price history** tab. Once a day, on Wi-Fi and with the battery not low,
-the app asks Booking.com for the price of each stay you watch (hotel, dates, adults and rooms; at most 20), with the
-same request the hotel's page makes, and saves it into the price history.
+For a watched stay the tab charts the prices the watch found, starting with the price you watched it at, with the
+current, lowest and highest price. Prices you see while browsing aren't in the chart. The daily check is scheduled
+again each time the app starts, so an app update doesn't pause it.
 
 When the price fell by more than 1%, it shows a **Price drops** notification; tap it to open the hotel for those
 dates. The app makes this notification on your phone itself, so it works in the patched app even though Booking.com's
@@ -77,8 +69,8 @@ It adds when the price was crossed out on nearly every check, which means the "d
 fewer than 3 saved prices, or all from one day, it says there aren't enough yet instead of judging. A Genius or
 app-only discount is a real discount for you, so then it says just that.
 
-It saves prices like Price history (the two share the same history), also when Price history is off. It compares the
-hotel's headline price (the cheapest room, which the page shows); prices of single rooms on the room list aren't
+It saves the prices the app shows you on your phone for this (at most 5000, the same price only once per 6 hours),
+and also uses the prices Price watch found. It compares the hotel's headline price (the cheapest room, which the page shows); prices of single rooms on the room list aren't
 saved or checked.
 
 ### Show full price up front

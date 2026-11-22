@@ -28,10 +28,10 @@ import java.util.Random;
 
 /**
  * Used by the Price watch patch. The user turns the watch on per stay (hotel, dates, adults, rooms)
- * on the Price history tab. Once a day, on an unmetered network and with the battery not low, a
+ * on the Price watch tab. Once a day, on an unmetered network and with the battery not low, a
  * {@link PriceWatchJob} asks Booking.com for the price of each watched stay with the request the
  * property page makes (mobile.hotelPage, through the app's own OkHttp client, so it carries the
- * app's headers, sign-in and request signature), saves it into the price history and notifies
+ * app's headers, sign-in and request signature), saves it with the other saved prices and notifies
  * when it dropped.
  *
  * <p>Nothing is fetched until the user watches a stay, at most {@link #MAX_WATCHES} stays can be
@@ -95,13 +95,30 @@ public final class PriceWatch {
 
     private static Boolean available;
 
-    /** Called from the property page's constructor: keeps the daily job scheduled while stays are watched. */
+    /**
+     * Called from the property page's constructor: the Price watch button and tab, and keeps the
+     * daily job scheduled while stays are watched.
+     */
     public static void onPropertyPage(Activity activity) {
+        PropertyPageButton.attach(activity, false, true, false);
         // The activity has no context yet while it is being constructed.
-        final Context context = PriceHistory.currentApplication();
+        keepScheduled(PriceRecorder.currentApplication());
+    }
+
+    /**
+     * Called from BookingApplication.onCreate: an app update can drop the job, so schedule it
+     * again at start, not only when a hotel is opened. Does nothing when no stay is watched.
+     */
+    public static void onAppStart(Context context) {
+        keepScheduled(context);
+    }
+
+    private static void keepScheduled(final Context context) {
         if (context == null) return;
         new Thread(() -> {
             try {
+                // No database yet: nothing was ever saved or watched, don't create one.
+                if (!context.getDatabasePath(PriceDb.NAME).exists()) return;
                 if (isAvailable(context)) updateSchedule(context);
             } catch (Throwable t) {
                 Log.w(HotelInfo.TAG, "Price watch: couldn't schedule", t);
@@ -127,11 +144,12 @@ public final class PriceWatch {
         JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         if (scheduler == null) return;
         int count = PriceDb.get(context).watchCount();
+        JobInfo pending = scheduler.getPendingJob(JOB_ID);
         if (count == 0) {
-            scheduler.cancel(JOB_ID);
+            if (pending != null) scheduler.cancel(JOB_ID);
             return;
         }
-        JobInfo pending = scheduler.getPendingJob(JOB_ID);
+        // Already scheduled: leave it, so the next run keeps its time.
         if (pending != null && pending.isPeriodic() && pending.getIntervalMillis() == DAY_MS) return;
         JobInfo job = new JobInfo.Builder(JOB_ID, new ComponentName(context, PriceWatchJob.class))
                 .setPeriodic(DAY_MS, 6L * 60 * 60 * 1000)
@@ -144,15 +162,21 @@ public final class PriceWatch {
     }
 
     // ---------------------------------------------------------------------------------------
-    // Watching and unwatching, from the Price history tab
+    // Watching and unwatching, from the Price watch tab
 
     /** Result of {@link #watch}. */
     static final int WATCH_OK = 0, WATCH_FULL = 1;
 
-    static int watch(Context context, HotelInfo hotel, Stay stay) {
+    /**
+     * Watches the stay from [hotel]'s price. With [pagePrice] that price is the one the page
+     * shows now, and it's saved as the first point of the watch's chart.
+     */
+    static int watch(Context context, HotelInfo hotel, Stay stay, boolean pagePrice) {
         PriceDb db = PriceDb.get(context);
         if (db.watch(hotel.id, stay) == null && db.watchCount() >= MAX_WATCHES) return WATCH_FULL;
-        db.addWatch(hotel.id, hotel.name, stay, hotel.currency, hotel.price, System.currentTimeMillis());
+        long now = System.currentTimeMillis();
+        db.addWatch(hotel.id, hotel.name, stay, hotel.currency, hotel.price, now);
+        if (pagePrice && hotel.hasPrice()) db.add(hotel, stay, PriceDb.SOURCE_WATCH, now, true);
         updateSchedule(context);
         Log.i(HotelInfo.TAG, "Price watch: watching hotel " + hotel.id + " " + stay);
         return WATCH_OK;

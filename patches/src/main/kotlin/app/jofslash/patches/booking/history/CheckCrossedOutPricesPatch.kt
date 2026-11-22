@@ -31,7 +31,7 @@ val checkCrossedOutPricesPatch = bytecodePatch(
     category("Prices")
     compatibleWith(COMPATIBILITY_BOOKING)
 
-    // The check needs the saved prices, whether or not Price history is on.
+    // Saves the prices the app shows, which the check compares with.
     dependsOn(priceRecordingPatch)
 
     execute {
