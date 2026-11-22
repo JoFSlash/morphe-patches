@@ -443,6 +443,10 @@ final class SettingsPage {
             android.graphics.BitmapFactory.Options options = new android.graphics.BitmapFactory.Options();
             options.inSampleSize = 1;
             while (bounds.outWidth / (options.inSampleSize * 2) >= width) options.inSampleSize *= 2;
+            // A long screenshot is narrow but very tall: keep it to 4 million pixels (16 MB) and
+            // 4096 pixels high, the most a phone can draw as one picture.
+            while ((long) (bounds.outWidth / options.inSampleSize) * (bounds.outHeight / options.inSampleSize) > 4_000_000L
+                    || bounds.outHeight / options.inSampleSize > 4096) options.inSampleSize *= 2;
             android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeFile(file.getPath(), options);
             if (bitmap == null) return null;
             android.widget.ImageView view = new android.widget.ImageView(activity);
