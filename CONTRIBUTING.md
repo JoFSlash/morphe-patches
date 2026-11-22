@@ -9,14 +9,19 @@ Thanks for helping. Each app is patched differently, so each has its own guide:
   [Patches in detail](docs/booking/patches.md) for how each patch works.
   `python .github/scripts/check_booking.py <apkm> --cli <morphe-cli.jar> --install --expect-screen` patches
   an APKM with every Booking.com patch and starts it on a phone or emulator, as the emulator test does.
+- Kalorické Tabulky: a Kotlin app whose own classes keep their names (only its libraries are renamed), so
+  patches find code by class and method name; a changed app fails loudly instead of being patched halfway.
+  It isn't on APKMirror: `python .github/scripts/check_kaloricke_tabulky.py <app.apks> --cli <morphe-cli.jar>
+  --install --expect-screen` patches the split APKs Google Play installs (zipped into an .apks) and starts the
+  app, as the emulator test does.
 
 Please follow the [code of conduct](CODE_OF_CONDUCT.md), and report security problems privately as described in
 [SECURITY.md](SECURITY.md).
 
 ## Where things are
 
-- `patches/src/main/kotlin/app/jofslash/patches/<app>/`: the patches. `<app>` is `quora`, `booking` or
-  `googlehealth`.
+- `patches/src/main/kotlin/app/jofslash/patches/<app>/`: the patches. `<app>` is `quora`, `booking`,
+  `googlehealth` or `kaloricketabulky`.
 - `extensions/<app>/`: the code those patches call inside the app. Each app has its own extension, so a patched
   app gets only its own code. A patch loads it with `extendWith("extensions/<app>.mpe")`.
 - `docs/<app>/README.md`: the app's page. The patch tables in it are generated from the patches' descriptions

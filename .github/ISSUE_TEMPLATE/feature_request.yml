@@ -15,6 +15,7 @@ body:
         - Quora
         - Booking.com
         - Google Health (Fitbit)
+        - Kalorické Tabulky
         - Another app
     validations:
       required: true

@@ -1,0 +1,227 @@
+name: Kalorické Tabulky version
+
+# Once a day, looks for a Kalorické Tabulky version that this bundle doesn't support yet.
+#
+# Unlike the other apps, Kalorické Tabulky isn't on APKMirror, so there is no trusted place to
+# download it from automatically: Google Play needs a signed-in device, and the other mirrors repack
+# the app in their own formats. So this workflow only *notices* a new version (from the version on
+# the app's Google Play page, or APKPure's page when Google Play can't be read) and doesn't download
+# it. The APK is added by hand, from a phone that got the update from Google Play:
+#
+#   adb shell pm path cz.psc.android.kaloricketabulky       # base.apk and the split_config.*.apk files
+#   adb pull <each path>                                     # into an empty folder
+#   zip -0 kaloricke-tabulky.apks base.apk split_config.*.apk
+#   gh release create kaloricke-tabulky-<version> -R JoFSlash/morphe-apks \
+#     --title "Kalorické Tabulky <version>" kaloricke-tabulky.apks
+#
+# For a new version it then:
+#   1. without the APKS in morphe-apks: opens an issue that says how to add it (above),
+#   2. with it: checks it is the app's own (package, version and the maker's signing certificate),
+#      patches it with every patch and starts it on an emulator, and opens a pull request that lists
+#      the version as supported, or an issue that says what failed.
+# A scheduled run tries each version once: when an issue or pull request for the version exists
+# (open or closed), it leaves the version alone. After adding the APKS, run the workflow by hand
+# with the version. APKS_TOKEN needs read access to the contents of JoFSlash/morphe-apks.
+
+on:
+  schedule:
+    - cron: '15 6 * * *'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Kalorické Tabulky version to try (empty: the newest on Google Play)'
+        required: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  packages: read
+
+env:
+  # SHA-256 of the certificate the maker signs Kalorické Tabulky with (from Google Play's base.apk).
+  CERT_SHA256: 52f620b23cd94312be0400e9c184b3efb3d31d24df9720e27c3683644ad3433f
+
+jobs:
+  check:
+    name: Look for a new version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.pick.outputs.version }}
+      supported: ${{ steps.check.outputs.supported }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Check
+        id: check
+        # A version asked for by hand is tried even when Google Play can't be read right now.
+        continue-on-error: ${{ inputs.version != '' }}
+        run: python3 .github/scripts/watch_kaloricke_tabulky_version.py --github-output "$GITHUB_OUTPUT"
+
+      - name: Pick the version to try
+        id: pick
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NEW: ${{ steps.check.outputs.new }}
+          ASKED: ${{ inputs.version }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          version="${ASKED:-$NEW}"
+          if [ -z "$version" ]; then echo "Nothing new."; exit 0; fi
+          if ! echo "$version" | grep -qE '^[0-9]+(\.[0-9]+)+$'; then
+            echo "::error::Not a Kalorické Tabulky version: $version"; exit 1
+          fi
+          title="Support Kalorické Tabulky $version"
+          if gh pr list --state all --search "\"$title\" in:title" --json title --jq '.[].title' | grep -qxF "bump: $title"; then
+            echo "A pull request for $version already exists."; exit 0
+          fi
+          if [ "$EVENT" = "schedule" ] && gh issue list --state all --search "\"Kalorické Tabulky $version is out\" in:title" --json title --jq '.[].title' | grep -qxF "Kalorické Tabulky $version is out"; then
+            echo "An issue for $version exists; run the workflow by hand with the version after adding the APKS."; exit 0
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  support:
+    name: Try Kalorické Tabulky ${{ needs.check.outputs.version }}
+    needs: check
+    if: needs.check.outputs.version != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      VERSION: ${{ needs.check.outputs.version }}
+      SUPPORTED: ${{ needs.check.outputs.supported }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      # Writes result= ok (in morphe-apks and the app's own), missing (not in morphe-apks yet),
+      # bad (not the app's own, or another version), or notoken.
+      - name: Get the APKS
+        id: apks
+        env:
+          APKS_TOKEN: ${{ secrets.APKS_TOKEN || secrets.QUORA_APKS_TOKEN }}
+        run: |
+          out="$RUNNER_TEMP/kaloricke-tabulky.apks"
+          if [ -z "$APKS_TOKEN" ]; then echo "result=notoken" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if ! GH_TOKEN="$APKS_TOKEN" gh release download "kaloricke-tabulky-$VERSION" -R JoFSlash/morphe-apks -p "*.apks" -O "$out" 2>/dev/null; then
+            echo "result=missing" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          tools="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          dir="$RUNNER_TEMP/apks"
+          mkdir -p "$dir" && unzip -q -o "$out" '*.apk' -d "$dir"
+          badging=$("$tools/aapt2" dump badging "$dir/base.apk" | head -1)
+          echo "$badging"
+          certs=$("$tools/apksigner" verify --print-certs "$dir/base.apk" 2>/dev/null | grep -i 'certificate SHA-256 digest' || true)
+          if echo "$badging" | grep -qF "name='cz.psc.android.kaloricketabulky'" \
+              && echo "$badging" | grep -qF "versionName='$VERSION'" \
+              && echo "$certs" | grep -qiF "$CERT_SHA256"; then
+            echo "result=ok" >> "$GITHUB_OUTPUT"
+          else
+            echo "result=bad" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build
+        if: steps.apks.outputs.result == 'ok'
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/scripts/gradle-retry.sh :patches:buildAndroid --no-daemon
+
+      - name: Get the Morphe CLI
+        if: steps.apks.outputs.result == 'ok'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download "$(cat .github/morphe-cli-version)" -R MorpheApp/morphe-cli -p 'morphe-desktop-*-all.jar' -O "$RUNNER_TEMP/morphe-cli.jar"
+
+      - name: Enable KVM
+        if: steps.apks.outputs.result == 'ok'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Install the emulator
+        if: steps.apks.outputs.result == 'ok'
+        uses: ./.github/actions/install-emulator
+        with:
+          api-level: '35'
+          channel: 'stable'
+
+      - name: Patch, install and start
+        if: steps.apks.outputs.result == 'ok'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          channel: stable
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          script: python3 .github/scripts/check_kaloricke_tabulky.py "$RUNNER_TEMP/kaloricke-tabulky.apks" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-screen --adb adb > "$RUNNER_TEMP/check.txt" 2>&1 || touch "$RUNNER_TEMP/check.failed"
+
+      - name: Open a pull request or an issue
+        if: always() && steps.apks.outputs.result != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESULT: ${{ steps.apks.outputs.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [ -f "$RUNNER_TEMP/check.txt" ] && cat "$RUNNER_TEMP/check.txt"
+          report=$(tail -n 40 "$RUNNER_TEMP/check.txt" 2>/dev/null || true)
+          why=""
+          if [ "$RESULT" = "ok" ] && [ -f "$RUNNER_TEMP/check.txt" ] && [ ! -f "$RUNNER_TEMP/check.failed" ]; then
+            set +e; python3 .github/scripts/add_kaloricke_tabulky_version.py "$VERSION"; code=$?; set -e
+            if [ $code -eq 3 ]; then echo "$VERSION is already listed."; exit 0; fi
+            if [ $code -ne 0 ]; then
+              why="Every patch applies and the app starts, but listing the version in Constants.kt failed (add_kaloricke_tabulky_version.py exited with $code). Add \`AppTarget(version = \"$VERSION\")\` by hand."
+            else
+              branch="support/kaloricke-tabulky-$VERSION"
+              title="bump: Support Kalorické Tabulky $VERSION"
+              git config user.name "github-actions[bot]"
+              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+              git checkout -b "$branch"
+              git commit -am "$title"
+              body=$(printf '%s\n\n%s\n\n```\n%s\n```\n\n%s\n' \
+                "Kalorické Tabulky $VERSION is in morphe-apks. Every patch applies, and the patched app starts on an emulator and shows its own screen ([run]($RUN_URL))." \
+                "Before merging, sign in on a phone and look at the home screen: the emulator test only starts the app." \
+                "$report" \
+                "Opened by the Kalorické Tabulky version workflow. Checks don't run on pull requests it opens; this run tested it, and the release tests it again.")
+              if git push -f origin "$branch" && gh pr create --base main --head "$branch" --title "$title" --body "$body"; then
+                exit 0
+              fi
+              why="Every patch applies and the app starts, but opening the pull request failed. The change is on the branch \`$branch\` if it was pushed; see the run log."
+            fi
+          fi
+          if [ -z "$why" ]; then
+            case "$RESULT" in
+              missing) why="It isn't in JoFSlash/morphe-apks yet, and it can't be downloaded automatically (the app isn't on APKMirror). Update the app from Google Play on a phone, then add it and run the Kalorické Tabulky version workflow by hand with version $VERSION:
+          \`\`\`
+          adb shell pm path cz.psc.android.kaloricketabulky
+          adb pull <each path>
+          zip -0 kaloricke-tabulky.apks base.apk split_config.*.apk
+          gh release create kaloricke-tabulky-$VERSION -R JoFSlash/morphe-apks --title \"Kalorické Tabulky $VERSION\" kaloricke-tabulky.apks
+          \`\`\`" ;;
+              bad) why="**The APKS in morphe-apks isn't Kalorické Tabulky $VERSION signed by its maker** (wrong package, version or signature). Delete the release \`kaloricke-tabulky-$VERSION\` in JoFSlash/morphe-apks and add the right one: the emulator test would use it." ;;
+              notoken) why="The APKS_TOKEN secret isn't set, so the APKS couldn't be read from morphe-apks." ;;
+              *) why="Patching or starting the app failed. Fix the patches that no longer apply, then run the workflow by hand with version $VERSION:
+          \`\`\`
+          $report
+          \`\`\`" ;;
+            esac
+          fi
+          title="Kalorické Tabulky $VERSION is out"
+          body=$(printf '%s\n\n%s\n\n%s\n' \
+            "Kalorické Tabulky $VERSION is on [Google Play](https://play.google.com/store/apps/details?id=cz.psc.android.kaloricketabulky). This bundle supports $SUPPORTED." \
+            "$why" \
+            "[Workflow run]($RUN_URL)")
+          existing=$(gh issue list --state open --search "\"$title\" in:title" --json number,title --jq ".[] | select(.title == \"$title\") | .number" | head -1)
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --label enhancement --body "$body"
+          fi
