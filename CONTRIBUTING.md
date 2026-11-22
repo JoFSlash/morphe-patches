@@ -7,6 +7,8 @@ Thanks for helping. Each app is patched differently, so each has its own guide:
   framework calls.
 - Booking.com: a Compose app whose search results and home screen come from Booking.com's servers; see
   [Patches in detail](docs/booking/patches.md) for how each patch works.
+  `python .github/scripts/check_booking.py <apkm> --cli <morphe-cli.jar> --install --expect-screen` patches
+  an APKM with every Booking.com patch and starts it on a phone or emulator, as the emulator test does.
 
 Please follow the [code of conduct](CODE_OF_CONDUCT.md), and report security problems privately as described in
 [SECURITY.md](SECURITY.md).
