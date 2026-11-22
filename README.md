@@ -5,8 +5,9 @@
 [![License](https://img.shields.io/github/license/JoFSlash/booking-patches)](LICENSE)
 
 Patches for the [Booking.com](https://play.google.com/store/apps/details?id=com.booking) Android app, applied with
-[Morphe](https://morphe.software). They add a price comparison with the hotel's own website and a price history,
-and they take out the pressure: scarcity messages, sponsored results, start-up promotions and tracking.
+[Morphe](https://morphe.software). They add a price comparison with the hotel's own website, a price history with a
+daily price watch, a check of crossed-out "discounts", a recent rating and a scan of reviews for warning signs, and
+they take out the pressure: scarcity messages, sponsored results, upsells, start-up promotions, nags and tracking.
 
 Works with Booking.com <!-- VERSIONS_START -->71.1<!-- VERSIONS_END --> on Android 8 or newer. No root needed.
 All patches but Hide insurance offers are on by default; you can switch any of them on or off when you patch.
@@ -145,7 +146,8 @@ the background.
 All the code is in this repository, and the patch files in the releases are built from it by GitHub Actions. The
 privacy patch only stops the app from sending things. The one feature that reaches another site is **Compare
 prices**: when you open its Official site tab it loads Google Hotels, as a browser would. **Recent rating** asks
-Booking.com for a hotel's newest reviews, the same request the app makes when you open the reviews. Found a security problem?
+Booking.com for a hotel's newest reviews, the same request the app makes when you open the reviews. **Price watch**
+asks Booking.com once a day for the price of each stay you chose to watch, the same request the hotel's page makes. Found a security problem?
 See [SECURITY.md](SECURITY.md) for how to report it privately.
 
 ## Known issues
