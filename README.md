@@ -10,10 +10,12 @@ Patches for the [Booking.com](https://play.google.com/store/apps/details?id=com.
 - compare the Booking.com price with the hotel's own website, through Google Hotels;
 - watch chosen stays once a day for price drops, with a chart of the prices found;
 - check crossed-out "original" prices against the prices you saw before;
-- show a hotel's rating from the last 6 months and scan its reviews for warning signs;
+- show a hotel's rating from the last 6 months, open its reviews newest first and scan them for warning signs;
+- add the price per night to search results and keep the sort you picked (e.g. lowest price) for new searches;
 - show the hotel's phone, email and address, and label Preferred properties that pay Booking.com more;
-- take out the pressure: scarcity messages, sponsored results, upsells, start-up promotions and nags;
-- block analytics and marketing trackers.
+- take out the pressure: scarcity messages, sponsored results, upsells, home screen offers, start-up promotions and
+  nags;
+- block analytics and marketing trackers, and open links to other sites in your browser.
 
 Works with Booking.com <!-- VERSIONS_START -->71.1<!-- VERSIONS_END --> on Android 8 or newer. No root needed.
 All patches but Hide insurance offers and Stays only are on by default; you can switch any of them on or off when you
@@ -64,7 +66,8 @@ patch.
 
 ## Updating
 
-- **New patches:** patch the same Booking.com file again and install it over the patched app. No need to uninstall.
+- **New patches:** patch the same Booking.com file again and install it over the patched app. No need to uninstall,
+  and your watched prices and saved prices stay. Uninstalling or clearing the app's data deletes them.
 - **New Booking.com version:** the patched app doesn't update from the Play Store. Wait until a release of these
   patches lists the new version as supported, then patch that version the same way. Booking.com puts out a new
   version most weeks; a patch set made for one version usually still applies to the next, but isn't guaranteed to.
