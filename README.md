@@ -1,8 +1,8 @@
 # Booking.com patches for Morphe
 
-[![Latest release](https://img.shields.io/github/v/release/JoFSlash/booking-patches?label=release)](https://github.com/JoFSlash/booking-patches/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/JoFSlash/booking-patches/total)](https://github.com/JoFSlash/booking-patches/releases)
-[![License](https://img.shields.io/github/license/JoFSlash/booking-patches)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/JoFSlash/booking-patches?label=release&cacheSeconds=3600)](https://github.com/JoFSlash/booking-patches/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/JoFSlash/booking-patches/total?cacheSeconds=3600)](https://github.com/JoFSlash/booking-patches/releases)
+[![License](https://img.shields.io/github/license/JoFSlash/booking-patches?cacheSeconds=3600)](LICENSE)
 
 Patches for the [Booking.com](https://play.google.com/store/apps/details?id=com.booking) Android app, applied with
 [Morphe](https://morphe.software). They:
