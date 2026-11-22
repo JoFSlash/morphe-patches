@@ -509,7 +509,7 @@ public final class RecentRating {
 
     private static SharedPreferences prefs() {
         Context c = appContext;
-        if (c == null) c = appContext = PriceHistory.currentApplication();
+        if (c == null) c = appContext = PriceRecorder.currentApplication();
         return c == null ? null : c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 

@@ -104,7 +104,7 @@ public final class RememberSort {
     }
 
     private static SharedPreferences prefs() {
-        Context c = PriceHistory.currentApplication();
+        Context c = PriceRecorder.currentApplication();
         return c == null ? null : c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 }
