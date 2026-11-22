@@ -27,6 +27,8 @@ public final class SabaJsonFilter {
     private static final String NATIVE_AD_PREFIX = "abu.nativead.";
     /** Sponsored brand carousel actions, such as "sponsoredlistings.SponsoredBrandsCarouselImpression". */
     private static final String SPONSORED_PREFIX = "sponsoredlistings.";
+    /** Google display ads (AdMob), the "nativedisplayad.NativeDisplayAd" component. */
+    private static final String DISPLAY_AD_PREFIX = "nativedisplayad.";
     /** Lists whose items are search results; their next pages are lists too. */
     private static final String VERTICAL_LIST = "core.VerticalList";
     private static final String TEMPLATED_VERTICAL_LIST = "core.TemplatedVerticalList";
@@ -105,7 +107,8 @@ public final class SabaJsonFilter {
     public static String filter(String json) {
         try {
             if (json == null) return null;
-            boolean sponsored = hideSponsored() && (json.contains(NATIVE_AD_PREFIX) || json.contains(SPONSORED_PREFIX));
+            boolean sponsored = hideSponsored() && (json.contains(NATIVE_AD_PREFIX)
+                    || json.contains(SPONSORED_PREFIX) || json.contains(DISPLAY_AD_PREFIX));
             boolean urgency = hideUrgency() && json.contains(URGENCY_COLOR);
             boolean preferred = labelPreferred() && (json.contains(PREFERRED_ICON)
                     || json.contains(PREFERRED_PLUS_ICON) || json.contains(A11Y_PREFERRED)
@@ -216,7 +219,8 @@ public final class SabaJsonFilter {
         if (node instanceof JSONObject) {
             JSONObject object = (JSONObject) node;
             String type = object.optString("type");
-            if (type.startsWith(NATIVE_AD_PREFIX) || type.startsWith(SPONSORED_PREFIX)) return true;
+            if (type.startsWith(NATIVE_AD_PREFIX) || type.startsWith(SPONSORED_PREFIX)
+                    || type.startsWith(DISPLAY_AD_PREFIX)) return true;
             Iterator<String> keys = object.keys();
             while (keys.hasNext()) {
                 if (hasAdAction(object.opt(keys.next()))) return true;
