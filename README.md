@@ -5,9 +5,15 @@
 [![License](https://img.shields.io/github/license/JoFSlash/booking-patches)](LICENSE)
 
 Patches for the [Booking.com](https://play.google.com/store/apps/details?id=com.booking) Android app, applied with
-[Morphe](https://morphe.software). They add a price comparison with the hotel's own website, a price history with a
-daily price watch, a check of crossed-out "discounts", a recent rating and a scan of reviews for warning signs, and
-they take out the pressure: scarcity messages, sponsored results, upsells, start-up promotions, nags and tracking.
+[Morphe](https://morphe.software). They:
+
+- compare the Booking.com price with the hotel's own website, through Google Hotels;
+- save the prices you see into a price history, and watch chosen stays once a day for price drops;
+- check crossed-out "original" prices against the prices you saw before;
+- show a hotel's rating from the last 6 months and scan its reviews for warning signs;
+- show the hotel's phone, email and address, and label Preferred properties that pay Booking.com more;
+- take out the pressure: scarcity messages, sponsored results, upsells, start-up promotions and nags;
+- block analytics and marketing trackers.
 
 Works with Booking.com <!-- VERSIONS_START -->71.1<!-- VERSIONS_END --> on Android 8 or newer. No root needed.
 All patches but Hide insurance offers are on by default; you can switch any of them on or off when you patch.
@@ -17,6 +23,26 @@ All patches but Hide insurance offers are on by default; you can switch any of t
 > through, and Google sign-in worked through microG-RE — but that's one test, not a guarantee. Facebook sign-in
 > doesn't work. **Use a throwaway account, not your main one, and don't rely on it for an important booking yet.**
 > See [Account and booking](#account-and-booking).
+
+## Screenshots
+
+<!-- TODO: price history screenshot -->
+<table>
+  <tr valign="top">
+    <td><img src="docs/screenshots/official-site.png" width="200" alt="Official site tab: the hotel's own website is 62 euros cheaper than Booking.com"></td>
+    <td><img src="docs/screenshots/review-check.png" width="200" alt="Review check banner: 3 of 25 recent reviews mention extra charges or booking problems"></td>
+    <td><img src="docs/screenshots/crossed-out-check.png" width="200" alt="Hotel page: the crossed-out 79 euro price is the price without the Genius discount, a real discount"></td>
+    <td><img src="docs/screenshots/preferred-label.png" width="200" alt="Search result with the Preferred badge labelled 'Pays Booking higher commission'"></td>
+    <td><img src="docs/screenshots/contact.png" width="200" alt="Contact tab with the hotel's address, phone, email and company details"></td>
+  </tr>
+  <tr>
+    <td align="center">Compare prices</td>
+    <td align="center">Review check</td>
+    <td align="center">Crossed-out price check</td>
+    <td align="center">Preferred label</td>
+    <td align="center">Hotel contact</td>
+  </tr>
+</table>
 
 ## Install
 
@@ -49,11 +75,11 @@ Added features. They show you more; they don't change what you book.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
-| Compare prices | on | Adds a **Compare prices** button to a hotel's page. It opens one panel. The **Official site** tab loads Google Hotels for that hotel, your dates and guests inside the app, reads the price from the hotel's own website and puts it next to the Booking.com price, with a link to book there. Prices load for your own region and currency. When Google rates the price against the hotel's usual prices ("great deal, 32% less than usual"), that line shows too; Google rarely shows it in the EU, so a **Check Google's deal rating (US data)** link reads it from the US version of the page on request, without changing the prices shown. |
-| Price history | on | Saves the prices the app shows you (at most 5000, the same price only once per 6 hours) and shows them for your dates as a chart, with the lowest, highest and current price and a check of crossed-out "original" prices. A second chart shows the hotel over the past year across all stay dates (the lowest price per night each day). **1M / 6M / 1Y / All** buttons pick the period. The history starts when the patch is installed; prices from before that can't be fetched, because no site publishes past hotel prices. |
-| Price watch | on | Adds a **Watch this price** button to the **Price history** tab. Once a day, on Wi-Fi and with the battery not low, the app asks Booking.com for the price of each stay you watch (hotel, dates, adults and rooms; at most 20), with the same request the hotel's page makes, saves it into the price history and shows a **Price drops** notification when it fell by more than 1%; tap it to open the hotel for those dates. The tab lists every watched stay with its last price; a watch ends by itself on the check-in day. Nothing is checked until you watch a stay. Needs **Price history**. |
-| Check crossed-out prices | on | When a hotel's page shows a crossed-out "original" price, a line under the price compares it with the prices saved on your phone in the last 30 days for the same dates, guests, rooms and currency: "Crossed-out € 79: you only saw € 58–62 for these dates since 3 Nov (6 prices)", in red, or "you saw € 79 for these dates on 5 Nov" when it was the real price before. It adds when the price was crossed out on nearly every check, which means the "discount" is the normal price. With fewer than 3 saved prices, or all from one day, it says there aren't enough yet instead of judging. A Genius or app-only discount is a real discount for you, so then it says just that. It saves prices like Price history (the two share the same history), also when Price history is off. It compares the hotel's headline price (the cheapest room, which the page shows); prices of single rooms on the room list aren't saved or checked. |
-| Show full price up front | on | Shows the total price with the taxes and charges Booking.com otherwise adds on top (such as a city tax or cleaning fee paid at the property): in search results, on the map (markers and cards), on the property page and in the room list. Instead of "€ 60" and "+ € 12 taxes and charges" you see "€ 72" and "Total, incl. € 12 taxes and charges"; a crossed-out price gets the same charges added, so the discount stays the same. Uses the amounts Booking.com already sends with each price, no extra requests. When you search from the EU, Booking.com already includes them in every price we checked ("Includes taxes and charges", also for US hotels), so there the patch changes nothing. Charges Booking.com can't work out in advance ("Additional charges may apply") still can't be added. The booking form is left as it is. |
+| [Compare prices](docs/patches.md#compare-prices) | on | Puts the price on the hotel's own website (from Google Hotels) next to the Booking.com price, with a link to book there. |
+| [Price history](docs/patches.md#price-history) | on | Saves the prices you see on your phone and charts them for your dates and for the hotel over the past year. |
+| [Price watch](docs/patches.md#price-watch) | on | Checks the price of stays you watch once a day and notifies you when it drops. Needs Price history. |
+| [Check crossed-out prices](docs/patches.md#check-crossed-out-prices) | on | Says whether a crossed-out "original" price matches what you actually saw for those dates before. |
+| [Show full price up front](docs/patches.md#show-full-price-up-front) | on | Shows the total with taxes and charges Booking.com adds on top. Changes nothing when you search from the EU. |
 
 </details>
 
@@ -64,12 +90,12 @@ What the search results show.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
-| Hide urgency messages | on | Hides scarcity and pressure lines on hotel pages and in search results, such as "We have 1 left at this price", "Rare find", "booked N times" and "in high demand". Keeps the real information: the price, free cancellation and whether a hotel is sold out. |
-| Hide sponsored listings | on | Removes sponsored ("Ad") properties from the results list and sponsored markers from the map, so you see only the ranked results. |
-| Label Preferred properties | on | Keeps the thumbs-up "Preferred" and "Preferred Plus" badges but adds "Pays Booking higher commission" next to them, in the results list and on the hotel's page. Booking.com gives the badge to properties in its Preferred Partner Programme, which pay it a higher commission; it isn't a quality rating. Screen readers hear the same. |
-| Review check | on | On a hotel's reviews screen, scans the reviews the app has loaded for red flags: extra charges and hidden fees, paying outside Booking.com, "not as described", bookings not honoured, and scams or money taken. A banner above the booking button says how many reviews mention them ("3 of 25 recent reviews mention extra charges or booking problems"), in red when guests report a possible scam; tap it to read those reviews. It's keyword matching on your phone, a heads-up and not a verdict: not AI, not fake-review detection. Keywords cover English, Slovak, Czech, German, Polish, Hungarian, Italian, French and Spanish (with or without accents); reviews in other languages may be missed. |
-| Recent rating | on | Under a hotel's name and address, shows the average score of its reviews from the last 6 months, "Last 6 months: 6.1 from 42 reviews · overall 8.5", in red when it's 0.5 or more below the overall score; the same line shows on the reviews screen above the Review check banner. Booking.com sends no recent score, so the patch loads the newest 50 reviews once per hotel while the app runs, through the app's own request for reviews (when the reviews screen is already sorted newest first, it uses those). When the 50 newest are all from the last 6 months, it says "Latest 50 reviews (since 3 Nov): 8.4" instead. It's hidden under 10 recent reviews and leaves out reviews from guests who didn't stay. Busy hotels get 50 reviews in a few weeks, so the line often covers less than 6 months. |
-| Hotel contact | on | Adds a **Contact** button above **Compare prices** on a hotel's page (a **Contact** tab in the same panel). It shows the address with **Open in Maps** (a pin at the hotel in your maps app) and **Copy address**, and the phone number, email, company name, business address and registration that the hotel gives Booking.com for EU consumer law. Tap the phone number to dial it, or the email to write with the hotel's name as the subject; long-press any detail to copy it. The app already receives these details but hides them under Legal information. For chains they can be the head office (an Ibis gives Accor's), and private hosts and hotels outside the EU and a few other countries don't have them. |
+| [Hide urgency messages](docs/patches.md#hide-urgency-messages) | on | Hides scarcity and pressure lines such as "We have 1 left at this price" and "in high demand". |
+| [Hide sponsored listings](docs/patches.md#hide-sponsored-listings) | on | Removes sponsored ("Ad") properties from the results list and the map; in testing, about 2–3 per city on page 1. |
+| [Label Preferred properties](docs/patches.md#label-preferred-properties) | on | Adds "Pays Booking higher commission" next to the Preferred and Preferred Plus badges. |
+| [Review check](docs/patches.md#review-check) | on | Scans a hotel's loaded reviews for extra charges, scams and other red flags and says how many mention them. |
+| [Recent rating](docs/patches.md#recent-rating) | on | Shows a hotel's average score from the last 6 months next to its overall score. |
+| [Hotel contact](docs/patches.md#hotel-contact) | on | Adds a Contact tab with the hotel's address, phone, email and company details. |
 
 </details>
 
@@ -80,13 +106,13 @@ The app around the search.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
-| Disable start-up promotions | on | Stops the promotional sheets the app shows on start, such as the "Black Friday Deals" sheet and the app's own Genius sign-in, wallet and credit-card prompts, and the full-screen sign-in page on the first start. You can still sign in from My account, or when booking or saving. The cookie dialog and Android's notification prompt are left alone. |
-| Hide upsells | on | Hides marketing that sells you something besides your stay: Booking.com's promotional areas on the hotel page, in the booking form, on the confirmation and in My account; offers to add a taxi, car rental, flight or attraction ("Plan ahead", "Add to your stay") on the hotel, room and cancellation pages, in the booking form, after booking and in your booking details; the Booking.com credit card banners and sign-up sheet; the Genius VIP price-match banner on hotel pages, the "book 1 more stay to reach Genius Level 2" nudge in the room list and the "Year in travel" sheet. Prices, Genius discounts and badges, and rewards you have earned stay. Insurance is the next patch. |
-| Hide insurance offers | off | Hides the offers to add room cancellation or travel insurance in the booking form, and its extra "Protect your trip" page. Off by default, because some people want insurance: turn it on if you never do. It only hides the offers: insurance you have added still shows, with its price and the option to remove it, and nothing is added or removed for you. |
-| Disable update and rating prompts | on | Stops the "update available" and "this version is no longer supported" prompts, which you can't act on in a patched app (it doesn't update from the Play Store), and the Google Play "rate this app" card after a booking. |
-| Allow screenshots | on | Lets you take screenshots and record the screen on booking and payment screens, which the app normally blocks (they come out black). Bank verification (3-D Secure) screens still block them. |
-| Follow system theme | on | Makes the app light or dark to match your phone. Booking.com has a dark theme built in (**My account > Settings > Theme**), but it starts on Light; this makes it start on **System** instead. A theme you pick there yourself still wins. |
-| GmsCore support | on | Makes "Continue with Google" work through [MicroG-RE](https://github.com/MorpheApp/MicroG-RE) instead of Google Play services, which won't sign in an app it didn't sign. Needs MicroG-RE installed with your Google account added; without it the app says so once and Google sign-in won't work. Email sign-in works either way. Push notifications stay off in the patched app. With MicroG-RE the app's maps are MicroG's (MapLibre, not Google's own tiles); the patch also works around a MicroG bug that crashed the app when a map opened or switched between the default and satellite view. |
+| [Disable start-up promotions](docs/patches.md#disable-start-up-promotions) | on | Stops the promotional and sign-in sheets the app shows on start. |
+| [Hide upsells](docs/patches.md#hide-upsells) | on | Hides offers for taxis, cars, flights, attractions and credit cards, and Genius nudges. |
+| [Hide insurance offers](docs/patches.md#hide-insurance-offers) | off | Hides the cancellation and travel insurance offers in the booking form. |
+| [Disable update and rating prompts](docs/patches.md#disable-update-and-rating-prompts) | on | Stops the update prompts, which a patched app can't act on, and the "rate this app" card. |
+| [Allow screenshots](docs/patches.md#allow-screenshots) | on | Lets you take screenshots on booking and payment screens. |
+| [Follow system theme](docs/patches.md#follow-system-theme) | on | Makes the app light or dark to match your phone. |
+| [GmsCore support](docs/patches.md#gmscore-support) | on | Makes "Continue with Google" work through MicroG-RE. |
 
 </details>
 
@@ -97,7 +123,7 @@ On by default. Stops data collection; changes nothing you see.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
-| Block tracking | on | Turns off low-risk analytics and marketing: AppsFlyer, Embrace, Booking.com's own c360 and Squeaks analytics, and the ID5 ad-identity service, and removes the advertising-ID and Android AdServices permissions. It leaves anti-fraud (ThreatMetrix, FingerprintJS), sign-in and payment untouched, so they keep working. |
+| [Block tracking](docs/patches.md#block-tracking) | on | Turns off analytics and marketing trackers; leaves anti-fraud, sign-in and payment alone. |
 
 </details>
 <!-- PATCHES_END -->
@@ -129,8 +155,9 @@ services. Use email, or Google through MicroG-RE (the **GmsCore support** patch,
 3. In the patched Booking.com app, tap **Continue with Google**: the MicroG account picker appears and sign-in
    completes. Without MicroG-RE the app says so once, and Google sign-in won't work.
 
-Push notifications don't work in the patched app (the Google key only accepts the original app), and these patches
-don't try to fix that.
+Booking.com's push messages don't work in the patched app (the Google key only accepts the original app), and these
+patches don't try to fix that. Notifications the app makes on the phone itself still work: **Price watch** shows its
+**Price drops** notification without push.
 
 **Can my Booking.com account get banned for this?**
 Unknown — this isn't released or widely used. The patches change what the app shows and what it sends for
@@ -174,7 +201,17 @@ See [SECURITY.md](SECURITY.md) for how to report it privately.
 - **Maps look different with MicroG-RE.** With MicroG-RE installed, the search results and property maps are drawn
   by MicroG (MapLibre, with a MapLibre logo) instead of Google Maps, so streets and places look a little different.
   Prices, markers and the satellite view work.
-- **Sign-in and payment are untested** in a patched app. See the FAQ above.
+- **Sign-in and payment were tested once**, on a throwaway account: email sign-in, Google sign-in through MicroG-RE
+  and a free-cancellation booking worked. That's one test, not a guarantee. See
+  [Can I sign in and book with the patched app?](#account-and-booking)
+- **Added texts are English only.** Buttons, tabs and lines the patches add stay in English, also when the app is
+  set to another language.
+- **Block tracking doesn't block everything.** Firebase Installations and Firebase logging still reach the network,
+  and Facebook profile pictures (graph.facebook.com) load on reviews.
+- **Hide insurance offers is unverified.** The test account was never offered insurance, so the patch couldn't be
+  checked in the app.
+- **Show full price up front does nothing from the EU.** Booking.com already includes taxes and charges in prices
+  there; the patch only changes prices that leave them out.
 
 Something else wrong? [Open an issue](https://github.com/JoFSlash/booking-patches/issues/new/choose).
 
