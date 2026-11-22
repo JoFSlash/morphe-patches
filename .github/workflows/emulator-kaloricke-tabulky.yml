@@ -22,6 +22,7 @@ on:
   pull_request:
     paths:
       - 'patches/src/main/kotlin/app/jofslash/patches/kaloricketabulky/**'
+      - 'extensions/kaloricketabulky/**'
       - '.github/workflows/emulator-kaloricke-tabulky.yml'
       - '.github/scripts/check_kaloricke_tabulky.py'
       - '.github/actions/install-emulator/**'

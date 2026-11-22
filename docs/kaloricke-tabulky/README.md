@@ -17,6 +17,7 @@ needed.
   pop-ups sent to the app.
 - **Less tracking:** no Firebase or Google Analytics, Crashlytics, Facebook app events or Kochava, and no
   advertising ID.
+- **Sign in with Google without Google Play services:** through MicroG-RE, or sign in with your email.
 - **Your choice:** hide the Premium buttons, the home screen banner or the device pairing pop-up, and take away
   location access.
 
@@ -25,27 +26,33 @@ patches don't change what your subscription gives you.
 
 ## Before you install
 
-- **Sign in with your email and password.** Signing in or registering with Google or Facebook doesn't work in the
-  patched app, because Google and Facebook only sign in the app signed by its maker. If you registered with
-  Google or Facebook and never set a password, try the password reset on the sign-in screen with your account's
-  email first.
-- **Google Fit and Samsung Health may not sync,** for the same reason. Health Connect isn't tied to the
-  signature and should work. Your diary is stored in your account, so it's all there after you sign in.
+- **Signing in with Google needs MicroG-RE.** Google only signs in the app signed by its maker, so the patched
+  app signs in through [MicroG-RE](https://github.com/MorpheApp/MicroG-RE/releases) instead of Google Play
+  services (keep **GmsCore support** on). Install it and add your Google account to it (MicroG-RE settings >
+  Accounts). Push notifications come through MicroG-RE too. Without it, sign in with your email and password.
+- **Signing in with Facebook doesn't work,** because Facebook too only signs in the app signed by its maker. If you
+  registered with Facebook and never set a password, try the password reset on the sign-in screen with your
+  account's email.
+- **Google Fit doesn't sync** (MicroG-RE doesn't implement Google Fit's data), and **Samsung Health may not**,
+  as it also checks the app's signature. Health Connect isn't tied to the signature and should work. Your diary is
+  stored in your account, so it's all there after you sign in.
 - **The patched app replaces the Play Store version.** It is signed with a different key, so uninstall the Play
   Store version first. Your diary stays in your account.
 
 ## Install
 
-1. Install Morphe Manager from [morphe.software](https://morphe.software).
-2. Add this repository as a patch source: open
+1. To sign in with Google, install [MicroG-RE](https://github.com/MorpheApp/MicroG-RE/releases) and add your
+   Google account to it (MicroG-RE settings > Accounts).
+2. Install Morphe Manager from [morphe.software](https://morphe.software).
+3. Add this repository as a patch source: open
    [this link](https://morphe.software/add-source?github=JoFSlash/morphe-patches) on your phone, or add
    `https://github.com/JoFSlash/morphe-patches` under sources in Morphe Manager.
-3. Get a supported version of Kalorické Tabulky. It isn't on APKMirror: download it as an XAPK from
+4. Get a supported version of Kalorické Tabulky. It isn't on APKMirror: download it as an XAPK from
    [APKPure](https://apkpure.com/kalorick%C3%A9-tabulky/cz.psc.android.kaloricketabulky), or save the split
    APKs of the Play Store version from your phone as an APKS file (for example with SAI). Pick the file in
-   Morphe Manager, then pick the patches you want.
-4. Uninstall the Play Store version.
-5. Tap Install. Android asks you to allow Morphe Manager to install unknown apps. Google Play Protect may then
+   Morphe Manager, then pick the patches you want. Keep **GmsCore support** on to sign in with Google.
+5. Uninstall the Play Store version.
+6. Tap Install. Android asks you to allow Morphe Manager to install unknown apps. Google Play Protect may then
    say it hasn't seen the app before: tap **More details** and **Install without scanning**.
 
 ## Updating
@@ -62,7 +69,7 @@ patches don't change what your subscription gives you.
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.10.0, 10 patches. Supported Kalorické Tabulky versions: 3.14.71.
+Version 1.10.0, 11 patches. Supported Kalorické Tabulky versions: 3.14.71.
 
 <details>
 <summary><b>Ads</b> (1)</summary>
@@ -76,13 +83,14 @@ Ad banners and full-screen ads.
 </details>
 
 <details>
-<summary><b>App</b> (6)</summary>
+<summary><b>App</b> (7)</summary>
 
 Premium offers, prompts and pop-ups.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
 | Disable in-app messages | on | Stops the pop-ups and banners that Kalorické Tabulky sends to the app as marketing campaigns (Firebase In-App Messaging). Push notifications and the app's own messages stay. |
+| GmsCore support | on | Makes signing in with Google and push notifications work through MicroG-RE instead of Google Play services. A patched app can't sign in with Google through Play services, because it is no longer signed by its maker. Needs MicroG-RE installed, with your Google account added to it; without it, signing in with email still works, and the app says once that MicroG-RE is missing. |
 | Hide device pairing pop-up | off | Hides the screen that opens by itself two days after you install the app and asks you to connect a watch, a fitness tracker or another app, when you have none connected yet. You can still connect them in the settings. |
 | Hide home banner | off | Hides the picture banner on the home screen that Kalorické Tabulky fills from its servers, for example with offers and news. |
 | Hide Premium buttons | off | Hides the Premium button in the home screen's top bar and the "Get Premium benefits" button in the add menu (the + button). The Premium offers you open from a Premium feature stay. |
@@ -111,9 +119,14 @@ Trackers and permissions. Apart from the location patch, they change nothing you
 The patches hide what you didn't ask to see on your own phone. They don't touch your subscription or any
 Premium feature, and Premium works as before if you have it.
 
-**Why does signing in with Google or Facebook fail?**
-Both only sign in apps signed by their maker, and a patched app is signed with your own key. Email and password
-work. Support for signing in with Google through MicroG-RE may come later.
+**Why do I need MicroG-RE for Google sign-in?**
+Google Play services only signs in apps signed by their maker. A patched app is signed with your own key, so
+Play services refuses it. MicroG-RE signs the app in with your Google account instead, and tells Google the
+certificate the maker signs the app with. Without it, "Sign in with Google" fails; email still works.
+
+**Why does signing in with Facebook fail?**
+Facebook only signs in the app signed by its maker, and a patched app is signed with your own key. There is no
+MicroG-RE for Facebook. Sign in with Google or with your email and password instead.
 
 **Can the partner offers and praise messages be hidden?**
 The partner offers (benefits, other apps' offers) come from the app's servers, mostly inside screens you open

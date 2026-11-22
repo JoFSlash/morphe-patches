@@ -12,7 +12,7 @@ once in Morphe Manager and pick the app you want to patch. No root needed.
 | [Quora](https://play.google.com/store/apps/details?id=com.quora.android) | Remove ads and tracking, and hide what you don't use: AI answers, Quora+ paywalls, suggestions, counts, old answers. | [Quora patches](docs/quora/README.md) |
 | [Booking.com](https://play.google.com/store/apps/details?id=com.booking) | Compare the price with the hotel's own website, watch prices, check crossed-out prices and reviews, and take out scarcity messages, sponsored results and upsells. | [Booking.com patches](docs/booking/README.md) |
 | [Google Health](https://play.google.com/store/apps/details?id=com.fitbit.FitbitMobile) (Fitbit) | Sign in through MicroG-RE instead of Google Play services, no surveys or nags, a black theme, screenshots on every screen, and a clone next to the official app. | [Google Health patches](docs/google-health/README.md) |
-| [Kalorické Tabulky](https://play.google.com/store/apps/details?id=cz.psc.android.kaloricketabulky) | Remove ads, Premium pop-ups, rating prompts and trackers from the calorie and food diary. | [Kalorické Tabulky patches](docs/kaloricke-tabulky/README.md) |
+| [Kalorické Tabulky](https://play.google.com/store/apps/details?id=cz.psc.android.kaloricketabulky) | Remove ads, Premium pop-ups, rating prompts and trackers from the calorie and food diary, and sign in with Google through MicroG-RE. | [Kalorické Tabulky patches](docs/kaloricke-tabulky/README.md) |
 
 Each app's page lists its patches, the supported app versions and what to know before you install.
 
