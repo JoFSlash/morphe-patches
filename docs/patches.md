@@ -378,5 +378,6 @@ The app asks for these while it runs and copes with a no, so without them it act
 
 Default: off.
 
-Removes the microphone permission. Voice search and voice input in the trip assistant then can't start: tapping the
-microphone acts as if you had refused it. Off by default because it takes away a feature.
+Removes the microphone permission. Voice input in messages (the microphone button when you write to a property)
+then can't start: tapping the microphone acts as if you had refused it. The app has no voice search, so searching is
+unaffected. Off by default because it takes away a feature.

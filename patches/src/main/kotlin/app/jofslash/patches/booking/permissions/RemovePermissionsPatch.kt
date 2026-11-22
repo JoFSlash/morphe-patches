@@ -54,8 +54,8 @@ val removeUnneededPermissionsPatch = resourcePatch(
 @Suppress("unused")
 val removeMicrophoneAccessPatch = resourcePatch(
     name = "Remove microphone access",
-    description = "Removes the microphone permission. Voice search and voice input in the trip assistant " +
-            "stop working.",
+    description = "Removes the microphone permission. Voice input in messages (the microphone button when " +
+            "you write to a property) stops working.",
     default = false
 ) {
     category("Privacy")

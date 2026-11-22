@@ -133,13 +133,13 @@ The app around the search.
 <details>
 <summary><b>Privacy</b> (3)</summary>
 
-Stops data collection; changes nothing you see, except that Remove microphone access turns off voice search.
+Stops data collection; changes nothing you see, except that Remove microphone access turns off voice input in messages.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
 | [Block tracking](docs/patches.md#block-tracking) | on | Turns off analytics, crash reporting and marketing trackers; leaves anti-fraud, sign-in and payment alone. |
 | [Remove unneeded permissions](docs/patches.md#remove-unneeded-permissions) | on | Removes the screen recording detection and calendar permissions. |
-| [Remove microphone access](docs/patches.md#remove-microphone-access) | off | Removes the microphone permission; voice search stops working. |
+| [Remove microphone access](docs/patches.md#remove-microphone-access) | off | Removes the microphone permission; voice input in messages stops working. |
 
 </details>
 <!-- PATCHES_END -->
