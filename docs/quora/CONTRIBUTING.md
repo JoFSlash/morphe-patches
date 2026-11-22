@@ -9,7 +9,7 @@ security problems privately as described in [SECURITY.md](../../SECURITY.md).
 
 The quickest way is **Report a problem** in Patch settings (long-press Home): it copies the app
 details and opens the form. Otherwise open a
-[bug report](https://github.com/JoFSlash/slash-patches/issues/new?template=bug_report.yml) with:
+[bug report](https://github.com/JoFSlash/morphe-patches/issues/new?template=bug_report.yml) with:
 
 - the patch name as Morphe Manager shows it,
 - what you expected and what happened, ideally with a screenshot of the page,

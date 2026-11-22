@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting. Please [search the existing issues](https://github.com/JoFSlash/slash-patches/issues?q=label%3Abug) first, and check the known issues in the app's README ([Quora](https://github.com/JoFSlash/slash-patches/blob/main/docs/quora/README.md), [Booking.com](https://github.com/JoFSlash/slash-patches/blob/main/docs/booking/README.md#known-issues), [Google Health](https://github.com/JoFSlash/slash-patches/blob/main/docs/google-health/README.md)). Don't post your name, email, booking numbers, health data or payment details.
+        Thanks for reporting. Please [search the existing issues](https://github.com/JoFSlash/morphe-patches/issues?q=label%3Abug) first, and check the known issues in the app's README ([Quora](https://github.com/JoFSlash/morphe-patches/blob/main/docs/quora/README.md), [Booking.com](https://github.com/JoFSlash/morphe-patches/blob/main/docs/booking/README.md#known-issues), [Google Health](https://github.com/JoFSlash/morphe-patches/blob/main/docs/google-health/README.md)). Don't post your name, email, booking numbers, health data or payment details.
   - type: dropdown
     id: app
     attributes:

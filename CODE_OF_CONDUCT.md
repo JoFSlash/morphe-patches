@@ -22,6 +22,6 @@ taking part should be able to do that without being put down.
 
 The maintainer may edit, hide or delete comments, lock or close issues, and block accounts that
 don't follow this code. To report something, use **Report content** in the comment's menu on GitHub,
-or for a private matter the [private reporting form](https://github.com/JoFSlash/slash-patches/security/advisories/new).
+or for a private matter the [private reporting form](https://github.com/JoFSlash/morphe-patches/security/advisories/new).
 
 This code applies in the repository's issues, pull requests and anything else posted here.

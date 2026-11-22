@@ -36,7 +36,7 @@ public final class FilterUpdates {
     /** The switch, registered by the Filter updates patch. */
     static final String KEY = "filterUpdates";
 
-    static final String URL = "https://raw.githubusercontent.com/JoFSlash/slash-patches/main/filters/selectors.json";
+    static final String URL = "https://raw.githubusercontent.com/JoFSlash/morphe-patches/main/filters/selectors.json";
 
     /** The file format this version reads; a newer file with another number is left alone. */
     static final int FORMAT = 1;

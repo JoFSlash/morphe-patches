@@ -4,10 +4,10 @@ patches {
     about {
         name = "JoFSlash Patches"
         description = "Patches for Quora, Booking.com and Google Health (Fitbit)"
-        source = "git@github.com:JoFSlash/slash-patches.git"
+        source = "git@github.com:JoFSlash/morphe-patches.git"
         author = "JoFSlash"
-        contact = "https://github.com/JoFSlash/slash-patches/issues"
-        website = "https://github.com/JoFSlash/slash-patches"
+        contact = "https://github.com/JoFSlash/morphe-patches/issues"
+        website = "https://github.com/JoFSlash/morphe-patches"
         license = "GPLv3"
     }
 }

@@ -57,8 +57,8 @@ final class TextsDe {
         m.put("Copies the app details and opens a bug report on GitHub.",
                 "Kopiert die App-Details und öffnet einen Fehlerbericht auf GitHub.");
         m.put("App details copied. Paste them into the report.", "App-Details kopiert. Füge sie in den Bericht ein.");
-        m.put("App details copied. Open github.com/JoFSlash/slash-patches/issues to report.",
-                "App-Details kopiert. Melde das Problem auf github.com/JoFSlash/slash-patches/issues.");
+        m.put("App details copied. Open github.com/JoFSlash/morphe-patches/issues to report.",
+                "App-Details kopiert. Melde das Problem auf github.com/JoFSlash/morphe-patches/issues.");
 
         // History and bookmarks.
         m.put("Nothing yet. Answers, posts and questions you open show up here.",

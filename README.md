@@ -1,8 +1,8 @@
 # JoFSlash patches for Morphe
 
-[![Latest release](https://img.shields.io/github/v/release/JoFSlash/slash-patches?label=release)](https://github.com/JoFSlash/slash-patches/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/JoFSlash/slash-patches/total)](https://github.com/JoFSlash/slash-patches/releases)
-[![License](https://img.shields.io/github/license/JoFSlash/slash-patches)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/JoFSlash/morphe-patches?label=release)](https://github.com/JoFSlash/morphe-patches/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/JoFSlash/morphe-patches/total)](https://github.com/JoFSlash/morphe-patches/releases)
+[![License](https://img.shields.io/github/license/JoFSlash/morphe-patches)](LICENSE)
 
 Patches for Android apps, applied with [Morphe](https://morphe.software). One patch source for all of them: add it
 once in Morphe Manager and pick the app you want to patch. No root needed.
@@ -19,8 +19,8 @@ Each app's page lists its patches, the supported app versions and what to know b
 
 1. Install Morphe Manager from [morphe.software](https://morphe.software).
 2. Add this repository as a patch source: open
-   [this link](https://morphe.software/add-source?github=JoFSlash/slash-patches) on your phone, or add
-   `https://github.com/JoFSlash/slash-patches` under sources in Morphe Manager. The patches are also listed in
+   [this link](https://morphe.software/add-source?github=JoFSlash/morphe-patches) on your phone, or add
+   `https://github.com/JoFSlash/morphe-patches` under sources in Morphe Manager. The patches are also listed in
    the community [Morphe patch index](https://morphe-patches.software/).
 3. Download a supported version of the app as an APKM file from APKMirror (the app's page links the right one),
    pick it in Morphe Manager, then pick the patches you want.

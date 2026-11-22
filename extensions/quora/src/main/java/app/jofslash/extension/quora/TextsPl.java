@@ -57,8 +57,8 @@ final class TextsPl {
         m.put("Copies the app details and opens a bug report on GitHub.",
                 "Kopiuje dane aplikacji i otwiera zgłoszenie błędu na GitHubie.");
         m.put("App details copied. Paste them into the report.", "Skopiowano dane aplikacji. Wklej je do zgłoszenia.");
-        m.put("App details copied. Open github.com/JoFSlash/slash-patches/issues to report.",
-                "Skopiowano dane aplikacji. Zgłoś problem na github.com/JoFSlash/slash-patches/issues.");
+        m.put("App details copied. Open github.com/JoFSlash/morphe-patches/issues to report.",
+                "Skopiowano dane aplikacji. Zgłoś problem na github.com/JoFSlash/morphe-patches/issues.");
 
         // History and bookmarks.
         m.put("Nothing yet. Answers, posts and questions you open show up here.",

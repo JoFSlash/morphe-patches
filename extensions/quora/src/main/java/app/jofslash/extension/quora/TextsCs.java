@@ -57,8 +57,8 @@ final class TextsCs {
         m.put("Copies the app details and opens a bug report on GitHub.",
                 "Zkopíruje údaje o aplikaci a otevře hlášení chyby na GitHubu.");
         m.put("App details copied. Paste them into the report.", "Údaje o aplikaci jsou zkopírované. Vlož je do hlášení.");
-        m.put("App details copied. Open github.com/JoFSlash/slash-patches/issues to report.",
-                "Údaje o aplikaci jsou zkopírované. Problém nahlas na github.com/JoFSlash/slash-patches/issues.");
+        m.put("App details copied. Open github.com/JoFSlash/morphe-patches/issues to report.",
+                "Údaje o aplikaci jsou zkopírované. Problém nahlas na github.com/JoFSlash/morphe-patches/issues.");
 
         // History and bookmarks.
         m.put("Nothing yet. Answers, posts and questions you open show up here.",
