@@ -50,12 +50,17 @@ patch.
 1. Install Morphe Manager from [morphe.software](https://morphe.software).
 2. Add this repository as a patch source: open
    [this link](https://morphe.software/add-source?github=JoFSlash/booking-patches) on your phone, or add
-   `https://github.com/JoFSlash/booking-patches` under sources in Morphe Manager.
+   `https://github.com/JoFSlash/booking-patches` under sources in Morphe Manager. Morphe Manager then downloads
+   the signed patch bundle from this repository's releases and updates it on its own.
 3. Download a supported version of Booking.com as an APKM file from APKMirror:
    [71.1](https://www.apkmirror.com/apk/booking-com-hotel-reservations/booking-com-hotel-reservations/booking-com-hotels-travel-71-1-release/).
-   Pick the file in Morphe Manager, then pick the patches you want.
+   Pick the file in Morphe Manager. It patches with the patches that are on by default. To pick others, such as
+   **Hide insurance offers** or **Stays only**, first turn on Settings > **Expert mode** in Morphe Manager; you
+   then choose the patches before patching.
 4. Uninstall the Play Store version before installing the patched one. It is signed with a different key, so
    Android won't install it over the original. No root needed.
+5. Tap Install. Android asks you to allow Morphe Manager to install unknown apps. Google Play Protect may then
+   say it hasn't seen the app before: tap **More details** and **Install without scanning**.
 
 ## Updating
 
@@ -175,7 +180,8 @@ browser. The patch reads the prices off that page. Nothing is sent anywhere on i
 the background.
 
 **Is it safe?**
-All the code is in this repository, and the patch files in the releases are built from it by GitHub Actions. The
+All the code is in this repository, and the patch files in the releases are built from it and signed by GitHub Actions (see
+[SECURITY.md](SECURITY.md#checking-a-release)). The
 privacy patch only stops the app from sending things. The one feature that reaches another site is **Compare
 prices**: when you open its Official site tab it loads Google Hotels, as a browser would. **Recent rating** asks
 Booking.com for a hotel's newest reviews, the same request the app makes when you open the reviews. **Price watch**

@@ -17,7 +17,7 @@
         }
     ],
     [
-        "@semantic-release/release-notes-generator", {
+        "./.github/scripts/release-notes.mjs", {
         "preset": "conventionalcommits",
         "presetConfig": {
             "types": [
