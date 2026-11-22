@@ -16,6 +16,7 @@ body:
         - Booking.com
         - Google Health (Fitbit)
         - Kalorické Tabulky
+        - Vinted
         - Another app
     validations:
       required: true

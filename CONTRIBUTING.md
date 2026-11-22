@@ -14,6 +14,11 @@ Thanks for helping. Each app is patched differently, so each has its own guide:
   It isn't on APKMirror: `python .github/scripts/check_kaloricke_tabulky.py <app.apks> --cli <morphe-cli.jar>
   --install --expect-screen` patches the split APKs Google Play installs (zipped into an .apks) and starts the
   app, as the emulator test does.
+- Vinted: a Kotlin app whose own classes keep their names (its libraries and many small methods are renamed or
+  inlined), so patches find code by class and method name and fail loudly when it changes. It isn't on
+  APKMirror for us: `python .github/scripts/check_vinted.py <app.xapk> --cli <morphe-cli.jar> --install
+  --expect-screen` patches APKPure's XAPK (or the split APKs zipped into an .apks) and starts the app, as the
+  emulator test does.
 
 Please follow the [code of conduct](CODE_OF_CONDUCT.md), and report security problems privately as described in
 [SECURITY.md](SECURITY.md).
@@ -21,7 +26,7 @@ Please follow the [code of conduct](CODE_OF_CONDUCT.md), and report security pro
 ## Where things are
 
 - `patches/src/main/kotlin/app/jofslash/patches/<app>/`: the patches. `<app>` is `quora`, `booking`,
-  `googlehealth` or `kaloricketabulky`.
+  `googlehealth`, `kaloricketabulky` or `vinted`.
 - `extensions/<app>/`: the code those patches call inside the app. Each app has its own extension, so a patched
   app gets only its own code. A patch loads it with `extendWith("extensions/<app>.mpe")`.
 - `docs/<app>/README.md`: the app's page. The patch tables in it are generated from the patches' descriptions
