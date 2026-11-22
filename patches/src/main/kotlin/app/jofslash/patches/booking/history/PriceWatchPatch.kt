@@ -53,7 +53,7 @@ val priceWatchPatch = bytecodePatch(
     compatibleWith(COMPATIBILITY_BOOKING)
 
     dependsOn(priceWatchResourcePatch)
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/booking.mpe")
 
     execute {
         // The Price watch button and tab; keeps the daily job scheduled while stays are watched.

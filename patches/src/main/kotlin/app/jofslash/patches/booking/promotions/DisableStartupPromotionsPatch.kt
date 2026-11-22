@@ -34,7 +34,7 @@ val disableStartupPromotionsPatch = bytecodePatch(
     category("App")
     compatibleWith(COMPATIBILITY_BOOKING)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/booking.mpe")
 
     execute {
         // Server-driven sheets, such as campaign deals: when a product tab (Stays, Car rentals,

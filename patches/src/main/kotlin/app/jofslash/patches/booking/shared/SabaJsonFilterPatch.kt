@@ -24,7 +24,7 @@ private val INVOKES = setOf(
  * filter does nothing until a patch turns one of its parts on with [enableSabaJsonFilter].
  */
 internal val sabaJsonFilterPatch = bytecodePatch {
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/booking.mpe")
 
     execute {
         // Every page's JSON goes through SabaParser, which reads it with kotlinx Json.decodeFromString.

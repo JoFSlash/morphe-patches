@@ -71,7 +71,7 @@ val hideUpsellsPatch = bytecodePatch(
     category("App")
     compatibleWith(COMPATIBILITY_BOOKING)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/booking.mpe")
     dependsOn(sabaJsonFilterPatch)
 
     execute {

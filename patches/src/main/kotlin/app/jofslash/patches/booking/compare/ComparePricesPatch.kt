@@ -17,7 +17,7 @@ val comparePricesPatch = bytecodePatch(
     category("Prices")
     compatibleWith(COMPATIBILITY_BOOKING)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/booking.mpe")
 
     execute {
         callFromPropertyPageConstructor("$EXTENSION_CLASS->onPropertyPage(Landroid/app/Activity;)V")

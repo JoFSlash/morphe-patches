@@ -36,7 +36,7 @@ val newestReviewsFirstPatch = bytecodePatch(
     category("Search")
     compatibleWith(COMPATIBILITY_BOOKING)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/booking.mpe")
 
     execute {
         // A new reviews screen: the user hasn't picked a sort on it yet.

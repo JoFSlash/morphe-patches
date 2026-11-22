@@ -48,7 +48,7 @@ val reviewCheckPatch = bytecodePatch(
     category("Search")
     compatibleWith(COMPATIBILITY_BOOKING)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/booking.mpe")
 
     execute {
         // Add the banner to the reviews screen, right after its superclass constructor runs.

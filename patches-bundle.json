@@ -1,8 +1,0 @@
-{
-  "created_at": "2026-11-22T12:49:03",
-  "description": "## [1.1.0](https://github.com/JoFSlash/booking-patches/compare/v1.0.0...v1.1.0) (2026-11-22)\n\n### Patches\n\n25 patches for Booking.com 71.1. [Each patch in detail](https://github.com/JoFSlash/booking-patches/blob/main/docs/patches.md).\n\n**New**\n\n- **Remove unneeded permissions** (Privacy): removes the screen recording detection permission, used only by an\n  anti-fraud fingerprinting library, and calendar access, used only to add a booked flight to your calendar. The app\n  acts as if you had said no.\n- **Remove microphone access** (Privacy, *off by default*): removes the microphone permission. Voice input in\n  messages to a property stops working; searching is unaffected.\n\n**Changed**\n\n- **Hide sponsored listings** also removes Google's display ads (AdMob) from search results. Any left elsewhere never\n  load, and Google's ads SDK no longer starts with the app. Booking.com never showed the test account a display ad,\n  so this part couldn't be checked in the app.\n\n### Updating\n\nPatch the same Booking.com version again with this bundle and install it over the old one: you stay signed in and\nyour watched prices are kept. The new Remove unneeded permissions patch is on by default.\n\nThe bundle is signed with this repository's key ([morphe-signing.pub](https://github.com/JoFSlash/booking-patches/blob/main/morphe-signing.pub)).",
-  "download_url": "https://github.com/JoFSlash/booking-patches/releases/download/v1.1.0/patches-1.1.0.mpp",
-  "signature_download_url": "",
-  "version": "1.1.0",
-  "public_key": "LzgmAWnIciiHOYrZqQgZ5MTmPysmRU3XpE7fQZsxNLE="
-}

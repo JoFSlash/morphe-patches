@@ -49,7 +49,7 @@ val recentRatingPatch = bytecodePatch(
     category("Search")
     compatibleWith(COMPATIBILITY_BOOKING)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/booking.mpe")
 
     execute {
         // The reviews screen, for its banner.

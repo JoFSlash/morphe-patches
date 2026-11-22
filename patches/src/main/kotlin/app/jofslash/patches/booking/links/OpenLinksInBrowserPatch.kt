@@ -59,7 +59,7 @@ val openLinksInBrowserPatch = bytecodePatch(
     category("App")
     compatibleWith(COMPATIBILITY_BOOKING)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/booking.mpe")
 
     execute {
         // 1. Where the listed places open a page: WebViewActivity.Companion.getStartIntent(context,

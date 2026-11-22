@@ -29,7 +29,7 @@ val rememberResultSortPatch = bytecodePatch(
     category("Search")
     compatibleWith(COMPATIBILITY_BOOKING)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/booking.mpe")
 
     execute {
         // The remembered sort in place of the reset to "Our top picks".

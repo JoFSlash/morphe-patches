@@ -27,7 +27,7 @@ internal object PropertyCardToDataFingerprint : Fingerprint(
  * on the phone, for Check crossed-out prices.
  */
 internal val priceRecordingPatch = bytecodePatch {
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/booking.mpe")
 
     execute {
         callFromPropertyPageConstructor("$PRICE_RECORDER->onPropertyPageRecord(Landroid/app/Activity;)V")

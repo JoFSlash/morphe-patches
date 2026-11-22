@@ -22,7 +22,7 @@ val staysOnlyPatch = bytecodePatch(
     category("App")
     compatibleWith(COMPATIBILITY_BOOKING)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/booking.mpe")
 
     execute {
         // The home screen draws its row of product tabs, and picks the search box, from this state.
