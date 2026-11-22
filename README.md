@@ -241,8 +241,9 @@ in your name. Still, it's a modified app, so there's no guarantee.
 **Is it safe?**
 All the code is in this repository, and the patch files in the releases are built from it by GitHub Actions.
 The patches don't send anything about you anywhere; the privacy ones only stop the app from sending things.
-Two of them connect somewhere else: **Translate button** sends the text of an answer to Google Translate when you
-tap it, and **Filter updates** (off by default) downloads a short list from this repository on GitHub once a day.
+Three of them connect somewhere else: **Translate button** sends the text of an answer to Google Translate when you
+tap it, **Filter updates** (off by default) downloads a short list from this repository on GitHub once a day, and
+**Update notice** (on by default) reads the newest version number from this repository once a day.
 Found a security problem? See [SECURITY.md](SECURITY.md) for how to report it privately.
 
 **Quora links open in the browser instead of the app.**
