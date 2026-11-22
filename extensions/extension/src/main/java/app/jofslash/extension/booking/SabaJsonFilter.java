@@ -158,9 +158,41 @@ public final class SabaJsonFilter {
         }
         if (ads == 0 || ads == items.length()) return 0;
         for (int i = items.length() - 1; i >= 0; i--) {
-            if (isAd[i]) items.remove(i);
+            if (isAd[i]) {
+                Log.d(TAG, "Removed a sponsored result: " + describe(items.opt(i)));
+                items.remove(i);
+            }
         }
         return ads;
+    }
+
+    /** The first line of a result's screen reader text (the property's name), for the log. */
+    private static String describe(Object node) {
+        String label = firstAccessibilityLabel(node, 0);
+        if (label == null) return "(no name)";
+        int end = label.indexOf('\n');
+        return end > 0 ? label.substring(0, end) : label;
+    }
+
+    private static String firstAccessibilityLabel(Object node, int depth) {
+        if (depth > 40) return null;
+        if (node instanceof JSONObject) {
+            JSONObject object = (JSONObject) node;
+            String label = object.optString("accessibilityLabel", null);
+            if (label != null && !label.isEmpty()) return label;
+            Iterator<String> keys = object.keys();
+            while (keys.hasNext()) {
+                String found = firstAccessibilityLabel(object.opt(keys.next()), depth + 1);
+                if (found != null) return found;
+            }
+        } else if (node instanceof JSONArray) {
+            JSONArray array = (JSONArray) node;
+            for (int i = 0; i < array.length(); i++) {
+                String found = firstAccessibilityLabel(array.opt(i), depth + 1);
+                if (found != null) return found;
+            }
+        }
+        return null;
     }
 
     private static boolean hasAdAction(Object node) {
