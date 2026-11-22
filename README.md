@@ -52,8 +52,9 @@ On the first start after patching, the app offers four presets: **Everything you
 ads, AI answers, promotions or suggestions, but answers and the app look as usual), **For reading** (the clean feed
 with whole answers, more space between lines, no counts or credentials, and bars that hide while you scroll) and
 **Ads and privacy only**.
-A preset only switches patches off or back on; it can't add a patch you didn't pick when patching. You can pick
-another one any time under **More > Presets**.
+A preset only switches patches off or back on; it can't add a patch you didn't pick when patching. It leaves your
+own choices alone: text size, font, tabs, the start tab, Data saver, where links open, vibration and swipes. You
+can pick another one any time under **More > Presets**.
 
 It also keeps your lists, each with a search field and **Copy as text**:
 
