@@ -13,7 +13,7 @@ import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-EXT = ROOT / "extensions/extension/src/main/java/app/jofslash/extension/quora"
+EXT = ROOT / "extensions/quora/src/main/java/app/jofslash/extension/quora"
 STR = r'"((?:[^"\\]|\\.)*)"'
 
 # Texts put together at run time, so they can't be found as one string in the code.

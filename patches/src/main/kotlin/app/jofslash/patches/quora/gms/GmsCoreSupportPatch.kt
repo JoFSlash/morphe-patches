@@ -106,7 +106,7 @@ val gmsCoreSupportPatch = bytecodePatch(
     category("App")
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
     // Push through MicroG-RE also needs a Firebase installation.
     dependsOn(gmsCoreSupportResourcePatch, fixPushNotificationsPatch)
 

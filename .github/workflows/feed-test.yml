@@ -18,7 +18,7 @@ name: Feed test
 #   QUORA_TEST_PASSWORD  its password
 #   QUORA_TEST_COOKIES   a signed-in session of that account (m-b=…; m-b_lax=…; …), used instead of
 #                        signing in: Quora asks every new device for a code sent by email, and each
-#                        run is a new emulator. See CONTRIBUTING.md for how to get it.
+#                        run is a new emulator. See docs/quora/CONTRIBUTING.md for how to get it.
 # Without a session or a password the test is skipped. When Quora clearly asks for more than a
 # password (a captcha or a code) the test is skipped with a warning; any other failure fails it.
 #
@@ -85,7 +85,7 @@ jobs:
       - name: Turn on WebView debugging for this test build
         if: steps.secrets.outputs.skip != 'true'
         run: |
-          file=extensions/extension/src/main/java/app/jofslash/extension/quora/RemoveAdsPatch.java
+          file=extensions/quora/src/main/java/app/jofslash/extension/quora/RemoveAdsPatch.java
           line='    public static void onPageFinished(WebView webView) {'
           grep -qF "$line" "$file" || { echo "::error::onPageFinished not found in RemoveAdsPatch.java"; exit 1; }
           sed -i "s|^$line\$|&\n        WebView.setWebContentsDebuggingEnabled(true); // feed test build only|" "$file"

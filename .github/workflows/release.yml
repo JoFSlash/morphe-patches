@@ -13,8 +13,10 @@ name: Release
 # Nothing new on dev: no pre-release. An urgent fix can be released right away by running this
 # workflow by hand on main (or on dev for a pre-release).
 #
-# Before releasing, the bundle has to pass the emulator test (emulator.yml: every patch applies and
-# the app starts on Android 15, 16 and 17) and the feed test (feed-test.yml: the page patches work
+# Before releasing, the bundle has to pass the emulator tests (emulator.yml for Quora: every patch
+# applies and the app starts on Android 15, 16 and 17; emulator-google-health.yml for Google Health:
+# the same on Android 12L to 17, also for the clone. Booking.com has no emulator test yet) and the
+# feed test (feed-test.yml: the page patches work
 # on the signed-in feed and on an answer). A skipped feed test counts as not passed. When either
 # doesn't pass, nothing is released and the issue "Weekly release stopped" says why; the next
 # release that goes through closes it. When the feed test can't run (for example while its saved
@@ -85,13 +87,14 @@ jobs:
           if ! git merge --ff-only "$tag"; then
             # main has commits dev doesn't (an urgent fix released by hand this week). Both
             # releases rewrote the files semantic-release generates, so conflicts there are
-            # expected: keep main's (the stable release regenerates them; README takes dev's text,
-            # as its generated parts are regenerated too). A conflict anywhere else stops here.
+            # expected: keep main's (the stable release regenerates them; the READMEs in docs/ take
+            # dev's text, as their generated parts are regenerated too). A conflict anywhere else
+            # stops here.
             if ! git merge --no-ff "$tag" -m "chore: Merge $tag into main for the stable release"; then
               for f in $(git diff --name-only --diff-filter=U); do
                 case "$f" in
                   CHANGELOG.md|gradle.properties|patches-bundle.json|patches-list.json) git checkout --ours -- "$f" ;;
-                  README.md) git checkout --theirs -- "$f" ;;
+                  docs/*/README.md) git checkout --theirs -- "$f" ;;
                   *) echo "::error::$tag conflicts with main in $f: merge it into main by hand, then run this workflow on main."; exit 1 ;;
                 esac
                 git add -- "$f"
@@ -129,6 +132,15 @@ jobs:
     uses: ./.github/workflows/emulator.yml
     secrets: inherit
 
+  emulator-google-health:
+    name: Google Health emulator test
+    if: github.event_name != 'schedule'
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/emulator-google-health.yml
+    secrets: inherit
+
   feed:
     name: Feed test
     if: ${{ github.event_name != 'schedule' && !inputs.skip-feed-test }}
@@ -141,10 +153,11 @@ jobs:
 
   release:
     name: Release
-    needs: [emulator, feed]
+    needs: [emulator, emulator-google-health, feed]
     if: >-
       !cancelled()
       && needs.emulator.result == 'success'
+      && needs.emulator-google-health.result == 'success'
       && (needs.feed.outputs.result == 'passed' || (github.event_name == 'workflow_dispatch' && inputs.skip-feed-test))
     permissions:
       contents: write
@@ -230,7 +243,7 @@ jobs:
   # Says on GitHub when a release didn't go out, so a red run on a Monday morning isn't missed.
   report:
     name: Open or close the issue
-    needs: [emulator, feed, release]
+    needs: [emulator, emulator-google-health, feed, release]
     if: ${{ !cancelled() && github.event_name != 'schedule' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
     permissions:
       issues: write
@@ -241,6 +254,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           EMULATOR: ${{ needs.emulator.result }}
+          EMULATOR_GOOGLE_HEALTH: ${{ needs.emulator-google-health.result }}
           FEED: ${{ needs.feed.outputs.result || needs.feed.result }}
           RELEASE: ${{ needs.release.result }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -254,7 +268,9 @@ jobs:
             exit 0
           fi
           if [ "$EMULATOR" != "success" ]; then
-            why="The emulator test didn't pass ($EMULATOR): a patch doesn't apply, or the patched app doesn't start."
+            why="The Quora emulator test didn't pass ($EMULATOR): a patch doesn't apply, or the patched app doesn't start."
+          elif [ "$EMULATOR_GOOGLE_HEALTH" != "success" ]; then
+            why="The Google Health emulator test didn't pass ($EMULATOR_GOOGLE_HEALTH): a patch doesn't apply, or the patched app or the clone doesn't start."
           elif [ "$RELEASE" = "skipped" ]; then
             why="The feed test didn't pass ($FEED). The issue \"Feed test needs attention\" says why."
           else

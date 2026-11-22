@@ -288,7 +288,7 @@ const ANSWER_CHECKS = `(async function(){
 // puppeteer_test_* name (or the start of one, as in [class*="dom_annotate_multifeed_bundle_"]).
 // The ones PageCheck.java uses are on every feed or answer page, so missing one fails the test.
 // The others (ads, suggestions and the like) aren't on every feed: they are only listed.
-const EXTENSION = 'extensions/extension/src/main/java/app/jofslash/extension/quora';
+const EXTENSION = 'extensions/quora/src/main/java/app/jofslash/extension/quora';
 const CLASS_NAME = /(dom_annotate_[A-Za-z0-9_]+|puppeteer_test_[A-Za-z0-9_]+)/g;
 function quoraClasses() {
   const used = new Map();
@@ -365,10 +365,10 @@ async function main() {
   if (state.startsWith('not-signed-in:captcha') || state.startsWith('not-signed-in:verification')) {
     warning(`Quora asked for more than a password (${state.split(':')[1]}), so the feed test is skipped. `
       + 'A new emulator is a new device to Quora: save a signed-in session in the QUORA_TEST_COOKIES secret '
-      + '(see CONTRIBUTING.md) so the test doesn\'t sign in at all.');
+      + '(see docs/quora/CONTRIBUTING.md) so the test doesn\'t sign in at all.');
     report(`skipped: ${session ? 'the saved session in QUORA_TEST_COOKIES no longer works' : 'no saved session'}, `
       + `and Quora asked for a ${state.split(':')[1]} when signing in with the password. `
-      + 'Save a new session in QUORA_TEST_COOKIES (see CONTRIBUTING.md) and run the Feed test by hand.');
+      + 'Save a new session in QUORA_TEST_COOKIES (see docs/quora/CONTRIBUTING.md) and run the Feed test by hand.');
     return 0;
   }
   if (state === 'not-signed-in:email-not-confirmed') {
