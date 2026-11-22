@@ -75,10 +75,11 @@ val hideUpsellsPatch = bytecodePatch(
     dependsOn(sabaJsonFilterPatch)
 
     execute {
-        // Home screen offers. The home screen is a server-driven page; its campaign banners,
-        // "Offers" row and other offer blocks are taken out of its JSON by their tracking ids
-        // (see HomeOffers). The search box, recent searches, Genius, saved properties and your
-        // trips stay.
+        // Home screen offers. The home screen is a server-driven page; the blocks in its
+        // promotional (campaign banner, "Offers" row), AI trip planner and ad areas, and the
+        // "Popular attractions" carousel, are taken out of its JSON by their tracking ids (see
+        // HomeOffers). The search box, recent searches, Genius, saved properties and your trips
+        // stay.
         enableSabaJsonFilter("hideHomeOffers")
         // The AI trip planner card on the home screen: it emits nothing (and fetches nothing).
         methodOf(AI_TRIP_PLANNER_HOME_CARD, "AitpHomescreenEntryPoint").returnEarly()
