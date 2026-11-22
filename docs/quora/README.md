@@ -12,6 +12,21 @@ Works with Quora <!-- VERSIONS_START -->3.2.47 and 3.2.42<!-- VERSIONS_END --> o
 The privacy patches are on by default, and so are some fixes and filters that change little (the tables below show
 which). The rest are off until you pick them.
 
+## Screenshots
+
+<table>
+  <tr valign="top">
+    <td><img src="screenshots/settings.png" width="250" alt="Quora patches settings: Remove ads, Block authors and Spaces, Filter keywords, Hide AI answers, Hide counts and more, each with a switch"></td>
+    <td><img src="screenshots/settings-reading.png" width="250" alt="More settings: Hide seen items, Hide Spaces posts and suggestions, Hide surveys, AMOLED dark mode, Answer font, Comfortable reading"></td>
+  </tr>
+  <tr>
+    <td align="center">Patch settings in Quora</td>
+    <td align="center">Feed and reading options</td>
+  </tr>
+</table>
+
+Long-press the Home tab in the patched app to open these settings.
+
 ## Install
 
 1. Install Morphe Manager from [morphe.software](https://morphe.software).

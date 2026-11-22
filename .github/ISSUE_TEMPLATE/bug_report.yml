@@ -37,7 +37,7 @@ body:
     attributes:
       label: App, patches, Morphe Manager and Android versions
       description: The app's version is the one you patched; the others are shown in Morphe Manager. Add the MicroG-RE version if you use it.
-      placeholder: "Booking.com 71.1, patches 2.0.0, Morphe Manager 1.20.0, Android 15"
+      placeholder: "Booking.com 71.1, patches 1.10.0, Morphe Manager 2.6.0, Android 15"
     validations:
       required: true
   - type: input
