@@ -9,9 +9,12 @@ import java.util.List;
  * Used by the Stays only patch. The home screen's row of product tabs (Stays, Flights, Car
  * rental, Taxi, Attractions, Flight + Hotel) is drawn from ProductsHeaderReactor.State, which
  * lists the products to show and the one picked. The patch keeps only Stays in that list; with one
- * product left the app draws no row, and the home screen shows the stays search. Flights, cars,
- * taxis and attractions still open from links and from your bookings, as their screens don't read
- * this list.
+ * product left the app draws no row, and the home screen shows the stays search.
+ *
+ * <p>The app opens on Stays. A link to one of the other products (such as a taxis.booking.com
+ * link) opens the home screen with that product picked: then it stays in the list next to Stays,
+ * so the link works and you can switch back. Once you pick Stays, the row goes again. Flights,
+ * cars and attractions screens and your bookings don't read this list.
  */
 @SuppressWarnings("unused")
 public final class StaysOnly {
@@ -23,17 +26,21 @@ public final class StaysOnly {
     }
 
     /**
-     * Called first in the State constructor with its list of products. Returns the list with
-     * only Stays, or the list as it is when Stays isn't in it.
+     * Called first in the State constructor with its list of products and the picked one. Returns
+     * Stays, and the picked product when it isn't Stays; or the list as it is when Stays isn't
+     * in it.
      */
-    public static List<?> products(List<?> products) {
+    public static List<?> products(List<?> products, Object selected) {
         try {
             if (products == null || products.size() <= 1) return products;
-            List<Object> stays = new ArrayList<>();
+            List<Object> kept = new ArrayList<>();
             for (Object product : products) {
-                if (isStays(product)) stays.add(product);
+                if (isStays(product) || isSame(product, selected)) kept.add(product);
             }
-            return stays.isEmpty() ? products : stays;
+            for (Object product : kept) {
+                if (isStays(product)) return kept;
+            }
+            return products;
         } catch (Throwable t) {
             Log.w(TAG, "Couldn't hide the product tabs", t);
             return products;
@@ -41,20 +48,12 @@ public final class StaysOnly {
     }
 
     /**
-     * Called first in the State constructor with the picked product and the list
-     * {@link #products} returned. When the picked product isn't in it (the app remembers the last
-     * tab you used), Stays is picked instead.
+     * The same product. By class, as a link's product (Taxis carries the country and an
+     * experiment variant) needn't equal the one in the list.
      */
-    public static Object selected(List<?> products, Object selected) {
-        try {
-            if (products == null || selected == null || products.contains(selected)) return selected;
-            for (Object product : products) {
-                if (isStays(product)) return product;
-            }
-            return selected;
-        } catch (Throwable t) {
-            return selected;
-        }
+    private static boolean isSame(Object product, Object selected) {
+        return product != null && selected != null
+                && (product.equals(selected) || product.getClass() == selected.getClass());
     }
 
     private static boolean isStays(Object product) {

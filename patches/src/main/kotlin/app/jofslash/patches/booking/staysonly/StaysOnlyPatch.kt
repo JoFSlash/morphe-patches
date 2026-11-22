@@ -15,8 +15,8 @@ private const val PRODUCT = "Lcom/booking/appindex/productsheader/ProductsHeader
 val staysOnlyPatch = bytecodePatch(
     name = "Stays only",
     description = "Hides the Flights, Car rental, Taxi, Attractions and Flight + Hotel tabs on the home " +
-            "screen, for when you only book places to stay. Links to them and the bookings you have of " +
-            "them still open.",
+            "screen, for when you only book places to stay. A link to one of them shows its tab next to " +
+            "Stays; the bookings you have of them still show.",
     default = false
 ) {
     category("App")
@@ -26,10 +26,10 @@ val staysOnlyPatch = bytecodePatch(
 
     execute {
         // The home screen draws its row of product tabs, and picks the search box, from this state.
-        // Its constructor gets the list of products to show (only Stays is kept; with one product
-        // left the app draws no row) and the picked product (Stays when the one remembered from
-        // before is no longer in the list). The product screens, deep links and My Trips don't
-        // read it.
+        // Its constructor gets the list of products to show and the picked product. Only Stays is
+        // kept, and with one product left the app draws no row. The app opens on Stays; a link to
+        // another product (such as taxis.booking.com) opens with that one picked, and it is kept
+        // next to Stays so the link works. The product screens and My Trips don't read the list.
         val constructors = mutableClassDefBy(PRODUCTS_HEADER_STATE).methods.filter { method ->
             method.name == "<init>" && method.parameterTypes.map { it.toString() }.let {
                 it.size == 3 && it[0] == "Ljava/util/List;" && it[1] == PRODUCT
@@ -42,11 +42,8 @@ val staysOnlyPatch = bytecodePatch(
         constructors.single().addInstructions(
             0,
             """
-                invoke-static { p1 }, $STAYS_ONLY->products(Ljava/util/List;)Ljava/util/List;
+                invoke-static { p1, p2 }, $STAYS_ONLY->products(Ljava/util/List;Ljava/lang/Object;)Ljava/util/List;
                 move-result-object p1
-                invoke-static { p1, p2 }, $STAYS_ONLY->selected(Ljava/util/List;Ljava/lang/Object;)Ljava/lang/Object;
-                move-result-object p2
-                check-cast p2, $PRODUCT
             """
         )
     }

@@ -286,11 +286,12 @@ another site opens, never what Booking.com shows or sends.
 Default: **off**.
 
 Hides the Flights, Car rental, Taxi (airport transfers), Attractions and Flight + Hotel tabs at the top of the home
-screen, for when you only book places to stay. The home screen opens on the stays search, also when you last used
-another tab. Off by default, because it takes away parts of the app.
+screen, for when you only book places to stay (which tabs Booking.com shows depends on your country). The home screen
+opens on the stays search. Off by default, because it takes away parts of the app.
 
-Only the tabs go: links to those products (from an email or a website) still open them, and bookings you have of them
-still show in My Trips and Bookings. Offers for taxis, cars, flights and attractions elsewhere in the app are
+Only the tabs go: a link to one of those products (from an email or a website, such as a taxis.booking.com link) still
+opens it, and then its tab shows next to Stays so you can switch back; pick Stays and the row goes again. Bookings you
+have of them still show in My Trips and Bookings. Offers for taxis, cars, flights and attractions elsewhere in the app are
 [Hide upsells](#hide-upsells).
 
 ## Privacy
