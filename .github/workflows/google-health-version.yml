@@ -135,7 +135,7 @@ jobs:
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :patches:buildAndroid --no-daemon
+        run: bash .github/scripts/gradle-retry.sh :patches:buildAndroid --no-daemon
 
       - name: Get the Morphe CLI
         if: steps.apkm.outputs.result == 'ok'
