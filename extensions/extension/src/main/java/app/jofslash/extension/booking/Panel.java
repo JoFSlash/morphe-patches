@@ -250,6 +250,9 @@ final class Panel {
     }
 
     static String money(double value, String currency) {
+        boolean whole = Math.abs(value - Math.rint(value)) < 0.005 || value >= 10;
+        String app = appMoney(value, currency, whole);
+        if (app != null) return app;
         try {
             NumberFormat f = NumberFormat.getCurrencyInstance(Locale.getDefault());
             if (currency != null && !currency.isEmpty()) f.setCurrency(Currency.getInstance(currency));
@@ -258,6 +261,41 @@ final class Panel {
             return f.format(value);
         } catch (RuntimeException e) {
             return String.format(Locale.getDefault(), "%.0f %s", value, currency == null ? "" : currency);
+        }
+    }
+
+    /**
+     * The price formatted the way the app shows prices (its own currency symbols and language, such
+     * as "854 Kč" or "€ 78"), or null when the app's formatter can't be used. Java's formatter
+     * would give "CZK854" for Czech crowns in an English locale.
+     */
+    private static java.lang.reflect.Method createPrice, formatPrice;
+    private static Object roundedOption, fractionsOption;
+    private static boolean appFormatterMissing;
+
+    private static String appMoney(double value, String currency, boolean whole) {
+        if (currency == null || currency.isEmpty() || appFormatterMissing) return null;
+        try {
+            if (formatPrice == null) {
+                Class<?> simplePrice = Class.forName("com.booking.price.SimplePrice");
+                Class<?> options = Class.forName("com.booking.price.FormattingOptions");
+                createPrice = simplePrice.getMethod("create", String.class, double.class);
+                roundedOption = options.getField("rounded").get(null);
+                fractionsOption = options.getField("fractions").get(null);
+                formatPrice = simplePrice.getMethod("format", options);
+            }
+            Object price = createPrice.invoke(null, currency, value);
+            Object text = formatPrice.invoke(price, whole ? roundedOption : fractionsOption);
+            if (text == null) return null;
+            String s = text.toString().trim();
+            return s.isEmpty() || !s.matches(".*\\d.*") ? null : s;
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            return null;
+        } catch (ReflectiveOperationException | LinkageError e) {
+            appFormatterMissing = true;
+            return null;
+        } catch (Throwable t) {
+            return null;
         }
     }
 
