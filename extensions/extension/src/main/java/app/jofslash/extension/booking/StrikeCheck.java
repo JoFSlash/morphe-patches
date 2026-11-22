@@ -8,7 +8,7 @@ import java.util.Set;
 /**
  * Checks a crossed-out ("original") price against the prices saved on this phone for the same
  * stay: same hotel, dates, adults, rooms and currency. Used by the line under the price on the
- * property page (Check crossed-out prices) and by the Price history tab.
+ * property page (Check crossed-out prices).
  *
  * <p>The saved price is the hotel's headline price, the one the property page shows: the
  * cheapest room for the stay, total for all nights. The crossed-out price on the property page

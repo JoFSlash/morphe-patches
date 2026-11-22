@@ -9,13 +9,13 @@ public final class Strings {
 
     // Property page button
     public static final String BUTTON_COMPARE = "Compare prices";
-    public static final String BUTTON_HISTORY = "Price history";
+    public static final String BUTTON_WATCH = "Price watch";
     public static final String BUTTON_CONTACT = "Contact";
 
     // Panel
     public static final String DIALOG_TITLE = "Compare prices";
     public static final String CLOSE = "Close";
-    public static final String TAB_HISTORY = "Price history";
+    public static final String TAB_WATCH = "Price watch";
     public static final String TAB_OFFICIAL = "Official site";
     public static final String TAB_CONTACT = "Contact";
     public static final String LOADING = "The hotel is still loading. Try again in a moment.";
@@ -26,60 +26,22 @@ public final class Strings {
     public static final String ROOMS_ONE = "1 room";
     public static final String ROOMS_MANY = "%d rooms";
     /** Check-in, check-out, adults, rooms. */
-    public static final String HISTORY_STAY = "%1$s – %2$s · %3$s · %4$s";
+    public static final String STAY = "%1$s – %2$s · %3$s · %4$s";
 
-    // Price history tab
-    public static final String HISTORY_HEADER = "Prices you've seen for these dates";
-    public static final String HISTORY_EMPTY =
-            "No saved prices for these dates yet. Booking.com keeps no price history and older "
-                    + "prices can't be fetched, so the history starts when this patch was installed: "
-                    + "from now on, every price the app shows you is saved on your phone.";
-    public static final String HISTORY_NONE_IN_RANGE = "No prices for these dates in this period.";
-    public static final String HISTORY_NONE = "The dates of this stay aren't known yet.";
-    public static final String HISTORY_NOW = "Now";
-    public static final String HISTORY_LOWEST = "Lowest";
-    public static final String HISTORY_HIGHEST = "Highest";
-    public static final String HISTORY_CHECKS_ONE = "1 price saved, on %1$s";
-    public static final String HISTORY_CHECKS = "%1$d prices saved since %2$s";
+    // Price watch chart (on the Price watch tab)
+    public static final String WATCH_CHART_HEADER = "Prices the watch found";
+    public static final String WATCH_CHART_EMPTY =
+            "No price from the watch yet. The chart starts with the first daily check.";
+    public static final String WATCH_NOW = "Now";
+    public static final String WATCH_LOWEST = "Lowest";
+    public static final String WATCH_HIGHEST = "Highest";
+    public static final String WATCH_CHECKS_ONE = "1 price, on %1$s";
+    public static final String WATCH_CHECKS = "%1$d prices since %2$s";
     /** Label of the dashed line in the chart. */
     public static final String CHART_STRIKE = "Crossed out: %1$s";
-    public static final String HISTORY_FIRST =
-            "This is the first price saved for these dates. Open the hotel again later to see how "
-                    + "it changes.";
-    public static final String HISTORY_OTHER_DATES = "This hotel on other dates";
+    public static final String WATCH_NO_DATES = "The dates of this stay aren't known yet.";
 
-    // Range buttons
-    public static final String RANGE_1M = "1M";
-    public static final String RANGE_6M = "6M";
-    public static final String RANGE_1Y = "1Y";
-    public static final String RANGE_ALL = "All";
-
-    // Hotel chart: every saved price of the hotel, any dates
-    public static final String HOTEL_HEADER = "This hotel over the past year";
-    public static final String HOTEL_EXPLAIN =
-            "All stay dates together, not one stay: the lowest price per night you saw each day, "
-                    + "for any dates and guests. Shows the hotel's general trend and seasons.";
-    public static final String HOTEL_EMPTY =
-            "No prices saved for this hotel in this period. Prices are saved from when this patch "
-                    + "was installed; older ones can't be fetched.";
-    public static final String HOTEL_LOWEST = "Lowest per night";
-    public static final String HOTEL_HIGHEST = "Highest per night";
-    /** Days with a price, different stays. */
-    /** Days with prices, then different stays; each "%s" is the number with its noun. */
-    public static final String HOTEL_COUNT = "%1$s with prices, %2$s";
-    public static final String DAYS_ONE = "1 day";
-    public static final String DAYS_MANY = "%d days";
-    public static final String STAYS_ONE = "1 stay";
-    public static final String STAYS_MANY = "%d different stays";
-    /** Check-in, check-out, price, day it was seen. */
-    public static final String HISTORY_OTHER_ROW = "%1$s – %2$s: %3$s (seen %4$s)";
-    public static final String VERDICT_LOW = "The price is low compared with what you've seen";
-    public static final String VERDICT_TYPICAL = "The price is typical for what you've seen";
-    public static final String VERDICT_HIGH = "The price is high compared with what you've seen";
-    public static final String VERDICT_SAME = "The price hasn't changed";
-    public static final String VERDICT_FEW = "Too few prices yet to say whether this one is low or high";
-
-    // Crossed-out price check (property page line and Price history tab)
+    // Crossed-out price check (property page line)
     /** Crossed-out price, number of prices saved for these dates. */
     public static final String STRIKE_FEW =
             "Crossed-out %1$s: not enough saved prices for these dates yet to check it (%2$d so far)";
@@ -311,13 +273,13 @@ public final class Strings {
                     + REVIEW_LANGUAGES + "; reviews in other languages may be missed.";
     public static final String REVIEW_CLOSE = "Close";
 
-    // Price watch (on the Price history tab)
+    // Price watch tab
     public static final String WATCH_HEADER = "Price watch";
     public static final String WATCH_START = "Watch this price";
     public static final String WATCH_STOP = "Stop watching";
     public static final String WATCH_EXPLAIN =
             "Checks the price for these dates and guests once a day, on Wi-Fi and with the battery not "
-                    + "low, saves it here and notifies you when it drops. It asks Booking.com the way "
+                    + "low, charts it here and notifies you when it drops. It asks Booking.com the way "
                     + "this page does: one request a day for this stay, nothing else is sent.";
     public static final String WATCH_NEEDS_PRICE =
             "The price for these dates isn't known yet. Wait until the page shows it to watch it.";
@@ -326,7 +288,7 @@ public final class Strings {
     public static final String WATCH_FIRST = "Watching. The first check runs within a day, on Wi-Fi.";
     public static final String WATCH_FULL = "You can watch at most %1$d prices. Stop watching one first.";
     public static final String WATCH_NOTIFICATIONS_OFF =
-            "Notifications are off for Booking.com, so you won't hear about a drop. Prices are still saved.";
+            "Notifications are off for Booking.com, so you won't hear about a drop. Prices are still checked.";
     public static final String WATCH_NOTIFICATION_SETTINGS = "Notification settings";
     /** Count, maximum. */
     public static final String WATCH_LIST_HEADER = "Watched prices (%1$d of %2$d)";

@@ -8,7 +8,7 @@ Patches for the [Booking.com](https://play.google.com/store/apps/details?id=com.
 [Morphe](https://morphe.software). They:
 
 - compare the Booking.com price with the hotel's own website, through Google Hotels;
-- save the prices you see into a price history, and watch chosen stays once a day for price drops;
+- watch chosen stays once a day for price drops, with a chart of the prices found;
 - check crossed-out "original" prices against the prices you saw before;
 - show a hotel's rating from the last 6 months and scan its reviews for warning signs;
 - show the hotel's phone, email and address, and label Preferred properties that pay Booking.com more;
@@ -26,7 +26,7 @@ All patches but Hide insurance offers are on by default; you can switch any of t
 
 ## Screenshots
 
-<!-- TODO: price history screenshot -->
+<!-- TODO: price watch chart screenshot -->
 <table>
   <tr valign="top">
     <td><img src="docs/screenshots/official-site.png" width="200" alt="Official site tab: the hotel's own website is 62 euros cheaper than Booking.com"></td>
@@ -66,18 +66,17 @@ All patches but Hide insurance offers are on by default; you can switch any of t
 ## Patches
 
 <!-- PATCHES_START -->
-19 patches, all on by default except Hide insurance offers. Supported Booking.com versions: 71.1.
+18 patches, all on by default except Hide insurance offers. Supported Booking.com versions: 71.1.
 
 <details open>
-<summary><b>Price</b> (5)</summary>
+<summary><b>Price</b> (4)</summary>
 
 Added features. They show you more; they don't change what you book.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
 | [Compare prices](docs/patches.md#compare-prices) | on | Puts the price on the hotel's own website (from Google Hotels) next to the Booking.com price, with a link to book there. |
-| [Price history](docs/patches.md#price-history) | on | Saves the prices you see on your phone and charts them for your dates and for the hotel over the past year. |
-| [Price watch](docs/patches.md#price-watch) | on | Checks the price of stays you watch once a day and notifies you when it drops. Needs Price history. |
+| [Price watch](docs/patches.md#price-watch) | on | Checks the price of stays you watch once a day, charts it and notifies you when it drops. |
 | [Check crossed-out prices](docs/patches.md#check-crossed-out-prices) | on | Says whether a crossed-out "original" price matches what you actually saw for those dates before. |
 | [Show full price up front](docs/patches.md#show-full-price-up-front) | on | Shows the total with taxes and charges Booking.com adds on top. Changes nothing when you search from the EU. |
 
@@ -179,9 +178,10 @@ See [SECURITY.md](SECURITY.md) for how to report it privately.
 
 ## Known issues
 
-- **Price history has no past data.** It starts the day you install the patch and fills as you browse. No site
-  publishes past hotel prices (unlike flights), so there's nothing to back-fill from. Google's "vs usual" rating
-  is the only backward-looking signal, and it comes from Google, not from stored history.
+- **No past prices.** The Price watch chart starts the day you watch a stay, and the crossed-out check only knows
+  the prices you saw since the patch was installed. No site publishes past hotel prices (unlike flights), so
+  there's nothing to back-fill from. Google's "vs usual" rating is the only backward-looking signal, and it comes
+  from Google, not from saved prices.
 - **Price watch sends requests in the background.** Each watched stay costs one request a day to Booking.com, made
   with the app's own connection, sign-in and headers, like opening the hotel's page. That is far less than
   browsing, but it happens while you aren't using the app, and Booking.com could treat unusual background traffic

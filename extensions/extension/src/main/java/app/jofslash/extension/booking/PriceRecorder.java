@@ -10,12 +10,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Used by the Price history patch. Saves every hotel price the app shows: on the property page and
- * on the property cards of the search map.
+ * Used by the Check crossed-out prices patch. Saves every hotel price the app shows: on the
+ * property page and on the property cards of the search map. Also runs the price database's
+ * reads and writes for Price watch.
  */
 @SuppressWarnings("unused")
-public final class PriceHistory {
-    private PriceHistory() {
+public final class PriceRecorder {
+    private PriceRecorder() {
     }
 
     private static final ExecutorService DB_THREAD = Executors.newSingleThreadExecutor();
@@ -29,14 +30,9 @@ public final class PriceHistory {
         }
     };
 
-    /** Called from the property page's constructor by the Price history patch: the button and tab. */
-    public static void onPropertyPage(Activity activity) {
-        PropertyPageButton.attach(activity, false, true, false);
-    }
-
     /**
-     * Called from the property page's constructor by every patch that needs the saved prices
-     * (Price history, Check crossed-out prices): saves the prices the page shows.
+     * Called from the property page's constructor by the patches that need the saved prices
+     * (Check crossed-out prices): saves the prices the page shows.
      */
     public static void onPropertyPageRecord(Activity activity) {
         PropertyPageButton.attachRecorder(activity);
@@ -110,7 +106,7 @@ public final class PriceHistory {
             try {
                 result = loader.load(PriceDb.get(context));
             } catch (Throwable t) {
-                Log.w(HotelInfo.TAG, "Couldn't read the price history", t);
+                Log.w(HotelInfo.TAG, "Couldn't read the saved prices", t);
             }
             final T r = result;
             activity.runOnUiThread(() -> callback.done(r));

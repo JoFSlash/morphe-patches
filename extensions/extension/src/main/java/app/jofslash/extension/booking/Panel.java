@@ -30,7 +30,7 @@ import java.util.Locale;
 
 /**
  * The full-screen panel the property page buttons open. It has a tab for each patch that is on:
- * "Price history" (prices saved on this phone), "Official site" (Google Hotels in a WebView) and
+ * "Price watch" (the stays watched for price drops), "Official site" (Google Hotels in a WebView) and
  * "Contact" (the property's address and contact details).
  */
 final class Panel {
@@ -68,13 +68,13 @@ final class Panel {
     }
 
     /** The tab the panel opens on. */
-    static final int TAB_HISTORY = 0, TAB_OFFICIAL = 1, TAB_CONTACT = 2;
+    static final int TAB_WATCH = 0, TAB_OFFICIAL = 1, TAB_CONTACT = 2;
 
     private final Activity activity;
     private final Colors colors;
     private final HotelInfo hotel;
     private final Stay stay;
-    private final boolean showHistory;
+    private final boolean showWatch;
     private final boolean showOfficial;
     private final boolean showContact;
     private final int firstTab;
@@ -82,13 +82,13 @@ final class Panel {
     private Dialog dialog;
     private OfficialSiteTab officialTab;
 
-    Panel(Activity activity, HotelInfo hotel, Stay stay, boolean showHistory, boolean showOfficial,
+    Panel(Activity activity, HotelInfo hotel, Stay stay, boolean showWatch, boolean showOfficial,
           boolean showContact, int firstTab) {
         this.activity = activity;
         this.colors = Colors.of(activity);
         this.hotel = hotel;
         this.stay = stay;
-        this.showHistory = showHistory;
+        this.showWatch = showWatch;
         this.showOfficial = showOfficial;
         this.showContact = showContact;
         this.firstTab = firstTab;
@@ -119,10 +119,10 @@ final class Panel {
         final java.util.List<Integer> ids = new java.util.ArrayList<>();
         final java.util.List<String> labels = new java.util.ArrayList<>();
         final java.util.List<View> views = new java.util.ArrayList<>();
-        if (showHistory) {
-            ids.add(TAB_HISTORY);
-            labels.add(Strings.TAB_HISTORY);
-            views.add(new HistoryTab(activity, this, colors, hotel, stay).view());
+        if (showWatch) {
+            ids.add(TAB_WATCH);
+            labels.add(Strings.TAB_WATCH);
+            views.add(new WatchTab(activity, this, colors, hotel, stay).view());
         }
         if (showOfficial) {
             officialTab = new OfficialSiteTab(activity, this, colors, hotel, stay);
@@ -233,7 +233,7 @@ final class Panel {
     static String stayText(Stay stay) {
         String adults = stay.adults == 1 ? Strings.ADULTS_ONE : String.format(Locale.getDefault(), Strings.ADULTS_MANY, stay.adults);
         String rooms = stay.rooms == 1 ? Strings.ROOMS_ONE : String.format(Locale.getDefault(), Strings.ROOMS_MANY, stay.rooms);
-        return String.format(Strings.HISTORY_STAY, shortDate(stay.checkIn), shortDate(stay.checkOut), adults, rooms);
+        return String.format(Strings.STAY, shortDate(stay.checkIn), shortDate(stay.checkOut), adults, rooms);
     }
 
     static String shortDate(String isoDate) {

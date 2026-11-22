@@ -6,6 +6,7 @@ import app.jofslash.patches.booking.gms.GmsCoreLists.PERMISSIONS
 import app.jofslash.patches.booking.shared.Constants.COMPATIBILITY_BOOKING
 import app.jofslash.patches.booking.shared.Constants.PACKAGE_NAME
 import app.jofslash.patches.booking.shared.Constants.SIGNATURE
+import app.jofslash.patches.booking.shared.ApplicationOnCreateFingerprint
 import app.jofslash.patches.booking.shared.replaceStrings
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
@@ -38,13 +39,6 @@ internal object GooglePlayServicesAvailableFingerprint : Fingerprint(
     name = "isGooglePlayServicesAvailable",
     returnType = "I",
     parameters = listOf("Landroid/content/Context;", "I"),
-)
-
-internal object ApplicationOnCreateFingerprint : Fingerprint(
-    definingClass = "Lcom/booking/BookingApplication;",
-    name = "onCreate",
-    returnType = "V",
-    parameters = listOf(),
 )
 
 /** Maps a Google Play services string to its MicroG-RE counterpart, or null to keep it. */

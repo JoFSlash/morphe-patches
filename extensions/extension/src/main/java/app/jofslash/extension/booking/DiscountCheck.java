@@ -118,7 +118,7 @@ public final class DiscountCheck {
         if (key.equals(KEYS.get(line))) return;
         KEYS.put(line, key);
         final int hotelId = hotel.id;
-        PriceHistory.load(activity, db -> db.forStay(hotelId, stay), (List<PriceDb.Row> rows) -> {
+        PriceRecorder.load(activity, db -> db.forStay(hotelId, stay), (List<PriceDb.Row> rows) -> {
             if (!key.equals(KEYS.get(line))) return; // Changed meanwhile.
             StrikeCheck.Verdict verdict = StrikeCheck.check(hotel, stay, rows, System.currentTimeMillis());
             if (verdict == null) {

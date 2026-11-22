@@ -1,7 +1,9 @@
 package app.jofslash.patches.booking.history
 
+import app.jofslash.patches.booking.shared.ApplicationOnCreateFingerprint
 import app.jofslash.patches.booking.shared.Constants.COMPATIBILITY_BOOKING
 import app.jofslash.patches.booking.shared.callFromPropertyPageConstructor
+import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.resourcePatch
 import org.w3c.dom.Element
@@ -42,19 +44,26 @@ private val priceWatchResourcePatch = resourcePatch {
 @Suppress("unused")
 val priceWatchPatch = bytecodePatch(
     name = "Price watch",
-    description = "Adds a \"Watch this price\" button to the Price history tab. Once a day, on Wi-Fi, " +
-            "the app checks the price of each stay you watch (at most 20), saves it into the price " +
-            "history and notifies you when it drops. Nothing is checked until you watch a stay.",
+    description = "Adds a Price watch tab to the property page with a \"Watch this price\" button. Once " +
+            "a day, on Wi-Fi, the app checks the price of each stay you watch (at most 20), charts it " +
+            "on the tab and notifies you when it drops. Nothing is checked until you watch a stay.",
     default = true
 ) {
     category("Prices")
     compatibleWith(COMPATIBILITY_BOOKING)
 
-    dependsOn(priceHistoryPatch, priceWatchResourcePatch)
+    dependsOn(priceWatchResourcePatch)
     extendWith("extensions/extension.mpe")
 
     execute {
-        // Keeps the daily job scheduled while stays are watched.
+        // The Price watch button and tab; keeps the daily job scheduled while stays are watched.
         callFromPropertyPageConstructor("$EXTENSION_CLASS->onPropertyPage(Landroid/app/Activity;)V")
+
+        // And at app start, so an app update that dropped the job doesn't pause the watch until a
+        // hotel is opened. BookingApplication.onCreate has many locals; the range form reaches p0.
+        ApplicationOnCreateFingerprint.method.addInstruction(
+            0,
+            "invoke-static/range { p0 .. p0 }, $EXTENSION_CLASS->onAppStart(Landroid/content/Context;)V"
+        )
     }
 }

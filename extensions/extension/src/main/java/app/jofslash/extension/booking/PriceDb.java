@@ -14,7 +14,8 @@ import java.util.List;
  * skips a price that is the same as one saved for the same stay in the last {@link #DEDUPE_MS}.
  */
 final class PriceDb extends SQLiteOpenHelper {
-    private static final String NAME = "jofslash_price_history.db";
+    /** The name older builds used; kept so the saved prices and watches stay. */
+    static final String NAME = "jofslash_price_history.db";
     private static final int VERSION = 2;
     static final int MAX_ROWS = 5000;
     static final long DEDUPE_MS = 6L * 60 * 60 * 1000;
@@ -23,7 +24,7 @@ final class PriceDb extends SQLiteOpenHelper {
 
     static final String SOURCE_PROPERTY = "property";
     static final String SOURCE_CARD = "card";
-    /** Fetched in the background by the Price watch patch. */
+    /** Fetched in the background by the Price watch patch, or the price a watch started from. */
     static final String SOURCE_WATCH = "watch";
 
     static final class Row {

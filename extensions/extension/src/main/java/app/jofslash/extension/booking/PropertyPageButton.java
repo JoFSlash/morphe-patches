@@ -23,7 +23,7 @@ import java.util.WeakHashMap;
 
 /**
  * Adds the buttons that open the {@link Panel} to the property page
- * (com.booking.property.detail.PropertyPageActivity): "Compare prices" (or "Price history") and
+ * (com.booking.property.detail.PropertyPageActivity): "Compare prices" (or "Price watch") and
  * "Contact". The page is Compose, so the buttons are plain Views put on top of it, in the
  * activity's content frame, above the "Select rooms" bar at the bottom.
  */
@@ -37,9 +37,9 @@ final class PropertyPageButton {
 
     private static final class State {
         boolean compare;
-        boolean history;
+        boolean watch;
         boolean contact;
-        /** Save the prices the page shows (Price history or Check crossed-out prices is on). */
+        /** Save the prices the page shows (Check crossed-out prices is on). */
         boolean record;
         /** The hotel loaded again by the page (for example for new dates) and its stay. */
         Object refreshedHotel;
@@ -51,7 +51,7 @@ final class PropertyPageButton {
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
 
     /** Called from the property page's constructor by each patch that's on. */
-    static synchronized void attach(Activity activity, boolean compare, boolean history, boolean contact) {
+    static synchronized void attach(Activity activity, boolean compare, boolean watch, boolean contact) {
         State state = STATES.get(activity);
         boolean first = state == null;
         if (first) {
@@ -59,7 +59,7 @@ final class PropertyPageButton {
             STATES.put(activity, state);
         }
         state.compare |= compare;
-        state.history |= history;
+        state.watch |= watch;
         state.contact |= contact;
         if (first) listen(activity);
     }
@@ -121,7 +121,7 @@ final class PropertyPageButton {
     private static void onResume(final Activity activity) {
         try {
             resumed = new WeakReference<>(activity);
-            PriceHistory.setContext(activity);
+            PriceRecorder.setContext(activity);
             addButton(activity);
             State state = state(activity);
             if (state != null && state.record) {
@@ -154,7 +154,7 @@ final class PropertyPageButton {
             state.refreshedStay = stay;
         }
         if (state.record && stay != null && info.hasPrice()) {
-            PriceHistory.record(info, stay, PriceDb.SOURCE_PROPERTY);
+            PriceRecorder.record(info, stay, PriceDb.SOURCE_PROPERTY);
         }
     }
 
@@ -162,7 +162,7 @@ final class PropertyPageButton {
         if (activity.isFinishing()) return;
         Current c = current(activity);
         if (c.hotel != null && c.stay != null && c.hotel.hasPrice()) {
-            PriceHistory.record(c.hotel, c.stay, PriceDb.SOURCE_PROPERTY);
+            PriceRecorder.record(c.hotel, c.stay, PriceDb.SOURCE_PROPERTY);
         }
     }
 
@@ -219,7 +219,7 @@ final class PropertyPageButton {
         FrameLayout frame = (FrameLayout) content;
         if (frame.findViewWithTag(BUTTON_TAG) != null) return;
         State state = state(activity);
-        if (state == null || !(state.compare || state.history || state.contact)) return;
+        if (state == null || !(state.compare || state.watch || state.contact)) return;
 
         float density = activity.getResources().getDisplayMetrics().density;
         LinearLayout buttons = new LinearLayout(activity);
@@ -235,9 +235,9 @@ final class PropertyPageButton {
             buttons.addView(pill(activity, Strings.BUTTON_CONTACT, Panel.TAB_CONTACT), new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         }
-        if (state.compare || state.history) {
-            TextView main = pill(activity, state.compare ? Strings.BUTTON_COMPARE : Strings.BUTTON_HISTORY,
-                    state.history ? Panel.TAB_HISTORY : Panel.TAB_OFFICIAL);
+        if (state.compare || state.watch) {
+            TextView main = pill(activity, state.compare ? Strings.BUTTON_COMPARE : Strings.BUTTON_WATCH,
+                    state.watch ? Panel.TAB_WATCH : Panel.TAB_OFFICIAL);
             if (buttons.getChildCount() > 0) {
                 LinearLayout.LayoutParams gap = new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -298,9 +298,9 @@ final class PropertyPageButton {
                 return;
             }
             if (state.record && c.stay != null && c.hotel.hasPrice()) {
-                PriceHistory.record(c.hotel, c.stay, PriceDb.SOURCE_PROPERTY);
+                PriceRecorder.record(c.hotel, c.stay, PriceDb.SOURCE_PROPERTY);
             }
-            new Panel(activity, c.hotel, c.stay, state.history, state.compare, state.contact, tab).show();
+            new Panel(activity, c.hotel, c.stay, state.watch, state.compare, state.contact, tab).show();
         } catch (Throwable t) {
             Log.e(HotelInfo.TAG, "Couldn't open the panel", t);
         }
