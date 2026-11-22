@@ -53,7 +53,7 @@ python .github/scripts/check_quora_version.py com.quora.android_X.Y.Z.apkm --cli
 
 This mostly runs on its own. `.github/workflows/quora-version.yml` checks APKMirror and Google Play
 every day. For a new version it downloads the APKM, checks that every split is signed by Quora,
-keeps it as a release in the private repository `JoFSlash/quora-apks`, patches it, starts it on an
+keeps it as a release in the private repository `JoFSlash/morphe-apks`, patches it, starts it on an
 emulator and opens a pull request that adds the version to `Constants.kt`. When something fails it
 opens an issue that says what. A maintainer still tries the page patches on a phone before merging.
 

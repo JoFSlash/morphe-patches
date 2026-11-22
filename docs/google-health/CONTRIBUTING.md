@@ -41,13 +41,13 @@ in the app itself, signed in through MicroG-RE.
 ### A new Google Health version
 
 The **Google Health version** workflow does this every day: it downloads the new APKM from APKMirror,
-checks that it is signed by Google Health, keeps it in the private repository `JoFSlash/google-health-apks`,
+checks that it is signed by Google Health, keeps it in the private repository `JoFSlash/morphe-apks`,
 applies every patch and starts the app on an emulator. Then it opens a pull request
 `bump: Support Google Health <version>`, or an issue that says what failed. Sign in on a phone before
 merging the pull request.
 
 By hand: run `check_google_health.py` on the new APKM. When every patch applies and the app starts, add the version
-with `python .github/scripts/add_app_version.py <version>` and upload the APKM to `JoFSlash/google-health-apks`
+with `python .github/scripts/add_google_health_version.py <version>` and upload the APKM to `JoFSlash/morphe-apks`
 as a release named `google-health-<version>`, so the emulator test can use it.
 
 ## Continuous integration
@@ -55,8 +55,8 @@ as a release named `google-health-<version>`, so the emulator test can use it.
 - **Build** (pull requests): builds the bundle and checks the scripts.
 - **Emulator test** (pull requests and before each release): applies every patch to the newest supported
   version and starts the app, and the clone, on Android 12L to 17 emulators. On Android 15 it also checks
-  the patched code for the change each patch makes (`verify_patched.py`). It needs the `GOOGLE_HEALTH_APKS_TOKEN`
-  secret (a fine-grained token with read and write access to the contents of `JoFSlash/google-health-apks`);
+  the patched code for the change each patch makes (`verify_google_health.py`). It needs the `APKS_TOKEN`
+  secret (a fine-grained token with read and write access to the contents of `JoFSlash/morphe-apks`);
   without it, pull requests skip the test.
 - **Release** (Mondays 08:00 UTC, or by hand): runs the emulator test, then semantic-release publishes the
   bundle when there are `feat:`, `fix:` or `bump:` commits since the last release.
