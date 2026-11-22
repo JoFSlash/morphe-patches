@@ -1,4 +1,4 @@
-name: Message or offer still showing
+name: "Booking.com: message or offer still showing"
 description: A pressure message, ad, offer or pop-up that the patches don't hide yet.
 title: "hide: "
 labels: ["enhancement", "hide-message"]

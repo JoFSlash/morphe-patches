@@ -4,7 +4,7 @@ Writes the patch list in README.md from patches-list.json, between the
 <!-- PATCHES_START --> and <!-- PATCHES_END --> markers, grouped by category,
 and the supported Quora versions between <!-- VERSIONS_START --> and <!-- VERSIONS_END -->.
 
-python3 generate_patches_readme.py <owner/repo> <branch> [patches-list.json] [README.md]
+python3 generate_quora_readme.py <owner/repo> <branch> [patches-list.json] [README.md]
 """
 
 import json
@@ -13,15 +13,17 @@ import sys
 from pathlib import Path
 
 if len(sys.argv) < 3:
-    print("Usage: generate_patches_readme.py <owner/repo> <branch> [json] [readme]")
+    print("Usage: generate_quora_readme.py <owner/repo> <branch> [json] [readme]")
     sys.exit(1)
 
 repo = sys.argv[1]
 json_path = Path(sys.argv[3]) if len(sys.argv) > 3 else Path("patches-list.json")
-readme_path = Path(sys.argv[4]) if len(sys.argv) > 4 else Path("README.md")
+readme_path = Path(sys.argv[4]) if len(sys.argv) > 4 else Path("docs/quora/README.md")
 
 data = json.loads(json_path.read_text(encoding="utf-8"))
-patches = data["patches"]
+# The merged bundle has every app's patches; this README lists only com.quora.android's.
+PACKAGE = "com.quora.android"
+patches = [p for p in data["patches"] if any(c.get("packageName") == PACKAGE for c in p.get("compatiblePackages") or [])]
 version = str(data["version"]).lstrip("v")
 
 ORDER = ["Privacy", "Feed", "Reading", "Writing", "App"]

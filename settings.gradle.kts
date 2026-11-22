@@ -1,4 +1,4 @@
-rootProject.name = "quora-patches"
+rootProject.name = "slash-patches"
 
 pluginManagement {
     repositories {

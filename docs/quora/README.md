@@ -1,14 +1,14 @@
 # Quora patches for Morphe
 
-[![Latest release](https://img.shields.io/github/v/release/JoFSlash/quora-patches?label=release)](https://github.com/JoFSlash/quora-patches/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/JoFSlash/quora-patches/total)](https://github.com/JoFSlash/quora-patches/releases)
-[![License](https://img.shields.io/github/license/JoFSlash/quora-patches)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/JoFSlash/slash-patches?label=release)](https://github.com/JoFSlash/slash-patches/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/JoFSlash/slash-patches/total)](https://github.com/JoFSlash/slash-patches/releases)
+[![License](https://img.shields.io/github/license/JoFSlash/slash-patches)](../../LICENSE)
 
 Patches for the [Quora](https://play.google.com/store/apps/details?id=com.quora.android) Android app, applied with
 [Morphe](https://morphe.software). They remove ads and tracking, and let you hide the parts of Quora you don't use:
 AI answers, Quora+ paywalls, suggestions, counts, old answers and so on.
 
-Works with Quora <!-- VERSIONS_START -->3.2.42<!-- VERSIONS_END --> on Android 7 or newer. No root needed.
+Works with Quora <!-- VERSIONS_START -->3.2.47 and 3.2.42<!-- VERSIONS_END --> on Android 7 or newer. No root needed.
 The privacy patches are on by default, and so are some fixes and filters that change little (the tables below show
 which). The rest are off until you pick them.
 
@@ -16,8 +16,8 @@ which). The rest are off until you pick them.
 
 1. Install Morphe Manager from [morphe.software](https://morphe.software).
 2. Add this repository as a patch source: open
-   [this link](https://morphe.software/add-source?github=JoFSlash/quora-patches) on your phone, or add
-   `https://github.com/JoFSlash/quora-patches` under sources in Morphe Manager.
+   [this link](https://morphe.software/add-source?github=JoFSlash/slash-patches) on your phone, or add
+   `https://github.com/JoFSlash/slash-patches` under sources in Morphe Manager.
 3. Download a supported version of Quora as an APKM file from APKMirror:
    [3.2.42](https://www.apkmirror.com/apk/quora-inc/quora/quora-the-knowledge-platform-3-2-42-release/).
    3.2.47 is supported too, but APKMirror doesn't have it yet. Morphe Manager may suggest it as the
@@ -88,7 +88,7 @@ Everything else can wait until something bothers you.
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.9.0, 67 patches. Supported Quora versions: 3.2.42.
+Version 1.9.0, 75 patches. Supported Quora versions: 3.2.47, 3.2.42.
 
 <details>
 <summary><b>Privacy</b> (12)</summary>
@@ -113,7 +113,7 @@ On by default. They stop data collection and change nothing you see.
 </details>
 
 <details>
-<summary><b>Feed</b> (21)</summary>
+<summary><b>Feed</b> (23)</summary>
 
 What the feed and question pages show.
 
@@ -122,10 +122,12 @@ What the feed and question pages show.
 | Block authors and Spaces | off | Hides answers and posts by the people and Spaces you pick. Options: Authors and Spaces. |
 | Filter keywords | off | Hides answers, posts and questions that mention words you pick. Options: Keywords. |
 | Hide AI answers | on | Hides answers written by Poe bots. |
+| Hide anonymous answers | off | Hides answers written as "Anonymous" in the feed and on question pages. |
 | Hide ask box | on | Hides the "What do you want to ask or share?" box with Ask, Answer and Post at the top of the feed. |
 | Hide comment previews | off | Hides the "123 comments from … and more" row under answers. Comments still open from the comment button. |
 | Hide counts | off | Hides upvote, view and share counts on answers and posts. |
 | Hide credentials | off | Hides the line under authors' names, such as "Lives in Vienna", and "Upvoted by" lines. The date stays. |
+| Hide dismissed questions | off | When you close a feed item with its × and pick "Not interested in this question", the feed doesn't show answers to that question again. Undo brings it back. The list stays on your phone, under Dismissed questions in Patch settings. |
 | Hide downvote button | off | Hides the downvote button on answers and posts. |
 | Hide Follow buttons | off | Hides the small "Follow" next to author and Space names. Profiles and Space pages keep theirs. |
 | Hide More Stories button | on | Hides the red "More Stories" button that appears over the feed. Pull down to load new stories. |
@@ -144,7 +146,7 @@ What the feed and question pages show.
 </details>
 
 <details>
-<summary><b>Reading</b> (15)</summary>
+<summary><b>Reading</b> (19)</summary>
 
 How answers look and load.
 
@@ -152,6 +154,7 @@ How answers look and load.
 | --- | --- | --- |
 | AMOLED dark mode | off | Uses a pure black background when Quora's dark theme is on. |
 | Answer font | off | Sets answers in a serif or a sans-serif font of your phone. Options: Font. |
+| Bookmarks | on | Adds a bookmark button next to Share under an open answer or post, to read it later. Saved items are listed under Bookmarks in Patch settings with their text, which you can read without internet. Everything stays on your phone. |
 | Comfortable reading | off | More space between the lines and paragraphs of answers. |
 | Copy answer text | on | Adds a Copy button next to Share under answers and posts. It copies their text without formatting. |
 | Data saver | off | Images load only when you tap them. By default only on mobile data; on Wi-Fi they load as usual. Options: Load images on Wi-Fi. |
@@ -159,17 +162,31 @@ How answers look and load.
 | Enable text selection | on | Lets you select and copy text on every page. |
 | Expand answers | on | Opens shortened answers on question pages, and shows the whole answer preview in the feed. |
 | Fullscreen reading | off | Hides the top bar and the tabs while you scroll down, and shows them again when you scroll up. On answer and question pages it hides their top bar. |
+| Hide comment box | off | Hides the "Add a comment…" field under answers and posts. Comments still open from the comment button. |
 | Keep screen on | off | Keeps the screen from turning off while a page is open. |
+| Read aloud | off | Adds a Read aloud button next to Share under answers and posts. It reads their text with your phone's text-to-speech. Tap it again to stop. |
 | Reading history | on | Remembers the answers, posts and questions you open, so you can find them again under History in Patch settings. The list stays on your phone. |
 | Save images | on | Long-press an image you opened full screen to save it to Pictures/Quora. |
 | Share answer text | on | Adds a Share text button next to Share under answers and posts. It shares their text without formatting, for example to a notes app. |
 | Sort answers | off | Opens questions with their answers sorted by the order you pick instead of Recommended. You can still change the order on the page. Options: Order. |
 | Text size | off | Makes the text on every page larger or smaller. Options: Text size. |
+| Translate button | off | Adds a Translate button next to Share under answers and posts. It shows their text translated by Google Translate inside the app, into your phone's language or the one you pick. The text is sent to Google only when you tap the button. |
 
 </details>
 
 <details>
-<summary><b>App</b> (19)</summary>
+<summary><b>Writing</b> (1)</summary>
+
+The editor for answers and posts.
+
+| Patch | Default | What it does |
+| --- | --- | --- |
+| Word count | off | Shows how many words and characters you have written while you write an answer or a post. |
+
+</details>
+
+<details>
+<summary><b>App</b> (20)</summary>
 
 The app around the pages: prompts, tabs, notifications, gestures.
 
@@ -184,6 +201,7 @@ The app around the pages: prompts, tabs, notifications, gestures.
 | Disable tab prefetching | off | Saves data by loading the other tabs only when you open them. |
 | Disable update prompts | on | Stops the app from showing the Google Play update screen and the feed's update card. |
 | Disable vibration | off | Stops the app from vibrating when you tap buttons such as upvote. |
+| Filter updates | off | When Quora renames what a patch hides, fixes come without a new release: once a day the app downloads a small list of selectors from this project's GitHub repository and uses it for the patches you have on. The list can only hide things. The download sends nothing but a normal web request. |
 | Fix device theme | on | On a new install, follows the device's dark or light theme everywhere. Without it, Quora shows dark bars around light pages until you pick a theme again. |
 | Fix push notifications | on | Makes push notifications work in the patched app. Quora's Firebase key only accepts the official app's package and signature, so a patched app never gets a push token. |
 | GmsCore support | on | Makes Google sign-in and push notifications work through MicroG-RE instead of Google Play services. A patched app can't sign in with Google through Play services, because it is no longer signed by Quora. Needs MicroG-RE installed, with your Google account added to it; without it the app works as before, and says so once. |
@@ -239,7 +257,7 @@ All the code is in this repository, and the patch files in the releases are buil
 The patches don't send anything about you anywhere; the privacy ones only stop the app from sending things.
 Two of them connect somewhere else: **Translate button** sends the text of an answer to Google Translate when you
 tap it, and **Filter updates** (off by default) downloads a short list from this repository on GitHub once a day.
-Found a security problem? See [SECURITY.md](SECURITY.md) for how to report it privately.
+Found a security problem? See [SECURITY.md](../../SECURITY.md) for how to report it privately.
 
 **Quora links open in the browser instead of the app.**
 Android checks that an app opening quora.com links is signed by Quora, and the patched app isn't. Turn it on by
@@ -255,7 +273,7 @@ Google only when you tap the button.
 Quora probably changed its pages. Check the warning on the settings page (long-press the Home tab), then tap
 **Report a problem** there: it copies the details a report needs and opens the bug report form.
 With **Filter updates** patched in, fixes for the patches that hide things can reach your app without a new
-release: once a day it downloads a short list of selectors from this repository ([filters](filters/README.md)).
+release: once a day it downloads a short list of selectors from this repository ([filters](../../filters/README.md)).
 The list can only hide things, and the download sends nothing but a normal web request. It's off by default.
 
 ## Known issues
@@ -271,7 +289,7 @@ The list can only hide things, and the download sends nothing but a normal web r
   The image loads when you tap it there.
 - Hide Quora+ answers and Hide surveys haven't been tried on a real paywalled answer or survey yet.
 
-Something else wrong? [Open an issue](https://github.com/JoFSlash/quora-patches/issues/new/choose).
+Something else wrong? [Open an issue](https://github.com/JoFSlash/slash-patches/issues/new/choose).
 
 ## Building
 
@@ -287,4 +305,4 @@ patches are put together and how to check a new Quora version.
 
 ## License
 
-[GPL-3.0](LICENSE), see also [NOTICE](NOTICE). Not affiliated with Quora or with the Morphe project.
+[GPL-3.0](../../LICENSE), see also [NOTICE](../../NOTICE). Not affiliated with Quora or with the Morphe project.

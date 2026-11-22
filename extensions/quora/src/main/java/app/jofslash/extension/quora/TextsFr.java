@@ -57,8 +57,8 @@ final class TextsFr {
         m.put("Copies the app details and opens a bug report on GitHub.",
                 "Copie les détails de l'application et ouvre un rapport de bug sur GitHub.");
         m.put("App details copied. Paste them into the report.", "Détails de l'application copiés. Collez-les dans le rapport.");
-        m.put("App details copied. Open github.com/JoFSlash/quora-patches/issues to report.",
-                "Détails de l'application copiés. Signalez le problème sur github.com/JoFSlash/quora-patches/issues.");
+        m.put("App details copied. Open github.com/JoFSlash/slash-patches/issues to report.",
+                "Détails de l'application copiés. Signalez le problème sur github.com/JoFSlash/slash-patches/issues.");
 
         // History and bookmarks.
         m.put("Nothing yet. Answers, posts and questions you open show up here.",

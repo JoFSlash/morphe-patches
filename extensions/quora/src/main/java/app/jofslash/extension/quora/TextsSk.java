@@ -57,8 +57,8 @@ final class TextsSk {
         m.put("Copies the app details and opens a bug report on GitHub.",
                 "Skopíruje údaje o aplikácii a otvorí hlásenie chyby na GitHube.");
         m.put("App details copied. Paste them into the report.", "Údaje o aplikácii sú skopírované. Vlož ich do hlásenia.");
-        m.put("App details copied. Open github.com/JoFSlash/quora-patches/issues to report.",
-                "Údaje o aplikácii sú skopírované. Problém nahlás na github.com/JoFSlash/quora-patches/issues.");
+        m.put("App details copied. Open github.com/JoFSlash/slash-patches/issues to report.",
+                "Údaje o aplikácii sú skopírované. Problém nahlás na github.com/JoFSlash/slash-patches/issues.");
 
         // History and bookmarks.
         m.put("Nothing yet. Answers, posts and questions you open show up here.",

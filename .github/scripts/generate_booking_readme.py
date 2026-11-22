@@ -4,7 +4,7 @@ Updates the patch list in README.md from patches-list.json, between the
 <!-- PATCHES_START --> and <!-- PATCHES_END --> markers, and the supported
 Booking.com versions between <!-- VERSIONS_START --> and <!-- VERSIONS_END -->.
 
-The README's rows are written by hand (short texts, links to docs/patches.md), so
+The README's rows are written by hand (short texts, links to patches.md), so
 they are kept. The script only:
 - fixes the Default column and the counts,
 - drops the rows of patches that are gone,
@@ -12,7 +12,7 @@ they are kept. The script only:
   (a new category gets its own table at the end),
 - rewrites the summary line and the supported versions.
 
-python3 generate_patches_readme.py <owner/repo> <branch> [patches-list.json] [README.md]
+python3 generate_booking_readme.py <owner/repo> <branch> [patches-list.json] [README.md]
 """
 
 import json
@@ -21,19 +21,22 @@ import sys
 from pathlib import Path
 
 if len(sys.argv) < 3:
-    print("Usage: generate_patches_readme.py <owner/repo> <branch> [json] [readme]")
+    print("Usage: generate_booking_readme.py <owner/repo> <branch> [json] [readme]")
     sys.exit(1)
 
 repo = sys.argv[1]
 json_path = Path(sys.argv[3]) if len(sys.argv) > 3 else Path("patches-list.json")
-readme_path = Path(sys.argv[4]) if len(sys.argv) > 4 else Path("README.md")
-details_path = readme_path.parent / "docs" / "patches.md"
+readme_path = Path(sys.argv[4]) if len(sys.argv) > 4 else Path("docs/booking/README.md")
+details_path = readme_path.parent / "patches.md"
 
 # Category names in the code and the README's section names, where they differ.
 SECTION_OF = {"Prices": "Price"}
 
 data = json.loads(json_path.read_text(encoding="utf-8"))
-patches = {p["name"]: p for p in data["patches"]}
+# The merged bundle has every app's patches; this README lists only com.booking's.
+PACKAGE = "com.booking"
+patches = {p["name"]: p for p in data["patches"]
+           if any(c.get("packageName") == PACKAGE for c in p.get("compatiblePackages") or [])}
 version = str(data["version"]).lstrip("v")
 
 versions = []
@@ -106,7 +109,7 @@ for section in sections:
         if name in section["rows"]:
             lines.append(re.sub(r" \| (on|off) \| ", f" | {default} | ", section["rows"][name], count=1))
         else:
-            link = f"[{cell(name)}](docs/patches.md#{anchor(name)})" if name in detail_headings else cell(name)
+            link = f"[{cell(name)}](patches.md#{anchor(name)})" if name in detail_headings else cell(name)
             lines.append(f"| {link} | {default} | {cell(patches[name].get('description'))} |")
     lines += ["", "</details>", ""]
 

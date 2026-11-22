@@ -16,7 +16,15 @@ name: Emulator test
 # it fails.
 
 on:
+  # Only for pull requests that touch this app's patches or the shared build.
   pull_request:
+    paths:
+      - 'patches/src/main/kotlin/app/jofslash/patches/googlehealth/**'
+      - 'extensions/googlehealth/**'
+      - '.github/**'
+      - 'gradle/**'
+      - '*.gradle.kts'
+      - 'patches/build.gradle.kts'
   workflow_dispatch:
   workflow_call:
     inputs:

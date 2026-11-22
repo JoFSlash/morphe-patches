@@ -1,8 +1,8 @@
 # Google Health patches for Morphe
 
-[![Latest release](https://img.shields.io/github/v/release/JoFSlash/google-health-patches?label=release)](https://github.com/JoFSlash/google-health-patches/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/JoFSlash/google-health-patches/total)](https://github.com/JoFSlash/google-health-patches/releases)
-[![License](https://img.shields.io/github/license/JoFSlash/google-health-patches)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/JoFSlash/slash-patches?label=release)](https://github.com/JoFSlash/slash-patches/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/JoFSlash/slash-patches/total)](https://github.com/JoFSlash/slash-patches/releases)
+[![License](https://img.shields.io/github/license/JoFSlash/slash-patches)](../../LICENSE)
 
 Patches for the [Google Health](https://play.google.com/store/apps/details?id=com.fitbit.FitbitMobile) Android app
 (formerly Fitbit), applied with [Morphe](https://morphe.software). A patched app signs in through MicroG-RE instead
@@ -31,8 +31,8 @@ subscription.
    (MicroG-RE settings > Accounts). The patched app signs in with this account.
 2. Install Morphe Manager from [morphe.software](https://morphe.software).
 3. Add this repository as a patch source: open
-   [this link](https://morphe.software/add-source?github=JoFSlash/google-health-patches) on your phone, or add
-   `https://github.com/JoFSlash/google-health-patches` under sources in Morphe Manager.
+   [this link](https://morphe.software/add-source?github=JoFSlash/slash-patches) on your phone, or add
+   `https://github.com/JoFSlash/slash-patches` under sources in Morphe Manager.
 4. If you have a watch or tracker, sync it in the Play Store version first: data that hasn't reached your
    Google account yet is lost when you uninstall the app.
 5. Uninstall the Play Store version. The patched app is signed with a different key, so Android won't
@@ -46,8 +46,8 @@ subscription.
 
 ## Updating
 
-- **New patches:** a new version of these patches comes out once a week, on Mondays, when there is
-  something new. Morphe Manager then marks the patched app with an Update badge. Patch the same Google Health
+- **New patches:** a new version of these patches comes out on a Thursday, every other week (see
+  [Updating](../../README.md#updating)). Morphe Manager then marks the patched app with an Update badge. Patch the same Google Health
   file again and install it over the patched app. No need to uninstall: you stay signed in.
 - **New Google Health version:** the patched app doesn't update from the Play Store. New versions are tried
   automatically every day and usually supported within a few days. When a release of these patches lists the
@@ -56,7 +56,7 @@ subscription.
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.1.0, 12 patches. Supported Google Health versions: 5.13.health-mobile-1104148438-1023845615.
+Version 1.9.0, 12 patches. Supported Google Health versions: 5.13.health-mobile-1104148438-1023845615.
 
 <details>
 <summary><b>Privacy</b> (2)</summary>
@@ -102,7 +102,7 @@ stops at "Sign in with Google".
 The patched app signs in because MicroG-RE knows Google Health by the certificate Fitbit signed it with.
 If MicroG-RE or Google change that, signing in stops working for every patched app at once, and no patch
 here can fix it until MicroG-RE does. If it happens to you, please
-[open an issue](https://github.com/JoFSlash/google-health-patches/issues/new?template=bug_report.yml).
+[open an issue](https://github.com/JoFSlash/slash-patches/issues/new?template=bug_report.yml).
 
 **"Sign in" opens MicroG-RE's Add account screen.**
 MicroG-RE has no Google account yet. Add yours there, then tap Sign in in Google Health again.
@@ -121,7 +121,7 @@ Health Connect lists the patched app and lets you give it permissions, as with t
 **Do my watch, tracker and data still work?**
 Your data is stored in your Google account, so it shows up again after you sign in. Pairing and syncing a watch
 or tracker use Bluetooth and the app's own servers, but they haven't been tried with the patched app yet.
-If something doesn't work, please [open an issue](https://github.com/JoFSlash/google-health-patches/issues/new?template=bug_report.yml).
+If something doesn't work, please [open an issue](https://github.com/JoFSlash/slash-patches/issues/new?template=bug_report.yml).
 
 **Is there a patch that blocks tracking?**
 Not as a separate patch, because GmsCore support already does it. The app sends its usage logs and performance
@@ -131,7 +131,7 @@ drops them without sending anything. The app has no Firebase Analytics.
 **Can the AI coach, Labs or Premium cards be hidden?**
 Not yet. They are on screens that only some accounts see, for example with a watch or tracker paired or after a
 Premium trial, and a patch has to be tried where they show up. If you see them,
-[send a screenshot](https://github.com/JoFSlash/google-health-patches/issues/new?template=hide_card.yml) with the
+[send a screenshot](https://github.com/JoFSlash/slash-patches/issues/new?template=hide_card.yml) with the
 card's text, and if you can, try the test build we send back.
 
 **Will you unlock Premium?**
@@ -156,5 +156,5 @@ on a connected phone or emulator. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-[GPLv3](LICENSE). Google Health and Fitbit are trademarks of Google LLC. This project isn't affiliated with
+[GPLv3](../../LICENSE). Google Health and Fitbit are trademarks of Google LLC. This project isn't affiliated with
 Google or Morphe.

@@ -13,7 +13,15 @@ name: Emulator test
 # workflow) runs it: there a skipped test would let an untested bundle through, so it fails.
 
 on:
+  # Only for pull requests that touch this app's patches or the shared build.
   pull_request:
+    paths:
+      - 'patches/src/main/kotlin/app/jofslash/patches/quora/**'
+      - 'extensions/quora/**'
+      - '.github/**'
+      - 'gradle/**'
+      - '*.gradle.kts'
+      - 'patches/build.gradle.kts'
   workflow_dispatch:
   workflow_call:
     inputs:

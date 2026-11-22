@@ -57,8 +57,8 @@ final class TextsIt {
         m.put("Copies the app details and opens a bug report on GitHub.",
                 "Copia i dettagli dell'app e apre una segnalazione di bug su GitHub.");
         m.put("App details copied. Paste them into the report.", "Dettagli dell'app copiati. Incollali nella segnalazione.");
-        m.put("App details copied. Open github.com/JoFSlash/quora-patches/issues to report.",
-                "Dettagli dell'app copiati. Apri github.com/JoFSlash/quora-patches/issues per segnalare.");
+        m.put("App details copied. Open github.com/JoFSlash/slash-patches/issues to report.",
+                "Dettagli dell'app copiati. Apri github.com/JoFSlash/slash-patches/issues per segnalare.");
 
         // History and bookmarks.
         m.put("Nothing yet. Answers, posts and questions you open show up here.",

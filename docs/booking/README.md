@@ -1,8 +1,8 @@
 # Booking.com patches for Morphe
 
-[![Latest release](https://img.shields.io/github/v/release/JoFSlash/booking-patches?label=release&cacheSeconds=3600)](https://github.com/JoFSlash/booking-patches/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/JoFSlash/booking-patches/total?cacheSeconds=3600)](https://github.com/JoFSlash/booking-patches/releases)
-[![License](https://img.shields.io/github/license/JoFSlash/booking-patches?cacheSeconds=3600)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/JoFSlash/slash-patches?label=release&cacheSeconds=3600)](https://github.com/JoFSlash/slash-patches/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/JoFSlash/slash-patches/total?cacheSeconds=3600)](https://github.com/JoFSlash/slash-patches/releases)
+[![License](https://img.shields.io/github/license/JoFSlash/slash-patches?cacheSeconds=3600)](../../LICENSE)
 
 Patches for the [Booking.com](https://play.google.com/store/apps/details?id=com.booking) Android app, applied with
 [Morphe](https://morphe.software). They:
@@ -33,11 +33,11 @@ patch.
 <!-- TODO: price watch chart screenshot -->
 <table>
   <tr valign="top">
-    <td><img src="docs/screenshots/official-site.png" width="200" alt="Official site tab: the hotel's own website is 62 euros cheaper than Booking.com"></td>
-    <td><img src="docs/screenshots/review-check.png" width="200" alt="Review check banner: 3 of 25 recent reviews mention extra charges or booking problems"></td>
-    <td><img src="docs/screenshots/crossed-out-check.png" width="200" alt="Hotel page: the crossed-out 79 euro price is the price without the Genius discount, a real discount"></td>
-    <td><img src="docs/screenshots/preferred-label.png" width="200" alt="Search result with the Preferred badge labelled 'Pays Booking higher commission'"></td>
-    <td><img src="docs/screenshots/contact.png" width="200" alt="Contact tab with the hotel's address, phone, email and company details"></td>
+    <td><img src="screenshots/official-site.png" width="200" alt="Official site tab: the hotel's own website is 62 euros cheaper than Booking.com"></td>
+    <td><img src="screenshots/review-check.png" width="200" alt="Review check banner: 3 of 25 recent reviews mention extra charges or booking problems"></td>
+    <td><img src="screenshots/crossed-out-check.png" width="200" alt="Hotel page: the crossed-out 79 euro price is the price without the Genius discount, a real discount"></td>
+    <td><img src="screenshots/preferred-label.png" width="200" alt="Search result with the Preferred badge labelled 'Pays Booking higher commission'"></td>
+    <td><img src="screenshots/contact.png" width="200" alt="Contact tab with the hotel's address, phone, email and company details"></td>
   </tr>
   <tr>
     <td align="center">Compare prices</td>
@@ -52,8 +52,8 @@ patch.
 
 1. Install Morphe Manager from [morphe.software](https://morphe.software).
 2. Add this repository as a patch source: open
-   [this link](https://morphe.software/add-source?github=JoFSlash/booking-patches) on your phone, or add
-   `https://github.com/JoFSlash/booking-patches` under sources in Morphe Manager. Morphe Manager then downloads
+   [this link](https://morphe.software/add-source?github=JoFSlash/slash-patches) on your phone, or add
+   `https://github.com/JoFSlash/slash-patches` under sources in Morphe Manager. Morphe Manager then downloads
    the signed patch bundle from this repository's releases and updates it on its own.
    The patches are also listed in the community
    [Morphe patch index](https://morphe-patches.software/?app=com.booking&patch=booking).
@@ -69,7 +69,8 @@ patch.
 
 ## Updating
 
-- **New patches:** patch the same Booking.com file again and install it over the patched app. No need to uninstall,
+- **New patches:** a new version of these patches comes out on a Thursday, every other week (see
+  [Updating](../../README.md#updating)). Patch the same Booking.com file again and install it over the patched app. No need to uninstall,
   and your watched prices and saved prices stay. Uninstalling or clearing the app's data deletes them.
 - **New Booking.com version:** the patched app doesn't update from the Play Store. Wait until a release of these
   patches lists the new version as supported, then patch that version the same way. Booking.com puts out a new
@@ -87,11 +88,11 @@ Added features. They show you more; they don't change what you book.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
-| [Compare prices](docs/patches.md#compare-prices) | on | Puts the price on the hotel's own website (from Google Hotels) next to the Booking.com price, with a link to book there. |
-| [Price watch](docs/patches.md#price-watch) | on | Checks the price of stays you watch once a day, charts it and notifies you when it drops. |
-| [Check crossed-out prices](docs/patches.md#check-crossed-out-prices) | on | Says whether a crossed-out "original" price matches what you actually saw for those dates before. |
-| [Show full price up front](docs/patches.md#show-full-price-up-front) | on | Shows the total with taxes and charges Booking.com adds on top. Changes nothing when you search from the EU. |
-| [Show price per night](docs/patches.md#show-price-per-night) | on | Adds the price per night under the total of each search result for stays of 2 or more nights. |
+| [Compare prices](patches.md#compare-prices) | on | Puts the price on the hotel's own website (from Google Hotels) next to the Booking.com price, with a link to book there. |
+| [Price watch](patches.md#price-watch) | on | Checks the price of stays you watch once a day, charts it and notifies you when it drops. |
+| [Check crossed-out prices](patches.md#check-crossed-out-prices) | on | Says whether a crossed-out "original" price matches what you actually saw for those dates before. |
+| [Show full price up front](patches.md#show-full-price-up-front) | on | Shows the total with taxes and charges Booking.com adds on top. Changes nothing when you search from the EU. |
+| [Show price per night](patches.md#show-price-per-night) | on | Adds the price per night under the total of each search result for stays of 2 or more nights. |
 
 </details>
 
@@ -102,14 +103,14 @@ What the search results show.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
-| [Hide urgency messages](docs/patches.md#hide-urgency-messages) | on | Hides scarcity and pressure lines such as "We have 1 left at this price" and "in high demand". |
-| [Hide sponsored listings](docs/patches.md#hide-sponsored-listings) | on | Removes sponsored ("Ad") properties from the results list and the map, and Google's display ads; in testing, about 2–3 per city on page 1. |
-| [Label Preferred properties](docs/patches.md#label-preferred-properties) | on | Adds "Pays Booking higher commission" next to the Preferred and Preferred Plus badges. |
-| [Remember result sort](docs/patches.md#remember-result-sort) | on | Keeps the sort you last picked, such as lowest price, for new searches instead of "Our top picks". |
-| [Review check](docs/patches.md#review-check) | on | Scans a hotel's loaded reviews for extra charges, scams and other red flags and says how many mention them. |
-| [Recent rating](docs/patches.md#recent-rating) | on | Shows a hotel's average score from the last 6 months next to its overall score. |
-| [Newest reviews first](docs/patches.md#newest-reviews-first) | on | Opens a hotel's reviews sorted newest first instead of "Most relevant". |
-| [Hotel contact](docs/patches.md#hotel-contact) | on | Adds a Contact tab with the hotel's address, phone, email and company details. |
+| [Hide urgency messages](patches.md#hide-urgency-messages) | on | Hides scarcity and pressure lines such as "We have 1 left at this price" and "in high demand". |
+| [Hide sponsored listings](patches.md#hide-sponsored-listings) | on | Removes sponsored ("Ad") properties from the results list and the map, and Google's display ads; in testing, about 2–3 per city on page 1. |
+| [Label Preferred properties](patches.md#label-preferred-properties) | on | Adds "Pays Booking higher commission" next to the Preferred and Preferred Plus badges. |
+| [Remember result sort](patches.md#remember-result-sort) | on | Keeps the sort you last picked, such as lowest price, for new searches instead of "Our top picks". |
+| [Review check](patches.md#review-check) | on | Scans a hotel's loaded reviews for extra charges, scams and other red flags and says how many mention them. |
+| [Recent rating](patches.md#recent-rating) | on | Shows a hotel's average score from the last 6 months next to its overall score. |
+| [Newest reviews first](patches.md#newest-reviews-first) | on | Opens a hotel's reviews sorted newest first instead of "Most relevant". |
+| [Hotel contact](patches.md#hotel-contact) | on | Adds a Contact tab with the hotel's address, phone, email and company details. |
 
 </details>
 
@@ -120,15 +121,15 @@ The app around the search.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
-| [Disable start-up promotions](docs/patches.md#disable-start-up-promotions) | on | Stops the promotional and sign-in sheets the app shows on start. |
-| [Hide upsells](docs/patches.md#hide-upsells) | on | Hides home screen offers and offers for taxis, cars, flights, attractions and credit cards, and Genius nudges. |
-| [Hide insurance offers](docs/patches.md#hide-insurance-offers) | off | Hides the cancellation and travel insurance offers in the booking form. |
-| [Disable update and rating prompts](docs/patches.md#disable-update-and-rating-prompts) | on | Stops the update prompts, which a patched app can't act on, and the "rate this app" card. |
-| [Allow screenshots](docs/patches.md#allow-screenshots) | on | Lets you take screenshots on booking and payment screens. |
-| [Follow system theme](docs/patches.md#follow-system-theme) | on | Makes the app light or dark to match your phone. |
-| [GmsCore support](docs/patches.md#gmscore-support) | on | Makes "Continue with Google" work through MicroG-RE. |
-| [Open links in browser](docs/patches.md#open-links-in-browser) | on | Opens links to other websites in your browser; Booking.com pages, sign-in and payment stay in the app. |
-| [Stays only](docs/patches.md#stays-only) | off | Hides the Flights, Car rental, Taxi and Attractions tabs on the home screen. |
+| [Disable start-up promotions](patches.md#disable-start-up-promotions) | on | Stops the promotional and sign-in sheets the app shows on start. |
+| [Hide upsells](patches.md#hide-upsells) | on | Hides home screen offers and offers for taxis, cars, flights, attractions and credit cards, and Genius nudges. |
+| [Hide insurance offers](patches.md#hide-insurance-offers) | off | Hides the cancellation and travel insurance offers in the booking form. |
+| [Disable update and rating prompts](patches.md#disable-update-and-rating-prompts) | on | Stops the update prompts, which a patched app can't act on, and the "rate this app" card. |
+| [Allow screenshots](patches.md#allow-screenshots) | on | Lets you take screenshots on booking and payment screens. |
+| [Follow system theme](patches.md#follow-system-theme) | on | Makes the app light or dark to match your phone. |
+| [GmsCore support](patches.md#gmscore-support) | on | Makes "Continue with Google" work through MicroG-RE. |
+| [Open links in browser](patches.md#open-links-in-browser) | on | Opens links to other websites in your browser; Booking.com pages, sign-in and payment stay in the app. |
+| [Stays only](patches.md#stays-only) | off | Hides the Flights, Car rental, Taxi and Attractions tabs on the home screen. |
 
 </details>
 
@@ -139,9 +140,9 @@ Stops data collection; changes nothing you see, except that Remove microphone ac
 
 | Patch | Default | What it does |
 | --- | --- | --- |
-| [Block tracking](docs/patches.md#block-tracking) | on | Turns off analytics, crash reporting and marketing trackers; leaves anti-fraud, sign-in and payment alone. |
-| [Remove unneeded permissions](docs/patches.md#remove-unneeded-permissions) | on | Removes the screen recording detection and calendar permissions. |
-| [Remove microphone access](docs/patches.md#remove-microphone-access) | off | Removes the microphone permission; voice input in messages stops working. |
+| [Block tracking](patches.md#block-tracking) | on | Turns off analytics, crash reporting and marketing trackers; leaves anti-fraud, sign-in and payment alone. |
+| [Remove unneeded permissions](patches.md#remove-unneeded-permissions) | on | Removes the screen recording detection and calendar permissions. |
+| [Remove microphone access](patches.md#remove-microphone-access) | off | Removes the microphone permission; voice input in messages stops working. |
 
 </details>
 <!-- PATCHES_END -->
@@ -189,12 +190,12 @@ the background.
 
 **Is it safe?**
 All the code is in this repository, and the patch files in the releases are built from it and signed by GitHub Actions (see
-[SECURITY.md](SECURITY.md#checking-a-release)). The
+[SECURITY.md](../../SECURITY.md#checking-a-release)). The
 privacy patch only stops the app from sending things. The one feature that reaches another site is **Compare
 prices**: when you open its Official site tab it loads Google Hotels, as a browser would. **Recent rating** asks
 Booking.com for a hotel's newest reviews, the same request the app makes when you open the reviews. **Price watch**
 asks Booking.com once a day for the price of each stay you chose to watch, the same request the hotel's page makes. Found a security problem?
-See [SECURITY.md](SECURITY.md) for how to report it privately.
+See [SECURITY.md](../../SECURITY.md) for how to report it privately.
 
 ## Known issues
 
@@ -234,7 +235,7 @@ See [SECURITY.md](SECURITY.md) for how to report it privately.
 - **Show full price up front does nothing from the EU.** Booking.com already includes taxes and charges in prices
   there; the patch only changes prices that leave them out.
 
-Something else wrong? [Open an issue](https://github.com/JoFSlash/booking-patches/issues/new/choose).
+Something else wrong? [Open an issue](https://github.com/JoFSlash/slash-patches/issues/new/choose).
 
 ## Building
 
@@ -249,4 +250,4 @@ The bundle ends up in `patches/build/libs/patches-*.mpp`.
 
 ## License
 
-[GPL-3.0](LICENSE), see also [NOTICE](NOTICE). Not affiliated with Booking.com or with the Morphe project.
+[GPL-3.0](../../LICENSE), see also [NOTICE](../../NOTICE). Not affiliated with Booking.com or with the Morphe project.

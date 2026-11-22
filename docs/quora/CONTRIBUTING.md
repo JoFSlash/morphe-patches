@@ -2,14 +2,14 @@
 
 Thanks for helping. These patches change a WebView app whose pages Quora updates often, so most
 problems are a page patch that no longer finds what it hides. Good reports and small fixes are the
-most useful contributions. Please follow the [code of conduct](CODE_OF_CONDUCT.md), and report
-security problems privately as described in [SECURITY.md](SECURITY.md).
+most useful contributions. Please follow the [code of conduct](../../CODE_OF_CONDUCT.md), and report
+security problems privately as described in [SECURITY.md](../../SECURITY.md).
 
 ## Reporting a problem
 
 The quickest way is **Report a problem** in Patch settings (long-press Home): it copies the app
 details and opens the form. Otherwise open a
-[bug report](https://github.com/JoFSlash/quora-patches/issues/new?template=bug_report.yml) with:
+[bug report](https://github.com/JoFSlash/slash-patches/issues/new?template=bug_report.yml) with:
 
 - the patch name as Morphe Manager shows it,
 - what you expected and what happened, ideally with a screenshot of the page,
