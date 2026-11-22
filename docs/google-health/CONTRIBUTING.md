@@ -5,7 +5,7 @@ version, so patches find their code by strings, framework calls or the few names
 
 ## Reporting a problem
 
-Open a [bug report](https://github.com/JoFSlash/slash-patches/issues/new?template=bug_report.yml) with:
+Open a [bug report](https://github.com/JoFSlash/morphe-patches/issues/new?template=bug_report.yml) with:
 
 - what you expected and what happened, and on which screen,
 - the versions of Google Health, the patches, Morphe Manager, MicroG-RE and Android,

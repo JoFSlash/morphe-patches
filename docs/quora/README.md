@@ -1,8 +1,8 @@
 # Quora patches for Morphe
 
-[![Latest release](https://img.shields.io/github/v/release/JoFSlash/slash-patches?label=release)](https://github.com/JoFSlash/slash-patches/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/JoFSlash/slash-patches/total)](https://github.com/JoFSlash/slash-patches/releases)
-[![License](https://img.shields.io/github/license/JoFSlash/slash-patches)](../../LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/JoFSlash/morphe-patches?label=release)](https://github.com/JoFSlash/morphe-patches/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/JoFSlash/morphe-patches/total)](https://github.com/JoFSlash/morphe-patches/releases)
+[![License](https://img.shields.io/github/license/JoFSlash/morphe-patches)](../../LICENSE)
 
 Patches for the [Quora](https://play.google.com/store/apps/details?id=com.quora.android) Android app, applied with
 [Morphe](https://morphe.software). They remove ads and tracking, and let you hide the parts of Quora you don't use:
@@ -16,8 +16,8 @@ which). The rest are off until you pick them.
 
 1. Install Morphe Manager from [morphe.software](https://morphe.software).
 2. Add this repository as a patch source: open
-   [this link](https://morphe.software/add-source?github=JoFSlash/slash-patches) on your phone, or add
-   `https://github.com/JoFSlash/slash-patches` under sources in Morphe Manager.
+   [this link](https://morphe.software/add-source?github=JoFSlash/morphe-patches) on your phone, or add
+   `https://github.com/JoFSlash/morphe-patches` under sources in Morphe Manager.
 3. Download a supported version of Quora as an APKM file from APKMirror:
    [3.2.42](https://www.apkmirror.com/apk/quora-inc/quora/quora-the-knowledge-platform-3-2-42-release/).
    3.2.47 is supported too, but APKMirror doesn't have it yet. Morphe Manager may suggest it as the
@@ -289,7 +289,7 @@ The list can only hide things, and the download sends nothing but a normal web r
   The image loads when you tap it there.
 - Hide Quora+ answers and Hide surveys haven't been tried on a real paywalled answer or survey yet.
 
-Something else wrong? [Open an issue](https://github.com/JoFSlash/slash-patches/issues/new/choose).
+Something else wrong? [Open an issue](https://github.com/JoFSlash/morphe-patches/issues/new/choose).
 
 ## Building
 

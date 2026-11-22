@@ -117,7 +117,7 @@ public final class PageCheck {
                     .setPositiveButton(Texts.t("How to update"), (d, w) -> {
                         try {
                             android.content.Intent open = new android.content.Intent(android.content.Intent.ACTION_VIEW,
-                                    android.net.Uri.parse("https://github.com/JoFSlash/slash-patches#updating"));
+                                    android.net.Uri.parse("https://github.com/JoFSlash/morphe-patches#updating"));
                             open.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
                             context.startActivity(open);
                         } catch (Exception ex) {

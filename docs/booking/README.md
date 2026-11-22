@@ -1,8 +1,8 @@
 # Booking.com patches for Morphe
 
-[![Latest release](https://img.shields.io/github/v/release/JoFSlash/slash-patches?label=release&cacheSeconds=3600)](https://github.com/JoFSlash/slash-patches/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/JoFSlash/slash-patches/total?cacheSeconds=3600)](https://github.com/JoFSlash/slash-patches/releases)
-[![License](https://img.shields.io/github/license/JoFSlash/slash-patches?cacheSeconds=3600)](../../LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/JoFSlash/morphe-patches?label=release&cacheSeconds=3600)](https://github.com/JoFSlash/morphe-patches/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/JoFSlash/morphe-patches/total?cacheSeconds=3600)](https://github.com/JoFSlash/morphe-patches/releases)
+[![License](https://img.shields.io/github/license/JoFSlash/morphe-patches?cacheSeconds=3600)](../../LICENSE)
 
 Patches for the [Booking.com](https://play.google.com/store/apps/details?id=com.booking) Android app, applied with
 [Morphe](https://morphe.software). They:
@@ -52,8 +52,8 @@ patch.
 
 1. Install Morphe Manager from [morphe.software](https://morphe.software).
 2. Add this repository as a patch source: open
-   [this link](https://morphe.software/add-source?github=JoFSlash/slash-patches) on your phone, or add
-   `https://github.com/JoFSlash/slash-patches` under sources in Morphe Manager. Morphe Manager then downloads
+   [this link](https://morphe.software/add-source?github=JoFSlash/morphe-patches) on your phone, or add
+   `https://github.com/JoFSlash/morphe-patches` under sources in Morphe Manager. Morphe Manager then downloads
    the signed patch bundle from this repository's releases and updates it on its own.
    The patches are also listed in the community
    [Morphe patch index](https://morphe-patches.software/?app=com.booking&patch=booking).
@@ -235,7 +235,7 @@ See [SECURITY.md](../../SECURITY.md) for how to report it privately.
 - **Show full price up front does nothing from the EU.** Booking.com already includes taxes and charges in prices
   there; the patch only changes prices that leave them out.
 
-Something else wrong? [Open an issue](https://github.com/JoFSlash/slash-patches/issues/new/choose).
+Something else wrong? [Open an issue](https://github.com/JoFSlash/morphe-patches/issues/new/choose).
 
 ## Building
 

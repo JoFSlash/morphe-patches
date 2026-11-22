@@ -8,7 +8,7 @@ bundle is replaced as soon as a new one is out.
 ## Reporting a vulnerability
 
 Please don't open a public issue. Report it privately through
-[GitHub's vulnerability reporting](https://github.com/JoFSlash/slash-patches/security/advisories/new)
+[GitHub's vulnerability reporting](https://github.com/JoFSlash/morphe-patches/security/advisories/new)
 with what you found, how to reproduce it, and the versions of the app (Quora, Booking.com or Google
 Health), the patches and Morphe Manager.
 You'll get an answer within a week, and a fix goes out as an urgent release instead of waiting for

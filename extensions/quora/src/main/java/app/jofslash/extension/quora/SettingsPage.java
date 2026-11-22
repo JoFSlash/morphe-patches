@@ -440,13 +440,13 @@ final class SettingsPage {
             if (clipboard != null) clipboard.setPrimaryClip(ClipData.newPlainText("Quora patches", text.toString()));
             Toast.makeText(activity, Texts.t("App details copied. Paste them into the report."), Toast.LENGTH_LONG).show();
             android.content.Intent open = new android.content.Intent(android.content.Intent.ACTION_VIEW,
-                    android.net.Uri.parse("https://github.com/JoFSlash/slash-patches/issues/new?template=bug_report.yml"));
+                    android.net.Uri.parse("https://github.com/JoFSlash/morphe-patches/issues/new?template=bug_report.yml"));
             // A browser, not this app: Quora handles only quora.com links.
             open.addCategory(android.content.Intent.CATEGORY_BROWSABLE);
             activity.startActivity(open);
         } catch (Exception ex) {
             Log.e(TAG, "Failed to open the bug report", ex);
-            Toast.makeText(activity, Texts.t("App details copied. Open github.com/JoFSlash/slash-patches/issues to report."),
+            Toast.makeText(activity, Texts.t("App details copied. Open github.com/JoFSlash/morphe-patches/issues to report."),
                     Toast.LENGTH_LONG).show();
         }
     }
