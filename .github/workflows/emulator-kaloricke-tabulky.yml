@@ -8,7 +8,7 @@ name: Kalorické Tabulky emulator test
 #
 # The app is kept as the split APKs Google Play installs (base, arm64-v8a and xxhdpi) zipped into
 # an .apks. The emulator is x86_64; its Google APIs image runs the few arm64 libraries through
-# Android's ARM translation.
+# Android's ARM translation, which the Android 13 image lacks.
 #
 # The APK can't be in this public repository. It comes from the private repository
 # JoFSlash/morphe-apks, read with the APKS_TOKEN secret (a fine-grained token
@@ -50,10 +50,12 @@ jobs:
       fail-fast: false
       matrix:
         # Kalorické Tabulky 3.14.71 needs Android 12L or newer (minSdk 32): every version from
-        # there, and the next one, whose image is only in the SDK's canary channel so far.
+        # there, and the next one, whose image is only in the SDK's canary channel so far. Except
+        # Android 13: its x86_64 image has no ARM translation, so neither the original nor the
+        # patched app installs there (INSTALL_FAILED_NO_MATCHING_ABIS); on a phone it's fine.
         # A pull request is tried on the oldest and the newest stable version; the release and a run
         # by hand try all of them.
-        include: ${{ fromJSON(github.event_name == 'pull_request' && '[{"api":"32","android":"12L","channel":"stable"},{"api":"36","android":"16","channel":"stable"}]' || '[{"api":"32","android":"12L","channel":"stable"},{"api":"33","android":"13","channel":"stable"},{"api":"34","android":"14","channel":"stable"},{"api":"35","android":"15","channel":"stable"},{"api":"36","android":"16","channel":"stable"},{"api":"37.0","android":"17","channel":"canary"}]') }}
+        include: ${{ fromJSON(github.event_name == 'pull_request' && '[{"api":"32","android":"12L","channel":"stable"},{"api":"36","android":"16","channel":"stable"}]' || '[{"api":"32","android":"12L","channel":"stable"},{"api":"34","android":"14","channel":"stable"},{"api":"35","android":"15","channel":"stable"},{"api":"36","android":"16","channel":"stable"},{"api":"37.0","android":"17","channel":"canary"}]') }}
     steps:
       - name: Check for the APK token
         id: token
