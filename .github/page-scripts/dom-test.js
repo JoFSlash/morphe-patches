@@ -16,6 +16,10 @@ function run(script, html) {
     runScripts: 'outside-only',
     pretendToBeVisual: true,
   });
+  // jsdom has no innerText; the page scripts read the text with it.
+  Object.defineProperty(dom.window.HTMLElement.prototype, 'innerText', {
+    get() { return this.textContent.replace(/\s+/g, ' ').trim(); },
+  });
   dom.window.eval(fs.readFileSync(path.join(dir, script), 'utf8'));
   return dom.window.document;
 }
@@ -224,6 +228,42 @@ expect('hideAnonymousAnswers-0.js', `
     <div class="puppeteer_test_answer_content"><p class="q-text">In the feed.</p></div></div>`, [
   ['#anon', true], ['#named', false], ['#feed-anon', true],
 ]);
+
+// Filter keywords: whole words only, and a word ending in * also finds longer words
+// (the sample list has "art*" and "crypto").
+expect('filterKeywords-0.js', [unit('artist', '1y', 'An artist painted this.'), unit('start', '1y', 'A fresh start for all.'),
+  unit('crypto', '1y', 'I lost money on crypto.'), unit('cryptography', '1y', 'Cryptography is maths.')].join(''), [
+  ['#artist', true], ['#start', false], ['#crypto', true], ['#cryptography', false],
+]);
+
+// Hide low-voted answers (fewer than 10): the count is read from the Upvote button; an item
+// without one, such as a question, stays.
+const voted = (id, count) => `
+  <div class="q-box dom_annotate_multifeed_bundle_AnswersBundle" id="${id}">
+    <div class="puppeteer_test_answer_content"><p class="q-text">An answer.</p></div>
+    <button class="q-click-wrapper puppeteer_test_votable_upvote_button" aria-label="Upvote">
+      <div class="q-text">Upvote</div>${count === null ? '' : `<span> · </span><div class="q-text">${count}</div>`}</button>
+  </div>`;
+expect('hideLowVoted-0.js', [voted('none', null), voted('three', '3'), voted('ten', '10'), voted('k', '1.8K'),
+  voted('many', '1,204'),
+  '<div class="q-box dom_annotate_multifeed_bundle_QuestionsBundle" id="question"><div class="q-text">A question?</div></div>'].join(''), [
+  ['#none', true], ['#three', true], ['#ten', false], ['#k', false], ['#many', false], ['#question', false],
+]);
+
+// Reading time: a long open answer gets "N min read" above it; a short one and a feed item don't.
+{
+  const long = Array(700).fill('word').join(' ');
+  const doc = run('readingTime-0.js', `
+    <div class="q-box" id="open"><div class="puppeteer_test_answer_content" id="long"><p class="q-text">${long}</p></div></div>
+    <div class="q-box"><div class="puppeteer_test_answer_content" id="short"><p class="q-text">Just a few words here.</p></div></div>
+    <div class="q-box dom_annotate_multifeed_bundle_AnswersBundle"><div class="puppeteer_test_answer_content" id="feed">
+      <p class="q-text">${long}</p></div></div>`);
+  const labels = [...doc.querySelectorAll('[data-jofslash-readtime-label]')];
+  checks++;
+  if (labels.length !== 1 || labels[0].nextElementSibling !== doc.getElementById('long') || !/^3 /.test(labels[0].textContent)) {
+    fail(`readingTime: want one "3 min read" above the long open answer, got ${labels.map((l) => l.textContent).join(', ')}`);
+  }
+}
 
 // Word count: the editor opens as its own page whose params name the modal. Markup trimmed from
 // Quora's answer editor: each paragraph is a [data-kind=section].

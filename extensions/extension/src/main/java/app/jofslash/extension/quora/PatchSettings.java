@@ -124,6 +124,7 @@ public final class PatchSettings {
             showHintOnce(home);
             FilterUpdates.check(home.getContext());
             UpdateCheck.check(home.getContext());
+            AuthorLists.check(home.getContext(), false);
         } catch (Exception ex) {
             Log.e(TAG, "Failed to attach the patch settings", ex);
         }
@@ -412,6 +413,26 @@ public final class PatchSettings {
             if (view != null) HiddenStats.add(view.getContext(), json);
         }
 
+        /**
+         * For Hide what you pick: the page marked a box; asks whether to hide it and every box with
+         * the same class. An empty class means nothing at the tapped spot can be hidden this way.
+         */
+        @android.webkit.JavascriptInterface
+        public void pickHide(String key, String className, int count, int level, int total) {
+            if (!allowed(key)) return;
+            WebView view = webView.get();
+            if (view != null) view.post(() -> Picker.ask(view, className, count, level, total));
+        }
+
+        /** For Reader view: shows this answer or post as plain text with its pictures, in the app's own page. */
+        @android.webkit.JavascriptInterface
+        public void openReader(String key, String title, String author, String text, String images, boolean preview) {
+            if (!allowed(key) || text == null || text.trim().isEmpty()) return;
+            WebView view = webView.get();
+            if (view == null) return;
+            view.post(() -> SettingsPage.reader(view.getContext(), title, author, text, images, preview));
+        }
+
         /** For Read aloud: whether it is still reading, so the page can reset its button. */
         @android.webkit.JavascriptInterface
         public boolean isReadingAloud(String key) {
@@ -596,6 +617,13 @@ public final class PatchSettings {
     static Map<String, String[]> texts() {
         synchronized (TEXTS) {
             return new LinkedHashMap<>(TEXTS);
+        }
+    }
+
+    /** The app's WebViews that are still there. */
+    static List<WebView> webViews() {
+        synchronized (WEB_VIEWS) {
+            return new ArrayList<>(WEB_VIEWS.keySet());
         }
     }
 

@@ -107,7 +107,10 @@ public final class ReadingPatch {
         evaluate(webView, "(function(){"
                 + "if(window.__jofslashKeywords)return;window.__jofslashKeywords=1;"
                 + "var words=" + list + ";"
-                + "var esc=function(w){return w.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&').replace(/\\s+/g,'\\\\s+');};"
+                // Whole words only; a * at the end of a word also matches longer words (art* finds artist).
+                + "var esc=function(w){var star=/\\*$/.test(w);w=w.replace(/\\*+$/,'');"
+                + "return w.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&').replace(/\\s+/g,'\\\\s+')+(star?'[\\\\p{L}\\\\p{N}]*':'');};"
+                + "words=words.filter(function(w){return w.replace(/\\*+$/,'').trim();});if(!words.length)return;"
                 + "var re=new RegExp('(^|[^\\\\p{L}\\\\p{N}])('+words.map(esc).join('|')+')(?=$|[^\\\\p{L}\\\\p{N}])','iu');"
                 + "function run(){document.querySelectorAll('" + UNITS + "').forEach(function(u){"
                 + "if(u.hasAttribute('data-jofslash-filtered'))return;"
@@ -162,13 +165,17 @@ public final class ReadingPatch {
     public static void blockAuthors(WebView webView, String names) {
         if (!PatchSettings.active(webView, "blockAuthors", "Block authors and Spaces")) return;
         names = PatchSettings.text(webView, "authors", "Authors and Spaces", names);
+        // Names from the author lists you follow (Filters), downloaded by the app.
+        String followed = AuthorLists.namesText(webView.getContext());
+        if (!followed.isEmpty()) names = (names == null ? "" : names) + "," + followed;
         String list = jsonList(names);
         evaluate(webView, "(function(){"
                 + "if(window.__jofslashAuthors)return;window.__jofslashAuthors=1;"
                 + "var norm=function(s){return (s||'').toLowerCase().replace(/[-_]+/g,' ').replace(/\\s+/g,' ').trim();};"
-                + "var names=" + list + ".map(norm);"
+                // A lookup table: the lists you follow can hold thousands of names.
+                + "var names={},count=0;" + list + ".forEach(function(n){n=norm(n);if(n&&!names[n]){names[n]=1;count++;}});"
                 // Patch settings adds a name picked with a long press, without loading the page again.
-                + "window.__jofslashAuthorsAdd=function(n){n=norm(n);if(n&&names.indexOf(n)<0)names.push(n);run();};"
+                + "window.__jofslashAuthorsAdd=function(n){n=norm(n);if(n&&!names[n]){names[n]=1;count++;}run();};"
                 + LONG_PRESS_AUTHOR
                 + "function slug(a){var m=(a.getAttribute('href')||'').match(/\\/profile\\/([^/?#]+)/);return m?norm(decodeURIComponent(m[1]).replace(/-\\d+$/,'')):'';}"
                 + "function space(a){try{var h=new URL(a.href).hostname.split('.');return h.length>2&&h[h.length-2]==='quora'&&!/^(www|[a-z]{2})$/.test(h[0])?norm(h[0]):'';}catch(e){return '';}}"
@@ -177,10 +184,10 @@ public final class ReadingPatch {
                 + "if(/^Upvoted by /.test((e.textContent||'').trim()))return true;}return false;}"
                 + "function hit(u){var links=u.querySelectorAll('a[href]');for(var i=0;i<links.length;i++){var a=links[i];"
                 + "if(upvoter(a,u))continue;"
-                + "var c=[norm(a.textContent),slug(a),space(a)];for(var j=0;j<c.length;j++)if(c[j]&&names.indexOf(c[j])>=0)return true;}"
-                + "var t=u.querySelectorAll('.puppeteer_test_tribe_name');for(var k=0;k<t.length;k++)if(names.indexOf(norm(t[k].textContent))>=0)return true;"
+                + "var c=[norm(a.textContent),slug(a),space(a)];for(var j=0;j<c.length;j++)if(c[j]&&names.hasOwnProperty(c[j]))return true;}"
+                + "var t=u.querySelectorAll('.puppeteer_test_tribe_name');for(var k=0;k<t.length;k++)if(names.hasOwnProperty(norm(t[k].textContent)))return true;"
                 + "return false;}"
-                + "function run(){if(!names.length)return;document.querySelectorAll('" + UNITS + "').forEach(function(u){"
+                + "function run(){if(!count)return;document.querySelectorAll('" + UNITS + "').forEach(function(u){"
                 + "if(u.hasAttribute('data-jofslash-filtered'))return;"
                 + "if(hit(u)){u.setAttribute('data-jofslash-filtered','');u.style.setProperty('display','none','important');}"
                 + "});}"
@@ -210,6 +217,44 @@ public final class ReadingPatch {
                 + "});}"
                 + observe("run")
                 + "})();", "anonymous answers");
+    }
+
+    /** upvotes(u): the upvotes an answer or post shows on its Upvote button, or -1 when it has none. */
+    static final String UPVOTES_JS = "function upvotes(u){"
+            + "var b=u.querySelector('.puppeteer_test_votable_upvote_button,button[aria-label^=\"Upvote\"]');if(!b)return -1;"
+            + "var m=(b.textContent||'').replace(/\\s+/g,' ').match(/([\\d.,]+)\\s*([KMB])?/i);if(!m)return 0;"
+            + "var n=parseFloat(m[1].replace(/,/g,''));if(isNaN(n))return 0;"
+            + "var x={k:1e3,m:1e6,b:1e9}[(m[2]||'').toLowerCase()]||1;return Math.round(n*x);}";
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Hides answers and posts with fewer
+     * upvotes than the number picked, read from their Upvote button (it still holds the number
+     * when Hide counts hides it). Questions and items without an Upvote button stay.
+     *
+     * @param least The fewest upvotes an item needs to stay, such as "10".
+     */
+    public static void hideLowVoted(WebView webView, String least) {
+        if (!PatchSettings.active(webView, "hideLowVoted", "Hide low-voted answers")) return;
+        least = PatchSettings.choice("hideLowVoted", "minUpvotes", "Fewer upvotes than", least,
+                new String[]{"1", "5", "10", "50", "100"}, new String[]{"1", "5", "10", "50", "100"}, false);
+        int limit;
+        try {
+            limit = Integer.parseInt(least == null ? "" : least.trim());
+        } catch (NumberFormatException ex) {
+            return;
+        }
+        if (limit < 1) return;
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashLowVoted)return;window.__jofslashLowVoted=1;"
+                + "var LIMIT=" + limit + ";"
+                + UPVOTES_JS
+                + "function run(){document.querySelectorAll('" + UNITS + "').forEach(function(u){"
+                + "if(u.hasAttribute('data-jofslash-filtered')||u.hasAttribute('data-jofslash-votes'))return;"
+                + "var n=upvotes(u);if(n<0)return;u.setAttribute('data-jofslash-votes',String(n));"
+                + "if(n<LIMIT){u.setAttribute('data-jofslash-filtered','');u.style.setProperty('display','none','important');}"
+                + "});}"
+                + observe("run")
+                + "})();", "low-voted answers");
     }
 
     /**
@@ -771,6 +816,76 @@ public final class ReadingPatch {
                 + "item.parentElement.insertBefore(b,item.nextSibling);});}"
                 + observe("run")
                 + "})();", "read aloud");
+    }
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Puts "4 min read" above open answers
+     * and posts that take at least two minutes, at 230 words a minute. Not on shortened answers in
+     * the feed or on question pages, whose whole length the page doesn't have.
+     */
+    public static void readingTime(WebView webView) {
+        if (!PatchSettings.active(webView, "readingTime", "Reading time")) return;
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashReadTime)return;window.__jofslashReadTime=1;"
+                + "var LABEL=" + HideContentPatch.jsString(Texts.t("min read")) + ";"
+                + "function boxes(){var out=[];document.querySelectorAll('" + ANSWER_TEXT + "').forEach(function(e){out.push(e);});"
+                // Answers and posts opened from the feed have no answer_content class.
+                + "document.querySelectorAll('" + PARAGRAPH + "').forEach(function(p){var d=p.closest('div.q-text')||p.parentElement;"
+                + "if(d&&out.indexOf(d)<0)out.push(d);});"
+                + "return out.filter(function(e){for(var a=e.parentElement;a;a=a.parentElement)if(out.indexOf(a)>=0)return false;return true;});}"
+                + "function run(){boxes().forEach(function(e){"
+                + "if(e.hasAttribute('data-jofslash-readtime'))return;"
+                + "if(e.closest('[class*=\"dom_annotate_multifeed_bundle_\"]'))return;"
+                + "var u=e.closest('[class*=\"dom_annotate_question_answer_item\"]');"
+                // A shortened answer on a question page ends in "(more)" or has Continue Reading.
+                + "if(u&&/\\(more\\)|Continue Reading/i.test(u.innerText||''))return;"
+                + "var w=(e.innerText||'').split(/\\s+/).filter(function(x){return x.length>0;}).length;"
+                + "if(w<20)return;e.setAttribute('data-jofslash-readtime','');var min=Math.round(w/230);if(min<2)return;"
+                + "var l=document.createElement('div');l.setAttribute('data-jofslash-readtime-label','');l.textContent=min+' '+LABEL;"
+                + "l.style.cssText='font-size:13px;opacity:.6;margin:0 0 8px';e.parentElement.insertBefore(l,e);});}"
+                + observe("run")
+                + "})();", "reading time");
+    }
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Adds a Reader view button next to
+     * Share under answers and posts: it shows their text with the pictures in the app's own page,
+     * without Quora's page around it. A shortened answer in the feed shows its start, and says so.
+     */
+    public static void readerView(WebView webView) {
+        if (!PatchSettings.active(webView, "readerView", "Reader view")) return;
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashReader)return;window.__jofslashReader=1;"
+                // An open book.
+                + "var ICON='<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\">"
+                + "<g class=\"icon_svg-stroke\" stroke=\"#666\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\">"
+                + "<path d=\"M12 7c-2-1.5-4.5-2-8-2v12c3.5 0 6 .5 8 2 2-1.5 4.5-2 8-2V5c-3.5 0-6 .5-8 2z\"></path><path d=\"M12 7v12\"></path></g></svg>';"
+                + ITEM_TEXT_JS
+                + ITEM_IMAGES_JS
+                + PREVIEW_JS
+                + SHARE_BUTTONS_JS
+                + "function txt(e){return e?(e.innerText||'').replace(/\\s+/g,' ').trim():'';}"
+                // The question or post title and the author: in the item, or else on the page.
+                + "function meta(item){var u=item.closest('[class*=\"dom_annotate_multifeed_bundle_\"],[class*=\"dom_annotate_question_answer_item\"]')||document;"
+                + "var t=txt(u.querySelector('.puppeteer_test_question_title'))||txt(document.querySelector('.puppeteer_test_question_title'));"
+                + "var a='';u.querySelectorAll('a[href*=\"/profile/\"]').forEach(function(l){if(!a)a=txt(l).split('\\n')[0];});"
+                + "return {title:t,author:a?'Answer by '+a:''};}"
+                + "function open(item){var J=window.JoFSlashPatches;if(!J||!J.ready())return;var r=preview(text(item));if(!r.text)return;"
+                + "var m=meta(item),imgs=[];try{imgs=images(item);}catch(e){}"
+                + "J.openReader(m.title,m.author,r.text,JSON.stringify(imgs),r.cut);}"
+                + "function run(){shareButtons().forEach(function(s){"
+                + "if(s.hasAttribute('data-jofslash-reader'))return;s.setAttribute('data-jofslash-reader','');"
+                + "var item=s.parentElement&&s.parentElement.children.length===1?s.parentElement:s;"
+                + "var b=item.cloneNode(true);b.setAttribute('data-jofslash-reader','');b.setAttribute('data-jofslash-clone','');"
+                + "[b].concat([].slice.call(b.querySelectorAll('*'))).forEach(function(e){"
+                + "e.classList.remove('dom_annotate_answer_action_bar_share','puppeteer_test_answer_quora_share_button','sprig_share_button');});"
+                + "var svg=b.querySelector('svg');if(!svg)return;svg.outerHTML=ICON;"
+                + "b.querySelectorAll('.q-text').forEach(function(e){e.remove();});"
+                + "var btn=b.querySelector('button')||b;btn.setAttribute('aria-label','Reader view');"
+                + "b.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();open(item);},true);"
+                + "item.parentElement.insertBefore(b,item.nextSibling);});}"
+                + observe("run")
+                + "})();", "reader view");
     }
 
     // ------------------------------------------------------------------ reading history
