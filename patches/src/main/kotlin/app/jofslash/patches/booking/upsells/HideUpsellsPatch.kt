@@ -1,8 +1,10 @@
 package app.jofslash.patches.booking.upsells
 
 import app.jofslash.patches.booking.shared.Constants.COMPATIBILITY_BOOKING
+import app.jofslash.patches.booking.shared.enableSabaJsonFilter
 import app.jofslash.patches.booking.shared.methodOf
 import app.jofslash.patches.booking.shared.returnEarly
+import app.jofslash.patches.booking.shared.sabaJsonFilterPatch
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
@@ -29,6 +31,9 @@ private const val CROSS_SELL = "Lcom/booking/crosssellcomponents/CrossSell;"
 private const val CROSS_SELL_VIEW_MODEL = "Lcom/booking/crosssellcomponents/viewmodel/CrossSellViewModel;"
 private const val PLACEMENT_TYPE = "Lcom/booking/crosssellservices/PlacementType;"
 
+/** The "plan your trip with AI" card on the home screen (Booking's AI trip planner). */
+private const val AI_TRIP_PLANNER_HOME_CARD = "Lcom/booking/chatai/companion/components/AitpHomescreenEntryPointKt;"
+
 /** Makes a suspend function (or a coroutine body) finish at once with Unit, doing nothing. */
 private fun MutableMethod.returnUnit() {
     requireLocalRegister()
@@ -54,9 +59,10 @@ internal fun MutableMethod.requireLocalRegister() {
 @Suppress("unused")
 val hideUpsellsPatch = bytecodePatch(
     name = "Hide upsells",
-    description = "Hides marketing that sells you something besides your stay: Booking's promotional areas " +
-            "on the hotel page, in the booking form, on the confirmation and in My account; offers to add a " +
-            "taxi, car, flight or attraction (\"Plan ahead\", \"Add to your stay\"); the Booking.com credit " +
+    description = "Hides marketing that sells you something besides your stay: campaign banners, the " +
+            "\"Offers\" row, attraction carousels and the AI trip planner card on the home screen; Booking's " +
+            "promotional areas on the hotel page, in the booking form, on the confirmation and in My account; " +
+            "offers to add a taxi, car, flight or attraction (\"Plan ahead\", \"Add to your stay\"); the Booking.com credit " +
             "card banners and sign-up sheet; the Genius VIP price match banner on hotel pages, the \"book 1 " +
             "more stay to reach Genius Level 2\" nudge and the \"Year in travel\" sheet. Prices, Genius " +
             "discounts and the rewards you have earned stay. Insurance offers are a separate patch.",
@@ -66,8 +72,17 @@ val hideUpsellsPatch = bytecodePatch(
     compatibleWith(COMPATIBILITY_BOOKING)
 
     extendWith("extensions/extension.mpe")
+    dependsOn(sabaJsonFilterPatch)
 
     execute {
+        // Home screen offers. The home screen is a server-driven page; its campaign banners,
+        // "Offers" row and other offer blocks are taken out of its JSON by their tracking ids
+        // (see HomeOffers). The search box, recent searches, Genius, saved properties and your
+        // trips stay.
+        enableSabaJsonFilter("hideHomeOffers")
+        // The AI trip planner card on the home screen: it emits nothing (and fetches nothing).
+        methodOf(AI_TRIP_PLANNER_HOME_CARD, "AitpHomescreenEntryPoint").returnEarly()
+
         // Server-driven promotional areas: on the hotel page (hero and secondary), in the booking
         // form, on the confirmation, in My account and in the car, taxi, flight and attraction
         // funnels. The app checks here whether an area is on before it loads it, so an area that
@@ -94,8 +109,9 @@ val hideUpsellsPatch = bytecodePatch(
         methodOf(CROSS_SELL_KILL_SWITCH, "isEnabled", emptyList()).returnEarly()
         // Every placement loads its offers through CrossSell.loadPlacement; the ones in
         // HideUpsells.CROSS_SELL (such as "Plan ahead" on the confirmation and booking details,
-        // the sheet after booking and "Add to your stay" in the booking form) don't load and
-        // stay empty, as before they load.
+        // the sheet after booking, "Add to your stay" in the booking form and the home screen's
+        // attraction, car and taxi carousels for your upcoming trip and last search) don't load
+        // and stay empty, as before they load.
         methodOf(CROSS_SELL, "loadPlacement").apply {
             requireLocalRegister()
             addInstructions(

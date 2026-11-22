@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Used by the Hide sponsored listings, Hide urgency messages, Label Preferred properties and Show
- * full price up front patches. Search results are a server-driven ("Saba") page that the app gets as JSON. Before the
+ * Used by the Hide sponsored listings, Hide urgency messages, Label Preferred properties, Show
+ * full price up front and Hide upsells patches. Search results are a server-driven ("Saba") page that the app gets as JSON. Before the
  * app reads that JSON, the parts the enabled patches hide are taken out and the Preferred badges
  * get their label. On any problem the JSON is left as it is.
  */
@@ -91,6 +91,11 @@ public final class SabaJsonFilter {
         return false;
     }
 
+    /** Changed by the Hide upsells patch to return true. */
+    private static boolean hideHomeOffers() {
+        return false;
+    }
+
     /** Returns [json] without the hidden parts, or [json] itself when nothing is hidden or it can't be read. */
     public static String filter(String json) {
         try {
@@ -101,7 +106,8 @@ public final class SabaJsonFilter {
                     || json.contains(PREFERRED_PLUS_ICON) || json.contains(A11Y_PREFERRED)
                     || json.contains(A11Y_PREFERRED_PLUS));
             boolean upfront = upfrontPrice() && UpfrontPrice.mayApply(json);
-            if (!sponsored && !urgency && !preferred && !upfront) return json;
+            boolean homeOffers = hideHomeOffers() && json.contains(HomeOffers.HOME_MARKER);
+            if (!sponsored && !urgency && !preferred && !upfront && !homeOffers) return json;
 
             String trimmed = json.trim();
             Object root;
@@ -118,9 +124,11 @@ public final class SabaJsonFilter {
             }
             int labels = preferred ? addPreferredLabels(root) : 0;
             int prices = upfront ? UpfrontPrice.rewriteCards(root) : 0;
-            if (ads + urgencies + labels + prices == 0) return json;
+            int offers = homeOffers ? HomeOffers.remove(root) : 0;
+            if (ads + urgencies + labels + prices + offers == 0) return json;
             Log.d(TAG, "Removed " + ads + " sponsored results and " + urgencies + " urgency messages, labelled "
-                    + labels + " Preferred badges and card texts, showed " + prices + " full prices");
+                    + labels + " Preferred badges and card texts, showed " + prices + " full prices, removed "
+                    + offers + " home screen offers");
             return root.toString();
         } catch (Throwable t) {
             Log.w(TAG, "Couldn't filter a server-driven page", t);
