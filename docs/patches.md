@@ -1,7 +1,8 @@
 # Patches in detail
 
 What each patch does, in full. The [README](../README.md#patches) has the short list. All patches are on by default
-except [Hide insurance offers](#hide-insurance-offers) and [Stays only](#stays-only); you can switch any of them on or
+except [Hide insurance offers](#hide-insurance-offers), [Stays only](#stays-only) and
+[Remove microphone access](#remove-microphone-access); you can switch any of them on or
 off when you patch.
 
 - **Price:** [Compare prices](#compare-prices) · [Price watch](#price-watch) ·
@@ -15,7 +16,8 @@ off when you patch.
   [Hide insurance offers](#hide-insurance-offers) · [Disable update and rating prompts](#disable-update-and-rating-prompts) ·
   [Allow screenshots](#allow-screenshots) · [Follow system theme](#follow-system-theme) ·
   [GmsCore support](#gmscore-support) · [Open links in browser](#open-links-in-browser) · [Stays only](#stays-only)
-- **Privacy:** [Block tracking](#block-tracking)
+- **Privacy:** [Block tracking](#block-tracking) · [Remove unneeded permissions](#remove-unneeded-permissions) ·
+  [Remove microphone access](#remove-microphone-access)
 
 Texts the patches add are in English only, also when the app is set to another language.
 
@@ -125,6 +127,11 @@ Default: on.
 Removes sponsored ("Ad") properties from the results list and sponsored markers from the map, so you see only the
 ranked results. In testing it took out about 2–3 ads per city on the first page of results. On the map a sponsored
 property shows as an ordinary price pin, without the ad megaphone and its ad tracking.
+
+It also removes Google's display ads (AdMob), which Booking.com can place between the results: they are taken out of
+the list, any left elsewhere never load, and Google's ads SDK no longer starts with the app. So nothing is asked of
+Google's ad servers and no ad status is reported back to Booking.com. The test account was never shown a display
+ad, so this part couldn't be checked in the app.
 
 ### Label Preferred properties
 
@@ -353,3 +360,23 @@ It also stops Google's app services from reporting on you:
 Firebase Remote Config is left in place: the app's own code doesn't use it.
 
 It doesn't block everything: Facebook profile pictures (graph.facebook.com) load on reviews.
+
+### Remove unneeded permissions
+
+Default: on.
+
+Removes permissions the app asks for but you don't need for booking a stay:
+
+- **Detect screen recording** (Android 15 and newer): only the FingerprintJS anti-fraud library uses it, as one more
+  signal about your phone. It works without it, so sign-in and payment are unaffected.
+- **Calendar** (read and write): only used to add a booked flight to your calendar. Attractions add events through
+  your calendar app, which needs no permission, and still do.
+
+The app asks for these while it runs and copes with a no, so without them it acts as if you had said no.
+
+### Remove microphone access
+
+Default: off.
+
+Removes the microphone permission. Voice search and voice input in the trip assistant then can't start: tapping the
+microphone acts as if you had refused it. Off by default because it takes away a feature.

@@ -15,10 +15,11 @@ Patches for the [Booking.com](https://play.google.com/store/apps/details?id=com.
 - show the hotel's phone, email and address, and label Preferred properties that pay Booking.com more;
 - take out the pressure: scarcity messages, sponsored results, upsells, home screen offers, start-up promotions and
   nags;
-- block analytics and marketing trackers, and open links to other sites in your browser.
+- block analytics and marketing trackers, remove permissions the app doesn't need, and open links to other sites in
+  your browser.
 
 Works with Booking.com <!-- VERSIONS_START -->71.1<!-- VERSIONS_END --> on Android 8 or newer. No root needed.
-All patches but Hide insurance offers and Stays only are on by default; you can switch any of them on or off when you
+All patches but Hide insurance offers, Stays only and Remove microphone access are on by default; you can switch any of them on or off when you
 patch.
 
 > **Status: work in progress.** Booking.com runs anti-fraud checks (ThreatMetrix, FingerprintJS) that these patches
@@ -75,7 +76,7 @@ patch.
 ## Patches
 
 <!-- PATCHES_START -->
-23 patches, all on by default except Hide insurance offers and Stays only. Supported Booking.com versions: 71.1.
+25 patches, all on by default except Hide insurance offers, Stays only and Remove microphone access. Supported Booking.com versions: 71.1.
 
 <details open>
 <summary><b>Price</b> (5)</summary>
@@ -100,7 +101,7 @@ What the search results show.
 | Patch | Default | What it does |
 | --- | --- | --- |
 | [Hide urgency messages](docs/patches.md#hide-urgency-messages) | on | Hides scarcity and pressure lines such as "We have 1 left at this price" and "in high demand". |
-| [Hide sponsored listings](docs/patches.md#hide-sponsored-listings) | on | Removes sponsored ("Ad") properties from the results list and the map; in testing, about 2–3 per city on page 1. |
+| [Hide sponsored listings](docs/patches.md#hide-sponsored-listings) | on | Removes sponsored ("Ad") properties from the results list and the map, and Google's display ads; in testing, about 2–3 per city on page 1. |
 | [Label Preferred properties](docs/patches.md#label-preferred-properties) | on | Adds "Pays Booking higher commission" next to the Preferred and Preferred Plus badges. |
 | [Remember result sort](docs/patches.md#remember-result-sort) | on | Keeps the sort you last picked, such as lowest price, for new searches instead of "Our top picks". |
 | [Review check](docs/patches.md#review-check) | on | Scans a hotel's loaded reviews for extra charges, scams and other red flags and says how many mention them. |
@@ -130,13 +131,15 @@ The app around the search.
 </details>
 
 <details>
-<summary><b>Privacy</b> (1)</summary>
+<summary><b>Privacy</b> (3)</summary>
 
-On by default. Stops data collection; changes nothing you see.
+Stops data collection; changes nothing you see, except that Remove microphone access turns off voice search.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
 | [Block tracking](docs/patches.md#block-tracking) | on | Turns off analytics, crash reporting and marketing trackers; leaves anti-fraud, sign-in and payment alone. |
+| [Remove unneeded permissions](docs/patches.md#remove-unneeded-permissions) | on | Removes the screen recording detection and calendar permissions. |
+| [Remove microphone access](docs/patches.md#remove-microphone-access) | off | Removes the microphone permission; voice search stops working. |
 
 </details>
 <!-- PATCHES_END -->
@@ -224,6 +227,8 @@ See [SECURITY.md](SECURITY.md) for how to report it privately.
 - **Block tracking lets Facebook profile pictures load.** Reviews show reviewers' pictures from graph.facebook.com.
 - **Hide insurance offers is unverified.** The test account was never offered insurance, so the patch couldn't be
   checked in the app.
+- **Hiding Google's display ads is unverified.** Booking.com never sent the test account a display ad, so only the
+  sponsored listings part of Hide sponsored listings could be checked in the app.
 - **Show full price up front does nothing from the EU.** Booking.com already includes taxes and charges in prices
   there; the patch only changes prices that leave them out.
 
