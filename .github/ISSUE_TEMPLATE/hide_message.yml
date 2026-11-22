@@ -43,7 +43,7 @@ body:
     id: version
     attributes:
       label: Booking.com and patches versions
-      placeholder: "Booking.com 71.1, patches 1.1.0"
+      placeholder: "Booking.com 71.1, patches 1.10.0"
     validations:
       required: true
   - type: checkboxes
