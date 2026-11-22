@@ -211,7 +211,7 @@ jobs:
               git config user.name "github-actions[bot]"
               git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
               git checkout -b "$branch"
-              git commit -am "feat: Support Quora $VERSION"
+              git commit -am "bump: Support Quora $VERSION"
               body=$(printf '%s\n\n%s\n\n```\n%s\n```\n\n%s\n' \
                 "Quora $VERSION is on APKMirror. Every patch applies, and the patched app starts on an emulator and loads Quora's sign-in page ([run]($RUN_URL))." \
                 "Before merging, try the feed on a phone: the page patches can't be checked without a signed-in account." \
