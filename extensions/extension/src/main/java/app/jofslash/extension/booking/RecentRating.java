@@ -292,11 +292,16 @@ public final class RecentRating {
             boolean failed = false;
             try {
                 List<?> reviews = fetch(hotelId, sort[0], sort[1]);
-                if (reviews != null && newestFirst(reviews)) {
+                Boolean order = reviews == null ? Boolean.FALSE : newestOrder(reviews);
+                if (Boolean.TRUE.equals(order)) {
                     saveSort(sort[0], sort[1]);
                     result = stats(reviews);
                     Log.i(TAG, "Hotel " + hotelId + ": " + result.count + " recent reviews, average "
                             + result.average + " since " + result.since);
+                } else if (order == null) {
+                    // A hotel with few reviews (or all from one day) can't show whether the sort
+                    // works, and has too few for a recent rating anyway: keep the sort.
+                    Log.i(TAG, "Hotel " + hotelId + ": too few dated reviews to check the sort");
                 } else {
                     Log.w(TAG, "Reviews for " + hotelId + " with " + sort[0] + "=" + sort[1]
                             + " aren't newest first; forgetting that sort");
@@ -417,6 +422,12 @@ public final class RecentRating {
     private static final String[] KNOWN_SORT = {"user_sort", "sort_recent_desc"};
 
     /**
+     * The sorts that didn't come back newest first. Earlier builds kept them under "rejected",
+     * where a hotel with under 10 reviews could put the working sort; that set is ignored.
+     */
+    private static final String REJECTED = "rejected_sorts";
+
+    /**
      * The newest-first sort, as {filter id, option}: the one saved after it worked, else the
      * option of the reviews screen's sort menu that says newest, else {@link #KNOWN_SORT}.
      */
@@ -429,7 +440,7 @@ public final class RecentRating {
         }
         String filter = sortFilterId;
         Set<String> rejected = prefs == null ? new HashSet<>()
-                : prefs.getStringSet("rejected", new HashSet<>());
+                : prefs.getStringSet(REJECTED, new HashSet<>());
         for (String[] option : filter == null ? new ArrayList<String[]>() : sortOptions) {
             if (option[0] == null || rejected.contains(filter + "=" + option[0])) continue;
             if (looksNewest(option[0]) || looksNewest(option[1])) return new String[]{filter, option[0]};
@@ -441,6 +452,8 @@ public final class RecentRating {
     private static boolean looksNewest(String s) {
         if (s == null) return false;
         String l = s.toLowerCase(Locale.ROOT);
+        // "sort_recent_asc" (Oldest first) has "recent" in it too.
+        if (l.contains("asc") || l.contains("oldest")) return false;
         return l.contains("newest") || l.contains("recent") || l.contains("latest") || l.contains("date_desc")
                 || l.contains("new_first") || l.contains("completed_desc");
     }
@@ -456,9 +469,9 @@ public final class RecentRating {
     private static void forgetSort(String key, String value) {
         SharedPreferences prefs = prefs();
         if (prefs == null) return;
-        Set<String> rejected = new HashSet<>(prefs.getStringSet("rejected", new HashSet<>()));
+        Set<String> rejected = new HashSet<>(prefs.getStringSet(REJECTED, new HashSet<>()));
         rejected.add(key + "=" + value);
-        SharedPreferences.Editor edit = prefs.edit().putStringSet("rejected", rejected);
+        SharedPreferences.Editor edit = prefs.edit().putStringSet(REJECTED, rejected);
         if (key.equals(prefs.getString("sort_key", null)) && value.equals(prefs.getString("sort_value", null))) {
             edit.remove("sort_key").remove("sort_value");
         }
@@ -498,6 +511,14 @@ public final class RecentRating {
      * over more than one day. "Most relevant" and score sorts fail this.
      */
     static boolean newestFirst(List<?> reviews) {
+        return Boolean.TRUE.equals(newestOrder(reviews));
+    }
+
+    /**
+     * Whether the reviews are newest first: false as soon as a date goes up, null when there are
+     * too few dated reviews (under {@link #MIN_REVIEWS}, or all from one day) to tell, else true.
+     */
+    static Boolean newestOrder(List<?> reviews) {
         String previous = null, first = null;
         int dated = 0;
         for (Object r : reviews) {
@@ -508,7 +529,8 @@ public final class RecentRating {
             previous = d;
             dated++;
         }
-        return dated >= MIN_REVIEWS && !first.equals(previous);
+        if (dated < MIN_REVIEWS || first.equals(previous)) return null;
+        return true;
     }
 
     /** The average of the reviews of the last six months, of a newest-first list. */
