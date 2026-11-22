@@ -33,7 +33,7 @@ val shareAnswerTextPatch = bytecodePatch(
     category("Reading")
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
 
     execute {
         PageFinishedFingerprint.method.addInstruction(
@@ -62,7 +62,7 @@ val sortAnswersPatch = bytecodePatch(
     category("Reading")
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
 
     val order = stringOption(
         key = "sortOrder",
@@ -109,7 +109,7 @@ val readingHistoryPatch = bytecodePatch(
     category("Reading")
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
 
     execute {
         PageFinishedFingerprint.method.addInstruction(
@@ -137,7 +137,7 @@ val fullscreenReadingPatch = bytecodePatch(
     category("Reading")
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
 
     execute {
         registerSetting("fullscreenReading", "Fullscreen reading")
@@ -160,7 +160,7 @@ val bookmarksPatch = bytecodePatch(
     category("Reading")
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
 
     execute {
         PageFinishedFingerprint.method.addInstruction(
@@ -182,7 +182,7 @@ val translateButtonPatch = bytecodePatch(
     category("Reading")
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
 
     execute {
         PageFinishedFingerprint.method.addInstruction(
@@ -203,7 +203,7 @@ val readAloudPatch = bytecodePatch(
     category("Reading")
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
 
     execute {
         PageFinishedFingerprint.method.addInstruction(

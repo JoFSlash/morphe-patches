@@ -28,7 +28,7 @@ val patchSettingsPatch = bytecodePatch(
     category("App")
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
 
     execute {
         SetupTabsFingerprint.method.apply {
@@ -75,7 +75,7 @@ val filterUpdatesPatch = bytecodePatch(
     category("App")
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
     // The download starts where Patch settings hooks the tab bar, and the switch is on its page.
     dependsOn(patchSettingsPatch)
 
@@ -100,7 +100,7 @@ val saveImagesPatch = bytecodePatch(
     category("Reading")
     compatibleWith(COMPATIBILITY_QUORA)
 
-    extendWith("extensions/extension.mpe")
+    extendWith("extensions/quora.mpe")
 
     execute {
         // p0 is the viewer, p1 the image URL.
