@@ -1,10 +1,12 @@
 # Patches in detail
 
 What each patch does, in full. The [README](../README.md#patches) has the short list. All patches are on by default
-except [Hide insurance offers](#hide-insurance-offers); you can switch any of them on or off when you patch.
+except [Hide insurance offers](#hide-insurance-offers) and [Stays only](#stays-only); you can switch any of them on or
+off when you patch.
 
 - **Price:** [Compare prices](#compare-prices) · [Price watch](#price-watch) ·
-  [Check crossed-out prices](#check-crossed-out-prices) · [Show full price up front](#show-full-price-up-front)
+  [Check crossed-out prices](#check-crossed-out-prices) · [Show full price up front](#show-full-price-up-front) ·
+  [Show price per night](#show-price-per-night)
 - **Search:** [Hide urgency messages](#hide-urgency-messages) · [Hide sponsored listings](#hide-sponsored-listings) ·
   [Label Preferred properties](#label-preferred-properties) · [Remember result sort](#remember-result-sort) ·
   [Review check](#review-check) · [Recent rating](#recent-rating) · [Newest reviews first](#newest-reviews-first) ·
@@ -12,7 +14,7 @@ except [Hide insurance offers](#hide-insurance-offers); you can switch any of th
 - **App:** [Disable start-up promotions](#disable-start-up-promotions) · [Hide upsells](#hide-upsells) ·
   [Hide insurance offers](#hide-insurance-offers) · [Disable update and rating prompts](#disable-update-and-rating-prompts) ·
   [Allow screenshots](#allow-screenshots) · [Follow system theme](#follow-system-theme) ·
-  [GmsCore support](#gmscore-support)
+  [GmsCore support](#gmscore-support) · [Open links in browser](#open-links-in-browser) · [Stays only](#stays-only)
 - **Privacy:** [Block tracking](#block-tracking)
 
 Texts the patches add are in English only, also when the app is set to another language.
@@ -89,6 +91,20 @@ charges", also for US hotels), so there the patch changes nothing.
 
 Charges Booking.com can't work out in advance ("Additional charges may apply") still can't be added. The booking form
 is left as it is.
+
+### Show price per night
+
+Default: on.
+
+Search results show the price of the whole stay ("Price for 3 nights, 2 adults", "€ 135"). For stays of 2 or more
+nights the patch adds a small line under that price with the price per night: "€ 45 per night". It's the total the card
+shows divided by the nights of your search, written the same way as the total ("2 872 Kč" gives "957 Kč"), and rounded
+like it. With [Show full price up front](#show-full-price-up-front) on, it divides the total with the taxes and charges
+added. For more rooms it's the price per night of all of them together, like the total. The card's screen reader text
+says it too ("45 EUR per night.").
+
+Nothing changes for a 1-night stay, or for a card that already shows a price per night (Booking.com tests that on some
+cards). Only the search results list: the map cards, the property page and the room list stay as they are.
 
 ## Search
 
@@ -260,6 +276,40 @@ Booking.com's own push messages stay off in the patched app. Notifications the a
 
 With MicroG-RE the app's maps are MicroG's (MapLibre, not Google's own tiles); the patch also works around a MicroG bug
 that crashed the app when a map opened or switched between the default and satellite view.
+
+### Open links in browser
+
+Default: on.
+
+The app opens web pages in its own bare web view, also pages of other websites. With this patch, a link to another site
+opens in your browser instead (as a Custom Tab, where your browser has them, so Back takes you to the app), with your
+browser's address bar, sign-ins, password manager and blockers. That covers links from help, terms and privacy pages,
+messages and chats, My Trips and trip notes, trip ideas, shared wishlists, Questions & answers and Settings, and a tap on
+a link to another site inside a page opened from those.
+
+Kept in the app on purpose:
+
+- Booking.com's own pages (booking.com, booking.cn, bstatic.com), as they can need your sign-in;
+- everything in the booking form, payment and 3-D Secure, sign-in and Genius or wallet terms opened from the booking
+  form, request to book, and the flight, car rental, taxi and attraction screens: those places aren't changed at all;
+- the Official site tab of [Compare prices](#compare-prices), which is the patches' own view;
+- pages a site moves to by itself (redirects), so a page doesn't jump out of the app halfway.
+
+If no browser can open a link, it opens in the app as before. On by default because it only changes where a page of
+another site opens, never what Booking.com shows or sends.
+
+### Stays only
+
+Default: **off**.
+
+Hides the Flights, Car rental, Taxi (airport transfers), Attractions and Flight + Hotel tabs at the top of the home
+screen, for when you only book places to stay (which tabs Booking.com shows depends on your country). The home screen
+opens on the stays search. Off by default, because it takes away parts of the app.
+
+Only the tabs go: a link to one of those products (from an email or a website, such as a taxis.booking.com link) still
+opens it, and then its tab shows next to Stays so you can switch back; pick Stays and the row goes again. Bookings you
+have of them still show in My Trips and Bookings. Offers for taxis, cars, flights and attractions elsewhere in the app are
+[Hide upsells](#hide-upsells).
 
 ## Privacy
 

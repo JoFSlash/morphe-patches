@@ -70,14 +70,18 @@ public final class UpfrontPrice {
         return json.contains("excludedPrice") || (debug() && json.contains(OPEN_PROPERTY_PAGE));
     }
 
-    /** Changes the cards of a server-driven page. Returns how many cards changed. */
-    static int rewriteCards(Object root) throws Exception {
+    /**
+     * Changes the cards of a server-driven page. Returns how many cards changed. For each card
+     * changed, [shown] gets the card's price breakdown -> the total it shows now and its text, so
+     * the Show price per night patch divides the price the card shows.
+     */
+    static int rewriteCards(Object root, Map<JSONObject, Object[]> shown) throws Exception {
         boolean debug = debug();
         if (debug) dump(root);
         IdentityHashMap<Object, JSONObject> cardBreakdown = new IdentityHashMap<>();
         Map<Integer, JSONObject> all = scan(root, cardBreakdown);
         if (all.isEmpty()) return 0;
-        return rewrite(root, cardBreakdown, debug);
+        return rewrite(root, cardBreakdown, shown, debug);
     }
 
     /**
@@ -110,18 +114,18 @@ public final class UpfrontPrice {
         return found;
     }
 
-    private static int rewrite(Object node, IdentityHashMap<Object, JSONObject> cardBreakdown, boolean debug)
-            throws Exception {
+    private static int rewrite(Object node, IdentityHashMap<Object, JSONObject> cardBreakdown,
+            Map<JSONObject, Object[]> shown, boolean debug) throws Exception {
         JSONObject breakdown = cardBreakdown.get(node);
-        if (breakdown != null) return rewriteCard(node, breakdown, debug) ? 1 : 0;
+        if (breakdown != null) return rewriteCard(node, breakdown, shown, debug) ? 1 : 0;
         int changed = 0;
         if (node instanceof JSONObject) {
             JSONObject object = (JSONObject) node;
             Iterator<String> keys = object.keys();
-            while (keys.hasNext()) changed += rewrite(object.opt(keys.next()), cardBreakdown, debug);
+            while (keys.hasNext()) changed += rewrite(object.opt(keys.next()), cardBreakdown, shown, debug);
         } else if (node instanceof JSONArray) {
             JSONArray array = (JSONArray) node;
-            for (int i = 0; i < array.length(); i++) changed += rewrite(array.opt(i), cardBreakdown, debug);
+            for (int i = 0; i < array.length(); i++) changed += rewrite(array.opt(i), cardBreakdown, shown, debug);
         }
         return changed;
     }
@@ -149,7 +153,8 @@ public final class UpfrontPrice {
         }
     }
 
-    private static boolean rewriteCard(Object card, JSONObject breakdown, boolean debug) throws Exception {
+    private static boolean rewriteCard(Object card, JSONObject breakdown, Map<JSONObject, Object[]> shown,
+            boolean debug) throws Exception {
         Amount gross = Amount.of(breakdown, "grossPrice");
         Amount excluded = Amount.of(breakdown, "excludedPrice");
         Amount inclusive = Amount.of(breakdown, "allInclusivePrice");
@@ -217,12 +222,13 @@ public final class UpfrontPrice {
         }
 
         changeTexts(card, replace, chargesInfo, included);
+        if (shown != null) shown.put(breakdown, new Object[]{total, totalText});
         if (debug) Log.d(TAG, "Price card: " + gross.rounded + " -> " + totalText + ", " + chargesInfo + " -> " + included);
         return true;
     }
 
     /** The visible texts (["text", ...]) and screen reader texts (["a11y", ...]) of a card. */
-    private static void collectTexts(Object node, List<String[]> out) {
+    static void collectTexts(Object node, List<String[]> out) {
         if (node instanceof JSONObject) {
             JSONObject object = (JSONObject) node;
             String type = object.optString("type");
@@ -253,7 +259,7 @@ public final class UpfrontPrice {
         }
     }
 
-    private static boolean isA11yKey(String key) {
+    static boolean isA11yKey(String key) {
         return key.startsWith("accessibility") || key.equals("contentDescription");
     }
 
@@ -340,13 +346,13 @@ public final class UpfrontPrice {
     }
 
     /** "60" for 60.0, "60.40" for 60.4. */
-    private static String plain(double value) {
+    static String plain(double value) {
         if (Math.abs(value - Math.rint(value)) < CENT) return String.valueOf((long) Math.rint(value));
         return String.format(Locale.ROOT, "%.2f", value);
     }
 
     /** The grouping separator of the first of [templates] that has one ("1,234" -> ","), or null. */
-    private static String groupingOf(String... templates) {
+    static String groupingOf(String... templates) {
         for (String template : templates) {
             if (template == null) continue;
             NumberShape shape = NumberShape.of(template);

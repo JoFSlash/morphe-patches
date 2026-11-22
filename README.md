@@ -16,7 +16,8 @@ Patches for the [Booking.com](https://play.google.com/store/apps/details?id=com.
 - block analytics and marketing trackers.
 
 Works with Booking.com <!-- VERSIONS_START -->71.1<!-- VERSIONS_END --> on Android 8 or newer. No root needed.
-All patches but Hide insurance offers are on by default; you can switch any of them on or off when you patch.
+All patches but Hide insurance offers and Stays only are on by default; you can switch any of them on or off when you
+patch.
 
 > **Status: work in progress.** Booking.com runs anti-fraud checks (ThreatMetrix, FingerprintJS) that these patches
 > leave switched on. In one test on a throwaway account, email sign-in and a free-cancellation booking both went
@@ -66,10 +67,10 @@ All patches but Hide insurance offers are on by default; you can switch any of t
 ## Patches
 
 <!-- PATCHES_START -->
-20 patches, all on by default except Hide insurance offers. Supported Booking.com versions: 71.1.
+23 patches, all on by default except Hide insurance offers and Stays only. Supported Booking.com versions: 71.1.
 
 <details open>
-<summary><b>Price</b> (4)</summary>
+<summary><b>Price</b> (5)</summary>
 
 Added features. They show you more; they don't change what you book.
 
@@ -79,6 +80,7 @@ Added features. They show you more; they don't change what you book.
 | [Price watch](docs/patches.md#price-watch) | on | Checks the price of stays you watch once a day, charts it and notifies you when it drops. |
 | [Check crossed-out prices](docs/patches.md#check-crossed-out-prices) | on | Says whether a crossed-out "original" price matches what you actually saw for those dates before. |
 | [Show full price up front](docs/patches.md#show-full-price-up-front) | on | Shows the total with taxes and charges Booking.com adds on top. Changes nothing when you search from the EU. |
+| [Show price per night](docs/patches.md#show-price-per-night) | on | Adds the price per night under the total of each search result for stays of 2 or more nights. |
 
 </details>
 
@@ -101,7 +103,7 @@ What the search results show.
 </details>
 
 <details>
-<summary><b>App</b> (7)</summary>
+<summary><b>App</b> (9)</summary>
 
 The app around the search.
 
@@ -114,6 +116,8 @@ The app around the search.
 | [Allow screenshots](docs/patches.md#allow-screenshots) | on | Lets you take screenshots on booking and payment screens. |
 | [Follow system theme](docs/patches.md#follow-system-theme) | on | Makes the app light or dark to match your phone. |
 | [GmsCore support](docs/patches.md#gmscore-support) | on | Makes "Continue with Google" work through MicroG-RE. |
+| [Open links in browser](docs/patches.md#open-links-in-browser) | on | Opens links to other websites in your browser; Booking.com pages, sign-in and payment stay in the app. |
+| [Stays only](docs/patches.md#stays-only) | off | Hides the Flights, Car rental, Taxi and Attractions tabs on the home screen. |
 
 </details>
 

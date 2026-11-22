@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Used by the Hide sponsored listings, Hide urgency messages, Label Preferred properties and Show
- * full price up front patches. Search results are a server-driven ("Saba") page that the app gets as JSON. Before the
+ * Used by the Hide sponsored listings, Hide urgency messages, Label Preferred properties, Show
+ * full price up front and Show price per night patches. Search results are a server-driven ("Saba") page that the app gets as JSON. Before the
  * app reads that JSON, the parts the enabled patches hide are taken out and the Preferred badges
  * get their label. On any problem the JSON is left as it is.
  */
@@ -81,6 +81,11 @@ public final class SabaJsonFilter {
         return false;
     }
 
+    /** Changed by the Show price per night patch to return true. */
+    private static boolean pricePerNight() {
+        return false;
+    }
+
     /** Changed by the Hide sponsored listings patch to return true. */
     private static boolean hideSponsored() {
         return false;
@@ -101,7 +106,8 @@ public final class SabaJsonFilter {
                     || json.contains(PREFERRED_PLUS_ICON) || json.contains(A11Y_PREFERRED)
                     || json.contains(A11Y_PREFERRED_PLUS));
             boolean upfront = upfrontPrice() && UpfrontPrice.mayApply(json);
-            if (!sponsored && !urgency && !preferred && !upfront) return json;
+            boolean perNight = pricePerNight() && PricePerNight.mayApply(json);
+            if (!sponsored && !urgency && !preferred && !upfront && !perNight) return json;
 
             String trimmed = json.trim();
             Object root;
@@ -117,10 +123,14 @@ public final class SabaJsonFilter {
                 if (!texts.isEmpty()) cleanAccessibilityLabels(root, texts);
             }
             int labels = preferred ? addPreferredLabels(root) : 0;
-            int prices = upfront ? UpfrontPrice.rewriteCards(root) : 0;
-            if (ads + urgencies + labels + prices == 0) return json;
+            // Full prices first: the price per night divides the total the card shows.
+            java.util.Map<JSONObject, Object[]> shown = new java.util.IdentityHashMap<>();
+            int prices = upfront ? UpfrontPrice.rewriteCards(root, shown) : 0;
+            int nights = perNight ? PricePerNight.addToCards(root, shown) : 0;
+            if (ads + urgencies + labels + prices + nights == 0) return json;
             Log.d(TAG, "Removed " + ads + " sponsored results and " + urgencies + " urgency messages, labelled "
-                    + labels + " Preferred badges and card texts, showed " + prices + " full prices");
+                    + labels + " Preferred badges and card texts, showed " + prices + " full prices and "
+                    + nights + " prices per night");
             return root.toString();
         } catch (Throwable t) {
             Log.w(TAG, "Couldn't filter a server-driven page", t);
