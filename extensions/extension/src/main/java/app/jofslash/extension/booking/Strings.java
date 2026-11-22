@@ -65,7 +65,12 @@ public final class Strings {
     public static final String HOTEL_LOWEST = "Lowest per night";
     public static final String HOTEL_HIGHEST = "Highest per night";
     /** Days with a price, different stays. */
-    public static final String HOTEL_COUNT = "%1$d days with prices, %2$d different stays";
+    /** Days with prices, then different stays; each "%s" is the number with its noun. */
+    public static final String HOTEL_COUNT = "%1$s with prices, %2$s";
+    public static final String DAYS_ONE = "1 day";
+    public static final String DAYS_MANY = "%d days";
+    public static final String STAYS_ONE = "1 stay";
+    public static final String STAYS_MANY = "%d different stays";
     /** Check-in, check-out, price, day it was seen. */
     public static final String HISTORY_OTHER_ROW = "%1$s – %2$s: %3$s (seen %4$s)";
     public static final String VERDICT_LOW = "The price is low compared with what you've seen";

@@ -438,8 +438,9 @@ final class HistoryTab {
         stats.addView(stat(Strings.HOTEL_LOWEST, Panel.money(min.price, currency), Panel.day(min.time)), weight());
         stats.addView(stat(Strings.HOTEL_HIGHEST, Panel.money(max.price, currency), Panel.day(max.time)), weight());
         content.addView(panel.spaced(stats, 8));
-        content.addView(panel.spaced(panel.text(String.format(Locale.getDefault(), Strings.HOTEL_COUNT, points.size(),
-                stays), 13, colors.secondaryText, false), 6));
+        content.addView(panel.spaced(panel.text(String.format(Strings.HOTEL_COUNT,
+                points.size() == 1 ? Strings.DAYS_ONE : String.format(Locale.getDefault(), Strings.DAYS_MANY, points.size()),
+                stays == 1 ? Strings.STAYS_ONE : String.format(Locale.getDefault(), Strings.STAYS_MANY, stays)), 13, colors.secondaryText, false), 6));
     }
 
     private static long startOfDay(long time) {
