@@ -16,9 +16,16 @@ import java.util.Locale;
  * are abu.homescreen.LegacyHomeComponent items named by componentId ("recent_searches",
  * "wishlist", "upcoming_bookings", "ai_trip_planner", ...), the rest are drawn from the JSON
  * itself, such as campaign banners and offer carousels. Every block carries the ids Booking's
- * home screen tracking uses (component_id, region_id, unique_id). The blocks whose ids name an
- * offer, a deal, a campaign or an attraction are taken out of the list; the search box, recent
- * searches, Genius, saved properties and your trips stay. On any doubt a block stays.
+ * home screen tracking uses: the page area it is in (region_id, such as
+ * HOMESCREEN_PROMOTIONAL_HERO for the campaign banner, HOMESCREEN_PROMOTIONAL_SECONDARY for the
+ * "Offers" row, HOMESCREEN_AITP for the AI trip planner and HOMESCREEN_NATIVE_ADS for ads) and,
+ * for each part, a unique_id that ends with the part's name, such as
+ * "homescreen-accommodations-<uuid>-rec_popular_attractions_by_search_carousel".
+ *
+ * The blocks in a promotional, AI trip planner or ad area are taken out, and inside the other
+ * blocks the parts that only offer attractions ("Popular attractions in Prague"). The search box,
+ * recent searches, Genius, saved properties, trips and destination ideas stay. On any doubt a
+ * block stays.
  */
 final class HomeOffers {
     private static final String TAG = "JoFSlash";
@@ -31,6 +38,14 @@ final class HomeOffers {
     private static final String[] ID_KEYS = {
             "componentId", "component_id", "regionId", "region_id", "uniqueId", "unique_id",
     };
+
+    /** Page areas (region_id) whose blocks are left out. */
+    private static final String[] HIDDEN_REGIONS = {"PROMOTIONAL", "AITP", "NATIVE_AD"};
+    private static final String REGION_PREFIX = "HOMESCREEN_";
+
+    /** Parts of a block (the end of their unique_id) that are left out: attraction carousels. */
+    private static final String[] HIDDEN_PARTS = {"attraction", "campaign", "offer", "promo"};
+    private static final String UNIQUE_ID_PREFIX = "homescreen-";
 
     /** The app's own blocks that are left out ("Plan your trip with AI"). */
     private static final String[] HIDDEN_NATIVE = {"ai_trip_planner"};
@@ -73,12 +88,18 @@ final class HomeOffers {
             if (hide) {
                 blocks.remove(i);
                 removed++;
+            } else {
+                removed += removeParts(block, 0);
             }
         }
         return removed;
     }
 
     private static boolean shouldHide(Object block, List<String> ids) {
+        for (String id : ids) {
+            if (id.startsWith(REGION_PREFIX)) return containsAny(id, HIDDEN_REGIONS);
+        }
+        // No page area: go by the names.
         String legacyId = legacyComponentId(block, 0);
         if (legacyId != null) {
             // The app's own blocks: only the ones named, so nothing native disappears by accident.
@@ -95,6 +116,64 @@ final class HomeOffers {
         collectLinks(block, links, 0);
         String allLinks = String.join(" ", links).toLowerCase(Locale.ROOT);
         return !containsAny(allLinks, KEEP) && containsAny(allLinks, HIDE_LINKS);
+    }
+
+    /**
+     * Takes out the parts of a block whose names (the end of their unique_id) all are attraction
+     * or offer parts. A part that also holds another part stays, and is looked into.
+     */
+    private static int removeParts(Object node, int depth) {
+        if (depth > 40) return 0;
+        int removed = 0;
+        if (node instanceof JSONArray) {
+            JSONArray array = (JSONArray) node;
+            for (int i = array.length() - 1; i >= 0; i--) {
+                Object item = array.opt(i);
+                List<String> names = new ArrayList<>();
+                collectPartNames(item, names, 0);
+                boolean hide = !names.isEmpty();
+                for (String name : names) {
+                    if (!containsAny(name, HIDDEN_PARTS)) hide = false;
+                }
+                if (hide) {
+                    Log.d(TAG, "Home screen part removed: " + names + " text=" + firstText(item, 0));
+                    array.remove(i);
+                    removed++;
+                } else {
+                    removed += removeParts(item, depth + 1);
+                }
+            }
+        } else if (node instanceof JSONObject) {
+            JSONObject object = (JSONObject) node;
+            Iterator<String> keys = object.keys();
+            while (keys.hasNext()) removed += removeParts(object.opt(keys.next()), depth + 1);
+        }
+        return removed;
+    }
+
+    /** The part names in [node]: the end of each unique_id ("...-<uuid>-<name>"). */
+    private static void collectPartNames(Object node, List<String> names, int depth) {
+        if (depth > 40) return;
+        if (node instanceof JSONObject) {
+            JSONObject object = (JSONObject) node;
+            Iterator<String> keys = object.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                Object value = object.opt(key);
+                if (value instanceof String && ("unique_id".equals(key) || "uniqueId".equals(key))) {
+                    String id = (String) value;
+                    if (!id.startsWith(UNIQUE_ID_PREFIX)) continue;
+                    int dash = id.lastIndexOf('-');
+                    String name = (dash >= 0 ? id.substring(dash + 1) : id).toLowerCase(Locale.ROOT);
+                    if (!name.isEmpty() && !names.contains(name)) names.add(name);
+                } else {
+                    collectPartNames(value, names, depth + 1);
+                }
+            }
+        } else if (node instanceof JSONArray) {
+            JSONArray array = (JSONArray) node;
+            for (int i = 0; i < array.length(); i++) collectPartNames(array.opt(i), names, depth + 1);
+        }
     }
 
     /**
