@@ -46,7 +46,7 @@ subscription.
 
 ## Updating
 
-- **New patches:** a new version of these patches comes out on a Thursday, every other week (see
+- **New patches:** a new version of these patches comes out every Saturday when something changed (see
   [Updating](../../README.md#updating)). Morphe Manager then marks the patched app with an Update badge. Patch the same Google Health
   file again and install it over the patched app. No need to uninstall: you stay signed in.
 - **New Google Health version:** the patched app doesn't update from the Play Store. New versions are tried

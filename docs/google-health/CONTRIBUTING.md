@@ -58,7 +58,7 @@ as a release named `google-health-<version>`, so the emulator test can use it.
   the patched code for the change each patch makes (`verify_google_health.py`). It needs the `APKS_TOKEN`
   secret (a fine-grained token with read and write access to the contents of `JoFSlash/morphe-apks`);
   without it, pull requests skip the test.
-- **Release** (Mondays 08:00 UTC, or by hand): runs the emulator test, then semantic-release publishes the
+- **Release** (Wednesday pre-release, Saturday stable release, 08:00 UTC, or by hand): runs the emulator test, then semantic-release publishes the
   bundle when there are `feat:`, `fix:` or `bump:` commits since the last release.
 - **Google Health version** (daily 05:30 UTC, or by hand with a version): tries a new Google Health
   version and opens a pull request or an issue, as described above.
