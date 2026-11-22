@@ -183,6 +183,10 @@ public final class Strings {
     public static final String UPFRONT_INCLUDED_MORE =
             "Total, incl. %1$s taxes and charges. More charges may apply";
 
+    // Price per night
+    /** Under a search result's total price. %s is the amount ("€ 45"). */
+    public static final String PER_NIGHT = "%s per night";
+
     // -------------------------------------------------------------------------------------------
     // Review check
     //
