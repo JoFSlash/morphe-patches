@@ -168,6 +168,16 @@ public final class Strings {
     /** Added to the screen reader text after "This is a Preferred property." */
     public static final String PREFERRED_A11Y = "Preferred properties pay Booking.com a higher commission.";
 
+    // Full price up front
+    /**
+     * Replaces Booking's "+ € 12 taxes and charges" under a price that now includes them. %1$s is
+     * the amount that was added.
+     */
+    public static final String UPFRONT_INCLUDED = "Total, incl. %1$s taxes and charges";
+    /** The same when Booking also says some charges can't be worked out in advance. */
+    public static final String UPFRONT_INCLUDED_MORE =
+            "Total, incl. %1$s taxes and charges. More charges may apply";
+
     // -------------------------------------------------------------------------------------------
     // Review check
     //

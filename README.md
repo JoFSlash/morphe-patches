@@ -39,10 +39,10 @@ All patches are on by default; you can switch any of them off when you patch.
 ## Patches
 
 <!-- PATCHES_START -->
-16 patches, all on by default. Supported Booking.com versions: 71.1.
+17 patches, all on by default. Supported Booking.com versions: 71.1.
 
 <details open>
-<summary><b>Price</b> (4)</summary>
+<summary><b>Price</b> (5)</summary>
 
 Added features. They show you more; they don't change what you book.
 
@@ -52,6 +52,7 @@ Added features. They show you more; they don't change what you book.
 | Price history | on | Saves the prices the app shows you (at most 5000, the same price only once per 6 hours) and shows them for your dates as a chart, with the lowest, highest and current price and a check of crossed-out "original" prices. A second chart shows the hotel over the past year across all stay dates (the lowest price per night each day). **1M / 6M / 1Y / All** buttons pick the period. The history starts when the patch is installed; prices from before that can't be fetched, because no site publishes past hotel prices. |
 | Price watch | on | Adds a **Watch this price** button to the **Price history** tab. Once a day, on Wi-Fi and with the battery not low, the app asks Booking.com for the price of each stay you watch (hotel, dates, adults and rooms; at most 20), with the same request the hotel's page makes, saves it into the price history and shows a **Price drops** notification when it fell by more than 1%; tap it to open the hotel for those dates. The tab lists every watched stay with its last price; a watch ends by itself on the check-in day. Nothing is checked until you watch a stay. Needs **Price history**. |
 | Check crossed-out prices | on | When a hotel's page shows a crossed-out "original" price, a line under the price compares it with the prices saved on your phone in the last 30 days for the same dates, guests, rooms and currency: "Crossed-out € 79: you only saw € 58–62 for these dates since 3 Nov (6 prices)", in red, or "you saw € 79 for these dates on 5 Nov" when it was the real price before. It adds when the price was crossed out on nearly every check, which means the "discount" is the normal price. With fewer than 3 saved prices, or all from one day, it says there aren't enough yet instead of judging. A Genius or app-only discount is a real discount for you, so then it says just that. It saves prices like Price history (the two share the same history), also when Price history is off. It compares the hotel's headline price (the cheapest room, which the page shows); prices of single rooms on the room list aren't saved or checked. |
+| Show full price up front | on | Shows the total price with the taxes and charges Booking.com otherwise adds on top (such as a city tax or cleaning fee paid at the property): in search results, on the map (markers and cards), on the property page and in the room list. Instead of "€ 60" and "+ € 12 taxes and charges" you see "€ 72" and "Total, incl. € 12 taxes and charges"; a crossed-out price gets the same charges added, so the discount stays the same. Uses the amounts Booking.com already sends with each price, no extra requests. When you search from the EU, Booking.com already includes them in every price we checked ("Includes taxes and charges", also for US hotels), so there the patch changes nothing. Charges Booking.com can't work out in advance ("Additional charges may apply") still can't be added. The booking form is left as it is. |
 
 </details>
 
