@@ -114,7 +114,8 @@ whether a hotel is sold out.
 Default: on.
 
 Removes sponsored ("Ad") properties from the results list and sponsored markers from the map, so you see only the
-ranked results. In testing it took out about 2–3 ads per city on the first page of results.
+ranked results. In testing it took out about 2–3 ads per city on the first page of results. On the map a sponsored
+property shows as an ordinary price pin, without the ad megaphone and its ad tracking.
 
 ### Label Preferred properties
 
