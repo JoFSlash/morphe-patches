@@ -4,8 +4,10 @@ import app.jofslash.patches.booking.shared.Constants.COMPATIBILITY_BOOKING
 import app.jofslash.patches.booking.shared.methodOf
 import app.jofslash.patches.booking.shared.returnEarly
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
+import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.resourcePatch
+import com.android.tools.smali.dexlib2.AccessFlags
 import org.w3c.dom.Element
 
 /** Permissions that only serve advertising: the advertising ID and Android's ad services. */
@@ -15,6 +17,21 @@ private val AD_PERMISSIONS = setOf(
     "android.permission.ACCESS_ADSERVICES_ATTRIBUTION",
     "android.permission.ACCESS_ADSERVICES_TOPICS",
 )
+
+/** Google's data transport (Firelog) backend that uploads to firebaselogging-pa.googleapis.com. */
+private const val CCT_BACKEND = "backend:com.google.android.datatransport.cct.CctBackendFactory"
+
+/** Google Tag Manager's service and its preview (debug) screen. */
+private val TAG_MANAGER_COMPONENTS = setOf(
+    "com.google.android.gms.tagmanager.TagManagerService",
+    "com.google.android.gms.tagmanager.TagManagerPreviewActivity",
+)
+
+private const val CRASHLYTICS_DATA_COLLECTION =
+    "Lcom/google/firebase/crashlytics/internal/common/DataCollectionArbiter;"
+private const val FIS_CLIENT = "Lcom/google/firebase/installations/remote/FirebaseInstallationServiceClient;"
+private const val FIS_EXCEPTION = "Lcom/google/firebase/installations/FirebaseInstallationsException;"
+private const val FIS_STATUS = "Lcom/google/firebase/installations/FirebaseInstallationsException\$Status;"
 
 private val blockTrackingResourcePatch = resourcePatch {
     execute {
@@ -43,6 +60,34 @@ private val blockTrackingResourcePatch = resourcePatch {
             setMetaData("firebase_analytics_collection_deactivated", "true")
             setMetaData("firebase_analytics_collection_enabled", "false")
             setMetaData("google_analytics_adid_collection_enabled", "false")
+            // Crashlytics crash reports and Firebase Sessions, by their own switches. The app turns
+            // Crashlytics back on in code, so the bytecode patch below holds it off too.
+            setMetaData("firebase_crashlytics_collection_enabled", "false")
+            setMetaData("firebase_sessions_enabled", "false")
+
+            // Google's data transport sends Crashlytics, Sessions, Performance, ML Kit and FCM
+            // delivery logs through its "cct" backend to firebaselogging-pa.googleapis.com.
+            // Without the backend, the transport drops whatever is queued for it.
+            val allMetaData = document.getElementsByTagName("meta-data")
+            for (i in allMetaData.length - 1 downTo 0) {
+                val element = allMetaData.item(i) as Element
+                if (element.getAttribute("android:name") == CCT_BACKEND) {
+                    element.parentNode.removeChild(element)
+                }
+            }
+
+            // Google Tag Manager only runs on Firebase Analytics events, which are off; switch off
+            // its service and its preview screen (a deep link anyone can open) as well.
+            for (tag in listOf("service", "activity")) {
+                val components = document.getElementsByTagName(tag)
+                for (i in 0 until components.length) {
+                    val component = components.item(i) as Element
+                    if (component.getAttribute("android:name") in TAG_MANAGER_COMPONENTS) {
+                        component.setAttribute("android:enabled", "false")
+                        component.setAttribute("android:exported", "false")
+                    }
+                }
+            }
         }
     }
 }
@@ -50,9 +95,10 @@ private val blockTrackingResourcePatch = resourcePatch {
 @Suppress("unused")
 val blockTrackingPatch = bytecodePatch(
     name = "Block tracking",
-    description = "Stops analytics and marketing trackers: AppsFlyer, Firebase and Google Analytics, Embrace, " +
-            "the ID5 advertising ID, and Booking's own C360 and \"squeaks\" usage reports. Also removes the " +
-            "advertising ID permissions. Security, payment and sign-in checks are left alone.",
+    description = "Stops analytics and marketing trackers: AppsFlyer, Firebase and Google Analytics, Firebase " +
+            "Crashlytics, Sessions, Installations and logging, Google Tag Manager, Embrace, the ID5 advertising " +
+            "ID, and Booking's own C360 and \"squeaks\" usage reports. Also removes the advertising ID " +
+            "permissions. Security, payment and sign-in checks are left alone.",
     default = true
 ) {
     category("Privacy")
@@ -95,5 +141,40 @@ val blockTrackingPatch = bytecodePatch(
                     return-object v0
                 """
             )
+
+        // Firebase Crashlytics. The app calls setCrashlyticsCollectionEnabled(true) at start,
+        // which beats the manifest switch, so answer Crashlytics' own "may I collect" check with
+        // no. Without it Crashlytics doesn't fetch its settings, doesn't send reports and doesn't
+        // ask Firebase Sessions to log sessions.
+        methodOf(CRASHLYTICS_DATA_COLLECTION, "isAutomaticDataCollectionEnabled").returnEarly()
+
+        // Firebase Installations (firebaseinstallations.googleapis.com) registers an install ID
+        // for Crashlytics, Sessions, Remote Config and push. Every request opens its connection
+        // here; fail it as "service unavailable", as when Google can't be reached. The install
+        // ID is still made on the phone, and push registration (FCM) goes on without the
+        // Installations token, as it does when that service is down.
+        methodOf(FIS_CLIENT, "openHttpURLConnection").apply {
+            val code = implementation ?: throw PatchException("$FIS_CLIENT->openHttpURLConnection has no code")
+            val parameterRegisters = parameterTypes.size + if (AccessFlags.STATIC.isSet(accessFlags)) 0 else 1
+            if (code.registerCount - parameterRegisters < 3) {
+                throw PatchException("$FIS_CLIENT->openHttpURLConnection has too few registers")
+            }
+            addInstructions(
+                0,
+                """
+                    new-instance v0, $FIS_EXCEPTION
+                    const-string v1, "Firebase Installations is blocked"
+                    sget-object v2, $FIS_STATUS->UNAVAILABLE:$FIS_STATUS
+                    invoke-direct { v0, v1, v2 }, $FIS_EXCEPTION-><init>(Ljava/lang/String;$FIS_STATUS)V
+                    throw v0
+                """
+            )
+        }
+
+        // Booking's side of Tag Manager: the marketing events (search, hotel, book, confirmation
+        // with price and reservation ID) it hands to Firebase Analytics for Tag Manager, and the
+        // event data it fetches for them from Booking at start.
+        methodOf("Lcom/booking/tagmanagerservices/TagManagerMarketingTracker;", "logEvent").returnEarly()
+        methodOf("Lcom/booking/tagmanagerservices/init/TagManagerInitialisable;", "initialize").returnEarly()
     }
 }

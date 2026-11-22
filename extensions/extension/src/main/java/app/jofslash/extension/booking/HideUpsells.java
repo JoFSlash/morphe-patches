@@ -19,12 +19,15 @@ public final class HideUpsells {
      * flights and attractions for a stay: "Plan ahead" on the confirmation, booking details and
      * manage booking pages, the sheet after booking, "Add to your stay" in the booking form, the
      * inline banners on the hotel, room and booking pages, the offers on the cancellation page and
-     * the "discover more" cards. My Trips' next steps, rewards you have unlocked, the booking
-     * loader and recent searches stay.
+     * the "discover more" cards, and on the home screen the carousels of attractions, cars and
+     * taxis for your upcoming trip (UpcomingTrip) and for your last search (RecentSearches). My
+     * Trips' next steps, rewards you have unlocked and the booking loader stay; your recent
+     * searches themselves are another block and stay too.
      */
     private static final String[] CROSS_SELL = {
             "PlanAhead", "ConfirmationModal", "Modal", "AddToYourStay", "ListInlineBanner",
             "CancelInfo", "DiscoverySupply", "InFeedBanner", "InFeedCarTaxiBanner",
+            "UpcomingTrip", "RecentSearches",
     };
 
     private HideUpsells() {
