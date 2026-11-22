@@ -16,7 +16,7 @@ name: Release
 # Before releasing, the bundle has to pass the emulator tests (emulator.yml for Quora: every patch
 # applies and the app starts on Android 15, 16 and 17; emulator-google-health.yml for Google Health:
 # the same on Android 12L to 17, also for the clone; emulator-booking.yml for Booking.com: the
-# same on Android 11 to 17) and the feed test (feed-test.yml: the page patches work
+# same on Android 12L to 17) and the feed test (feed-test.yml: the page patches work
 # on the signed-in feed and on an answer). A skipped feed test counts as not passed. When either
 # doesn't pass, nothing is released and the issue "Weekly release stopped" says why; the next
 # release that goes through closes it. When the feed test can't run (for example while its saved

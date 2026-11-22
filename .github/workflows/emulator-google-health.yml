@@ -16,12 +16,16 @@ name: Emulator test
 # it fails.
 
 on:
-  # Only for pull requests that touch this app's patches or the shared build.
+  # Only for pull requests that change this app's patches, this test or the shared build.
   pull_request:
     paths:
       - 'patches/src/main/kotlin/app/jofslash/patches/googlehealth/**'
       - 'extensions/googlehealth/**'
-      - '.github/**'
+      - '.github/workflows/emulator-google-health.yml'
+      - '.github/scripts/check_google_health.py'
+      - '.github/scripts/verify_google_health.py'
+      - '.github/actions/install-emulator/**'
+      - '.github/morphe-cli-version'
       - 'gradle/**'
       - '*.gradle.kts'
       - 'patches/build.gradle.kts'
@@ -47,13 +51,9 @@ jobs:
       matrix:
         # Google Health needs Android 12L or newer: every version from there, and the next one,
         # whose image is only in the SDK's canary channel so far.
-        include:
-          - { api: '32', android: '12L', channel: 'stable' }
-          - { api: '33', android: '13', channel: 'stable' }
-          - { api: '34', android: '14', channel: 'stable' }
-          - { api: '35', android: '15', channel: 'stable', verify: true }
-          - { api: '36', android: '16', channel: 'stable' }
-          - { api: '37.0', android: '17', channel: 'canary' }
+        # A pull request is tried on the oldest and the newest stable version; the release and a run
+        # by hand try all of them.
+        include: ${{ fromJSON(github.event_name == 'pull_request' && '[{"api":"32","android":"12L","channel":"stable"},{"api":"36","android":"16","channel":"stable","verify":true}]' || '[{"api":"32","android":"12L","channel":"stable"},{"api":"33","android":"13","channel":"stable"},{"api":"34","android":"14","channel":"stable"},{"api":"35","android":"15","channel":"stable","verify":true},{"api":"36","android":"16","channel":"stable"},{"api":"37.0","android":"17","channel":"canary"}]') }}
     steps:
       - name: Check for the APK token
         id: token
