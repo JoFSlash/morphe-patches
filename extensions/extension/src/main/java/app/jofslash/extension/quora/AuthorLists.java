@@ -45,12 +45,19 @@ final class AuthorLists {
         return context.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
+    /** The links as saved, one per line. */
+    static String saved(SharedPreferences prefs) {
+        return prefs.getString(URLS, "");
+    }
+
     /** The https links in the text, at most MAX_LISTS. */
     static List<String> urls(String text) {
         List<String> out = new ArrayList<>();
         if (text == null) return out;
         for (String line : text.split("[\\s,]+")) {
             String s = line.trim();
+            // Keyboards like to write "Https://".
+            if (s.regionMatches(true, 0, "https://", 0, 8)) s = "https://" + s.substring(8);
             if (!s.matches("https://[A-Za-z0-9.-]+(:\\d{1,5})?/[^\\s]{0,1000}") || out.contains(s)) continue;
             out.add(s);
             if (out.size() >= MAX_LISTS) break;

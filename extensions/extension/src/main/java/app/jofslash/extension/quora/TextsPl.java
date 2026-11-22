@@ -38,7 +38,6 @@ final class TextsPl {
         m.put("Filters", "Filtry");
         m.put("Keywords, authors and Spaces to hide.", "Słowa kluczowe, autorzy i Spaces do ukrycia.");
         m.put("Separate with commas", "Oddziel przecinkami");
-        m.put("Matching ignores case. Saved when you go back.", "Wielkość liter nie ma znaczenia. Zapisuje się, gdy wrócisz.");
         m.put("History", "Historia");
         m.put("Answers, posts and questions you opened.", "Otwarte odpowiedzi, posty i pytania.");
         m.put("Bookmarks", "Zakładki");
@@ -322,5 +321,49 @@ final class TextsPl {
         // Update notice, settings line only.
         m.put("Shows here when newer patches are out, from GitHub once a day.",
                 "Pokazuje tutaj, gdy wyjdą nowsze łatki, z GitHuba raz dziennie.");
+        // Feed tools: reader view, reading time, filters, picking, author lists.
+        m.put("\"4 min read\" above longer answers.", "„4 min czytania” nad dłuższymi odpowiedziami.");
+        m.put("A Reader view button next to Share under answers.",
+                "Przycisk Widok czytania obok Udostępnij pod odpowiedziami.");
+        m.put("All bookmarks with their saved text, to a notes app, Pocket or mail.",
+                "Wszystkie zakładki z zapisanym tekstem do aplikacji notatek, Pocket lub poczty.");
+        m.put("Answers and posts someone only shared again.", "Odpowiedzi i posty, które ktoś tylko udostępnił dalej.");
+        m.put("Answers marked as translated from another language.",
+                "Odpowiedzi oznaczone jako przetłumaczone z innego języka.");
+        m.put("Answers with fewer upvotes than set below.", "Odpowiedzi z mniejszą liczbą głosów niż ustawiona niżej.");
+        m.put("Author lists to follow", "Obserwowane listy autorów");
+        m.put("Bigger", "Większe");
+        m.put("Boxes you picked under More > Pick something to hide.",
+                "Części wybrane w Więcej > Wybierz coś do ukrycia.");
+        m.put("Fewer upvotes than", "Mniej głosów niż");
+        m.put("Hidden.", "Ukryto.");
+        m.put("Hide the marked box and the others like it?", "Ukryć zaznaczoną część i wszystkie podobne?");
+        m.put("Hide the marked box?", "Ukryć zaznaczoną część?");
+        m.put("Links to text files with names, one per line. They are downloaded once a day.",
+                "Linki do plików tekstowych z nazwami, jedna w wierszu. Pobierane raz dziennie.");
+        m.put("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). Saved when you go back.",
+                "Wielkość liter nie ma znaczenia, szukane są całe słowa; słowo zakończone * znajdzie też dłuższe (art* znajdzie artist). Zapisuje się po powrocie.");
+        m.put("Names from the lists: ", "Nazwy z list: ");
+        m.put("Not downloaded yet.", "Jeszcze nie pobrano.");
+        m.put("Nothing here can be hidden this way. Try a bigger part of the page.",
+                "Tego nie da się tak ukryć. Spróbuj większej części strony.");
+        m.put("Nothing picked yet", "Nic jeszcze nie wybrano");
+        m.put("One per line. Delete a line to show those boxes again.",
+                "Jedno w wierszu. Usuń wiersz, aby znów pokazać te części.");
+        m.put("Open a page first.", "Najpierw otwórz stronę.");
+        m.put("Pick something to hide", "Wybierz coś do ukrycia");
+        m.put("Picked to hide", "Wybrane do ukrycia");
+        m.put("Posts that are only a picture or a video.", "Posty, które są tylko obrazem lub filmem.");
+        m.put("Reader view", "Widok czytania");
+        m.put("Share", "Udostępnij");
+        m.put("Tap a box on the page to hide it and every box like it.",
+                "Dotknij części strony, aby ukryć ją i wszystkie podobne.");
+        m.put("Tap what to hide", "Dotknij tego, co ukryć");
+        m.put("This is the start the feed shows. Open the answer to read all of it here.",
+                "To początek widoczny w feedzie. Otwórz odpowiedź, aby przeczytać tu całość.");
+        m.put("Too long to share with the saved texts: sharing the titles and links. Save to Downloads keeps all of it.",
+                "Z zapisanymi tekstami to za długie do udostępnienia: udostępniane są tytuły i linki. Zapisz w Pobranych zachowuje wszystko.");
+        m.put("You can show it again under Filters.", "Możesz to znów pokazać w Filtrach.");
+        m.put("min read", "min czytania");
     }
 }

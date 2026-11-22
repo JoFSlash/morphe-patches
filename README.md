@@ -52,6 +52,10 @@ search field, edits the keyword and author filters, backs up your settings as te
 changed its pages in a way that breaks some patches, and counts what the patches hid in the last 7 days (ads, AI
 answers, Quora+ answers, suggestions and your filters; the counts stay on your phone).
 
+**Pick something to hide** (under More, with **Hide what you pick**) goes back to the page: tap a box and the app
+offers to hide it and every box like it. **Filters** lists what you picked, to show it again, and can follow author
+lists: links to text files of names that someone keeps up, downloaded once a day only while you have some.
+
 On the first start after patching, the app offers four presets: **Everything you patched**, **Clean feed** (no
 ads, AI answers, promotions or suggestions, but answers and the app look as usual), **For reading** (the clean feed
 with whole answers, more space between lines, no counts or credentials, and bars that hide while you scroll) and

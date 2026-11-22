@@ -28,7 +28,7 @@ public final class FeedToolsTest {
         check(Picker.css(list).equals(".dom_annotate_a{display:none !important;}\n[class*=\"x\"]{display:none !important;}\n"), "css");
 
         // Author lists: https links only, at most five.
-        List<String> urls = AuthorLists.urls("https://example.com/a.txt\nhttp://example.com/b.txt, https://x.org/c "
+        List<String> urls = AuthorLists.urls("Https://example.com/a.txt\nhttp://example.com/b.txt, https://x.org/c "
                 + "javascript:alert(1) https://a.io/1 https://a.io/2 https://a.io/3 https://a.io/4");
         check(urls.equals(Arrays.asList("https://example.com/a.txt", "https://x.org/c", "https://a.io/1", "https://a.io/2",
                 "https://a.io/3")), "urls " + urls);

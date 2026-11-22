@@ -222,7 +222,12 @@ public final class ReadingPatch {
     /** upvotes(u): the upvotes an answer or post shows on its Upvote button, or -1 when it has none. */
     static final String UPVOTES_JS = "function upvotes(u){"
             + "var b=u.querySelector('.puppeteer_test_votable_upvote_button,button[aria-label^=\"Upvote\"]');if(!b)return -1;"
-            + "var m=(b.textContent||'').replace(/\\s+/g,' ').match(/([\\d.,]+)\\s*([KMB])?/i);if(!m)return 0;"
+            // The count is drawn twice: a hidden copy (qu-visibility--hidden, sometimes 9s) keeps the
+            // width for an animation, and the shown one. Only leaves that aren't the hidden copy count.
+            + "var t='';b.querySelectorAll('span,div').forEach(function(e){if(e.children.length)return;"
+            + "if(e.closest('.qu-visibility--hidden,.qu-display--none'))return;"
+            + "var s=(e.textContent||'').trim();if(/^[\\d.,]+\\s*[KMB]?$/i.test(s))t=s;});"
+            + "var m=t.match(/([\\d.,]+)\\s*([KMB])?/i);if(!m)return 0;"
             + "var n=parseFloat(m[1].replace(/,/g,''));if(isNaN(n))return 0;"
             + "var x={k:1e3,m:1e6,b:1e9}[(m[2]||'').toLowerCase()]||1;return Math.round(n*x);}";
 
@@ -255,6 +260,73 @@ public final class ReadingPatch {
                 + "});}"
                 + observe("run")
                 + "})();", "low-voted answers");
+    }
+
+    private static final String FEED_UNIT = "[class*=\"dom_annotate_multifeed_bundle_\"]";
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Hides reshares in the feed: someone
+     * sharing an answer or post with a few words of their own. Such an item carries two dates, the
+     * share's (a post timestamp) and the shared item's.
+     */
+    public static void hideReshares(WebView webView) {
+        if (!PatchSettings.active(webView, "hideReshares", "Hide reshares")) return;
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashReshares)return;window.__jofslashReshares=1;"
+                + "function run(){document.querySelectorAll('" + FEED_UNIT + "').forEach(function(u){"
+                + "if(u.hasAttribute('data-jofslash-filtered'))return;"
+                + "var post=u.querySelectorAll('a.post_timestamp').length,answer=u.querySelectorAll('a.answer_timestamp').length;"
+                + "if(post>=2||(post>=1&&answer>=1)){u.setAttribute('data-jofslash-filtered','');u.style.setProperty('display','none','important');}"
+                + "});}"
+                + observe("run")
+                + "})();", "reshares");
+    }
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Hides answers and posts in the feed
+     * that are only a picture or a video, with hardly any text of their own (under 30 characters
+     * besides the title). Pictures in the feed are drawn as backgrounds; answers use main-qimg.
+     */
+    public static void hideMediaOnly(WebView webView) {
+        if (!PatchSettings.active(webView, "hideMediaOnly", "Hide picture and video posts")) return;
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashMediaOnly)return;window.__jofslashMediaOnly=1;"
+                + "function media(u){var n=u.querySelectorAll('video,iframe,img.main-qimg,img[class*=\"qimg\"]').length;"
+                + "u.querySelectorAll('[style*=\"background-image\"]').forEach(function(e){"
+                + "if(/url\\(/.test(e.style.backgroundImage||'')&&!e.closest('a[href*=\"/profile/\"]'))n++;});return n;}"
+                + "function body(u){var c=u.querySelector('" + ANSWER_TEXT + "');if(c)return (c.innerText||'').trim();"
+                + "var t=[];u.querySelectorAll('" + PARAGRAPH + ",[class*=\"qu-truncateLines--\"]').forEach(function(e){"
+                + "if(!e.closest('.puppeteer_test_question_title'))t.push((e.innerText||'').trim());});"
+                + "return t.join(' ').trim();}"
+                + "function run(){document.querySelectorAll('" + FEED_UNIT + "').forEach(function(u){"
+                + "if(u.hasAttribute('data-jofslash-filtered')||u.hasAttribute('data-jofslash-media-checked'))return;"
+                // Check once the item is drawn: its Upvote button comes last.
+                + "if(!u.querySelector('.puppeteer_test_votable_upvote_button,button[aria-label^=\"Upvote\"]'))return;"
+                + "u.setAttribute('data-jofslash-media-checked','');"
+                + "if(media(u)>0&&body(u).replace(/\\s*(\\(more\\)|read more|continue reading)\\s*$/i,'').length<30){"
+                + "u.setAttribute('data-jofslash-filtered','');u.style.setProperty('display','none','important');}"
+                + "});}"
+                + observe("run")
+                + "})();", "picture and video posts");
+    }
+
+    /**
+     * Injection point: start of QWebViewClient.onPageFinished. Hides answers and posts that Quora
+     * marks as translated by machine from another language ("Translated from Spanish" and the like).
+     */
+    public static void hideTranslated(WebView webView) {
+        if (!PatchSettings.active(webView, "hideTranslated", "Hide machine-translated answers")) return;
+        evaluate(webView, "(function(){"
+                + "if(window.__jofslashTranslated)return;window.__jofslashTranslated=1;"
+                + "var re=/^(\\(?(machine[- ]|auto(matically)?[- ])?translated from\\b|this (answer|post) (was|has been) (machine[- ]|automatically )?translated\\b)/i;"
+                + "function run(){document.querySelectorAll('" + UNITS + "').forEach(function(u){"
+                + "if(u.hasAttribute('data-jofslash-filtered'))return;"
+                + "var l=u.querySelectorAll('span,div,a');for(var i=0;i<l.length;i++){var e=l[i];"
+                + "if(e.children.length>1)continue;var t=(e.textContent||'').replace(/\\s+/g,' ').trim();"
+                + "if(t.length<120&&re.test(t)){u.setAttribute('data-jofslash-filtered','');u.style.setProperty('display','none','important');return;}}"
+                + "});}"
+                + observe("run")
+                + "})();", "machine-translated answers");
     }
 
     /**

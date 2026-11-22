@@ -48,6 +48,9 @@ final class SettingsCatalog {
         add("hideMoreStories", "Feed", "The red \"More Stories\" button over the feed.");
         add("hideDismissedQuestions", "Feed", "Answers to questions you marked \"Not interested\".");
         add("hideLowVoted", "Feed", "Answers with fewer upvotes than set below.");
+        add("hideReshares", "Feed", "Answers and posts someone only shared again.");
+        add("hideMediaOnly", "Feed", "Posts that are only a picture or a video.");
+        add("hideTranslated", "Feed", "Answers marked as translated from another language.");
         add("pickToHide", "Feed", "Boxes you picked under More > Pick something to hide.");
         add("hideCommentBox", "Reading", "The \"Add a comment…\" field under answers.");
 

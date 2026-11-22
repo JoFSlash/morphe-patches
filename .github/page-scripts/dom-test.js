@@ -242,12 +242,48 @@ const voted = (id, count) => `
   <div class="q-box dom_annotate_multifeed_bundle_AnswersBundle" id="${id}">
     <div class="puppeteer_test_answer_content"><p class="q-text">An answer.</p></div>
     <button class="q-click-wrapper puppeteer_test_votable_upvote_button" aria-label="Upvote">
-      <div class="q-text">Upvote</div>${count === null ? '' : `<span> · </span><div class="q-text">${count}</div>`}</button>
+      <span class="q-text qu-fontWeight--medium">Upvote</span>${count === null ? '' : `<span class="q-box qu-display--none"> · </span>
+      <span class="q-text qu-visibility--hidden qu-display--inline-flex">${'9'.repeat(count.length)}</span>
+      <span class="q-text qu-whiteSpace--nowrap qu-display--inline-flex">${count}</span>`}</button>
   </div>`;
 expect('hideLowVoted-0.js', [voted('none', null), voted('three', '3'), voted('ten', '10'), voted('k', '1.8K'),
   voted('many', '1,204'),
   '<div class="q-box dom_annotate_multifeed_bundle_QuestionsBundle" id="question"><div class="q-text">A question?</div></div>'].join(''), [
   ['#none', true], ['#three', true], ['#ten', false], ['#k', false], ['#many', false], ['#question', false],
+]);
+
+// Hide reshares: an item with the share's post timestamp and the shared answer's timestamp goes;
+// a plain answer and a plain post stay. Markup trimmed from the phone's feed.
+const stamped = (id, cls, stamps) => `<div class="q-box dom_annotate_multifeed_bundle_${cls}" id="${id}">
+  ${stamps.map((s) => `<a class="q-box qu-cursor--pointer ${s} puppeteer_test_link" href="#">1h</a>`).join('')}
+  <div class="puppeteer_test_answer_content"><p class="q-text">Text.</p></div></div>`;
+expect('hideReshares-0.js', [stamped('reshare', 'ExplorePostBundle', ['post_timestamp', 'answer_timestamp']),
+  stamped('repost', 'PostBundle', ['post_timestamp', 'post_timestamp']),
+  stamped('answer', 'AnswersBundle', ['answer_timestamp']), stamped('post', 'PostBundle', ['post_timestamp'])].join(''), [
+  ['#reshare', true], ['#repost', true], ['#answer', false], ['#post', false],
+]);
+
+// Hide picture and video posts: a post that is a picture with a title only goes; a picture with
+// text and a text without a picture stay. Avatars (profile links) don't count as pictures.
+const pictured = (id, picture, body) => `<div class="q-box dom_annotate_multifeed_bundle_PostBundle" id="${id}">
+  <a href="https://www.quora.com/profile/X"><div style="background-image: url(https://qph.cf2.quoracdn.net/a.jpg)"></div></a>
+  <div class="q-text puppeteer_test_question_title">A title for ${id}</div>
+  ${body ? `<div class="q-text qu-truncateLines--3"><p class="q-text">${body}</p></div>` : ''}
+  ${picture ? '<div class="q-box" style="background-image: url(https://qph.cf2.quoracdn.net/main-qimg-1.jpg)"></div>' : ''}
+  <button class="puppeteer_test_votable_upvote_button" aria-label="Upvote">Upvote</button></div>`;
+expect('hideMediaOnly-0.js', [pictured('only', true, ''), pictured('both', true, 'A long enough text that explains the picture well.'),
+  pictured('text', false, 'Just words.'), pictured('short', false, '')].join(''), [
+  ['#only', true], ['#both', false], ['#text', false], ['#short', false],
+]);
+
+// Hide machine-translated answers: the "Translated from …" line hides its answer; an answer
+// that only talks about translation stays.
+expect('hideTranslated-0.js', `
+  <div class="q-box dom_annotate_question_answer_item_0" id="tr"><span class="q-text">Translated from Spanish</span>
+    <div class="puppeteer_test_answer_content"><p class="q-text">Hola.</p></div></div>
+  <div class="q-box dom_annotate_question_answer_item_1" id="talk">
+    <div class="puppeteer_test_answer_content"><p class="q-text">I translated from German for years.</p></div></div>`, [
+  ['#tr', true], ['#talk', false],
 ]);
 
 // Reading time: a long open answer gets "N min read" above it; a short one and a feed item don't.

@@ -188,8 +188,10 @@ final class SettingsPage {
         EditText lists = null;
         if (texts.containsKey("authors")) {
             LinearLayout box = section("Author lists to follow");
-            lists = field(prefs.getString(AuthorLists.URLS, ""));
+            lists = field(AuthorLists.saved(prefs));
             lists.setHint("https://");
+            lists.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI
+                    | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
             box.addView(lists);
             box.addView(note(AuthorLists.status(prefs)));
             content.addView(box);
@@ -201,6 +203,8 @@ final class SettingsPage {
             for (String selector : Picker.list(prefs)) value.append(selector).append('\n');
             picked = field(value.toString().trim());
             picked.setHint(Texts.t("Nothing picked yet"));
+            picked.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                    | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
             box.addView(picked);
             box.addView(note("One per line. Delete a line to show those boxes again."));
             content.addView(box);

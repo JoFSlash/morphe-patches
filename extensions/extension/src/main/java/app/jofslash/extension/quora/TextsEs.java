@@ -38,7 +38,6 @@ final class TextsEs {
         m.put("Filters", "Filtros");
         m.put("Keywords, authors and Spaces to hide.", "Palabras clave, autores y Spaces que ocultar.");
         m.put("Separate with commas", "Sepáralos con comas");
-        m.put("Matching ignores case. Saved when you go back.", "No distingue mayúsculas de minúsculas. Se guarda al volver atrás.");
         m.put("History", "Historial");
         m.put("Answers, posts and questions you opened.", "Respuestas, publicaciones y preguntas que abriste.");
         m.put("Bookmarks", "Marcadores");
@@ -322,5 +321,50 @@ final class TextsEs {
         // Update notice, settings line only.
         m.put("Shows here when newer patches are out, from GitHub once a day.",
                 "Muestra aquí cuando salen parches nuevos, desde GitHub una vez al día.");
+        // Feed tools: reader view, reading time, filters, picking, author lists.
+        m.put("\"4 min read\" above longer answers.", "«4 min de lectura» sobre las respuestas largas.");
+        m.put("A Reader view button next to Share under answers.",
+                "Un botón Vista de lectura junto a Compartir bajo las respuestas.");
+        m.put("All bookmarks with their saved text, to a notes app, Pocket or mail.",
+                "Todos los marcadores con su texto guardado, a una app de notas, Pocket o correo.");
+        m.put("Answers and posts someone only shared again.",
+                "Respuestas y publicaciones que alguien solo volvió a compartir.");
+        m.put("Answers marked as translated from another language.",
+                "Respuestas marcadas como traducidas de otro idioma.");
+        m.put("Answers with fewer upvotes than set below.", "Respuestas con menos votos de lo indicado abajo.");
+        m.put("Author lists to follow", "Listas de autores que sigues");
+        m.put("Bigger", "Más grande");
+        m.put("Boxes you picked under More > Pick something to hide.",
+                "Partes que elegiste en Más > Elegir algo para ocultar.");
+        m.put("Fewer upvotes than", "Menos votos que");
+        m.put("Hidden.", "Oculto.");
+        m.put("Hide the marked box and the others like it?", "¿Ocultar la parte marcada y las demás como ella?");
+        m.put("Hide the marked box?", "¿Ocultar la parte marcada?");
+        m.put("Links to text files with names, one per line. They are downloaded once a day.",
+                "Enlaces a archivos de texto con nombres, uno por línea. Se descargan una vez al día.");
+        m.put("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). Saved when you go back.",
+                "No distingue mayúsculas y busca palabras enteras; una palabra terminada en * también encuentra otras más largas (art* encuentra artist). Se guarda al volver.");
+        m.put("Names from the lists: ", "Nombres de las listas: ");
+        m.put("Not downloaded yet.", "Aún no descargado.");
+        m.put("Nothing here can be hidden this way. Try a bigger part of the page.",
+                "Esto no se puede ocultar así. Prueba con una parte más grande de la página.");
+        m.put("Nothing picked yet", "Nada elegido aún");
+        m.put("One per line. Delete a line to show those boxes again.",
+                "Uno por línea. Borra una línea para volver a mostrar esas partes.");
+        m.put("Open a page first.", "Abre primero una página.");
+        m.put("Pick something to hide", "Elegir algo para ocultar");
+        m.put("Picked to hide", "Elegido para ocultar");
+        m.put("Posts that are only a picture or a video.", "Publicaciones que son solo una imagen o un vídeo.");
+        m.put("Reader view", "Vista de lectura");
+        m.put("Share", "Compartir");
+        m.put("Tap a box on the page to hide it and every box like it.",
+                "Toca una parte de la página para ocultarla junto con todas las parecidas.");
+        m.put("Tap what to hide", "Toca lo que quieres ocultar");
+        m.put("This is the start the feed shows. Open the answer to read all of it here.",
+                "Este es el comienzo que muestra el feed. Abre la respuesta para leerla entera aquí.");
+        m.put("Too long to share with the saved texts: sharing the titles and links. Save to Downloads keeps all of it.",
+                "Con los textos guardados es demasiado largo para compartir: se comparten títulos y enlaces. Guardar en Descargas lo conserva todo.");
+        m.put("You can show it again under Filters.", "Puedes volver a mostrarlo en Filtros.");
+        m.put("min read", "min de lectura");
     }
 }

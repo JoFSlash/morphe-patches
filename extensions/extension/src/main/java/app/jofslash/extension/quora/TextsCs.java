@@ -38,7 +38,6 @@ final class TextsCs {
         m.put("Filters", "Filtry");
         m.put("Keywords, authors and Spaces to hide.", "Klíčová slova, autoři a Spaces ke skrytí.");
         m.put("Separate with commas", "Odděl čárkami");
-        m.put("Matching ignores case. Saved when you go back.", "Na velikosti písmen nezáleží. Uloží se, až se vrátíš zpět.");
         m.put("History", "Historie");
         m.put("Answers, posts and questions you opened.", "Otevřené odpovědi, příspěvky a otázky.");
         m.put("Bookmarks", "Záložky");
@@ -322,5 +321,48 @@ final class TextsCs {
         // Update notice, settings line only.
         m.put("Shows here when newer patches are out, from GitHub once a day.",
                 "Ukáže tady, když vyjdou novější patche, z GitHubu jednou denně.");
+        // Feed tools: reader view, reading time, filters, picking, author lists.
+        m.put("\"4 min read\" above longer answers.", "„4 min čtení“ nad delšími odpověďmi.");
+        m.put("A Reader view button next to Share under answers.", "Tlačítko Čtečka vedle Sdílet pod odpověďmi.");
+        m.put("All bookmarks with their saved text, to a notes app, Pocket or mail.",
+                "Všechny záložky s uloženým textem do poznámek, Pocketu nebo e-mailu.");
+        m.put("Answers and posts someone only shared again.", "Odpovědi a příspěvky, které někdo jen sdílel dál.");
+        m.put("Answers marked as translated from another language.",
+                "Odpovědi označené jako přeložené z jiného jazyka.");
+        m.put("Answers with fewer upvotes than set below.", "Odpovědi s méně hlasy, než je nastaveno níže.");
+        m.put("Author lists to follow", "Odebírané seznamy autorů");
+        m.put("Bigger", "Větší");
+        m.put("Boxes you picked under More > Pick something to hide.",
+                "Části, které jsi vybral v Další > Vybrat něco ke skrytí.");
+        m.put("Fewer upvotes than", "Méně hlasů než");
+        m.put("Hidden.", "Skryto.");
+        m.put("Hide the marked box and the others like it?", "Skrýt označenou část a ostatní jako ona?");
+        m.put("Hide the marked box?", "Skrýt označenou část?");
+        m.put("Links to text files with names, one per line. They are downloaded once a day.",
+                "Odkazy na textové soubory se jmény, jedno na řádek. Stahují se jednou denně.");
+        m.put("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). Saved when you go back.",
+                "Velikost písmen nehraje roli a hledají se celá slova; slovo s * na konci najde i delší (art* najde artist). Uloží se, když se vrátíš.");
+        m.put("Names from the lists: ", "Jména ze seznamů: ");
+        m.put("Not downloaded yet.", "Zatím nestaženo.");
+        m.put("Nothing here can be hidden this way. Try a bigger part of the page.",
+                "Tohle se takto skrýt nedá. Zkus větší část stránky.");
+        m.put("Nothing picked yet", "Zatím nic vybráno");
+        m.put("One per line. Delete a line to show those boxes again.",
+                "Jedno na řádek. Smaž řádek a ty části se znovu ukážou.");
+        m.put("Open a page first.", "Nejdřív otevři stránku.");
+        m.put("Pick something to hide", "Vybrat něco ke skrytí");
+        m.put("Picked to hide", "Vybráno ke skrytí");
+        m.put("Posts that are only a picture or a video.", "Příspěvky, které jsou jen obrázek nebo video.");
+        m.put("Reader view", "Čtečka");
+        m.put("Share", "Sdílet");
+        m.put("Tap a box on the page to hide it and every box like it.",
+                "Klepni na část stránky a skryje se spolu se všemi podobnými.");
+        m.put("Tap what to hide", "Klepni na to, co skrýt");
+        m.put("This is the start the feed shows. Open the answer to read all of it here.",
+                "Tohle je začátek, který ukazuje feed. Otevři odpověď a přečteš si tu celou.");
+        m.put("Too long to share with the saved texts: sharing the titles and links. Save to Downloads keeps all of it.",
+                "S uloženými texty je to na sdílení příliš dlouhé: sdílí se názvy a odkazy. Uložit do Stažených zachová vše.");
+        m.put("You can show it again under Filters.", "Znovu to ukážeš ve Filtrech.");
+        m.put("min read", "min čtení");
     }
 }

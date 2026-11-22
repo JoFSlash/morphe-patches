@@ -30,6 +30,10 @@ public final class Picker {
 
     static final int MAX = 100;
 
+    // When picking was asked for. Closing Patch settings after changing a switch reloads the pages,
+    // which drops the picking bar, so a page that finishes loading soon after starts it again.
+    private static volatile long requested;
+
     private Picker() {
     }
 
@@ -79,8 +83,8 @@ public final class Picker {
             String css = context == null ? "" : css(list(prefs(context)));
             webView.evaluateJavascript(PatchSettings.bridgeScript() + "(function(){"
                     + style(css)
-                    + "if(window.__jofslashPick)return;"
-                    + pickScript(Texts.t("Tap what to hide"), Texts.t("Cancel"))
+                    + "if(!window.__jofslashPick){" + pickScript(Texts.t("Tap what to hide"), Texts.t("Cancel")) + "}"
+                    + (pending(webView) ? "window.__jofslashPick();" : "")
                     + "})();", null);
         } catch (Exception ex) {
             Log.e(TAG, "Failed to add the picked filters", ex);
@@ -128,8 +132,16 @@ public final class Picker {
                 + "document.addEventListener('click',tap,true);};";
     }
 
+    /** Whether this page should start picking as it loads: it shows, and picking was just asked for. */
+    private static boolean pending(WebView webView) {
+        if (System.currentTimeMillis() - requested > 15_000 || !webView.isShown()) return false;
+        requested = 0;
+        return true;
+    }
+
     /** Patch settings > More > Pick something to hide: starts picking on the page that shows now. */
     static void start(Activity activity) {
+        requested = System.currentTimeMillis();
         boolean started = false;
         for (WebView view : PatchSettings.webViews()) {
             if (view == null || !view.isShown()) continue;
@@ -140,7 +152,7 @@ public final class Picker {
                 Log.e(TAG, "Failed to start picking", ex);
             }
         }
-        Toast.makeText(activity, Texts.t(started ? "Tap what to hide." : "Open a page first."), Toast.LENGTH_SHORT).show();
+        Toast.makeText(activity, started ? Texts.t("Tap what to hide") : Texts.t("Open a page first."), Toast.LENGTH_SHORT).show();
     }
 
     /**
