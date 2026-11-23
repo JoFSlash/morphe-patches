@@ -50,5 +50,8 @@
   "check": [
     "python3 .github/scripts/check_google_health.py \"$APK\" --cli \"$CLI\" --install --expect-welcome --compare-original --adb adb ${DEXDUMP:+--dexdump \"$DEXDUMP\"}",
     "python3 .github/scripts/check_google_health.py \"$APK\" --cli \"$CLI\" --install --expect-welcome --clone --adb adb"
+  ],
+  "test_inputs": [
+    ".github/scripts/verify_google_health.py"
   ]
 }

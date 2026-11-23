@@ -11,10 +11,11 @@ name: Release
 # Nothing new on dev: no pre-release. An urgent fix can be released right away by running this
 # workflow by hand on main (or on dev for a pre-release).
 #
-# Before releasing, the bundle has to pass the emulator test of every app in .github/apps
-# (emulator-app.yml: every patch applies and the app starts on the Android versions in the app's
-# settings) and the feed test (feed-test.yml: the page patches work
-# on the signed-in feed and on an answer). A skipped feed test counts as not passed. When either
+# Before releasing, every app in .github/apps has to have passed its emulator test with its current
+# code (emulator-app.yml: every patch applies and the app starts on the Android versions in the app's
+# settings). emulator-tests.yml usually did that right after the merge into dev; the release tests
+# only the apps that didn't (see .github/scripts/tested.py). It also needs the feed test
+# (feed-test.yml: the page patches work on the signed-in feed and on an answer). A skipped feed test counts as not passed. When either
 # doesn't pass, nothing is released and the issue "Weekly release stopped" says why; the next
 # release that goes through closes it. When the feed test can't run (for example while its saved
 # session is being renewed), an urgent fix can still go out by hand with "Skip the feed test".
@@ -111,32 +112,32 @@ jobs:
             gh issue create --title "$title" --label bug --body "$body"
           fi
 
-  # The apps to test: one settings file each in .github/apps, so adding an app doesn't change this
-  # workflow.
+  # The apps to test: those in .github/apps without a passed emulator test for their current code.
+  # emulator-tests.yml usually tested them right after they were merged into dev, so this is often
+  # none (see .github/scripts/tested.py).
   apps:
-    name: List the apps
+    name: Find the apps to test
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     outputs:
-      apps: ${{ steps.list.outputs.apps }}
+      apps: ${{ steps.plan.outputs.apps }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-        with:
-          sparse-checkout: .github/apps
 
-      - name: List the apps
-        id: list
+      - name: Find the apps to test
+        id: plan
         run: |
-          apps=$(ls .github/apps/*.json | xargs -n1 basename | sed 's/\.json$//' | jq -R . | jq -sc .)
-          echo "Apps: $apps"
+          apps=$(python3 .github/scripts/tested.py plan)
+          echo "To test: $apps"
           echo "apps=$apps" >> "$GITHUB_OUTPUT"
 
   # The patches, built once for every app's emulator test (one build instead of one per emulator
   # keeps GitHub Packages, where the Gradle plugin comes from, from being asked dozens of times at once).
   bundle:
     name: Build the patches
-    if: github.event_name != 'schedule'
+    needs: apps
+    if: github.event_name != 'schedule' && needs.apps.outputs.apps != '[]'
     permissions:
       contents: read
       packages: read
@@ -169,19 +170,20 @@ jobs:
   emulator:
     name: Emulator test (${{ matrix.app }})
     needs: [apps, bundle]
-    if: github.event_name != 'schedule'
+    if: github.event_name != 'schedule' && needs.apps.outputs.apps != '[]'
     strategy:
       fail-fast: false
       matrix:
         app: ${{ fromJSON(needs.apps.outputs.apps) }}
     permissions:
-      contents: read
+      contents: write
       packages: read
     uses: ./.github/workflows/emulator-app.yml
     secrets: inherit
     with:
       app: ${{ matrix.app }}
       bundle: patches-bundle
+      record: true
 
   feed:
     name: Feed test
@@ -195,10 +197,11 @@ jobs:
 
   release:
     name: Release
-    needs: [emulator, feed]
+    needs: [apps, emulator, feed]
     if: >-
       !cancelled()
-      && needs.emulator.result == 'success'
+      && needs.apps.result == 'success'
+      && (needs.emulator.result == 'success' || (needs.emulator.result == 'skipped' && needs.apps.outputs.apps == '[]'))
       && (needs.feed.outputs.result == 'passed' || (github.event_name == 'workflow_dispatch' && inputs.skip-feed-test))
     permissions:
       contents: write
@@ -284,7 +287,7 @@ jobs:
   # Says on GitHub when a release didn't go out, so a red run on a release morning isn't missed.
   report:
     name: Open or close the issue
-    needs: [emulator, feed, release]
+    needs: [apps, emulator, feed, release]
     if: ${{ !cancelled() && github.event_name != 'schedule' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
     permissions:
       issues: write
@@ -294,6 +297,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+          APPS: ${{ needs.apps.result }}
           EMULATOR: ${{ needs.emulator.result }}
           FEED: ${{ needs.feed.outputs.result || needs.feed.result }}
           RELEASE: ${{ needs.release.result }}
@@ -307,7 +311,9 @@ jobs:
             fi
             exit 0
           fi
-          if [ "$EMULATOR" != "success" ]; then
+          if [ "$APPS" != "success" ]; then
+            why="Finding the apps to test failed ($APPS)."
+          elif [ "$EMULATOR" != "success" ] && [ "$EMULATOR" != "skipped" ]; then
             why="An emulator test didn't pass ($EMULATOR): a patch doesn't apply, or a patched app doesn't start. The run shows which app."
           elif [ "$RELEASE" = "skipped" ]; then
             why="The feed test didn't pass ($FEED). The issue \"Feed test needs attention\" says why."
