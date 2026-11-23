@@ -5,8 +5,8 @@ import java.util.List;
 
 /**
  * Hide ads: every ad slot in Listonic reads the list of ad types (networks) to try from its
- * AdUnitConfig.getAdStack(). Only rewarded ads, which you start yourself to try Premium themes or
- * fonts, are left in it; every other slot gets an empty list and loads nothing.
+ * AdUnitConfig.getAdStack(). Only rewarded ads, which you start yourself to earn Broccoli coins,
+ * are left in it; every other slot gets an empty list and loads nothing.
  */
 @SuppressWarnings("unused")
 public final class AdFilter {

@@ -51,7 +51,7 @@
       {
         "prepareCmd": "./gradlew generatePatchesList \
           && jq '.version=\"${nextRelease.version}\"' patches-list.json > patches-list.json.tmp && mv patches-list.json.tmp patches-list.json \
-          && python3 .github/scripts/generate_quora_readme.py $GITHUB_REPOSITORY $GITHUB_REF_NAME patches-list.json docs/quora/README.md           && python3 .github/scripts/generate_booking_readme.py $GITHUB_REPOSITORY $GITHUB_REF_NAME patches-list.json docs/booking/README.md           && python3 .github/scripts/generate_google_health_readme.py $GITHUB_REPOSITORY $GITHUB_REF_NAME patches-list.json docs/google-health/README.md           && python3 .github/scripts/generate_kaloricke_tabulky_readme.py $GITHUB_REPOSITORY $GITHUB_REF_NAME patches-list.json docs/kaloricke-tabulky/README.md           && python3 .github/scripts/generate_speedtest_readme.py $GITHUB_REPOSITORY $GITHUB_REF_NAME patches-list.json docs/speedtest/README.md"
+          && python3 .github/scripts/generate_quora_readme.py $GITHUB_REPOSITORY $GITHUB_REF_NAME patches-list.json docs/quora/README.md           && python3 .github/scripts/generate_booking_readme.py $GITHUB_REPOSITORY $GITHUB_REF_NAME patches-list.json docs/booking/README.md           && python3 .github/scripts/generate_google_health_readme.py $GITHUB_REPOSITORY $GITHUB_REF_NAME patches-list.json docs/google-health/README.md           && python3 .github/scripts/generate_kaloricke_tabulky_readme.py $GITHUB_REPOSITORY $GITHUB_REF_NAME patches-list.json docs/kaloricke-tabulky/README.md           && python3 .github/scripts/generate_speedtest_readme.py $GITHUB_REPOSITORY $GITHUB_REF_NAME patches-list.json docs/speedtest/README.md           && python3 .github/scripts/generate_listonic_readme.py $GITHUB_REPOSITORY $GITHUB_REF_NAME patches-list.json docs/listonic/README.md"
       }
     ],
     [
@@ -66,7 +66,8 @@
           "docs/booking/README.md",
           "docs/google-health/README.md",
           "docs/kaloricke-tabulky/README.md",
-          "docs/speedtest/README.md"
+          "docs/speedtest/README.md",
+          "docs/listonic/README.md"
         ],
         "message": "chore: Release v${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }

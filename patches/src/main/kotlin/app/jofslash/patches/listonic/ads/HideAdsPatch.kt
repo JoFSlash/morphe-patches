@@ -36,8 +36,9 @@ internal object LockReleasedToStringFingerprint : Fingerprint(
 val hideAdsPatch = bytecodePatch(
     name = "Hide ads",
     description = "Hides the banners, ads between list items and full-screen ads, and doesn't start the ad " +
-            "networks (AppLovin, Google, AdAdapted, Smart and their partners) or ask for ad consent. Ads you " +
-            "choose to watch to try themes or fonts still work. Premium and your subscription aren't touched.",
+            "networks (AppLovin, Google, AdAdapted, Smart and their partners) when the app opens, or ask for ad " +
+            "consent. The ads you choose to watch for Broccoli coins still work. Premium and your subscription " +
+            "aren't touched.",
     default = true
 ) {
     category("Ads")
@@ -107,7 +108,7 @@ val hideAdsPatch = bytecodePatch(
 
         // lock.blocks(adType): the PREMIUM lock blocks every ad type, the REWARDED lock only
         // rewarded ads. Let the kept PREMIUM lock leave rewarded ads alone, so the ads you choose to
-        // watch to try Premium themes and fonts work as before (the app's own REWARDED lock still
+        // watch for Broccoli coins work as before (the app's own REWARDED lock still
         // decides about them).
         methodsWhere(lockClass, "blocks(AdType)") { method ->
             method.returnType == "Z" && method.parameterTypes.map { it.toString() } == listOf(AD_TYPE)

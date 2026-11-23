@@ -3,7 +3,7 @@ group = "app.jofslash"
 patches {
     about {
         name = "JoFSlash Patches"
-        description = "Patches for Quora, Booking.com, Google Health (Fitbit) and Kalorické Tabulky"
+        description = "Patches for Quora, Booking.com, Google Health (Fitbit), Kalorické Tabulky, Speedtest and Listonic"
         source = "git@github.com:JoFSlash/morphe-patches.git"
         author = "JoFSlash"
         contact = "https://github.com/JoFSlash/morphe-patches/issues"
