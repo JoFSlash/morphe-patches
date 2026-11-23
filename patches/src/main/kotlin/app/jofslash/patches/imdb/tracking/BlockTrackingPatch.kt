@@ -2,6 +2,7 @@ package app.jofslash.patches.imdb.tracking
 
 import app.jofslash.patches.imdb.shared.Constants.COMPATIBILITY_IMDB
 import app.jofslash.patches.imdb.shared.methodOf
+import app.jofslash.patches.imdb.shared.returnBoolean
 import app.jofslash.patches.imdb.shared.returnEarly
 import app.jofslash.patches.imdb.shared.returnUnit
 import app.morphe.patcher.patch.bytecodePatch
@@ -14,9 +15,12 @@ private const val COMSCORE = "Lcom/imdb/mobile/metrics/Comscore;"
 // suspend entry that starts the Branch session.
 private const val BRANCH_INJECTABLE = "Lcom/imdb/mobile/metrics/BranchInjectable;"
 
-// AWS Pinpoint. firstLaunch() reports the first-launch analytics event; reportSubscriptionMetrics()
-// reports push-subscription metrics. enableDefaultTopicSubscriptions() is left alone so push topics
-// (and push itself) keep working.
+// AWS Pinpoint. The whole subsystem is gated by PinpointCoordinator.isActive()
+// (= !featureRolloutsManager.isPinpointDisabled()): the coroutine launched in the constructor only
+// calls awsMobileClient.get() (which builds AWSMobileClient -> new PinpointManager) and
+// updatePinpointUserId when isActive() is true, and every public method (enableDefaultTopicSubscriptions,
+// recordEvent, setAttribute, handleUserDataChange, ...) is behind the same guard. firstLaunch() and
+// reportSubscriptionMetrics() are extra belt-and-braces (the latter is Amazon Pmet, not the Pinpoint SDK).
 private const val PINPOINT_EVENT_COORDINATOR = "Lcom/imdb/mobile/notifications/PinpointEventCoordinator;"
 private const val PINPOINT_COORDINATOR = "Lcom/imdb/mobile/notifications/PinpointCoordinator;"
 
@@ -32,8 +36,9 @@ private const val INSTALL_REFERRER_RETRIEVER = "Lcom/imdb/mobile/metrics/Install
 val blockTrackingPatch = bytecodePatch(
     name = "Block tracking",
     description = "Stops the third-party trackers: comScore audience measurement, Branch attribution, the AWS " +
-            "Pinpoint analytics events, the Amazon clickstream timer and the Play install-referrer lookup. Push " +
-            "notifications and their topic subscriptions are kept. Browsing, search and your watchlist aren't touched.",
+            "Pinpoint analytics and endpoint SDK, the Amazon clickstream timer and the Play install-referrer " +
+            "lookup. Push notifications still work (they run over FCM and Braze, not Pinpoint, which AWS has " +
+            "discontinued). Browsing, search and your watchlist aren't touched.",
     default = true
 ) {
     category("Privacy")
@@ -46,8 +51,20 @@ val blockTrackingPatch = bytecodePatch(
         // Branch: the suspend session-init returns Unit at once, so no Branch session starts.
         methodOf(BRANCH_INJECTABLE, "initSessionWhenSafe").returnUnit()
 
-        // Pinpoint analytics: the first-launch event and the subscription-metrics report are not
-        // sent. enableDefaultTopicSubscriptions() is deliberately untouched so push survives.
+        // AWS Pinpoint: stop the SDK from ever initializing. isActive() -> false is the app's own
+        // "Pinpoint disabled" switch, so the constructor coroutine skips awsMobileClient.get() and
+        // updatePinpointUserId (no AWSMobileClient, no PinpointManager, no TargetingClient endpoint
+        // loop), and every public Pinpoint method becomes a no-op. AWS discontinued Pinpoint (every
+        // call 403s), so this loses nothing; FCM and Braze push are separate and untouched.
+        methodOf(PINPOINT_COORDINATOR, "isActive").returnBoolean(false)
+
+        // getDeviceToken() and getEndpointId() aren't behind isActive(); returning null from the
+        // (private) getPinpointManager() stops those paths from building the SDK too. Every internal
+        // caller already null-checks it.
+        methodOf(PINPOINT_COORDINATOR, "getPinpointManager").returnEarly()
+
+        // Belt-and-braces: the first-launch analytics event and the subscription-metrics report
+        // (the latter via Amazon Pmet, independent of the Pinpoint SDK) are not sent either.
         methodOf(PINPOINT_EVENT_COORDINATOR, "firstLaunch").returnEarly()
         methodOf(PINPOINT_COORDINATOR, "reportSubscriptionMetrics").returnEarly()
 

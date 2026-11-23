@@ -13,9 +13,9 @@ and no root needed.
 
 - **No ads:** the banner and inline ads on IMDb's screens never load, and the ad networks (Amazon Publisher
   Services and Google Ad Manager) are never started.
-- **Less tracking:** comScore, Branch, the AWS Pinpoint analytics events, the Amazon clickstream and the Play
+- **Less tracking:** comScore, Branch, the AWS Pinpoint SDK, the Amazon clickstream and the Play
   install-referrer lookup are stopped, and the advertising-ID, ad-services, install-referrer, phone-state and
-  Amazon metrics permissions are removed. Push notifications and their topics are kept.
+  Amazon metrics permissions are removed. Push notifications still work (over FCM and Braze).
 - **Optional:** a separate, off-by-default patch disables Braze too (which also turns off Braze push).
 
 IMDb is free. There is no paid ad-removal tier in the app (IMDbPro is a separate app), so hiding the ads unlocks
@@ -74,7 +74,7 @@ Trackers and permissions. They change nothing you see.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
-| Block tracking | on | Stops the third-party trackers: comScore audience measurement, Branch attribution, the AWS Pinpoint analytics events, the Amazon clickstream timer and the Play install-referrer lookup. Push notifications and their topic subscriptions are kept. Browsing, search and your watchlist aren't touched. |
+| Block tracking | on | Stops the third-party trackers: comScore audience measurement, Branch attribution, the AWS Pinpoint analytics and endpoint SDK, the Amazon clickstream timer and the Play install-referrer lookup. Push notifications still work (they run over FCM and Braze, not Pinpoint, which AWS has discontinued). Browsing, search and your watchlist aren't touched. |
 | Disable Braze | off | Stops the Braze (Appboy) marketing SDK from starting. This also turns off Braze push notifications, content cards and in-app messages, so it is off by default; turn it on only if you don't want Braze at all. |
 | Remove unneeded permissions | on | Removes the permissions that only serve advertising and tracking: the advertising ID, Android's ad services (ad ID, attribution and topics), the Play install referrer, the phone-state read and Amazon's metrics collection. With the ad and tracking patches on, nothing in the app uses them. |
 
