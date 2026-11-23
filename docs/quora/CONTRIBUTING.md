@@ -42,13 +42,13 @@ listed in `patches/src/main/kotlin/app/jofslash/patches/quora/shared/Constants.k
 
 ### A new Quora version
 
-`.github/scripts/check_quora_version.py` checks a new version in one go: it applies every patch with
+`.github/scripts/check_app.py quora` checks a new version in one go: it applies every patch with
 the Morphe CLI, lists the patches that no longer apply and why, and says whether the version still
 needs adding to `Constants.kt`. With `--install` it also installs the patched app over adb and looks
 for a crash at start.
 
 ```bash
-python .github/scripts/check_quora_version.py com.quora.android_X.Y.Z.apkm --cli morphe-cli.jar --install
+python .github/scripts/check_app.py quora com.quora.android_X.Y.Z.apkm --cli morphe-cli.jar --install
 ```
 
 This mostly runs on its own. `.github/workflows/quora-version.yml` checks APKMirror and Google Play

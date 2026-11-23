@@ -147,7 +147,7 @@ app's version, and leave out your name, email and your lists.
 
 Building needs a GitHub token with `read:packages` in `GITHUB_ACTOR` / `GITHUB_TOKEN` (or `gpr.user` /
 `gpr.key` in `~/.gradle/gradle.properties`), because the Morphe Gradle plugin comes from GitHub Packages.
-`python .github/scripts/check_listonic.py <app.apks> --cli <morphe-cli.jar> --install --expect-screen` applies
+`python .github/scripts/check_app.py listonic <app.apks> --cli <morphe-cli.jar> --install --expect-screen` applies
 every patch to the app (an APKS, APKM or XAPK with its split APKs) and starts it on a connected phone or
 emulator, as the emulator test does.
 

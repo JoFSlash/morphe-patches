@@ -5,6 +5,7 @@
   "extension": "extensions/googlehealth",
   "docs": "docs/google-health/README.md",
   "store": "https://play.google.com/store/apps/details?id=com.fitbit.FitbitMobile",
+  "package": "com.fitbit.FitbitMobile",
   "store_note": "(Fitbit)",
   "summary": "Sign in through MicroG-RE instead of Google Play services, no surveys or nags, a black theme, screenshots on every screen, and a clone next to the official app.",
   "apk": {
@@ -47,9 +48,19 @@
       }
     ]
   },
+  "checks": {
+    "error_tag": "E/JoFSlashPatches",
+    "screen": "text=\"Sign in with Google\"",
+    "screen_shown": "The welcome screen with the sign-in button is on screen.",
+    "screen_missing": "The welcome screen didn't show within a minute.",
+    "clone": {
+      "patch": "Clone app",
+      "package": "com.fitbit.FitbitMobile.clone"
+    }
+  },
   "check": [
-    "python3 .github/scripts/check_google_health.py \"$APK\" --cli \"$CLI\" --install --expect-welcome --compare-original --adb adb ${DEXDUMP:+--dexdump \"$DEXDUMP\"}",
-    "python3 .github/scripts/check_google_health.py \"$APK\" --cli \"$CLI\" --install --expect-welcome --clone --adb adb"
+    "python3 .github/scripts/check_app.py google-health \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb ${DEXDUMP:+--dexdump \"$DEXDUMP\"}",
+    "python3 .github/scripts/check_app.py google-health \"$APK\" --cli \"$CLI\" --install --expect-screen --clone --adb adb"
   ],
   "test_inputs": [
     ".github/scripts/verify_google_health.py"

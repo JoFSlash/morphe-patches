@@ -5,6 +5,7 @@
   "extension": "extensions/quora",
   "docs": "docs/quora/README.md",
   "store": "https://play.google.com/store/apps/details?id=com.quora.android",
+  "package": "com.quora.android",
   "summary": "Remove ads and tracking, and hide what you don't use: AI answers, Quora+ paywalls, suggestions, counts, old answers.",
   "apk": {
     "release": "quora",
@@ -44,7 +45,17 @@
       }
     ]
   },
+  "checks": {
+    "error_tag": "E/JoFSlashPatches",
+    "screen_shown": "Quora's sign-in page loaded.",
+    "screen_missing": "Quora's sign-in page didn't show within a minute.",
+    "clone": {
+      "patch": "Clone app"
+    },
+    "next_step": "then try the page patches on a phone: Quora may also have changed its pages.",
+    "after_install": "Check the feed with the page patches by hand."
+  },
   "check": [
-    "python3 .github/scripts/check_quora_version.py \"$APK\" --cli \"$CLI\" --install --expect-login --compare-original --adb adb"
+    "python3 .github/scripts/check_app.py quora \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
   ]
 }

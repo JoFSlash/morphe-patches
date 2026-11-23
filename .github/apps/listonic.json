@@ -5,6 +5,7 @@
   "extension": "extensions/listonic",
   "docs": "docs/listonic/README.md",
   "store": "https://play.google.com/store/apps/details?id=com.l",
+  "package": "com.l",
   "summary": "Remove the ads, sale campaigns, rating prompts and trackers from the grocery shopping list, and sign in with Google through MicroG-RE.",
   "apk": {
     "release": "listonic",
@@ -45,6 +46,6 @@
     ]
   },
   "check": [
-    "python3 .github/scripts/check_listonic.py \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
+    "python3 .github/scripts/check_app.py listonic \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
   ]
 }

@@ -5,6 +5,7 @@
   "extension": "extensions/kaloricketabulky",
   "docs": "docs/kaloricke-tabulky/README.md",
   "store": "https://play.google.com/store/apps/details?id=cz.psc.android.kaloricketabulky",
+  "package": "cz.psc.android.kaloricketabulky",
   "summary": "Remove ads, Premium pop-ups, rating prompts and trackers from the calorie and food diary, and sign in with Google through MicroG-RE.",
   "apk": {
     "release": "kaloricke-tabulky",
@@ -45,6 +46,6 @@
     ]
   },
   "check": [
-    "python3 .github/scripts/check_kaloricke_tabulky.py \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
+    "python3 .github/scripts/check_app.py kaloricke-tabulky \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
   ]
 }

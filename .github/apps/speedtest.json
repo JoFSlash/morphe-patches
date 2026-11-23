@@ -4,6 +4,7 @@
   "patches": "patches/src/main/kotlin/app/jofslash/patches/speedtest",
   "docs": "docs/speedtest/README.md",
   "store": "https://play.google.com/store/apps/details?id=org.zwanoo.android.speedtest",
+  "package": "org.zwanoo.android.speedtest",
   "store_note": "(Ookla)",
   "summary": "Remove the ads from the internet speed test and stop its third-party trackers (Appvestor, CellRebel), without an account.",
   "apk": {
@@ -45,6 +46,6 @@
     ]
   },
   "check": [
-    "python3 .github/scripts/check_speedtest.py \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
+    "python3 .github/scripts/check_app.py speedtest \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
   ]
 }

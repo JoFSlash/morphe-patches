@@ -112,7 +112,7 @@ app's version, and leave out your name and any personal details.
 
 Building needs a GitHub token with `read:packages` in `GITHUB_ACTOR` / `GITHUB_TOKEN` (or `gpr.user` /
 `gpr.key` in `~/.gradle/gradle.properties`), because the Morphe Gradle plugin comes from GitHub Packages.
-`python .github/scripts/check_speedtest.py <speedtest.apk> --cli <morphe-cli.jar> --install --expect-screen`
+`python .github/scripts/check_app.py speedtest <speedtest.apk> --cli <morphe-cli.jar> --install --expect-screen`
 applies every patch to the app and starts it on a connected phone or emulator, as the emulator test does.
 
 ## License
