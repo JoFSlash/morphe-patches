@@ -18,6 +18,7 @@ name: Release
 # doesn't pass, nothing is released and the issue "Weekly release stopped" says why; the next
 # release that goes through closes it. When the feed test can't run (for example while its saved
 # session is being renewed), an urgent fix can still go out by hand with "Skip the feed test".
+# When only emulator tests failed, release-retry.yml runs the failed jobs once more by itself.
 on:
   schedule:
     # Keep these two strings in sync with the job "Start this week's release" below.

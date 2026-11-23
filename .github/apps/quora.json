@@ -13,7 +13,7 @@
     "file": "quora.apkm"
   },
   "android": {
-    "note": "The Android versions people run now, and the next one. Android 17's image is only in the SDK's canary channel so far.",
+    "note": "The Android versions people run now, and the next one. Android 17's image is only in the SDK's canary channel so far. The release tries the oldest supported version, the newest stable one and the next one; a pull request the oldest and the newest stable.",
     "pull_request": [
       {
         "api": "35",

@@ -176,12 +176,6 @@ jobs:
             -O "$RUNNER_TEMP/morphe-cli.jar"
           echo "APK=$apk" >> "$GITHUB_ENV"
           echo "CLI=$RUNNER_TEMP/morphe-cli.jar" >> "$GITHUB_ENV"
-          # The check commands, one per line, as the emulator runner runs them.
-          {
-            echo 'CHECK<<CHECK_EOF'
-            jq -r '.check[]' "$file"
-            echo 'CHECK_EOF'
-          } >> "$GITHUB_ENV"
           ls -l "$RUNNER_TEMP"
 
       # Matrix entries with "verify" also check the patched dex files with dexdump.
@@ -214,4 +208,6 @@ jobs:
           target: google_apis
           arch: x86_64
           disable-animations: true
-          script: ${{ env.CHECK }}
+          # Waits until Android has started, runs the app's check commands, and runs one again when
+          # the emulator (not the app) fails.
+          script: python3 .github/scripts/emulator_run.py "$APP"
