@@ -324,8 +324,8 @@
     },
     {
       "name": "Block authors and Spaces",
-      "description": "Hides answers and posts by the people and Spaces you pick.",
-      "default": false,
+      "description": "Hides answers and posts by the people and Spaces you pick. Long-press a name in the feed to add it.",
+      "default": true,
       "category": "Feed",
       "compatiblePackages": [
         {
@@ -709,7 +709,7 @@
     },
     {
       "name": "Bookmarks",
-      "description": "Adds a bookmark button next to Share under an open answer or post, to read it later. Saved items are listed under Bookmarks in Patch settings with their text, which you can read without internet. Everything stays on your phone.",
+      "description": "Adds a bookmark button next to Share under an open answer or post, to read it later. Saved items are listed under Bookmarks in Patch settings with their text and pictures, which you can read without internet. Everything stays on your phone.",
       "default": true,
       "category": "Reading",
       "compatiblePackages": [
@@ -2061,7 +2061,7 @@
         {
           "key": "keywords",
           "title": "Keywords",
-          "description": "Words or phrases, separated by commas. Matching ignores case. Example: crypto, horoscope, Elon Musk",
+          "description": "Words or phrases, separated by commas. Matching ignores case and finds whole words; end a word with * to also find longer ones. Example: crypto, horoscope*, Elon Musk",
           "required": false,
           "type": "kotlin.String",
           "default": "",
@@ -3829,6 +3829,104 @@
       "options": []
     },
     {
+      "name": "Hide low-voted answers",
+      "description": "Hides answers and posts with fewer upvotes than the number you pick, in the feed and on question pages.",
+      "default": false,
+      "category": "Feed",
+      "compatiblePackages": [
+        {
+          "packageName": "com.quora.android",
+          "name": "Quora",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#B92B27",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "3.2.47",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": "3.2.42",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "key": "minUpvotes",
+          "title": "Fewer upvotes than",
+          "description": "Answers and posts with fewer upvotes than this are hidden.",
+          "required": false,
+          "type": "kotlin.String",
+          "default": "5",
+          "values": {
+            "1": "1",
+            "5": "5",
+            "10": "10",
+            "50": "50",
+            "100": "100"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Hide machine-translated answers",
+      "description": "Hides answers and posts that Quora marks as translated from another language.",
+      "default": false,
+      "category": "Feed",
+      "compatiblePackages": [
+        {
+          "packageName": "com.quora.android",
+          "name": "Quora",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#B92B27",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "3.2.47",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": "3.2.42",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
       "name": "Hide old answers",
       "description": "Hides answers and posts older than the number of years you pick, in the feed and on question pages.",
       "default": false,
@@ -3922,6 +4020,47 @@
     {
       "name": "Hide people suggestions",
       "description": "Hides \"People you may know\" and other people to follow in the feed.",
+      "default": false,
+      "category": "Feed",
+      "compatiblePackages": [
+        {
+          "packageName": "com.quora.android",
+          "name": "Quora",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#B92B27",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "3.2.47",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": "3.2.42",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Hide picture and video posts",
+      "description": "Hides answers and posts in the feed that are only a picture or a video, with hardly any text.",
       "default": false,
       "category": "Feed",
       "compatiblePackages": [
@@ -4099,6 +4238,47 @@
     {
       "name": "Hide related questions",
       "description": "Hides the related questions lists on question pages.",
+      "default": false,
+      "category": "Feed",
+      "compatiblePackages": [
+        {
+          "packageName": "com.quora.android",
+          "name": "Quora",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#B92B27",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "3.2.47",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": "3.2.42",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Hide reshares",
+      "description": "Hides answers and posts in the feed that someone only shared again.",
       "default": false,
       "category": "Feed",
       "compatiblePackages": [
@@ -4488,6 +4668,47 @@
       "options": []
     },
     {
+      "name": "Hide what you pick",
+      "description": "Patch settings > More > Pick something to hide: tap a box on the page to hide it and every box like it. Filters lists what you picked, to show it again.",
+      "default": true,
+      "category": "Feed",
+      "compatiblePackages": [
+        {
+          "packageName": "com.quora.android",
+          "name": "Quora",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#B92B27",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "3.2.47",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": "3.2.42",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
       "name": "Hotel contact",
       "description": "Adds a Contact button to the property page with the property's address, Open in Maps and Copy address, and the phone number and email the property gives Booking.com for EU consumer law (shown when Booking.com sends them).",
       "default": true,
@@ -4782,7 +5003,7 @@
     },
     {
       "name": "Patch settings",
-      "description": "Long-press the Home tab, or open Settings > Morphe > Quora patches, to switch the page patches on and off and edit the filters, without patching again. It also tells you when Quora changes its pages so that some patches stop working.",
+      "description": "Long-press the Home tab, or open Settings > Morphe > Quora patches, to switch the page patches on and off and edit the filters, without patching again. It also tells you when Quora changes its pages so that some patches stop working, and how many ads and other items the patches hid in the last 7 days (counted only on your phone).",
       "default": true,
       "category": "App",
       "compatiblePackages": [
@@ -4897,9 +5118,91 @@
       "options": []
     },
     {
+      "name": "Reader view",
+      "description": "Adds a Reader view button next to Share under answers and posts. It shows their text with the pictures in a plain page, without the rest of Quora's page.",
+      "default": false,
+      "category": "Reading",
+      "compatiblePackages": [
+        {
+          "packageName": "com.quora.android",
+          "name": "Quora",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#B92B27",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "3.2.47",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": "3.2.42",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
       "name": "Reading history",
       "description": "Remembers the answers, posts and questions you open, so you can find them again under History in Patch settings. The list stays on your phone.",
       "default": true,
+      "category": "Reading",
+      "compatiblePackages": [
+        {
+          "packageName": "com.quora.android",
+          "name": "Quora",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#B92B27",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "3.2.47",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": "3.2.42",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Reading time",
+      "description": "Shows how many minutes an open answer or post takes to read, when it takes at least two.",
+      "default": false,
       "category": "Reading",
       "compatiblePackages": [
         {
@@ -5784,6 +6087,47 @@
       "description": "Adds a Translate button next to Share under answers and posts. It shows their text translated by Google Translate inside the app, into your phone's language or the one you pick. The text is sent to Google only when you tap the button.",
       "default": false,
       "category": "Reading",
+      "compatiblePackages": [
+        {
+          "packageName": "com.quora.android",
+          "name": "Quora",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#B92B27",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "3.2.47",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": "3.2.42",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            },
+            {
+              "version": null,
+              "versionCodes": null,
+              "isExperimental": true,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Update notice",
+      "description": "Shows in Patch settings when newer patches are out, since a patched app doesn't update from Google Play: once a day the app reads the newest version number from this project's GitHub repository. Nothing pops up. The check sends nothing but a normal web request.",
+      "default": false,
+      "category": "App",
       "compatiblePackages": [
         {
           "packageName": "com.quora.android",

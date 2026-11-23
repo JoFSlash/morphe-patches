@@ -111,7 +111,7 @@ Everything else can wait until something bothers you.
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.11.0, 75 patches. Supported Quora versions: 3.2.47, 3.2.42.
+Version 1.11.0, 83 patches. Supported Quora versions: 3.2.47, 3.2.42.
 
 <details>
 <summary><b>Privacy</b> (12)</summary>
@@ -136,7 +136,7 @@ On by default. They stop data collection and change nothing you see.
 </details>
 
 <details>
-<summary><b>Feed</b> (23)</summary>
+<summary><b>Feed</b> (28)</summary>
 
 What the feed and question pages show.
 
@@ -153,23 +153,28 @@ What the feed and question pages show.
 | Hide dismissed questions | off | When you close a feed item with its × and pick "Not interested in this question", the feed doesn't show answers to that question again. Undo brings it back. The list stays on your phone, under Dismissed questions in Patch settings. |
 | Hide downvote button | off | Hides the downvote button on answers and posts. |
 | Hide Follow buttons | off | Hides the small "Follow" next to author and Space names. Profiles and Space pages keep theirs. |
+| Hide low-voted answers | off | Hides answers and posts with fewer upvotes than the number you pick, in the feed and on question pages. Options: Fewer upvotes than. |
+| Hide machine-translated answers | off | Hides answers and posts that Quora marks as translated from another language. |
 | Hide More Stories button | on | Hides the red "More Stories" button that appears over the feed. Pull down to load new stories. |
 | Hide old answers | off | Hides answers and posts older than the number of years you pick, in the feed and on question pages. Options: Older than. |
 | Hide people suggestions | off | Hides "People you may know" and other people to follow in the feed. |
+| Hide picture and video posts | off | Hides answers and posts in the feed that are only a picture or a video, with hardly any text. |
 | Hide Poe | on | Hides links and buttons that open Poe or Quora's AI assistant. |
 | Hide Quora+ answers | on | Hides answers and posts that show only their start, with a Quora+ lock over the rest. |
 | Hide Quora+ promotions | on | Hides buttons that ask you to try or join Quora+. |
 | Hide related questions | off | Hides the related questions lists on question pages. |
+| Hide reshares | off | Hides answers and posts in the feed that someone only shared again. |
 | Hide seen items | off | Dims or hides feed items you already opened when the feed shows them again. The list of opened items stays on your phone. Options: Seen items. |
 | Hide Spaces posts | off | Hides posts from Spaces in the feed, so it shows answers to questions only. |
 | Hide Spaces suggestions | off | Hides the Spaces you might like suggestions in the feed. |
 | Hide suggested questions | off | Hides the questions for you to answer in the feed. |
 | Hide surveys | on | Hides Quora's surveys in the feed, such as "How satisfied are you with your home feed?" and "Was this worth your time?" under answers. |
+| Hide what you pick | on | Patch settings > More > Pick something to hide: tap a box on the page to hide it and every box like it. Filters lists what you picked, to show it again. |
 
 </details>
 
 <details>
-<summary><b>Reading</b> (19)</summary>
+<summary><b>Reading</b> (21)</summary>
 
 How answers look and load.
 
@@ -177,7 +182,7 @@ How answers look and load.
 | --- | --- | --- |
 | AMOLED dark mode | off | Uses a pure black background when Quora's dark theme is on. |
 | Answer font | off | Sets answers in a serif or a sans-serif font of your phone. Options: Font. |
-| Bookmarks | on | Adds a bookmark button next to Share under an open answer or post, to read it later. Saved items are listed under Bookmarks in Patch settings with their text, which you can read without internet. Everything stays on your phone. |
+| Bookmarks | on | Adds a bookmark button next to Share under an open answer or post, to read it later. Saved items are listed under Bookmarks in Patch settings with their text and pictures, which you can read without internet. Everything stays on your phone. |
 | Comfortable reading | off | More space between the lines and paragraphs of answers. |
 | Copy answer text | on | Adds a Copy button next to Share under answers and posts. It copies their text without formatting. |
 | Data saver | off | Images load only when you tap them. By default only on mobile data; on Wi-Fi they load as usual. Options: Load images on Wi-Fi. |
@@ -188,7 +193,9 @@ How answers look and load.
 | Hide comment box | off | Hides the "Add a comment…" field under answers and posts. Comments still open from the comment button. |
 | Keep screen on | off | Keeps the screen from turning off while a page is open. |
 | Read aloud | off | Adds a Read aloud button next to Share under answers and posts. It reads their text with your phone's text-to-speech. Tap it again to stop. |
+| Reader view | off | Adds a Reader view button next to Share under answers and posts. It shows their text with the pictures in a plain page, without the rest of Quora's page. |
 | Reading history | on | Remembers the answers, posts and questions you open, so you can find them again under History in Patch settings. The list stays on your phone. |
+| Reading time | off | Shows how many minutes an open answer or post takes to read, when it takes at least two. |
 | Save images | on | Long-press an image you opened full screen to save it to Pictures/Quora. |
 | Share answer text | on | Adds a Share text button next to Share under answers and posts. It shares their text without formatting, for example to a notes app. |
 | Sort answers | off | Opens questions with their answers sorted by the order you pick instead of Recommended. You can still change the order on the page. Options: Order. |
@@ -209,7 +216,7 @@ The editor for answers and posts.
 </details>
 
 <details>
-<summary><b>App</b> (20)</summary>
+<summary><b>App</b> (21)</summary>
 
 The app around the pages: prompts, tabs, notifications, gestures.
 
@@ -233,8 +240,9 @@ The app around the pages: prompts, tabs, notifications, gestures.
 | Hide tabs | off | Removes the tabs you pick from the bottom bar. Home always stays. Options: Hide Following tab, Hide Answer tab, Hide Spaces tab, Hide Notifications tab. |
 | Keep place on return | off | Keeps open answers and your place in the feed when you come back to the app, instead of closing them and reloading the feed. |
 | Open links in browser | off | Opens links to other websites in your default browser instead of an in-app browser tab. |
-| Patch settings | on | Long-press the Home tab, or open Settings > Morphe > Quora patches, to switch the page patches on and off and edit the filters, without patching again. It also tells you when Quora changes its pages so that some patches stop working. |
+| Patch settings | on | Long-press the Home tab, or open Settings > Morphe > Quora patches, to switch the page patches on and off and edit the filters, without patching again. It also tells you when Quora changes its pages so that some patches stop working, and how many ads and other items the patches hid in the last 7 days (counted only on your phone). |
 | Start tab | off | Opens the app on the tab you pick instead of Home. Options: Start tab. |
+| Update notice | off | Shows in Patch settings when newer patches are out, since a patched app doesn't update from Google Play: once a day the app reads the newest version number from this project's GitHub repository. Nothing pops up. The check sends nothing but a normal web request. |
 
 </details>
 <!-- PATCHES_END -->
