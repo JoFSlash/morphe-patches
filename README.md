@@ -11,6 +11,7 @@ once in Morphe Manager and pick the app you want to patch. No root needed.
 | App | What the patches do | Details |
 | --- | --- | --- |
 | [Booking.com](https://play.google.com/store/apps/details?id=com.booking) | Compare the price with the hotel's own website, watch prices, check crossed-out prices and reviews, and take out scarcity messages, sponsored results and upsells. | [Booking.com patches](docs/booking/README.md) |
+| [Cronometer](https://play.google.com/store/apps/details?id=com.cronometer.android.gold) | Remove the ads from the nutrition tracker and stop its analytics (Firebase, Adjust, Amplitude, Braze tracking calls). Needs a free Cronometer account. | [Cronometer patches](docs/cronometer/README.md) |
 | [Google Health](https://play.google.com/store/apps/details?id=com.fitbit.FitbitMobile) (Fitbit) | Sign in through MicroG-RE instead of Google Play services, no surveys or nags, a black theme, screenshots on every screen, and a clone next to the official app. | [Google Health patches](docs/google-health/README.md) |
 | [IMDb](https://play.google.com/store/apps/details?id=com.imdb.mobile) | Remove the ads from the movie and TV database and stop its third-party trackers (comScore, Branch, Pinpoint, clickstream), without an account. | [IMDb patches](docs/imdb/README.md) |
 | [Kalorické Tabulky](https://play.google.com/store/apps/details?id=cz.psc.android.kaloricketabulky) | Remove ads, Premium pop-ups, rating prompts and trackers from the calorie and food diary, and sign in with Google through MicroG-RE. | [Kalorické Tabulky patches](docs/kaloricke-tabulky/README.md) |
@@ -74,5 +75,5 @@ app only gets its own code. See [CONTRIBUTING.md](CONTRIBUTING.md).
 ## License
 
 <!-- OWNERS_START -->
-[GPL-3.0](LICENSE), see also [NOTICE](NOTICE). Not affiliated with Amazon, Booking.com, Fitbit, Google, IMDb, Kalorické Tabulky, Listonic, Ookla, Quora or TrustSwap, or with the Morphe project.
+[GPL-3.0](LICENSE), see also [NOTICE](NOTICE). Not affiliated with Amazon, Booking.com, Cronometer, Fitbit, Google, IMDb, Kalorické Tabulky, Listonic, Ookla, Quora or TrustSwap, or with the Morphe project.
 <!-- OWNERS_END -->

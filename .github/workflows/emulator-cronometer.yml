@@ -1,0 +1,59 @@
+name: Cronometer emulator test
+
+# Patches Cronometer with every patch, installs it on a set of Android emulators and checks that it
+# starts without a crash or errors from the patches and shows its welcome screen ("Eat smarter. Live
+# better."). When a check fails, the original app is tried the same way, to tell a broken patch from
+# an Android version the app itself doesn't work on. Signing in and the diary need a Cronometer
+# account and a person, so they are tried by hand on a phone.
+#
+# The app is kept as the split APKs Google Play installs (base, arm64-v8a, English and xxhdpi) zipped
+# into an .apks. Cronometer is a Flutter app with arm64-v8a libraries only, so the x86_64 emulator
+# runs it through the system image's arm64 translation. google_apis x86_64 images have that from
+# API 30 on, except API 33, which is why the matrix starts at API 30 and leaves 33 out.
+#
+# The APK can't be in this public repository. It comes from the private repository
+# JoFSlash/morphe-apks, read with the APKS_TOKEN secret (a fine-grained token with access to that
+# repository's contents only: read here, new versions are added there by hand, see
+# cronometer-version.yml). Without the secret the test is skipped, except when the release runs it:
+# there a skipped test would let an untested build through, so it fails.
+
+on:
+  # Only for pull requests that change this app's patches, this test or the shared build.
+  pull_request:
+    paths:
+      - 'patches/src/main/kotlin/app/jofslash/patches/cronometer/**'
+      - '.github/workflows/emulator-cronometer.yml'
+      - '.github/workflows/emulator-app.yml'
+      - '.github/apps/cronometer.json'
+      - '.github/scripts/check_app.py'
+      - '.github/actions/install-emulator/**'
+      - '.github/morphe-cli-version'
+      - 'gradle/**'
+      - '*.gradle.kts'
+      - 'patches/build.gradle.kts'
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      required:
+        description: 'Fail instead of skipping when APKS_TOKEN is missing'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  test:
+    # emulator-app.yml has a job that records a pass and needs to write; it only runs when
+    # "record" is on, which it isn't here.
+    permissions:
+      contents: write
+      packages: read
+    uses: ./.github/workflows/emulator-app.yml
+    secrets: inherit
+    with:
+      app: cronometer
+      # A pull request or a run by hand skips the test when APKS_TOKEN is missing; a workflow that
+      # calls this one (required defaults to true there) fails instead.
+      required: ${{ inputs.required == true }}
