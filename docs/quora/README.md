@@ -12,6 +12,21 @@ Works with Quora <!-- VERSIONS_START -->3.2.47 and 3.2.42<!-- VERSIONS_END --> o
 The privacy patches are on by default, and so are some fixes and filters that change little (the tables below show
 which). The rest are off until you pick them.
 
+## Screenshots
+
+<table>
+  <tr valign="top">
+    <td><img src="screenshots/settings.png" width="250" alt="Quora patches settings: Remove ads, Block authors and Spaces, Filter keywords, Hide AI answers, Hide counts and more, each with a switch"></td>
+    <td><img src="screenshots/settings-reading.png" width="250" alt="More settings: Hide seen items, Hide Spaces posts and suggestions, Hide surveys, AMOLED dark mode, Answer font, Comfortable reading"></td>
+  </tr>
+  <tr>
+    <td align="center">Patch settings in Quora</td>
+    <td align="center">Feed and reading options</td>
+  </tr>
+</table>
+
+Long-press the Home tab in the patched app to open these settings.
+
 ## Install
 
 1. Install Morphe Manager from [morphe.software](https://morphe.software).
@@ -33,8 +48,8 @@ which). The rest are off until you pick them.
 
 ## Updating
 
-- **New patches:** a new version of these patches comes out on a Thursday, every other week, so you don't
-  have to patch the app again each week. A fix for something broken, or support for a new Quora version, comes out the same week. To get new patches on Monday already, turn on **Pre-release patches** for this source
+- **New patches:** a new version of these patches comes out every Saturday when something changed. An
+  urgent fix can come out sooner. To get new patches on Wednesday already, turn on **Pre-release patches** for this source
   in Morphe Manager; pre-releases are less tested, and you can turn it off again at any time. Morphe Manager then marks the patched app with an Update badge. Patch the same Quora file again and install it over the patched app. No need to uninstall:
   you stay signed in and your patch settings stay. With **Update notice** patched in (off by default), Patch settings
   shows the version you have and whether newer patches are out; nothing pops up.

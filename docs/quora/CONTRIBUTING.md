@@ -53,7 +53,7 @@ python .github/scripts/check_quora_version.py com.quora.android_X.Y.Z.apkm --cli
 
 This mostly runs on its own. `.github/workflows/quora-version.yml` checks APKMirror and Google Play
 every day. For a new version it downloads the APKM, checks that every split is signed by Quora,
-keeps it as a release in the private repository `JoFSlash/quora-apks`, patches it, starts it on an
+keeps it as a release in the private repository `JoFSlash/morphe-apks`, patches it, starts it on an
 emulator and opens a pull request that adds the version to `Constants.kt`. When something fails it
 opens an issue that says what. A maintainer still tries the page patches on a phone before merging.
 
@@ -71,7 +71,7 @@ page no longer has the class names some patches rely on, it names those patches.
 - `feed-test.yml` signs in with a test account and checks the page patches on the real feed and on
   an answer (`.github/scripts/feed-test.mjs`). It leaves out "Start tab", so the app opens on the
   Home feed.
-- `release.yml` makes the Monday pre-release from `dev` and the Thursday stable release from `main`
+- `release.yml` makes the Wednesday pre-release from `dev` and the Saturday stable release from `main`
   (it merges the newest pre-release into `main` first, and `main` is merged back into `dev` after
   the release). It runs the emulator test and the feed test first and releases only when both pass;
   a skipped feed test doesn't count as passed. When a run doesn't pass, the issues "Weekly release
@@ -93,27 +93,25 @@ page no longer has the class names some patches rely on, it names those patches.
 
 ## Pull requests
 
-- Target the `dev` branch. Every Monday the `feat` and `fix` commits merged into `dev` that week go
+- Target the `dev` branch. Every Wednesday the `feat` and `fix` commits merged into `dev` that week go
   out as a pre-release (`vX.Y.Z-dev.N`) for people who turn on "Pre-release patches" in Morphe
-  Manager. On Thursday that pre-release becomes the stable release on `main`, unless an open issue
-  is labelled `release blocker`. When the last stable release is less than two weeks old, only a
-  pre-release with a `fix` commit becomes stable; new features wait a week, so people don't have
-  to patch the app again every week. Both need the emulator and feed tests to pass; urgent fixes are
+  Manager. On Saturday that pre-release becomes the stable release on `main`, unless an open issue
+  is labelled `release blocker`. Both need the emulator and feed tests to pass; urgent fixes are
   released right away by hand (see below).
 - GitHub closes the issues a pull request names with "Closes #N" only when it is merged into
   `main`. For pull requests into `dev`, close them by hand once the stable release has them.
 
 ### Urgent fixes
 
-A crash at start or a broken sign-in shouldn't wait for Thursday:
+A crash at start or a broken sign-in shouldn't wait for Saturday:
 
 1. Branch from `main` and open the pull request against `main`. Label the issue `release blocker`
-   if the current pre-release has the bug too, so Thursday doesn't make it stable.
+   if the current pre-release has the bug too, so Saturday doesn't make it stable.
 2. After merging, run the Release workflow by hand on `main` (Actions > Release > Run workflow).
    It releases a patch version once the emulator and feed tests pass. "Skip the feed test" is only
    for when the feed test itself can't run.
 3. The release merges `main` back into `dev`, so the next pre-release has the fix. If that merge
-   fails, merge `main` into `dev` by hand. On Thursday, conflicts in the files the releases
+   fails, merge `main` into `dev` by hand. On Saturday, conflicts in the files the releases
    generate (`CHANGELOG.md`, `gradle.properties`, `patches-bundle.json`, `patches-list.json`,
    `README.md`) are resolved by the workflow; any other conflict stops the stable release.
 - Use [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:` and so

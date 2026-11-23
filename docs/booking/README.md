@@ -18,7 +18,7 @@ Patches for the [Booking.com](https://play.google.com/store/apps/details?id=com.
 - block analytics and marketing trackers, remove permissions the app doesn't need, and open links to other sites in
   your browser.
 
-Works with Booking.com <!-- VERSIONS_START -->71.1<!-- VERSIONS_END --> on Android 8 or newer. No root needed.
+Works with Booking.com <!-- VERSIONS_START -->71.1<!-- VERSIONS_END --> on Android 12L or newer. No root needed.
 All patches but Hide insurance offers, Stays only and Remove microphone access are on by default; you can switch any of them on or off when you
 patch.
 
@@ -69,7 +69,7 @@ patch.
 
 ## Updating
 
-- **New patches:** a new version of these patches comes out on a Thursday, every other week (see
+- **New patches:** a new version of these patches comes out every Saturday when something changed (see
   [Updating](../../README.md#updating)). Patch the same Booking.com file again and install it over the patched app. No need to uninstall,
   and your watched prices and saved prices stay. Uninstalling or clearing the app's data deletes them.
 - **New Booking.com version:** the patched app doesn't update from the Play Store. Wait until a release of these

@@ -6,15 +6,22 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting. Please [search the existing issues](https://github.com/JoFSlash/morphe-patches/issues?q=label%3Abug) first, and check the known issues in the app's README ([Quora](https://github.com/JoFSlash/morphe-patches/blob/main/docs/quora/README.md), [Booking.com](https://github.com/JoFSlash/morphe-patches/blob/main/docs/booking/README.md#known-issues), [Google Health](https://github.com/JoFSlash/morphe-patches/blob/main/docs/google-health/README.md)). Don't post your name, email, booking numbers, health data or payment details.
+        Thanks for reporting. Please [search the existing issues](https://github.com/JoFSlash/morphe-patches/issues?q=label%3Abug) first, and check the known issues on the app's page (the [list of apps](https://github.com/JoFSlash/morphe-patches#readme) links each one). Don't post your name, email, booking numbers, health data or payment details.
   - type: dropdown
     id: app
     attributes:
       label: App
       options:
-        - Quora
+        # APPS_START (written by .github/scripts/sync_apps.py from .github/apps)
         - Booking.com
         - Google Health (Fitbit)
+        - IMDb
+        - Kalorické Tabulky
+        - Listonic
+        - Quora
+        - Speedtest (Ookla)
+        - The Crypto App (TrustSwap)
+        # APPS_END
     validations:
       required: true
   - type: input
@@ -37,7 +44,7 @@ body:
     attributes:
       label: App, patches, Morphe Manager and Android versions
       description: The app's version is the one you patched; the others are shown in Morphe Manager. Add the MicroG-RE version if you use it.
-      placeholder: "Booking.com 71.1, patches 2.0.0, Morphe Manager 1.20.0, Android 15"
+      placeholder: "Booking.com 71.1, patches 1.10.0, Morphe Manager 2.6.0, Android 15"
     validations:
       required: true
   - type: input

@@ -2,16 +2,16 @@ name: Google Health version
 
 # Once a day, looks for a Google Health version on APKMirror that this bundle doesn't support yet.
 # For a new version it:
-#   1. gets the APKM (from the private JoFSlash/google-health-apks if it is there, else from
-#      APKMirror, checked to be Google Health's own and then kept in google-health-apks),
+#   1. gets the APKM (from the private JoFSlash/morphe-apks if it is there, else from
+#      APKMirror, checked to be Google Health's own and then kept in morphe-apks),
 #   2. patches it with every patch and starts it on an emulator,
 #   3. opens a pull request that lists the version as supported, or an issue that says what failed.
 # A scheduled run tries APKMirror once per version: when an issue or pull request for the version
 # exists (open or closed), it leaves the version alone. Run the workflow by hand with the version
 # to try again, for example after uploading the APKM:
-#   gh release create google-health-<version> -R JoFSlash/google-health-apks --title "Google Health <version>" google-health-<version>.apkm
-# GOOGLE_HEALTH_APKS_TOKEN needs read and write access to the contents of
-# JoFSlash/google-health-apks.
+#   gh release create google-health-<version> -R JoFSlash/morphe-apks --title "Google Health <version>" google-health-<version>.apkm
+# APKS_TOKEN needs read and write access to the contents of
+# JoFSlash/morphe-apks.
 
 on:
   schedule:
@@ -86,22 +86,22 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      # Writes result= ok (checked and kept in google-health-apks), blocked, missing, bad (not
+      # Writes result= ok (checked and kept in morphe-apks), blocked, missing, bad (not
       # Google Health's own), keepfail (checked, but couldn't be kept), error (a tool or the script
-      # failed), or notoken; and source= google-health-apks or apkmirror.
+      # failed), or notoken; and source= morphe-apks or apkmirror.
       - name: Get the APKM
         id: apkm
         env:
-          APKS_TOKEN: ${{ secrets.GOOGLE_HEALTH_APKS_TOKEN }}
+          APKS_TOKEN: ${{ secrets.APKS_TOKEN || secrets.QUORA_APKS_TOKEN }}
         run: |
           tools="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
           check="--apksigner $tools/apksigner --aapt2 $tools/aapt2"
           out="$RUNNER_TEMP/google-health.apkm"
           asset="google-health-$VERSION.apkm"
           if [ -z "$APKS_TOKEN" ]; then echo "result=notoken" >> "$GITHUB_OUTPUT"; exit 0; fi
-          if GH_TOKEN="$APKS_TOKEN" gh release download "google-health-$VERSION" -R JoFSlash/google-health-apks -p "*.apkm" -O "$out" 2>/dev/null; then
-            echo "Using the APKM from google-health-apks."
-            echo "source=google-health-apks" >> "$GITHUB_OUTPUT"
+          if GH_TOKEN="$APKS_TOKEN" gh release download "google-health-$VERSION" -R JoFSlash/morphe-apks -p "*.apkm" -O "$out" 2>/dev/null; then
+            echo "Using the APKM from morphe-apks."
+            echo "source=morphe-apks" >> "$GITHUB_OUTPUT"
             set +e; python3 .github/scripts/fetch_google_health_apkm.py --verify-only "$out" "$VERSION" $check; code=$?; set -e
             case $code in
               0) echo "result=ok" >> "$GITHUB_OUTPUT" ;;
@@ -116,7 +116,7 @@ jobs:
             0)
               # The asset is named after the file.
               cp "$out" "$RUNNER_TEMP/$asset"
-              if GH_TOKEN="$APKS_TOKEN" gh release create "google-health-$VERSION" -R JoFSlash/google-health-apks \
+              if GH_TOKEN="$APKS_TOKEN" gh release create "google-health-$VERSION" -R JoFSlash/morphe-apks \
                   --title "Google Health $VERSION" \
                   --notes "Google Health $VERSION APKM from APKMirror, checked to be signed by Google Health. Added by the Google Health version workflow." \
                   "$RUNNER_TEMP/$asset"; then
@@ -135,7 +135,7 @@ jobs:
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :patches:buildAndroid --no-daemon
+        run: bash .github/scripts/gradle-retry.sh :patches:buildAndroid --no-daemon
 
       - name: Get the Morphe CLI
         if: steps.apkm.outputs.result == 'ok'
@@ -178,7 +178,7 @@ jobs:
         run: |
           [ -f "$RUNNER_TEMP/check.txt" ] && cat "$RUNNER_TEMP/check.txt"
           report=$(tail -n 40 "$RUNNER_TEMP/check.txt" 2>/dev/null || true)
-          upload="gh release create google-health-$VERSION -R JoFSlash/google-health-apks --title \"Google Health $VERSION\" google-health-$VERSION.apkm"
+          upload="gh release create google-health-$VERSION -R JoFSlash/morphe-apks --title \"Google Health $VERSION\" google-health-$VERSION.apkm"
           why=""
           if [ "$RESULT" = "ok" ] && [ -f "$RUNNER_TEMP/check.txt" ] && [ ! -f "$RUNNER_TEMP/check.failed" ]; then
             set +e; python3 .github/scripts/add_google_health_version.py "$VERSION"; code=$?; set -e
@@ -213,14 +213,14 @@ jobs:
           \`\`\`
           $upload
           \`\`\`" ;;
-              bad) if [ "$SOURCE" = "google-health-apks" ]; then
-                     why="**The APKM in google-health-apks isn't Google Health's own** (wrong package, version or signature). Delete the release \`google-health-$VERSION\` in JoFSlash/google-health-apks: the emulator test would use it."
+              bad) if [ "$SOURCE" = "morphe-apks" ]; then
+                     why="**The APKM in morphe-apks isn't Google Health's own** (wrong package, version or signature). Delete the release \`google-health-$VERSION\` in JoFSlash/morphe-apks: the emulator test would use it."
                    else
                      why="**The APKM from APKMirror isn't Google Health's own** (wrong package, version or signature). It wasn't used or kept. Check APKMirror by hand."
                    fi ;;
-              keepfail) why="The APKM from APKMirror is Google Health's own, but keeping it in google-health-apks failed. Check that GOOGLE_HEALTH_APKS_TOKEN can write to the contents of JoFSlash/google-health-apks, then run the workflow by hand." ;;
+              keepfail) why="The APKM from APKMirror is Google Health's own, but keeping it in morphe-apks failed. Check that APKS_TOKEN can write to the contents of JoFSlash/morphe-apks, then run the workflow by hand." ;;
               error) why="Getting or checking the APKM failed for another reason (a tool or the script). See the run log." ;;
-              notoken) why="The GOOGLE_HEALTH_APKS_TOKEN secret isn't set, so the APKM couldn't be fetched or kept." ;;
+              notoken) why="The APKS_TOKEN secret isn't set, so the APKM couldn't be fetched or kept." ;;
               *) why="Patching or starting the app failed. Fix the patches that no longer apply, then run the workflow by hand with version $VERSION:
           \`\`\`
           $report

@@ -1,0 +1,50 @@
+{
+  "name": "Quora",
+  "workflow": "emulator.yml",
+  "patches": "patches/src/main/kotlin/app/jofslash/patches/quora",
+  "extension": "extensions/quora",
+  "docs": "docs/quora/README.md",
+  "store": "https://play.google.com/store/apps/details?id=com.quora.android",
+  "summary": "Remove ads and tracking, and hide what you don't use: AI answers, Quora+ paywalls, suggestions, counts, old answers.",
+  "apk": {
+    "release": "quora",
+    "version": "newest",
+    "asset": "quora-{version}.apkm",
+    "file": "quora.apkm"
+  },
+  "android": {
+    "note": "The Android versions people run now, and the next one. Android 17's image is only in the SDK's canary channel so far. The release tries the oldest supported version, the newest stable one and the next one; a pull request the oldest and the newest stable.",
+    "pull_request": [
+      {
+        "api": "35",
+        "android": "15",
+        "channel": "stable"
+      },
+      {
+        "api": "36",
+        "android": "16",
+        "channel": "stable"
+      }
+    ],
+    "full": [
+      {
+        "api": "35",
+        "android": "15",
+        "channel": "stable"
+      },
+      {
+        "api": "36",
+        "android": "16",
+        "channel": "stable"
+      },
+      {
+        "api": "37.0",
+        "android": "17",
+        "channel": "canary"
+      }
+    ]
+  },
+  "check": [
+    "python3 .github/scripts/check_quora_version.py \"$APK\" --cli \"$CLI\" --install --expect-login --compare-original --adb adb"
+  ]
+}
