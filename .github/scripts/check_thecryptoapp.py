@@ -173,6 +173,11 @@ def start_and_check(adb, apks, expect_screen, patched):
         # For example an older version over a newer one, or a different signature.
         print("Install failed: " + (output.splitlines()[-1] if output else "no output"))
         return False
+    # On Android 13 and newer both the app and the Crypto Alerts screen ask for the notification
+    # permission, and the dialog hides the screen the check looks for. Grant it up front (an older
+    # Android has no such permission and ignores this).
+    subprocess.run([adb, "shell", "pm", "grant", TARGET, "android.permission.POST_NOTIFICATIONS"],
+                   capture_output=True)
     subprocess.run([adb, "logcat", "-c"])
     launch = [adb, "shell", "monkey", "-p", TARGET, "-c", "android.intent.category.LAUNCHER", "1"]
     subprocess.run(launch, capture_output=True)
@@ -277,10 +282,7 @@ def app_screen_shown(adb, timeout=60):
 
 def alerts_screen_shown(adb, timeout=30):
     """Opens the "Crypto Alerts" screen the Custom price alerts patch adds (its own launcher entry)
-    and waits for its header and Add rule button. On Android 13 and newer the screen asks for the
-    notification permission when it opens; granting it first keeps that dialog off the screen."""
-    subprocess.run([adb, "shell", "pm", "grant", TARGET, "android.permission.POST_NOTIFICATIONS"],
-                   capture_output=True)
+    and waits for its header and Add rule button."""
     subprocess.run([adb, "shell", "am", "start", "-n",
                     f"{TARGET}/app.jofslash.extension.thecryptoapp.AlertsActivity"], capture_output=True)
     end = time.time() + timeout
