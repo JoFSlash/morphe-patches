@@ -29,6 +29,10 @@ still be unlocked with Broccoli coins), and the patches don't change what your s
   Accounts). Push notifications, for example when someone changes a shared list, come through MicroG-RE too.
   The lists work without an account as well.
 - **Signing in with Facebook** goes through Facebook's page in your browser and works with the patched app.
+- **Links from Listonic's emails need one setting.** Android only opens Listonic's links (the "Log in without
+  password" email, shared lists) in the app signed by its maker; for the patched app they open Google Play
+  instead. Allow them once: Settings > Apps > Listonic > **Open by default** > **Add links**, and tick
+  `button.listonic.com` and `flyers.listonic.com`. Then tap the link in the email again.
 - **The patched app replaces the Play Store version.** It is signed with a different key, so uninstall the Play
   Store version first. If you're signed in, your lists stay in your account; lists on a device without an account
   are lost when you uninstall, so sign in or share them first.
@@ -117,6 +121,11 @@ certificate the maker signs the app with. Without it, "Continue with Google" fai
 **Where did the consent pop-up go?**
 The "Listonic asks for your consent" pop-up only serves the ad networks, which **Hide ads** keeps off, so it
 doesn't open by itself. You can still open it from the privacy settings.
+
+**The login link from the email opens Google Play.**
+Android checks that the app opening Listonic's links is signed by Listonic, so for a patched app it hands the
+link to the website, which sends you to Google Play. Allow the links in Settings > Apps > Listonic > **Open by
+default** > **Add links** (`button.listonic.com` and `flyers.listonic.com`) and tap the link again.
 
 **Something doesn't work.**
 Please [open an issue](https://github.com/JoFSlash/morphe-patches/issues/new?template=bug_report.yml) with the
