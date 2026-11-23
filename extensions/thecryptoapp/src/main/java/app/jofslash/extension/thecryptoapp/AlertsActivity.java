@@ -1,63 +1,64 @@
 package app.jofslash.extension.thecryptoapp;
 
 import android.app.Activity;
-import android.content.res.Configuration;
-import android.graphics.Color;
+import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import java.util.List;
 import java.util.Locale;
 
 /**
- * Standalone, self-contained config screen for the custom price alerts. Pure framework Views built
- * in code (no XML, no Compose), so it has no dependency on the host app's resources or runtime. It
- * is theme-aware (DayNight): colors come from theme attributes, so it reads in light and dark.
+ * Self-contained, programmatic config screen for the custom price alerts. Styled to match The
+ * Crypto App (card layout, royal-blue accent) via {@link Palette}, theme-aware for light/dark.
  * Registered in the host manifest with its own LAUNCHER intent-filter ("Crypto Alerts").
  */
 public final class AlertsActivity extends Activity {
 
     static final String TAG = CustomAlertPoc.TAG;
 
+    private static final String[] DIR_LABELS = {
+            "Price above", "Price below", "24h change up (%)", "24h change down (%)"
+    };
+    private static final String[] DIR_VALUES = {
+            AlertRule.ABOVE, AlertRule.BELOW, AlertRule.PCT_UP, AlertRule.PCT_DOWN
+    };
+
+    private Palette p;
     private ScrollView scroll;
     private LinearLayout listContainer;
     private EditText symbolInput;
     private EditText targetInput;
-    private ToggleButton directionToggle;
+    private EditText noteInput;
+    private Spinner directionSpinner;
+    private Switch repeatSwitch;
     private Button addButton;
 
-    /** Non-null when editing an existing rule; its id. */
     private String editingId = null;
 
-    /** Throttle for the on-open auto-check, so reopening quickly doesn't re-hit the API. */
     private static long lastOpenCheckAt = 0L;
     private static final long OPEN_CHECK_MIN_GAP_MS = 30_000L;
-
-    // Theme-resolved colors.
-    private int accentColor;
-    private int secondaryColor;
-    private int metColor;
-    private int unmetColor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
+            p = new Palette(this);
             AlertNotifier.ensureChannel(this);
-            resolveColors();
             setContentView(buildRoot());
             render();
         } catch (Throwable t) {
@@ -68,97 +69,54 @@ public final class AlertsActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Show stored values instantly.
         render();
-        // Throttle the on-open network refresh.
         long now = System.currentTimeMillis();
-        if (now - lastOpenCheckAt < OPEN_CHECK_MIN_GAP_MS) {
-            return;
-        }
+        if (now - lastOpenCheckAt < OPEN_CHECK_MIN_GAP_MS) return;
         lastOpenCheckAt = now;
-        Thread t = new Thread(() -> {
+        bg(() -> {
             try {
                 AlertChecker.checkNow(getApplicationContext());
             } finally {
                 runOnUiThread(this::render);
             }
-        }, "CryptoAlerts-open");
-        t.setDaemon(true);
-        t.start();
-    }
-
-    private void resolveColors() {
-        accentColor = attrColor(android.R.attr.colorAccent, Color.parseColor("#00A36C"));
-        secondaryColor = attrColor(android.R.attr.textColorSecondary, Color.parseColor("#888888"));
-        boolean night = (getResources().getConfiguration().uiMode
-                & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
-        metColor = night ? Color.parseColor("#66BB6A") : Color.parseColor("#2E7D32");
-        unmetColor = night ? Color.parseColor("#EF9A9A") : Color.parseColor("#C62828");
-    }
-
-    private int attrColor(int attr, int fallback) {
-        try {
-            TypedValue tv = new TypedValue();
-            if (getTheme().resolveAttribute(attr, tv, true)) {
-                if (tv.resourceId != 0) {
-                    return getResources().getColor(tv.resourceId, getTheme());
-                }
-                return tv.data;
-            }
-        } catch (Throwable ignored) {
-        }
-        return fallback;
-    }
-
-    private int dp(int v) {
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, v,
-                getResources().getDisplayMetrics());
+        });
     }
 
     private View buildRoot() {
         scroll = new ScrollView(this);
-        // No explicit background: the DayNight window background shows through and adapts.
+        scroll.setBackgroundColor(p.screenBg);
+        scroll.setFillViewport(true);
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(16), dp(16), dp(16), dp(16));
+        root.setPadding(p.dp(16), p.dp(16), p.dp(16), p.dp(24));
         scroll.addView(root, new ScrollView.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        root.addView(heading("Crypto Alerts"));
-        root.addView(hint("Custom price alerts (injected). Free public API. No account, no Pro."));
+        TextView header = new TextView(this);
+        header.setText("Crypto Alerts");
+        header.setTextSize(24);
+        header.setTypeface(Typeface.DEFAULT_BOLD);
+        header.setTextColor(p.textPrimary);
+        root.addView(header);
 
-        root.addView(subheading("Add a rule"));
+        TextView sub = new TextView(this);
+        sub.setText("Custom price alerts. Free public API, no account, no Pro.");
+        sub.setTextSize(12);
+        sub.setTextColor(p.textSecondary);
+        sub.setPadding(0, p.dp(2), 0, p.dp(12));
+        root.addView(sub);
 
-        symbolInput = new EditText(this);
-        symbolInput.setHint("Symbol, e.g. BTCUSDT");
-        symbolInput.setInputType(InputType.TYPE_CLASS_TEXT
-                | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        symbolInput.setAllCaps(true);
-        root.addView(symbolInput);
+        root.addView(buildAddCard());
+        root.addView(buildActionRow());
 
-        targetInput = new EditText(this);
-        targetInput.setHint("Target price in USD, e.g. 65000");
-        targetInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        root.addView(targetInput);
-
-        directionToggle = new ToggleButton(this);
-        directionToggle.setTextOn("When price goes ABOVE target");
-        directionToggle.setTextOff("When price goes BELOW target");
-        directionToggle.setChecked(true);
-        root.addView(directionToggle);
-
-        addButton = new Button(this);
-        addButton.setText("Add rule");
-        addButton.setOnClickListener(v -> onAddOrSave());
-        root.addView(addButton);
-
-        Button checkNow = new Button(this);
-        checkNow.setText("Check now (test)");
-        checkNow.setOnClickListener(v -> onCheckNow());
-        root.addView(checkNow);
-
-        root.addView(subheading("Your rules"));
+        TextView rulesHdr = new TextView(this);
+        rulesHdr.setText("Your rules");
+        rulesHdr.setTextSize(16);
+        rulesHdr.setTypeface(Typeface.DEFAULT_BOLD);
+        rulesHdr.setTextColor(p.textPrimary);
+        rulesHdr.setPadding(0, p.dp(16), 0, p.dp(8));
+        root.addView(rulesHdr);
 
         listContainer = new LinearLayout(this);
         listContainer.setOrientation(LinearLayout.VERTICAL);
@@ -167,30 +125,117 @@ public final class AlertsActivity extends Activity {
         return scroll;
     }
 
-    private TextView heading(String s) {
-        TextView t = new TextView(this);
-        t.setText(s);
-        t.setTextSize(22);
-        t.setPadding(0, 0, 0, dp(4));
-        return t; // primary text color from theme
+    private View buildAddCard() {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setBackground(p.card());
+        int pad = p.dp(16);
+        card.setPadding(pad, pad, pad, pad);
+
+        symbolInput = styledEdit("Symbol, e.g. BTCUSDT");
+        symbolInput.setInputType(InputType.TYPE_CLASS_TEXT
+                | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        symbolInput.setAllCaps(true);
+        card.addView(symbolInput);
+
+        targetInput = styledEdit("Target: price in USD, or percent for % rules");
+        targetInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        card.addView(targetInput, lp(p.dp(10)));
+
+        directionSpinner = new Spinner(this);
+        ArrayAdapter<String> ad = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, DIR_LABELS);
+        ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        directionSpinner.setAdapter(ad);
+        card.addView(directionSpinner, lp(p.dp(10)));
+
+        noteInput = styledEdit("Note (optional)");
+        noteInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        card.addView(noteInput, lp(p.dp(10)));
+
+        repeatSwitch = new Switch(this);
+        repeatSwitch.setText("Repeat (off = one-time)");
+        repeatSwitch.setTextColor(p.textPrimary);
+        repeatSwitch.setChecked(true);
+        card.addView(repeatSwitch, lp(p.dp(10)));
+
+        addButton = primaryButton("Add rule", v -> onAddOrSave());
+        card.addView(addButton, lp(p.dp(12)));
+
+        return wrapCardMargins(card);
     }
 
-    private TextView subheading(String s) {
-        TextView t = new TextView(this);
-        t.setText(s);
-        t.setTextSize(16);
-        t.setTextColor(accentColor);
-        t.setPadding(0, dp(16), 0, dp(6));
-        return t;
+    private View buildActionRow() {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+
+        Button check = secondaryButton("Check now", v -> onCheckNow());
+        LinearLayout.LayoutParams a = new LinearLayout.LayoutParams(0,
+                ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        a.topMargin = p.dp(12);
+        a.rightMargin = p.dp(6);
+        row.addView(check, a);
+
+        Button portfolio = secondaryButton("Portfolio", v -> openPortfolio());
+        LinearLayout.LayoutParams b = new LinearLayout.LayoutParams(0,
+                ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        b.topMargin = p.dp(12);
+        b.leftMargin = p.dp(6);
+        row.addView(portfolio, b);
+
+        return row;
     }
 
-    private TextView hint(String s) {
-        TextView t = new TextView(this);
-        t.setText(s);
-        t.setTextSize(12);
-        t.setTextColor(secondaryColor);
-        return t;
+    // --- styled view factories ---
+
+    private EditText styledEdit(String hint) {
+        EditText e = new EditText(this);
+        e.setHint(hint);
+        e.setTextColor(p.textPrimary);
+        e.setHintTextColor(p.textSecondary);
+        e.setBackground(p.inputBox());
+        int pad = p.dp(12);
+        e.setPadding(pad, pad, pad, pad);
+        return e;
     }
+
+    private Button primaryButton(String text, View.OnClickListener l) {
+        Button b = new Button(this);
+        b.setText(text);
+        b.setAllCaps(false);
+        b.setTextColor(0xFFFFFFFF);
+        b.setBackground(p.primaryButton());
+        b.setOnClickListener(l);
+        return b;
+    }
+
+    private Button secondaryButton(String text, View.OnClickListener l) {
+        Button b = new Button(this);
+        b.setText(text);
+        b.setAllCaps(false);
+        b.setTextColor(p.textPrimary);
+        b.setBackground(p.secondaryButton());
+        b.setOnClickListener(l);
+        return b;
+    }
+
+    private LinearLayout.LayoutParams lp(int topMargin) {
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = topMargin;
+        return lp;
+    }
+
+    private View wrapCardMargins(View card) {
+        LinearLayout holder = new LinearLayout(this);
+        holder.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        holder.addView(card, lp);
+        return holder;
+    }
+
+    // --- actions ---
 
     private void onAddOrSave() {
         try {
@@ -199,12 +244,17 @@ public final class AlertsActivity extends Activity {
 
             final String symbol = symbolInput.getText().toString().trim().toUpperCase(Locale.US);
             String targetStr = targetInput.getText().toString().trim();
+            final String note = noteInput.getText().toString().trim();
+            final boolean repeat = repeatSwitch.isChecked();
+            final String direction = DIR_VALUES[directionSpinner.getSelectedItemPosition()];
+            final boolean percent = AlertRule.PCT_UP.equals(direction) || AlertRule.PCT_DOWN.equals(direction);
+
             if (symbol.isEmpty()) {
                 symbolInput.setError("Enter a symbol, e.g. BTCUSDT");
                 return;
             }
             if (targetStr.isEmpty()) {
-                targetInput.setError("Enter a target price");
+                targetInput.setError(percent ? "Enter a percent, e.g. 5" : "Enter a target price");
                 return;
             }
             final double target;
@@ -221,13 +271,11 @@ public final class AlertsActivity extends Activity {
 
             final String base = symbol.replaceAll("(USDT|BUSD|USDC|USD)$", "");
             final String display = base.isEmpty() ? symbol : base;
-            final String direction = directionToggle.isChecked() ? AlertRule.ABOVE : AlertRule.BELOW;
             final String editing = editingId;
 
-            // Validate the symbol by fetching its price off the main thread (non-blocking).
             addButton.setEnabled(false);
             addButton.setText(editing != null ? "Saving..." : "Checking symbol...");
-            Thread t = new Thread(() -> {
+            bg(() -> {
                 final Double price = PriceFetcher.fetchPrice(getApplicationContext(), symbol);
                 runOnUiThread(() -> {
                     addButton.setEnabled(true);
@@ -237,24 +285,28 @@ public final class AlertsActivity extends Activity {
                         return;
                     }
                     if (editing != null) {
-                        AlertStore.update(this, editing, symbol, display, target, direction);
+                        AlertStore.update(this, editing, symbol, display, target, direction, note, repeat);
                         exitEditMode();
                         toast("Rule saved");
                     } else {
-                        AlertStore.add(this, symbol, display, target, direction);
+                        AlertStore.add(this, symbol, display, target, direction, note, repeat);
                         toast("Rule added");
                     }
-                    symbolInput.setText("");
-                    targetInput.setText("");
-                    directionToggle.setChecked(true);
+                    clearForm();
                     render();
                 });
-            }, "CryptoAlerts-validate");
-            t.setDaemon(true);
-            t.start();
+            });
         } catch (Throwable t) {
             Log.e(TAG, "ui: add/save failed", t);
         }
+    }
+
+    private void clearForm() {
+        symbolInput.setText("");
+        targetInput.setText("");
+        noteInput.setText("");
+        directionSpinner.setSelection(0);
+        repeatSwitch.setChecked(true);
     }
 
     private void beginEdit(AlertRule r) {
@@ -263,7 +315,11 @@ public final class AlertsActivity extends Activity {
         targetInput.setError(null);
         symbolInput.setText(r.symbol);
         targetInput.setText(PriceFormat.editable(r.targetPrice));
-        directionToggle.setChecked(r.isAbove());
+        noteInput.setText(r.note == null ? "" : r.note);
+        repeatSwitch.setChecked(r.repeat);
+        int idx = 0;
+        for (int i = 0; i < DIR_VALUES.length; i++) if (DIR_VALUES[i].equals(r.direction)) idx = i;
+        directionSpinner.setSelection(idx);
         addButton.setText("Save");
         scroll.smoothScrollTo(0, 0);
         toast("Editing " + r.displayName + " - change and Save");
@@ -276,15 +332,29 @@ public final class AlertsActivity extends Activity {
 
     private void onCheckNow() {
         toast("Checking prices...");
-        Thread t = new Thread(() -> {
+        bg(() -> {
             try {
                 AlertChecker.checkNow(getApplicationContext());
             } finally {
                 runOnUiThread(this::render);
             }
-        }, "CryptoAlerts-manual");
-        t.setDaemon(true);
-        t.start();
+        });
+    }
+
+    private void openPortfolio() {
+        try {
+            startActivity(new Intent(this, PortfolioActivity.class));
+        } catch (Throwable t) {
+            Log.e(TAG, "ui: open portfolio failed", t);
+        }
+    }
+
+    private void openChart(String symbol) {
+        try {
+            startActivity(new Intent(this, ChartActivity.class).putExtra("symbol", symbol));
+        } catch (Throwable t) {
+            Log.e(TAG, "ui: open chart failed", t);
+        }
     }
 
     private void render() {
@@ -292,68 +362,128 @@ public final class AlertsActivity extends Activity {
             listContainer.removeAllViews();
             List<AlertRule> rules = AlertStore.load(this);
             if (rules.isEmpty()) {
-                listContainer.addView(hint("No rules yet. Add one above."));
+                TextView empty = new TextView(this);
+                empty.setText("No rules yet. Add one above.");
+                empty.setTextColor(p.textSecondary);
+                listContainer.addView(empty);
                 return;
             }
-            for (final AlertRule r : rules) {
-                listContainer.addView(ruleRow(r));
-            }
+            for (final AlertRule r : rules) listContainer.addView(ruleCard(r));
         } catch (Throwable t) {
             Log.e(TAG, "ui: render failed", t);
         }
     }
 
-    private View ruleRow(final AlertRule r) {
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(0, dp(10), 0, dp(10));
+    private View ruleCard(final AlertRule r) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.HORIZONTAL);
+        card.setGravity(Gravity.CENTER_VERTICAL);
+        card.setBackground(p.card());
+        int pad = p.dp(14);
+        card.setPadding(pad, pad, pad, pad);
+        LinearLayout.LayoutParams cardLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        cardLp.topMargin = p.dp(10);
+        card.setLayoutParams(cardLp);
 
         LinearLayout textCol = new LinearLayout(this);
         textCol.setOrientation(LinearLayout.VERTICAL);
-        row.addView(textCol, new LinearLayout.LayoutParams(0,
+        card.addView(textCol, new LinearLayout.LayoutParams(0,
                 ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
+        boolean up = r.isUpward();
+        String arrow = up ? "↑" : "↓";
+        int arrowColor = up ? p.up : p.down;
+
+        String targetStr = r.isPercent()
+                ? String.format(Locale.US, "%s %.2f%%", up ? "24h up" : "24h down", r.targetPrice)
+                : (up ? "above " : "below ") + PriceFormat.money(r.targetPrice);
         TextView title = new TextView(this);
-        title.setText(String.format(Locale.US, "%s %s %s",
-                r.displayName, r.isAbove() ? "↑ above" : "↓ below",
-                PriceFormat.money(r.targetPrice)));
-        title.setTextSize(15);
+        title.setTextSize(16);
+        title.setTypeface(Typeface.DEFAULT_BOLD);
+        title.setTextColor(p.textPrimary);
+        // Colored arrow + label, name in primary text.
+        android.text.SpannableString span =
+                new android.text.SpannableString(r.displayName + "  " + arrow + " " + targetStr);
+        int arrowStart = r.displayName.length() + 2;
+        span.setSpan(new android.text.style.ForegroundColorSpan(arrowColor),
+                arrowStart, span.length(), android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        title.setText(span);
         textCol.addView(title);
+
+        if (r.note != null && !r.note.isEmpty()) {
+            TextView note = new TextView(this);
+            note.setText(r.note);
+            note.setTextColor(p.textSecondary);
+            note.setTextSize(12);
+            textCol.addView(note);
+        }
 
         TextView status = new TextView(this);
         status.setTextSize(13);
-        if (r.hasLastPrice) {
-            boolean met = r.conditionMet(r.lastPrice);
-            status.setText(String.format(Locale.US, "now %s  %s",
-                    PriceFormat.money(r.lastPrice), met ? "✓ met" : "✗ not met"));
-            status.setTextColor(met ? metColor : unmetColor);
+        boolean haveReading = r.isPercent() ? r.hasLastPct : r.hasLastPrice;
+        if (haveReading) {
+            boolean met = r.conditionMet(r.hasLastPrice ? r.lastPrice : 0d,
+                    r.hasLastPct ? r.lastPct : null);
+            StringBuilder sb = new StringBuilder();
+            if (r.isPercent()) {
+                sb.append(String.format(Locale.US, "24h %+.2f%%", r.lastPct));
+                if (r.hasLastPrice) sb.append("  ").append(PriceFormat.money(r.lastPrice));
+            } else {
+                sb.append("now ").append(PriceFormat.money(r.lastPrice));
+            }
+            sb.append(met ? "   ✓ met" : "   ✗ not met");
+            status.setText(sb.toString());
+            status.setTextColor(met ? p.up : p.down);
         } else {
             status.setText("not checked yet");
-            status.setTextColor(secondaryColor);
+            status.setTextColor(p.textSecondary);
         }
         textCol.addView(status);
 
-        // Tap the text to edit this rule.
+        if (!r.repeat) {
+            TextView ot = new TextView(this);
+            ot.setText("one-time");
+            ot.setTextColor(p.gold);
+            ot.setTextSize(11);
+            textCol.addView(ot);
+        }
+
         textCol.setClickable(true);
         textCol.setOnClickListener(v -> beginEdit(r));
+
+        // Controls column
+        LinearLayout ctrl = new LinearLayout(this);
+        ctrl.setOrientation(LinearLayout.VERTICAL);
+        ctrl.setGravity(Gravity.END);
 
         Switch enable = new Switch(this);
         enable.setChecked(r.enabled);
         enable.setOnCheckedChangeListener((b, checked) ->
                 AlertStore.setEnabled(AlertsActivity.this, r.id, checked));
-        row.addView(enable);
+        ctrl.addView(enable);
 
-        Button del = new Button(this);
-        del.setText("Delete");
-        del.setOnClickListener(v -> {
+        Button chart = secondaryButton("Chart", v -> openChart(r.symbol));
+        chart.setTextSize(12);
+        ctrl.addView(chart, lp(p.dp(6)));
+
+        Button del = secondaryButton("Delete", v -> {
             if (r.id.equals(editingId)) exitEditMode();
             AlertStore.delete(AlertsActivity.this, r.id);
             render();
         });
-        row.addView(del);
+        del.setTextSize(12);
+        del.setTextColor(p.down);
+        ctrl.addView(del, lp(p.dp(6)));
 
-        return row;
+        card.addView(ctrl);
+        return card;
+    }
+
+    private void bg(Runnable r) {
+        Thread t = new Thread(r, "CryptoAlerts-ui");
+        t.setDaemon(true);
+        t.start();
     }
 
     private void toast(String s) {

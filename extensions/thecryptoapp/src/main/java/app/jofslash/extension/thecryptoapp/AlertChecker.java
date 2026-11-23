@@ -5,6 +5,7 @@ import android.util.Log;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -41,10 +42,19 @@ public final class AlertChecker {
             }
 
             PriceFetcher.PriceMap pm = PriceFetcher.fetchAll(app, symbols);
+
+            // 24h change, only for symbols that have a percent rule.
+            Set<String> pctSymbols = new LinkedHashSet<>();
+            for (AlertRule r : rules) if (r.enabled && r.isPercent()) pctSymbols.add(r.symbol);
+            Map<String, Double> changes = pctSymbols.isEmpty()
+                    ? java.util.Collections.emptyMap()
+                    : PriceFetcher.fetchChanges(app, pctSymbols);
+
             for (String s : symbols) {
                 Double p = pm.prices.get(s);
                 Log.i(TAG, "check: " + s + " = "
-                        + (p == null ? "unavailable" : ("$" + p + (pm.stale.contains(s) ? " (stale)" : ""))));
+                        + (p == null ? "unavailable" : ("$" + p + (pm.stale.contains(s) ? " (stale)" : "")))
+                        + (changes.get(s) != null ? (" 24h " + changes.get(s) + "%") : ""));
             }
 
             long now = System.currentTimeMillis();
@@ -52,25 +62,40 @@ public final class AlertChecker {
             for (AlertRule r : rules) {
                 if (!r.enabled) continue;
                 Double price = pm.prices.get(r.symbol);
-                if (price == null) continue;
+                Double pct = changes.get(r.symbol);
 
-                // Record the latest reading for the UI. Only bump the checked-time when fresh, so a
-                // stale (rate-limited) reading keeps the old timestamp.
-                r.lastPrice = price;
-                r.hasLastPrice = true;
-                if (!pm.stale.contains(r.symbol)) r.lastCheckedAt = now;
-                changed = true;
+                // Record the latest readings for the UI. Only bump the checked-time on a fresh
+                // price, so a stale (rate-limited) reading keeps the old timestamp.
+                if (price != null) {
+                    r.lastPrice = price;
+                    r.hasLastPrice = true;
+                    if (!pm.stale.contains(r.symbol)) r.lastCheckedAt = now;
+                    changed = true;
+                }
+                if (pct != null) {
+                    r.lastPct = pct;
+                    r.hasLastPct = true;
+                    changed = true;
+                }
 
-                if (r.conditionMet(price)) {
+                // Percent rules need a pct; absolute rules need a price.
+                if (r.isPercent() ? (pct == null) : (price == null)) continue;
+
+                if (r.conditionMet(price == null ? 0d : price, pct)) {
                     boolean cooled = r.lastTriggeredAt == 0L || (now - r.lastTriggeredAt) > COOLDOWN_MS;
                     if (cooled) {
-                        AlertNotifier.notifyRule(app, r, price);
+                        AlertNotifier.notifyRule(app, r, price, pct);
                         r.lastTriggeredAt = now;
+                        if (!r.repeat) {
+                            // One-time: disable after firing.
+                            r.enabled = false;
+                            Log.i(TAG, "check: " + r.displayName + " one-time fired, disabling");
+                        }
                     } else {
                         Log.i(TAG, "check: " + r.displayName + " met but in cooldown");
                     }
                 } else if (r.lastTriggeredAt != 0L) {
-                    // Price crossed back; re-arm so it can fire again next time.
+                    // Crossed back; re-arm so it can fire again next time.
                     r.lastTriggeredAt = 0L;
                 }
             }

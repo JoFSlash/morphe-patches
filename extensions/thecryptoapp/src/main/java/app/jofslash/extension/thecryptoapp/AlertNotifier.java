@@ -40,7 +40,7 @@ public final class AlertNotifier {
     }
 
     /** Posts the alert for a rule. Notification id is derived from the rule id, so rules don't stack. */
-    public static void notifyRule(Context ctx, AlertRule rule, double price) {
+    public static void notifyRule(Context ctx, AlertRule rule, Double price, Double pct) {
         try {
             ensureChannel(ctx);
             NotificationManager nm = ctx.getSystemService(NotificationManager.class);
@@ -49,10 +49,23 @@ public final class AlertNotifier {
                 return;
             }
 
-            String dir = rule.isAbove() ? "above" : "below";
             String title = rule.displayName + " alert";
-            String text = String.format(Locale.US, "%s is %s (target %s %s)",
-                    rule.displayName, PriceFormat.money(price), dir, PriceFormat.money(rule.targetPrice));
+            String text;
+            if (rule.isPercent()) {
+                String dir = AlertRule.PCT_UP.equals(rule.direction) ? "up" : "down";
+                String nowPct = pct == null ? "?" : String.format(Locale.US, "%+.2f%%", pct);
+                text = String.format(Locale.US, "%s 24h change %s (target %s %.2f%%%s)",
+                        rule.displayName, nowPct, dir, rule.targetPrice,
+                        price == null ? "" : ", now " + PriceFormat.money(price));
+            } else {
+                String dir = rule.isUpward() ? "above" : "below";
+                text = String.format(Locale.US, "%s is %s (target %s %s)",
+                        rule.displayName, PriceFormat.money(price == null ? 0d : price),
+                        dir, PriceFormat.money(rule.targetPrice));
+            }
+            if (rule.note != null && !rule.note.isEmpty()) {
+                text = text + "  -  " + rule.note;
+            }
 
             // Tapping opens our alerts screen.
             Intent open = new Intent(ctx, AlertsActivity.class)

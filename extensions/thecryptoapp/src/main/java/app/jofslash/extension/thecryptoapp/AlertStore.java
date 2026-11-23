@@ -57,19 +57,23 @@ public final class AlertStore {
 
     /** Adds a new rule (assigns an id) and returns it. */
     public static synchronized AlertRule add(Context ctx, String symbol, String displayName,
-                                             double targetPrice, String direction) {
+                                             double targetPrice, String direction,
+                                             String note, boolean repeat) {
         List<AlertRule> rules = load(ctx);
         AlertRule r = new AlertRule(UUID.randomUUID().toString(), symbol, displayName,
                 targetPrice, direction, true);
+        r.note = note == null ? "" : note;
+        r.repeat = repeat;
         rules.add(r);
         save(ctx, rules);
-        Log.i(TAG, "store: added rule " + displayName + " " + direction + " $" + targetPrice);
+        Log.i(TAG, "store: added rule " + displayName + " " + direction + " " + targetPrice);
         return r;
     }
 
     /** Edits an existing rule's symbol/name/target/direction, keeping its id and re-arming it. */
     public static synchronized void update(Context ctx, String id, String symbol, String displayName,
-                                           double targetPrice, String direction) {
+                                           double targetPrice, String direction,
+                                           String note, boolean repeat) {
         List<AlertRule> rules = load(ctx);
         for (AlertRule r : rules) {
             if (r.id.equals(id)) {
@@ -77,14 +81,17 @@ public final class AlertStore {
                 r.displayName = displayName;
                 r.targetPrice = targetPrice;
                 r.direction = direction;
+                r.note = note == null ? "" : note;
+                r.repeat = repeat;
                 // Changing the rule invalidates the previous reading and re-arms it.
                 r.lastTriggeredAt = 0L;
                 r.hasLastPrice = false;
+                r.hasLastPct = false;
                 r.lastCheckedAt = 0L;
             }
         }
         save(ctx, rules);
-        Log.i(TAG, "store: updated rule " + displayName + " " + direction + " $" + targetPrice);
+        Log.i(TAG, "store: updated rule " + displayName + " " + direction + " " + targetPrice);
     }
 
     public static synchronized void delete(Context ctx, String id) {

@@ -51,8 +51,11 @@ public final class PriceFetcher {
     static final String TAG = CustomAlertPoc.TAG;
 
     private static final String BINANCE_ALL = "https://api.binance.com/api/v3/ticker/price";
+    private static final String BINANCE_24HR = "https://api.binance.com/api/v3/ticker/24hr?symbols=";
     private static final String COINGECKO_PRICE =
             "https://api.coingecko.com/api/v3/simple/price?vs_currencies=usd&ids=";
+    private static final String COINGECKO_CHANGE =
+            "https://api.coingecko.com/api/v3/simple/price?vs_currencies=usd&include_24hr_change=true&ids=";
     private static final String COINGECKO_LIST = "https://api.coingecko.com/api/v3/coins/list";
     private static final String COINGECKO_MARKETS =
             "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=";
@@ -89,6 +92,8 @@ public final class PriceFetcher {
 
     /** symbol -> {price, fetchedAtMillis}. */
     private static final Map<String, double[]> PRICE_CACHE = new ConcurrentHashMap<>();
+    /** symbol -> {pctChange24h, fetchedAtMillis}. */
+    private static final Map<String, double[]> PCT_CACHE = new ConcurrentHashMap<>();
 
     private static Map<String, Double> binanceAllCache = null;
     private static long binanceAllAt = 0L;
@@ -172,6 +177,136 @@ public final class PriceFetcher {
             Log.e(TAG, "fetch: fetchAll failed", t);
         }
         return out;
+    }
+
+    /**
+     * 24h change percent for the given symbols (for percent-change rules). Binance batch for
+     * Binance-listed symbols, CoinGecko {@code include_24hr_change} for the rest. 60s cache; 429
+     * reuses cache. Returns symbol -> percent (null when unavailable).
+     */
+    public static Map<String, Double> fetchChanges(Context ctx, Collection<String> symbols) {
+        Map<String, Double> out = new HashMap<>();
+        try {
+            long now = System.currentTimeMillis();
+            Set<String> wanted = new LinkedHashSet<>();
+            for (String s : symbols) if (s != null && !s.isEmpty()) wanted.add(s);
+
+            Set<String> need = new LinkedHashSet<>();
+            for (String s : wanted) {
+                double[] cp = PCT_CACHE.get(s);
+                if (cp == null || (now - (long) cp[1]) > PRICE_TTL_MS) need.add(s);
+            }
+
+            if (!need.isEmpty()) {
+                Map<String, Double> binanceAll = binanceAll(now); // to know which are Binance-listed
+                Set<String> binanceSyms = new LinkedHashSet<>();
+                Set<String> cgSyms = new LinkedHashSet<>();
+                for (String s : need) {
+                    if (binanceAll != null && binanceAll.containsKey(s.toUpperCase(Locale.US))) {
+                        binanceSyms.add(s.toUpperCase(Locale.US));
+                    } else {
+                        cgSyms.add(s);
+                    }
+                }
+
+                if (!binanceSyms.isEmpty()) {
+                    Map<String, Double> b = binance24h(binanceSyms);
+                    if (b != null) for (Map.Entry<String, Double> e : b.entrySet()) {
+                        PCT_CACHE.put(e.getKey(), new double[]{e.getValue(), now});
+                    }
+                }
+                if (!cgSyms.isEmpty()) {
+                    Map<String, String> symToId = new HashMap<>();
+                    Set<String> ids = new LinkedHashSet<>();
+                    for (String s : cgSyms) {
+                        String id = coinGeckoId(ctx, s);
+                        if (id != null) {
+                            symToId.put(s, id);
+                            ids.add(id);
+                        }
+                    }
+                    if (!ids.isEmpty()) {
+                        Map<String, Double> byId = coinGeckoChanges(ids);
+                        if (byId != null) for (Map.Entry<String, String> e : symToId.entrySet()) {
+                            Double v = byId.get(e.getValue());
+                            if (v != null) PCT_CACHE.put(e.getKey(), new double[]{v, now});
+                        }
+                    }
+                }
+            }
+
+            for (String s : wanted) {
+                double[] cp = PCT_CACHE.get(s);
+                out.put(s, cp == null ? null : cp[0]);
+            }
+        } catch (Throwable t) {
+            Log.e(TAG, "fetch: fetchChanges failed", t);
+        }
+        return out;
+    }
+
+    private static Map<String, Double> binance24h(Set<String> symbolsUpper) {
+        try {
+            StringBuilder arr = new StringBuilder("[");
+            boolean first = true;
+            for (String s : symbolsUpper) {
+                if (!first) arr.append(',');
+                arr.append('"').append(s).append('"');
+                first = false;
+            }
+            arr.append(']');
+            HttpResult r = get(BINANCE_24HR + URLEncoder.encode(arr.toString(), "UTF-8"));
+            if (r.code != 200 || r.body == null) {
+                Log.w(TAG, "fetch: Binance 24hr HTTP " + r.code);
+                return null;
+            }
+            JSONArray a = new JSONArray(r.body);
+            Map<String, Double> map = new HashMap<>();
+            for (int i = 0; i < a.length(); i++) {
+                JSONObject o = a.optJSONObject(i);
+                if (o == null) continue;
+                String sym = o.optString("symbol", null);
+                String pct = o.optString("priceChangePercent", null);
+                if (sym != null && pct != null) {
+                    try {
+                        map.put(sym, Double.parseDouble(pct));
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            }
+            return map;
+        } catch (Throwable t) {
+            Log.w(TAG, "fetch: Binance 24hr failed: " + t);
+            return null;
+        }
+    }
+
+    private static Map<String, Double> coinGeckoChanges(Set<String> ids) {
+        try {
+            StringBuilder joined = new StringBuilder();
+            for (String id : ids) {
+                if (joined.length() > 0) joined.append(',');
+                joined.append(id);
+            }
+            HttpResult r = get(COINGECKO_CHANGE + URLEncoder.encode(joined.toString(), "UTF-8"));
+            if (r.code != 200 || r.body == null) {
+                Log.w(TAG, "fetch: CoinGecko change HTTP " + r.code);
+                return null;
+            }
+            JSONObject obj = new JSONObject(r.body);
+            Map<String, Double> byId = new HashMap<>();
+            for (Iterator<String> it = obj.keys(); it.hasNext(); ) {
+                String id = it.next();
+                JSONObject coin = obj.optJSONObject(id);
+                if (coin != null && coin.has("usd_24h_change")) {
+                    byId.put(id, coin.getDouble("usd_24h_change"));
+                }
+            }
+            return byId;
+        } catch (Throwable t) {
+            Log.w(TAG, "fetch: CoinGecko change failed: " + t);
+            return null;
+        }
     }
 
     private static boolean isFresh(String symbol, long now) {
