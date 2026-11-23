@@ -4,7 +4,14 @@
   "patches": "patches/src/main/kotlin/app/jofslash/patches/thecryptoapp",
   "extension": "extensions/thecryptoapp",
   "docs": "docs/thecryptoapp/README.md",
+  "readme": {
+    "style": "kept",
+    "sections": {
+      "Prices": "Price"
+    }
+  },
   "store": "https://play.google.com/store/apps/details?id=com.crypter.cryptocyrrency",
+  "package": "com.crypter.cryptocyrrency",
   "store_note": "(TrustSwap)",
   "summary": "Hide the ads, and add your own price alerts (price or 24h change), a chart and a local portfolio, with free public prices and no account.",
   "apk": {

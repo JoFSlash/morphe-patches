@@ -4,7 +4,19 @@
   "patches": "patches/src/main/kotlin/app/jofslash/patches/googlehealth",
   "extension": "extensions/googlehealth",
   "docs": "docs/google-health/README.md",
+  "readme": {
+    "style": "generated",
+    "order": [
+      "Privacy",
+      "App"
+    ],
+    "intro": {
+      "Privacy": "On by default. They change nothing you see.",
+      "App": "Signing in, prompts and how the app behaves."
+    }
+  },
   "store": "https://play.google.com/store/apps/details?id=com.fitbit.FitbitMobile",
+  "package": "com.fitbit.FitbitMobile",
   "store_note": "(Fitbit)",
   "summary": "Sign in through MicroG-RE instead of Google Play services, no surveys or nags, a black theme, screenshots on every screen, and a clone next to the official app.",
   "apk": {

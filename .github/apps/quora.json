@@ -4,7 +4,25 @@
   "patches": "patches/src/main/kotlin/app/jofslash/patches/quora",
   "extension": "extensions/quora",
   "docs": "docs/quora/README.md",
+  "readme": {
+    "style": "generated",
+    "order": [
+      "Privacy",
+      "Feed",
+      "Reading",
+      "Writing",
+      "App"
+    ],
+    "intro": {
+      "Privacy": "On by default. They stop data collection and change nothing you see.",
+      "Feed": "What the feed and question pages show.",
+      "Reading": "How answers look and load.",
+      "Writing": "The editor for answers and posts.",
+      "App": "The app around the pages: prompts, tabs, notifications, gestures."
+    }
+  },
   "store": "https://play.google.com/store/apps/details?id=com.quora.android",
+  "package": "com.quora.android",
   "summary": "Remove ads and tracking, and hide what you don't use: AI answers, Quora+ paywalls, suggestions, counts, old answers.",
   "apk": {
     "release": "quora",

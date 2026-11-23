@@ -4,7 +4,21 @@
   "patches": "patches/src/main/kotlin/app/jofslash/patches/kaloricketabulky",
   "extension": "extensions/kaloricketabulky",
   "docs": "docs/kaloricke-tabulky/README.md",
+  "readme": {
+    "style": "generated",
+    "order": [
+      "Ads",
+      "App",
+      "Privacy"
+    ],
+    "intro": {
+      "Ads": "Ad banners and full-screen ads.",
+      "App": "Premium offers, prompts and pop-ups.",
+      "Privacy": "Trackers and permissions. Apart from the location patch, they change nothing you see."
+    }
+  },
   "store": "https://play.google.com/store/apps/details?id=cz.psc.android.kaloricketabulky",
+  "package": "cz.psc.android.kaloricketabulky",
   "summary": "Remove ads, Premium pop-ups, rating prompts and trackers from the calorie and food diary, and sign in with Google through MicroG-RE.",
   "apk": {
     "release": "kaloricke-tabulky",

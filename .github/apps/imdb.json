@@ -4,7 +4,21 @@
   "patches": "patches/src/main/kotlin/app/jofslash/patches/imdb",
   "extension": "extensions/imdb",
   "docs": "docs/imdb/README.md",
+  "readme": {
+    "style": "generated",
+    "order": [
+      "Ads",
+      "Privacy",
+      "App"
+    ],
+    "intro": {
+      "Ads": "IMDb's own Sponsored banners, video ads and the ad networks.",
+      "Privacy": "Trackers, permissions and the Braze marketing SDK.",
+      "App": "Prompts the app shows by itself, and signing in with Google without Google Play services."
+    }
+  },
   "store": "https://play.google.com/store/apps/details?id=com.imdb.mobile",
+  "package": "com.imdb.mobile",
   "summary": "Remove the ads from the movie and TV database and stop its third-party trackers (comScore, Branch, Pinpoint, clickstream), without an account.",
   "apk": {
     "release": "imdb",

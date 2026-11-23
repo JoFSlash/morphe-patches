@@ -4,7 +4,21 @@
   "patches": "patches/src/main/kotlin/app/jofslash/patches/listonic",
   "extension": "extensions/listonic",
   "docs": "docs/listonic/README.md",
+  "readme": {
+    "style": "generated",
+    "order": [
+      "Ads",
+      "App",
+      "Privacy"
+    ],
+    "intro": {
+      "Ads": "Banners, ads between list items, full-screen ads and partner leaflets.",
+      "App": "Premium offers and buttons, prompts, coins and Google sign-in.",
+      "Privacy": "Trackers and permissions. They change nothing you see."
+    }
+  },
   "store": "https://play.google.com/store/apps/details?id=com.l",
+  "package": "com.l",
   "summary": "Remove the ads, sale campaigns, rating prompts and trackers from the grocery shopping list, and sign in with Google through MicroG-RE.",
   "apk": {
     "release": "listonic",

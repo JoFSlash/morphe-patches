@@ -3,7 +3,21 @@
   "workflow": "emulator-speedtest.yml",
   "patches": "patches/src/main/kotlin/app/jofslash/patches/speedtest",
   "docs": "docs/speedtest/README.md",
+  "readme": {
+    "style": "generated",
+    "order": [
+      "Ads",
+      "Privacy",
+      "App"
+    ],
+    "intro": {
+      "Ads": "The banner and the ad after a speed test.",
+      "Privacy": "Trackers and permissions. They change nothing you see.",
+      "App": "Prompts the app shows by itself."
+    }
+  },
   "store": "https://play.google.com/store/apps/details?id=org.zwanoo.android.speedtest",
+  "package": "org.zwanoo.android.speedtest",
   "store_note": "(Ookla)",
   "summary": "Remove the ads from the internet speed test and stop its third-party trackers (Appvestor, CellRebel), without an account.",
   "apk": {
