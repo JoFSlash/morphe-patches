@@ -221,8 +221,10 @@ jobs:
   record:
     name: Record the pass
     needs: emulator
-    # Only when the test couldn't be skipped for a missing APKS_TOKEN.
-    if: inputs.record && inputs.required && needs.emulator.result == 'success'
+    # Only when the test couldn't be skipped for a missing APKS_TOKEN. "!cancelled()" because the
+    # build job is skipped when the caller passes a bundle, and a skipped job further up would
+    # otherwise skip this one too.
+    if: ${{ !cancelled() && inputs.record && inputs.required && needs.emulator.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
