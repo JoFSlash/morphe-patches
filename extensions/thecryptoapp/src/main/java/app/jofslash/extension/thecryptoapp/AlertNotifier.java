@@ -39,14 +39,39 @@ public final class AlertNotifier {
         }
     }
 
-    /** Posts the alert for a rule. Notification id is derived from the rule id, so rules don't stack. */
-    public static void notifyRule(Context ctx, AlertRule rule, Double price, Double pct) {
+    /**
+     * Whether a notification from us would show: notifications allowed for the app (Android 13+
+     * asks) and our channel not turned off.
+     */
+    public static boolean canNotify(Context ctx) {
+        try {
+            NotificationManager nm = ctx.getSystemService(NotificationManager.class);
+            if (nm == null || !nm.areNotificationsEnabled()) return false;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel channel = nm.getNotificationChannel(CHANNEL_ID);
+                if (channel != null && channel.getImportance() == NotificationManager.IMPORTANCE_NONE) return false;
+            }
+            return true;
+        } catch (Throwable t) {
+            return true;
+        }
+    }
+
+    /**
+     * Posts the alert for a rule. Notification id is derived from the rule id, so rules don't stack.
+     * Returns whether it was posted where the user can see it.
+     */
+    public static boolean notifyRule(Context ctx, AlertRule rule, Double price, Double pct) {
         try {
             ensureChannel(ctx);
             NotificationManager nm = ctx.getSystemService(NotificationManager.class);
             if (nm == null) {
                 Log.e(TAG, "notify: no NotificationManager");
-                return;
+                return false;
+            }
+            if (!canNotify(ctx)) {
+                Log.w(TAG, "notify: notifications are off, not using up rule " + rule.displayName);
+                return false;
             }
 
             String title = rule.displayName + " alert";
@@ -96,8 +121,10 @@ public final class AlertNotifier {
 
             nm.notify(rule.id.hashCode(), notification);
             Log.i(TAG, "notify: posted for rule " + rule.displayName + " -> " + text);
+            return true;
         } catch (Throwable t) {
             Log.e(TAG, "notify: could not post for rule " + (rule != null ? rule.displayName : "?"), t);
+            return false;
         }
     }
 }

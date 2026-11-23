@@ -32,7 +32,8 @@ Pro features; the app's own alerts, portfolio and Pro work as before if you have
 - **Use the APK bundle (APKM).** The app keeps its native libraries in a split, so a single APK without them closes
   at start.
 - **Allow notifications.** The first time you open Crypto Alerts it asks to show notifications (Android 13 and
-  newer). Without that, alerts are checked but you don't see them.
+  newer). Without that, alerts are checked but can't reach you; Crypto Alerts says so, and a met alert waits
+  until notifications are on.
 
 ## Install
 
@@ -59,7 +60,7 @@ Pro features; the app's own alerts, portfolio and Pro work as before if you have
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.10.0, 3 patches, all on by default. Supported The Crypto App versions: 4.0.5.
+3 patches, all on by default. Supported The Crypto App versions: 4.0.5.
 
 <details>
 <summary><b>Ads</b> (1)</summary>

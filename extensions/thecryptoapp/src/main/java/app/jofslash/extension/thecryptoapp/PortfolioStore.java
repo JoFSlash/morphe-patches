@@ -59,7 +59,7 @@ public final class PortfolioStore {
     public static synchronized void delete(Context ctx, String id) {
         List<Holding> list = load(ctx);
         List<Holding> kept = new ArrayList<>();
-        for (Holding h : list) if (!h.id.equals(id)) kept.add(h);
+        for (Holding h : list) if (h.id == null || !h.id.equals(id)) kept.add(h);
         save(ctx, kept);
     }
 }

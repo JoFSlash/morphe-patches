@@ -63,10 +63,18 @@ public final class AlertScheduler {
             PendingIntent pi = checkIntent(ctx);
             long triggerAt = System.currentTimeMillis() + INTERVAL_MS;
 
+            boolean exact = false;
             if (exactAllowed(am)) {
-                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi);
-                Log.i(TAG, "schedule: EXACT (setExactAndAllowWhileIdle) next check in ~15 min");
-            } else {
+                try {
+                    am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi);
+                    exact = true;
+                    Log.i(TAG, "schedule: EXACT (setExactAndAllowWhileIdle) next check in ~15 min");
+                } catch (SecurityException revoked) {
+                    // The exact-alarm permission was taken away after the check above.
+                    Log.w(TAG, "schedule: exact alarm refused, falling back to inexact");
+                }
+            }
+            if (!exact) {
                 am.setInexactRepeating(AlarmManager.RTC_WAKEUP, triggerAt,
                         AlarmManager.INTERVAL_FIFTEEN_MINUTES, pi);
                 Log.i(TAG, "schedule: INEXACT fallback (exact alarms not permitted) repeating ~15 min");

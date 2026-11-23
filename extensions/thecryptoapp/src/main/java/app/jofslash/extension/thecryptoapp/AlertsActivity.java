@@ -40,6 +40,7 @@ public final class AlertsActivity extends Activity {
 
     private Palette p;
     private ScrollView scroll;
+    private TextView notificationsOff;
     private LinearLayout listContainer;
     private EditText symbolInput;
     private EditText targetInput;
@@ -73,6 +74,9 @@ public final class AlertsActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (notificationsOff != null) {
+            notificationsOff.setVisibility(AlertNotifier.canNotify(this) ? View.GONE : View.VISIBLE);
+        }
         render();
         long now = System.currentTimeMillis();
         if (now - lastOpenCheckAt < OPEN_CHECK_MIN_GAP_MS) return;
@@ -110,6 +114,16 @@ public final class AlertsActivity extends Activity {
         sub.setTextColor(p.textSecondary);
         sub.setPadding(0, p.dp(2), 0, p.dp(12));
         root.addView(sub);
+
+        // Shown while notifications are off: alerts are checked but can't reach you.
+        notificationsOff = new TextView(this);
+        notificationsOff.setText("Notifications are off for this app, so alerts can't reach you. "
+                + "Met alerts wait until you turn them on.");
+        notificationsOff.setTextSize(13);
+        notificationsOff.setTextColor(p.down);
+        notificationsOff.setPadding(0, 0, 0, p.dp(12));
+        notificationsOff.setVisibility(View.GONE);
+        root.addView(notificationsOff);
 
         root.addView(buildAddCard());
         root.addView(buildActionRow());

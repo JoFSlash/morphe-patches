@@ -107,7 +107,8 @@ public final class AlertChecker {
         if (r.conditionMet(price == null ? 0d : price, pct)) {
             boolean cooled = r.lastTriggeredAt == 0L || (now - r.lastTriggeredAt) > COOLDOWN_MS;
             if (cooled) {
-                AlertNotifier.notifyRule(app, r, price, pct);
+                // Notifications off: leave the rule as it is, so it fires once they are back on.
+                if (!AlertNotifier.notifyRule(app, r, price, pct)) return;
                 r.lastTriggeredAt = now;
                 if (!r.repeat) {
                     // One-time: disable after firing.

@@ -114,6 +114,14 @@ public final class PriceFetcher {
     /** Quote assets whose price is (close enough to) US dollars. */
     private static final String[] USD_QUOTES = {"FDUSD", "USDT", "USDC", "BUSD", "TUSD", "USD"};
 
+    /**
+     * Dollar coins whose ticker ends like a quote ("TUSD", "PYUSD"): they are a coin on their own,
+     * not "T" or "PY" against the dollar.
+     */
+    private static final Set<String> USD_COINS = new HashSet<>(java.util.Arrays.asList(
+            "USDT", "USDC", "TUSD", "BUSD", "FDUSD", "PYUSD", "USDP", "USDD", "GUSD", "LUSD", "SUSD",
+            "USDE", "USDS", "RLUSD", "USD1"));
+
     private PriceFetcher() {
     }
 
@@ -126,6 +134,7 @@ public final class PriceFetcher {
     /** The coin part of [symbol] without a USD quote: "BTCUSDT" -> "BTC", "BTC" -> "BTC". */
     static String baseOf(String symbol) {
         String up = symbol.toUpperCase(Locale.US);
+        if (USD_COINS.contains(up)) return up;
         for (String q : USD_QUOTES) {
             if (up.endsWith(q) && up.length() > q.length()) return up.substring(0, up.length() - q.length());
         }
@@ -145,6 +154,7 @@ public final class PriceFetcher {
 
     static String binancePair(String symbol) {
         String up = symbol.toUpperCase(Locale.US);
+        if (USD_COINS.contains(up)) return up + "USDT";
         for (String q : USD_QUOTES) {
             if (up.endsWith(q) && up.length() > q.length()) return up;
         }
@@ -177,9 +187,12 @@ public final class PriceFetcher {
             if (!need.isEmpty()) {
                 Map<String, Double> binance = binanceAll(now);
                 if (binance != null) {
+                    // Stamp with when Binance answered: after a failed refresh this is the last
+                    // good answer, which mustn't pass for a fresh one.
+                    long binanceAt = binanceAllAt;
                     for (String s : need) {
                         Double p = binance.get(binancePair(s));
-                        if (p != null) putCache(s, p, now);
+                        if (p != null) putCache(s, p, binanceAt);
                     }
                 }
 
@@ -351,9 +364,9 @@ public final class PriceFetcher {
             for (Iterator<String> it = obj.keys(); it.hasNext(); ) {
                 String id = it.next();
                 JSONObject coin = obj.optJSONObject(id);
-                if (coin != null && coin.has("usd_24h_change")) {
-                    byId.put(id, coin.getDouble("usd_24h_change"));
-                }
+                // A coin without a value has "usd_24h_change": null; skip it, not the batch.
+                double change = coin != null ? coin.optDouble("usd_24h_change", Double.NaN) : Double.NaN;
+                if (!Double.isNaN(change)) byId.put(id, change);
             }
             return byId;
         } catch (Throwable t) {
@@ -432,7 +445,8 @@ public final class PriceFetcher {
             for (Iterator<String> it = obj.keys(); it.hasNext(); ) {
                 String id = it.next();
                 JSONObject coin = obj.optJSONObject(id);
-                if (coin != null && coin.has("usd")) byId.put(id, coin.getDouble("usd"));
+                double usd = coin != null ? coin.optDouble("usd", Double.NaN) : Double.NaN;
+                if (!Double.isNaN(usd)) byId.put(id, usd);
             }
             return byId;
         } catch (Throwable t) {
