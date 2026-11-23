@@ -19,6 +19,13 @@ Thanks for helping. Each app is patched differently, so each has its own guide:
   is gone. It ships as a single arm64 APK on APKMirror:
   `python .github/scripts/check_speedtest.py <speedtest.apk> --cli <morphe-cli.jar> --install --expect-screen`
   patches it with every Speedtest patch and starts it on a phone or emulator, as the emulator test does.
+- The Crypto App (TrustSwap): an R8'd app with a PairIP license check (Java only, no native VM or signature
+  check), which the patches turn off so the app starts at all. Ads are hidden through the app's own new-user
+  ad-free window, found by its remote-config key. The price alerts, chart and portfolio are our own screens in
+  `extensions/thecryptoapp` (plain Views, no host-app classes). It ships as an APKM bundle on APKMirror; take
+  the one with arm64-v8a and x86_64 libraries:
+  `python .github/scripts/check_thecryptoapp.py <thecryptoapp.apkm> --cli <morphe-cli.jar> --install --expect-screen`
+  patches it with every patch and starts it on a phone or emulator, as the emulator test does.
 
 Please follow the [code of conduct](CODE_OF_CONDUCT.md), and report security problems privately as described in
 [SECURITY.md](SECURITY.md).
@@ -26,7 +33,7 @@ Please follow the [code of conduct](CODE_OF_CONDUCT.md), and report security pro
 ## Where things are
 
 - `patches/src/main/kotlin/app/jofslash/patches/<app>/`: the patches. `<app>` is `quora`, `booking`,
-  `googlehealth`, `kaloricketabulky` or `speedtest`.
+  `googlehealth`, `kaloricketabulky`, `speedtest` or `thecryptoapp`.
 - `extensions/<app>/`: the code those patches call inside the app. Each app has its own extension, so a patched
   app gets only its own code. A patch loads it with `extendWith("extensions/<app>.mpe")`.
 - `docs/<app>/README.md`: the app's page. The patch tables in it are generated from the patches' descriptions

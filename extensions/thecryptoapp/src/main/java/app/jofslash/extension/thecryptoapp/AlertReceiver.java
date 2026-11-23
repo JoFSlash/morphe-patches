@@ -12,7 +12,7 @@ import android.util.Log;
  */
 public final class AlertReceiver extends BroadcastReceiver {
 
-    static final String TAG = CustomAlertPoc.TAG;
+    static final String TAG = CustomAlerts.TAG;
 
     @Override
     public void onReceive(Context context, Intent intent) {

@@ -28,7 +28,7 @@ import java.util.Set;
  */
 public final class PortfolioActivity extends Activity {
 
-    static final String TAG = CustomAlertPoc.TAG;
+    static final String TAG = CustomAlerts.TAG;
 
     private Palette p;
     private ScrollView scroll;

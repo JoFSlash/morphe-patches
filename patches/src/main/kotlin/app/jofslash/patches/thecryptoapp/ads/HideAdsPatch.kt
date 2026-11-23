@@ -22,9 +22,8 @@ internal object AdGraceWindowFingerprint : Fingerprint(
 @Suppress("unused")
 val hideAdsPatch = bytecodePatch(
     name = "Hide ads",
-    description = "Forces the app's own new-user ad-free grace window on permanently, so banners and native " +
-            "news ads stay hidden. This reuses the app's existing ad-free code path and does not unlock the " +
-            "paid Pro tier.",
+    description = "Hides the banners and the ads between the news, using the app's own ad-free mode for new " +
+            "users, kept on for good. Pro isn't unlocked.",
     default = true
 ) {
     category("Ads")

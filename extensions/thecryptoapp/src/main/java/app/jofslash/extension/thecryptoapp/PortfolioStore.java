@@ -14,7 +14,7 @@ import java.util.UUID;
 /** SharedPreferences-backed CRUD for portfolio {@link Holding}s. Own prefs file/key. */
 public final class PortfolioStore {
 
-    static final String TAG = CustomAlertPoc.TAG;
+    static final String TAG = CustomAlerts.TAG;
     private static final String PREFS = "jofslash_crypto_portfolio";
     private static final String KEY = "holdings";
 

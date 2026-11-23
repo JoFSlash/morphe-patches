@@ -18,7 +18,7 @@ import java.util.UUID;
  */
 public final class AlertStore {
 
-    static final String TAG = CustomAlertPoc.TAG;
+    static final String TAG = CustomAlerts.TAG;
 
     private static final String PREFS = "jofslash_crypto_alerts";
     private static final String KEY_RULES = "rules";

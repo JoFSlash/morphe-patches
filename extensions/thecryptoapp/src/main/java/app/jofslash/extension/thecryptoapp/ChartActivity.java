@@ -21,7 +21,7 @@ import android.widget.TextView;
  */
 public final class ChartActivity extends Activity {
 
-    static final String TAG = CustomAlertPoc.TAG;
+    static final String TAG = CustomAlerts.TAG;
 
     private Palette p;
     private WebView web;

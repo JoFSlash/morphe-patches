@@ -48,7 +48,7 @@ import javax.net.ssl.HttpsURLConnection;
  */
 public final class PriceFetcher {
 
-    static final String TAG = CustomAlertPoc.TAG;
+    static final String TAG = CustomAlerts.TAG;
 
     private static final String BINANCE_ALL = "https://api.binance.com/api/v3/ticker/price";
     private static final String BINANCE_24HR = "https://api.binance.com/api/v3/ticker/24hr?symbols=";

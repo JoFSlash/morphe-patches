@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public final class AlertChecker {
 
-    static final String TAG = CustomAlertPoc.TAG;
+    static final String TAG = CustomAlerts.TAG;
 
     /** After firing, a rule won't fire again for this long unless the price crosses back first. */
     private static final long COOLDOWN_MS = 30L * 60L * 1000L;

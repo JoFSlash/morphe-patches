@@ -15,12 +15,11 @@ private const val LICENSE_CLIENT = "Lcom/pairip/licensecheck/LicenseClient;"
 @Suppress("unused")
 val pairIpLicensePatch = bytecodePatch(
     name = "Disable PairIP license check",
-    description = "Neutralises PairIP's license check (LicenseClient.checkLicense), which otherwise shows a " +
-            "paywall and closes the app on a non-Play install. Required for the app to start at all after " +
-            "patching; it does not unlock anything paid.",
+    description = "Lets the patched app start. Without it the app sees it wasn't installed from the Play " +
+            "Store, shows a paywall and closes. Keep it on.",
     default = true
 ) {
-    category("Misc")
+    category("App")
     compatibleWith(COMPATIBILITY_THECRYPTOAPP)
 
     execute {

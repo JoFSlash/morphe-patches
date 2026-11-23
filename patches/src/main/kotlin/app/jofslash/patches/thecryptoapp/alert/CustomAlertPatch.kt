@@ -8,7 +8,7 @@ import app.morphe.patcher.patch.resourcePatch
 import org.w3c.dom.Element
 
 private const val EXTENSION_PACKAGE = "app.jofslash.extension.thecryptoapp"
-private const val EXTENSION_CLASS = "Lapp/jofslash/extension/thecryptoapp/CustomAlertPoc;"
+private const val EXTENSION_CLASS = "Lapp/jofslash/extension/thecryptoapp/CustomAlerts;"
 
 // Registers the extension's own launcher Activity and the alarm/boot BroadcastReceiver into the
 // host manifest (the extension's own manifest stays a bare <manifest/>; components are declared
@@ -95,13 +95,13 @@ private val customAlertResourcePatch = resourcePatch {
 @Suppress("unused")
 val customAlertPatch = bytecodePatch(
     name = "Custom price alerts",
-    description = "Adds a self-contained price-alert feature: a \"Crypto Alerts\" screen to manage rules " +
-            "(symbol, target price, above/below), and an AlarmManager check (~15 min) that fetches prices from " +
-            "a free public API and posts a local notification when a rule is met. It never touches the app's " +
-            "Pro tier or its server-side alerts, and needs no account.",
+    description = "Adds a \"Crypto Alerts\" app icon with your own price alerts (a price above or below a " +
+            "target, or a 24h change), checked about every 15 minutes with free public prices (Binance, then " +
+            "CoinGecko) and shown as notifications, plus a chart and a local portfolio. Our own screens: they " +
+            "don't unlock Pro or touch the app's own alerts, and need no account.",
     default = true
 ) {
-    category("Misc")
+    category("Features")
     compatibleWith(COMPATIBILITY_THECRYPTOAPP)
 
     extendWith("extensions/thecryptoapp.mpe")

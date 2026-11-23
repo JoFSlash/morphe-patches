@@ -12,13 +12,13 @@ import android.util.Log;
  * app's own classes, its Pro entitlement, or its server-side alerts. Never throws into the host.
  */
 @SuppressWarnings("unused")
-public final class CustomAlertPoc {
+public final class CustomAlerts {
 
-    static final String TAG = "CustomAlertPoc";
+    static final String TAG = "JoFCryptoApp";
 
     private static volatile boolean started = false;
 
-    private CustomAlertPoc() {
+    private CustomAlerts() {
     }
 
     /** Called once from App.onCreate(). */

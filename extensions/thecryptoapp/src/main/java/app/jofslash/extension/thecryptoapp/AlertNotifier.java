@@ -14,7 +14,7 @@ import java.util.Locale;
 /** Creates the alert channel and posts per-rule local notifications. */
 public final class AlertNotifier {
 
-    static final String TAG = CustomAlertPoc.TAG;
+    static final String TAG = CustomAlerts.TAG;
 
     public static final String CHANNEL_ID = "custom_price_alerts";
     public static final String CHANNEL_NAME = "Price alerts";

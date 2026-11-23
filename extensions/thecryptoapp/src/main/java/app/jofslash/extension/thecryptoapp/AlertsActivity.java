@@ -29,7 +29,7 @@ import java.util.Locale;
  */
 public final class AlertsActivity extends Activity {
 
-    static final String TAG = CustomAlertPoc.TAG;
+    static final String TAG = CustomAlerts.TAG;
 
     private static final String[] DIR_LABELS = {
             "Price above", "Price below", "24h change up (%)", "24h change down (%)"

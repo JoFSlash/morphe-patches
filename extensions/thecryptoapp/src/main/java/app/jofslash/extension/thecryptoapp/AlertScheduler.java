@@ -17,7 +17,7 @@ import android.util.Log;
  */
 public final class AlertScheduler {
 
-    static final String TAG = CustomAlertPoc.TAG;
+    static final String TAG = CustomAlerts.TAG;
 
     public static final String ACTION_CHECK = "app.jofslash.thecryptoapp.CHECK_ALERTS";
     private static final int REQUEST_CODE = 0x4A4F41; // "JOA"
