@@ -75,5 +75,18 @@
   ],
   "test_inputs": [
     ".github/scripts/verify_google_health.py"
-  ]
+  ],
+  "versions": {
+    "pattern": "\\d+(\\.\\d+)+\\.health-mobile-(?P<code>\\d+)-\\d+",
+    "example": "5.13.health-mobile-1104148438-1023845615",
+    "source": "apkmirror",
+    "apkmirror": "/apk/google-inc/google-health-fitbit/",
+    "file": "apkm",
+    "more_signatures": [
+      "80637b399756fe72817966fa4da2977a8e3efad6"
+    ],
+    "shows": "shows its welcome screen",
+    "phone_test": "sign in on a phone: signing in through MicroG-RE can't be tried on the emulator.",
+    "check_flags": "--expect-welcome"
+  }
 }

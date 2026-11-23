@@ -60,5 +60,16 @@
   },
   "check": [
     "python3 .github/scripts/check_app.py kaloricke-tabulky \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
-  ]
+  ],
+  "versions": {
+    "pattern": "\\d+(\\.\\d+)+",
+    "example": "3.14.72",
+    "source": "hand",
+    "play_country": "CZ",
+    "apkpure": "https://apkpure.com/kalorick%C3%A9-tabulky/cz.psc.android.kaloricketabulky",
+    "file": "apks",
+    "cert_sha256": "52f620b23cd94312be0400e9c184b3efb3d31d24df9720e27c3683644ad3433f",
+    "shows": "shows its own screen",
+    "phone_test": "sign in on a phone and look at the home screen: the emulator test only starts the app."
+  }
 }

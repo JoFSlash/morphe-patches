@@ -60,5 +60,18 @@
   },
   "check": [
     "python3 .github/scripts/check_app.py thecryptoapp \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
-  ]
+  ],
+  "versions": {
+    "pattern": "\\d+(\\.\\d+)+",
+    "example": "4.0.6",
+    "source": "apkmirror",
+    "apkmirror": "/apk/trustswap-inc/cryptocurrency-bitcoin-altcoin-price/",
+    "file": "apkm",
+    "bundle_cpus": [
+      "arm64-v8a[^<]*x86_64",
+      "universal"
+    ],
+    "shows": "shows its own screen",
+    "phone_test": "add an alert and open a chart on a phone: the emulator test only starts the app."
+  }
 }

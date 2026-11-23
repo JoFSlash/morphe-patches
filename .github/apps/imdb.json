@@ -60,5 +60,14 @@
   },
   "check": [
     "python3 .github/scripts/check_app.py imdb \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
-  ]
+  ],
+  "versions": {
+    "pattern": "\\d+(\\.\\d+)+",
+    "example": "9.3.7.109370600",
+    "source": "apkpure",
+    "apkpure": "https://apkpure.com/imdb-movies-tv/com.imdb.mobile",
+    "file": "apk",
+    "shows": "shows its own screen",
+    "phone_test": "try browsing and a search on a phone: the emulator test only starts the app."
+  }
 }

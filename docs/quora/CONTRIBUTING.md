@@ -51,7 +51,8 @@ for a crash at start.
 python .github/scripts/check_app.py quora com.quora.android_X.Y.Z.apkm --cli morphe-cli.jar --install
 ```
 
-This mostly runs on its own. `.github/workflows/quora-version.yml` checks APKMirror and Google Play
+This mostly runs on its own. `.github/workflows/quora-version.yml` (with the shared
+`app-version.yml` and the settings in `.github/apps/quora.json`) checks APKMirror and Google Play
 every day. For a new version it downloads the APKM, checks that every split is signed by Quora,
 keeps it as a release in the private repository `JoFSlash/morphe-apks`, patches it, starts it on an
 emulator and opens a pull request that adds the version to `Constants.kt`. When something fails it

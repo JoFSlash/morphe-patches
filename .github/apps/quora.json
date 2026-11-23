@@ -74,5 +74,21 @@
   },
   "check": [
     "python3 .github/scripts/check_app.py quora \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
-  ]
+  ],
+  "versions": {
+    "pattern": "\\d+\\.\\d+\\.\\d+",
+    "example": "3.2.47",
+    "source": "apkmirror",
+    "apkmirror": "/apk/quora-inc/quora/",
+    "file": "apkm",
+    "signature_constant": "QUORA_SIGNATURE",
+    "play_country": "US",
+    "play_note": "Quora turns old versions away on its servers (it did with 3.2.30), so the supported version should not fall far behind.",
+    "shows": "loads Quora's sign-in page",
+    "phone_test": "try the feed on a phone: the page patches can't be checked without a signed-in account.",
+    "check_flags": "--expect-login",
+    "emulator_api": "34",
+    "pr_base": "dev",
+    "bump_title": false
+  }
 }

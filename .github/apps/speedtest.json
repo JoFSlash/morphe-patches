@@ -60,5 +60,15 @@
   },
   "check": [
     "python3 .github/scripts/check_app.py speedtest \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
-  ]
+  ],
+  "versions": {
+    "pattern": "\\d+(\\.\\d+)+",
+    "example": "7.1.6",
+    "source": "apkmirror",
+    "apkmirror": "/apk/ookla/speedtest/",
+    "file": "apk",
+    "signer": "Ookla",
+    "shows": "shows its own screen",
+    "phone_test": "run a speed test on a phone: the emulator test only starts the app."
+  }
 }
