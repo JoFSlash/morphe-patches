@@ -24,6 +24,8 @@ val removeUnneededPermissionsPatch = resourcePatch(
                 setOf(
                     // The advertising ID and Android's ad-services APIs: ads and attribution only.
                     "com.google.android.gms.permission.AD_ID",
+                    // The same, as GmsCore support renames it when it runs first.
+                    "app.revanced.android.gms.permission.AD_ID",
                     "android.permission.ACCESS_ADSERVICES_AD_ID",
                     "android.permission.ACCESS_ADSERVICES_ATTRIBUTION",
                     "android.permission.ACCESS_ADSERVICES_TOPICS",
@@ -39,6 +41,25 @@ val removeUnneededPermissionsPatch = resourcePatch(
                     "com.amazon.privacypass.ATTEST",
                 )
             )
+        }
+    }
+}
+
+@Suppress("unused")
+val removeLocationAccessPatch = resourcePatch(
+    name = "Remove location access",
+    description = "Removes the location permissions. Listonic uses your location only for shops and offers " +
+            "near you; without them it can't ask for your location.",
+    default = false
+) {
+    category("Privacy")
+    compatibleWith(COMPATIBILITY_LISTONIC)
+
+    execute {
+        // Listonic asks for them with uses-permission-sdk-23 (only from Android 6 on).
+        val location = setOf("android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION")
+        editManifest { manifest ->
+            listOf("uses-permission", "uses-permission-sdk-23").forEach { tag -> manifest.removeNamed(tag, location) }
         }
     }
 }

@@ -14,7 +14,8 @@ Works with Listonic <!-- VERSIONS_START -->9.25.1<!-- VERSIONS_END --> on Androi
   networks aren't started when the app opens. The ads you choose to watch for Broccoli coins still work.
 - **No nagging:** no "Black Friday sale" campaigns, no Premium offer after the first start, no rating prompts
   or "Love Listonic?" cards, no marketing pop-ups, no Google Play update screens.
-- **Your choice:** hide the Premium buttons and sections, or the Broccoli coins.
+- **Your choice:** hide the Premium buttons and sections, the Broccoli coins, the Food facts tab or the
+  Assistant's suggestions below your lists, and take away location access.
 - **Less tracking:** no AdShift, TikTok, Gemius or Microsoft Clarity, no Firebase Analytics, Crashlytics or
   Performance, no Facebook app events, and no advertising ID.
 - **Sign in with Google without Google Play services:** through MicroG-RE.
@@ -67,7 +68,7 @@ still be unlocked with Broccoli coins), and the patches don't change what your s
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.10.0, 11 patches. Supported Listonic versions: 9.25.1.
+Version 1.10.0, 14 patches. Supported Listonic versions: 9.25.1.
 
 <details>
 <summary><b>Ads</b> (2)</summary>
@@ -82,7 +83,7 @@ Banners, ads between list items, full-screen ads and partner leaflets.
 </details>
 
 <details>
-<summary><b>App</b> (7)</summary>
+<summary><b>App</b> (9)</summary>
 
 Premium offers and buttons, prompts, coins and Google sign-in.
 
@@ -90,7 +91,9 @@ Premium offers and buttons, prompts, coins and Google sign-in.
 | --- | --- | --- |
 | Disable in-app messages | on | Stops the pop-ups and banners that Listonic sends to the app as marketing campaigns (Firebase In-App Messaging). Push notifications and the app's own messages stay. |
 | GmsCore support | on | Makes signing in with Google and push notifications work through MicroG-RE instead of Google Play services. A patched app can't sign in with Google through Play services, because it is no longer signed by its maker. Needs MicroG-RE installed, with your Google account added to it; without it, the lists work without an account or with an email sign-in, and the app says once that MicroG-RE is missing. |
+| Hide Assistant suggestions | off | Hides the Assistant's suggestions (such as "Suggest missing products" and "Quick dinner idea") below your lists. The Assistant itself stays. |
 | Hide Broccoli coins | off | Hides the Broccoli coins button in the top bars and the Broccoli coins card on the profile screen, for when you don't collect coins for ads. Coins you have stay in your account. |
+| Hide Food facts | off | Hides the Food facts tab that shows up in the bottom bar. |
 | Hide Premium buttons | off | Hides the "Buy premium" button in the lists screen's top bar, the "Remove ads, Upgrade now!" card and the "Discover Premium benefits" section on the profile screen, and the PREMIUM section of the settings. A subscription is managed in Google Play. |
 | Hide Premium offers | on | Hides the Premium offers that show up by themselves: the sale campaigns (such as "Black Friday sale! -50%") on the lists screen and the Premium offer that opens after the first start. Premium itself, its features and the offers you open yourself stay. |
 | Hide rating prompts | on | Hides what asks you to rate the app on Google Play: the prompt after a while of use, the "Love Listonic?" card on the profile screen and the "Enjoying the app?" row below it. |
@@ -99,13 +102,14 @@ Premium offers and buttons, prompts, coins and Google sign-in.
 </details>
 
 <details>
-<summary><b>Privacy</b> (2)</summary>
+<summary><b>Privacy</b> (3)</summary>
 
 Trackers and permissions. They change nothing you see.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
 | Block tracking | on | Stops the trackers: AdShift install attribution, TikTok event reporting, Gemius audience measurement, Microsoft Clarity session recording, Firebase Analytics, Crashlytics and Performance, and Facebook's automatic app events. Your lists, sync and sign-in aren't touched. |
+| Remove location access | off | Removes the location permissions. Listonic uses your location only for shops and offers near you; without them it can't ask for your location. |
 | Remove unneeded permissions | on | Removes the permissions that only serve advertising and tracking: the advertising ID, Android's ad services, the Google Play install referrer, phone state, the advertising IDs of some phone makers and Amazon's ad attestation. With the ad and tracking patches on, nothing in the app uses them. |
 
 </details>
