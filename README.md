@@ -73,5 +73,6 @@ app only gets its own code. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-[GPL-3.0](LICENSE), see also [NOTICE](NOTICE). Not affiliated with Quora, Booking.com, Google, Fitbit,
-Kalorické Tabulky, Ookla or Listonic, or with the Morphe project.
+<!-- OWNERS_START -->
+[GPL-3.0](LICENSE), see also [NOTICE](NOTICE). Not affiliated with Amazon, Booking.com, Fitbit, Google, IMDb, Kalorické Tabulky, Listonic, Ookla, Quora or TrustSwap, or with the Morphe project.
+<!-- OWNERS_END -->

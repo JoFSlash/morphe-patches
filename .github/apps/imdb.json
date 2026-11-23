@@ -6,6 +6,10 @@
   "docs": "docs/imdb/README.md",
   "store": "https://play.google.com/store/apps/details?id=com.imdb.mobile",
   "summary": "Remove the ads from the movie and TV database and stop its third-party trackers (comScore, Branch, Pinpoint, clickstream), without an account.",
+  "owners": [
+    "IMDb",
+    "Amazon"
+  ],
   "apk": {
     "release": "imdb",
     "version": "first",
