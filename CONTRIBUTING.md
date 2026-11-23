@@ -1,24 +1,36 @@
 # Contributing
 
-Thanks for helping. Each app is patched differently, so each has its own guide:
-
-- [Quora](docs/quora/CONTRIBUTING.md): a WebView app; most patches inject CSS or scripts into Quora's pages.
-- [Google Health](docs/google-health/CONTRIBUTING.md): an obfuscated app; patches find code by strings and
-  framework calls.
-- Booking.com: a Compose app whose search results and home screen come from Booking.com's servers; see
-  [Patches in detail](docs/booking/patches.md) for how each patch works.
+Thanks for helping. Each app is patched differently, so each has its own guide, `docs/<app>/CONTRIBUTING.md`,
+next to its page (for example [Quora](docs/quora/CONTRIBUTING.md) and
+[Google Health](docs/google-health/CONTRIBUTING.md)). It says how the app is patched and how to try the patches
+on a phone or emulator with its `check_<app>.py` script, as the emulator test does.
 
 Please follow the [code of conduct](CODE_OF_CONDUCT.md), and report security problems privately as described in
 [SECURITY.md](SECURITY.md).
 
 ## Where things are
 
-- `patches/src/main/kotlin/app/jofslash/patches/<app>/`: the patches. `<app>` is `quora`, `booking` or
-  `googlehealth`.
+- `patches/src/main/kotlin/app/jofslash/patches/<app>/`: the patches. The folder of each app is in its
+  settings, `.github/apps/<app>.json`.
 - `extensions/<app>/`: the code those patches call inside the app. Each app has its own extension, so a patched
   app gets only its own code. A patch loads it with `extendWith("extensions/<app>.mpe")`.
 - `docs/<app>/README.md`: the app's page. The patch tables in it are generated from the patches' descriptions
   at release (`.github/scripts/generate_<app>_readme.py`).
+
+## Adding an app
+
+An app brings its own files and changes none of the shared ones, so pull requests for different apps don't
+get in each other's way:
+
+- `.github/apps/<app>.json`: its name, Play Store link and one-line summary (for the README table and the
+  issue forms), where its APK is in `JoFSlash/morphe-apks`, the Android versions to test and the check
+  command (and `test_inputs`, other files the check uses). An app is tested on the emulators after a
+  merge into dev changes its code (`emulator-tests.yml`), and the release tests whatever wasn't
+  (`.github/scripts/tested.py` keeps track). The release writes the README table and the issue forms' app
+  lists from these files (`.github/scripts/sync_apps.py`).
+- `.github/workflows/emulator-<app>.yml`: runs `emulator-app.yml` for the app's own pull requests.
+- `.github/scripts/check_<app>.py` and `generate_<app>_readme.py`, and the version workflow if it has one.
+- `docs/<app>/README.md` and `docs/<app>/CONTRIBUTING.md`.
 
 ## Building
 

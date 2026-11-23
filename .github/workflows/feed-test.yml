@@ -13,7 +13,7 @@ name: Feed test
 # A run on main that doesn't pass (a failed check, or a skip because the session no longer works)
 # opens the issue "Feed test needs attention", or comments on it; the next run that passes closes it.
 # It needs these secrets:
-#   QUORA_APKS_TOKEN     read access to JoFSlash/quora-apks (see emulator.yml)
+#   APKS_TOKEN     read access to JoFSlash/morphe-apks (see emulator.yml)
 #   QUORA_TEST_EMAIL     a Quora account made only for this test
 #   QUORA_TEST_PASSWORD  its password
 #   QUORA_TEST_COOKIES   a signed-in session of that account (m-b=…; m-b_lax=…; …), used instead of
@@ -55,13 +55,13 @@ jobs:
       - name: Check the secrets
         id: secrets
         env:
-          TOKEN: ${{ secrets.QUORA_APKS_TOKEN }}
+          TOKEN: ${{ secrets.APKS_TOKEN || secrets.QUORA_APKS_TOKEN }}
           EMAIL: ${{ secrets.QUORA_TEST_EMAIL }}
           PASSWORD: ${{ secrets.QUORA_TEST_PASSWORD }}
           COOKIES: ${{ secrets.QUORA_TEST_COOKIES }}
         run: |
           if [ -z "$TOKEN" ] || { [ -z "$COOKIES" ] && { [ -z "$EMAIL" ] || [ -z "$PASSWORD" ]; }; }; then
-            echo "::notice::QUORA_APKS_TOKEN, or QUORA_TEST_COOKIES or QUORA_TEST_EMAIL and QUORA_TEST_PASSWORD, aren't set, so the feed test is skipped."
+            echo "::notice::APKS_TOKEN, or QUORA_TEST_COOKIES or QUORA_TEST_EMAIL and QUORA_TEST_PASSWORD, aren't set, so the feed test is skipped."
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
 
@@ -101,7 +101,7 @@ jobs:
       - name: Download Quora and the Morphe CLI
         if: steps.secrets.outputs.skip != 'true'
         env:
-          APKS_TOKEN: ${{ secrets.QUORA_APKS_TOKEN }}
+          APKS_TOKEN: ${{ secrets.APKS_TOKEN || secrets.QUORA_APKS_TOKEN }}
           GH_TOKEN: ${{ github.token }}
         run: |
           MORPHE_CLI_VERSION=$(cat .github/morphe-cli-version)
@@ -110,7 +110,7 @@ jobs:
           QUORA_VERSION=$(grep -oE 'AppTarget\(version = "[0-9.]+"' patches/src/main/kotlin/app/jofslash/patches/quora/shared/Constants.kt \
             | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -1)
           echo "Quora $QUORA_VERSION"
-          GH_TOKEN="$APKS_TOKEN" gh release download "quora-$QUORA_VERSION" -R JoFSlash/quora-apks \
+          GH_TOKEN="$APKS_TOKEN" gh release download "quora-$QUORA_VERSION" -R JoFSlash/morphe-apks \
             -p "quora-$QUORA_VERSION.apkm" -O "$RUNNER_TEMP/quora.apkm"
           gh release download "$MORPHE_CLI_VERSION" -R MorpheApp/morphe-cli -p 'morphe-desktop-*-all.jar' \
             -O "$RUNNER_TEMP/morphe-cli.jar"
