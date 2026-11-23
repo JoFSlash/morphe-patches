@@ -24,7 +24,8 @@ get in each other's way:
 
 - `.github/apps/<app>.json`: the app's settings, read by the shared scripts, so a new app needs no script
   of its own:
-  - its name, Play Store link, package name and one-line summary (for the README table and the issue forms);
+  - its name, Play Store link, package name and one-line summary (for the README table and the issue forms),
+    and its owners (for the README's "Not affiliated with" line);
   - `readme`: how its page lists the patches, `generated` from the descriptions or `kept` hand-written rows
     (`.github/scripts/generate_readme.py`);
   - where its APK is in `JoFSlash/morphe-apks`, the Android versions to test and the check command (and
@@ -40,7 +41,7 @@ get in each other's way:
 
   An app is tested on the emulators after a merge into dev changes its code (`emulator-tests.yml`), and the
   release tests whatever wasn't (`.github/scripts/tested.py` keeps track). The release writes the README
-  table and the issue forms' app lists from these files (`.github/scripts/sync_apps.py`).
+  table, its owners line and the issue forms' app lists from these files (`.github/scripts/sync_apps.py`).
 - `.github/workflows/emulator-<app>.yml`: runs `emulator-app.yml` for the app's own pull requests.
 - `.github/workflows/<app>-version.yml`, if it has one: a short wrapper with its own schedule around
   `app-version.yml`.

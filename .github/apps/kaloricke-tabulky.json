@@ -20,6 +20,9 @@
   "store": "https://play.google.com/store/apps/details?id=cz.psc.android.kaloricketabulky",
   "package": "cz.psc.android.kaloricketabulky",
   "summary": "Remove ads, Premium pop-ups, rating prompts and trackers from the calorie and food diary, and sign in with Google through MicroG-RE.",
+  "owners": [
+    "Kalorické Tabulky"
+  ],
   "apk": {
     "release": "kaloricke-tabulky",
     "version": "first",

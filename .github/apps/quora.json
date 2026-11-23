@@ -24,6 +24,9 @@
   "store": "https://play.google.com/store/apps/details?id=com.quora.android",
   "package": "com.quora.android",
   "summary": "Remove ads and tracking, and hide what you don't use: AI answers, Quora+ paywalls, suggestions, counts, old answers.",
+  "owners": [
+    "Quora"
+  ],
   "apk": {
     "release": "quora",
     "version": "newest",
