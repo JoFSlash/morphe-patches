@@ -1,19 +1,26 @@
 package app.jofslash.patches.listonic.premium
 
 import app.jofslash.patches.listonic.shared.Constants.COMPATIBILITY_LISTONIC
+import app.jofslash.patches.listonic.shared.dropAddsOfConstant
+import app.jofslash.patches.listonic.shared.dropNextAdd
+import app.jofslash.patches.listonic.shared.hideComposable
+import app.jofslash.patches.listonic.shared.methodWithStrings
+import app.jofslash.patches.listonic.shared.methodsWithStrings
+import app.morphe.patcher.extensions.InstructionExtensions.replaceInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.Instruction
+import com.android.tools.smali.dexlib2.iface.instruction.formats.Instruction35c
+import com.android.tools.smali.dexlib2.iface.instruction.formats.Instruction3rc
+import com.android.tools.smali.dexlib2.iface.reference.MethodReference
+import com.android.tools.smali.dexlib2.iface.reference.StringReference
 import app.jofslash.patches.listonic.shared.requireLocalRegisters
 import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
-import app.morphe.patcher.extensions.InstructionExtensions.replaceInstruction
 import app.morphe.patcher.patch.BytecodePatchContext
 import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
-import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import com.android.tools.smali.dexlib2.AccessFlags
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
-import com.android.tools.smali.dexlib2.iface.reference.FieldReference
-import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import com.android.tools.smali.dexlib2.iface.reference.TypeReference
 
 // The R8-renamed classes are found through text they keep. PremiumPromotionData (set id, category,
@@ -47,16 +54,22 @@ internal object PremiumBadgeToStringFingerprint : Fingerprint(
 )
 
 // The cards on the profile screen (rate the app, Premium, rewards), as Compose's trace names it.
-internal object ProfileCarouselFingerprint : Fingerprint(
-    returnType = "V",
-    strings = listOf("com.l.shared.ui.user.profile.Carousel (ProfileScreenContent.kt:566)"),
-)
+internal const val PROFILE_CAROUSEL = "com.l.shared.ui.user.profile.Carousel (ProfileScreenContent.kt:566)"
+
+// The route name of the onboarding's Premium offer (with its introductory price).
+private const val INTRODUCTORY_PRICE = "IntroductoryPrice"
+
+// The profile's "Discover Premium benefits" section.
+private const val PROFILE_PREMIUM_BENEFITS = "com.l.shared.ui.user.profile.PremiumBenefits (ProfileScreenContent.kt:803)"
+
+// The settings screen's PREMIUM section (Remove ads, Explore Premium, Get perks for free).
+private const val SETTINGS_PREMIUM_SECTION = "com.l.shared.ui.settings.settings.PremiumSection (SettingsScreen.kt:577)"
 
 @Suppress("unused")
 val hidePremiumOffersPatch = bytecodePatch(
     name = "Hide Premium offers",
     description = "Hides the Premium offers that show up by themselves: the sale campaigns (such as \"Black " +
-            "Friday sale! -50%\") on the lists screen and the Premium offer at the end of the first start. " +
+            "Friday sale! -50%\") on the lists screen and the Premium offer that opens after the first start. " +
             "Premium itself, its features and the offers you open yourself stay.",
     default = true
 ) {
@@ -108,24 +121,57 @@ val hidePremiumOffersPatch = bytecodePatch(
                     nop
                 """
             )
+
+            // Elsewhere the onboarding opens the same offer on its own: from the slides when there is
+            // no notification step, and once more after the first start, through a callback. Each
+            // builds the route PremiumRoute("IntroductoryPrice") and hands it on right after. Finish
+            // the onboarding instead of navigating, and drop the callback.
+            var changed = 0
+            methodsWithStrings(INTRODUCTORY_PRICE).forEach { method ->
+                val instructions = method.implementation!!.instructions.toList()
+                instructions.withIndex().filter { (_, insn) ->
+                    (insn.opcode == Opcode.CONST_STRING || insn.opcode == Opcode.CONST_STRING_JUMBO) &&
+                            ((insn as ReferenceInstruction).reference as StringReference).string == INTRODUCTORY_PRICE
+                }.forEach { (stringIndex, _) ->
+                    val init = (stringIndex + 1..minOf(stringIndex + 12, instructions.lastIndex)).firstOrNull {
+                        instructions[it].isInvoke() && instructions[it].method().name == "<init>"
+                    } ?: return@forEach // a comparison, not a route
+                    val call = (init + 1 until instructions.size).first {
+                        instructions[it].isInvoke() && instructions[it].method().name != "<init>"
+                    }
+                    val insn = instructions[call]
+                    val target = insn.method()
+                    when {
+                        insn.opcode in setOf(Opcode.INVOKE_STATIC, Opcode.INVOKE_STATIC_RANGE) &&
+                                target.parameterTypes.firstOrNull()?.toString() == navigator -> {
+                            val register = when (insn) {
+                                is Instruction35c -> insn.registerC
+                                is Instruction3rc -> insn.startRegister
+                                else -> throw PatchException("Unexpected navigation call in ${method.definingClass}")
+                            }
+                            method.replaceInstruction(
+                                call,
+                                "invoke-interface/range {v$register .. v$register}, $navigator->${finish.name}()V"
+                            )
+                            changed++
+                        }
+                        insn.opcode in setOf(Opcode.INVOKE_INTERFACE, Opcode.INVOKE_INTERFACE_RANGE) -> {
+                            method.replaceInstruction(call, "nop")
+                            if (instructions.getOrNull(call + 1)?.opcode == Opcode.MOVE_RESULT_OBJECT) {
+                                method.replaceInstruction(call + 1, "nop")
+                            }
+                            changed++
+                        }
+                    }
+                }
+            }
+            if (changed < 2) throw PatchException("Expected the onboarding's Premium offer in more places, found $changed")
         }
     }
 }
 
-/** Turns the list.add(...) call that comes right after [from] in this method into nothing. */
-private fun MutableMethod.dropNextAdd(from: Int) {
-    val instructions = implementation!!.instructions.toList()
-    val add = (from + 1 until instructions.size).firstOrNull { index ->
-        val insn = instructions[index]
-        insn.opcode in setOf(Opcode.INVOKE_INTERFACE, Opcode.INVOKE_VIRTUAL) &&
-                ((insn as ReferenceInstruction).reference as MethodReference).let {
-                    it.name == "add" && it.parameterTypes.size == 1
-                }
-    } ?: throw PatchException("No add() after index $from in $definingClass->$name")
-    replaceInstruction(add, "nop")
-    val next = instructions.getOrNull(add + 1)
-    if (next != null && next.opcode == Opcode.MOVE_RESULT) replaceInstruction(add + 1, "nop")
-}
+private fun Instruction.isInvoke() = opcode.name.startsWith("invoke-")
+private fun Instruction.method() = (this as ReferenceInstruction).reference as MethodReference
 
 private fun BytecodePatchContext.hidePremiumBadge() {
     // The lists screen's top bar icons are built as [PremiumBadge(state), Rewards]: leave the badge out.
@@ -155,8 +201,9 @@ private fun BytecodePatchContext.hidePremiumBadge() {
 @Suppress("unused")
 val hidePremiumButtonsPatch = bytecodePatch(
     name = "Hide Premium buttons",
-    description = "Hides the \"Buy premium\" button in the lists screen's top bar and the \"Remove ads, Upgrade " +
-            "now!\" card on the profile screen. Premium stays in the settings.",
+    description = "Hides the \"Buy premium\" button in the lists screen's top bar, the \"Remove ads, Upgrade " +
+            "now!\" card and the \"Discover Premium benefits\" section on the profile screen, and the PREMIUM " +
+            "section of the settings. A subscription is managed in Google Play.",
     default = false
 ) {
     category("App")
@@ -166,13 +213,9 @@ val hidePremiumButtonsPatch = bytecodePatch(
         hidePremiumBadge()
 
         // Profile cards: Carousel(..., isPremium, ...) adds the Premium card when you have no Premium.
-        ProfileCarouselFingerprint.method.apply {
-            val premium = implementation!!.instructions.withIndex().filter { (_, insn) ->
-                insn.opcode == Opcode.SGET_OBJECT &&
-                        ((insn as ReferenceInstruction).reference as FieldReference).name == "Premium"
-            }.map { it.index }
-            if (premium.size != 1) throw PatchException("Expected one Premium card in the profile, found ${premium.size}")
-            dropNextAdd(premium.single())
-        }
+        methodWithStrings(PROFILE_CAROUSEL).dropAddsOfConstant("Premium")
+
+        hideComposable(SETTINGS_PREMIUM_SECTION)
+        hideComposable(PROFILE_PREMIUM_BENEFITS)
     }
 }

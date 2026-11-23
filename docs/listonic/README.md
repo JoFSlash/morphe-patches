@@ -10,10 +10,11 @@ prompts that show up by themselves, and the analytics and marketing trackers.
 
 Works with Listonic <!-- VERSIONS_START -->9.25.1<!-- VERSIONS_END --> on Android 12L or newer. No root needed.
 
-- **No ads:** no banners, no ads between your list items, no full-screen ads, and the ad networks aren't started
-  when the app opens. The ads you choose to watch for Broccoli coins still work.
-- **No nagging:** no "Black Friday sale" campaigns, no Premium offer at the end of the first start, no rating
-  prompts, no Google Play update screens. Optionally, no "Buy premium" button either.
+- **No ads:** no banners, no ads between your list items, no full-screen ads, no partner leaflets, and the ad
+  networks aren't started when the app opens. The ads you choose to watch for Broccoli coins still work.
+- **No nagging:** no "Black Friday sale" campaigns, no Premium offer after the first start, no rating prompts
+  or "Love Listonic?" cards, no marketing pop-ups, no Google Play update screens.
+- **Your choice:** hide the Premium buttons and sections, or the Broccoli coins.
 - **Less tracking:** no AdShift, TikTok, Gemius or Microsoft Clarity, no Firebase Analytics, Crashlytics or
   Performance, no Facebook app events, and no advertising ID.
 - **Sign in with Google without Google Play services:** through MicroG-RE.
@@ -66,30 +67,33 @@ still be unlocked with Broccoli coins), and the patches don't change what your s
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.10.0, 8 patches. Supported Listonic versions: 9.25.1.
+Version 1.10.0, 11 patches. Supported Listonic versions: 9.25.1.
 
 <details>
-<summary><b>Ads</b> (1)</summary>
+<summary><b>Ads</b> (2)</summary>
 
-Banners, ads between list items and full-screen ads.
+Banners, ads between list items, full-screen ads and partner leaflets.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
 | Hide ads | on | Hides the banners, ads between list items and full-screen ads, and doesn't start the ad networks (AppLovin, Google, AdAdapted, Smart and their partners) when the app opens, or ask for ad consent. The ads you choose to watch for Broccoli coins still work. Premium and your subscription aren't touched. |
+| Hide partner offers | on | Hides the shop leaflets and partner offers (Offerista) shown on the lists screen and inside your lists. The offers and leaflets you open yourself stay. |
 
 </details>
 
 <details>
-<summary><b>App</b> (5)</summary>
+<summary><b>App</b> (7)</summary>
 
-Sale campaigns, prompts and Google sign-in.
+Premium offers and buttons, prompts, coins and Google sign-in.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
+| Disable in-app messages | on | Stops the pop-ups and banners that Listonic sends to the app as marketing campaigns (Firebase In-App Messaging). Push notifications and the app's own messages stay. |
 | GmsCore support | on | Makes signing in with Google and push notifications work through MicroG-RE instead of Google Play services. A patched app can't sign in with Google through Play services, because it is no longer signed by its maker. Needs MicroG-RE installed, with your Google account added to it; without it, the lists work without an account or with an email sign-in, and the app says once that MicroG-RE is missing. |
-| Hide Premium buttons | off | Hides the "Buy premium" button in the lists screen's top bar and the "Remove ads, Upgrade now!" card on the profile screen. Premium stays in the settings. |
-| Hide Premium offers | on | Hides the Premium offers that show up by themselves: the sale campaigns (such as "Black Friday sale! -50%") on the lists screen and the Premium offer at the end of the first start. Premium itself, its features and the offers you open yourself stay. |
-| Hide rating prompts | on | Stops the prompt that asks you to rate the app on Google Play. |
+| Hide Broccoli coins | off | Hides the Broccoli coins button in the top bars and the Broccoli coins card on the profile screen, for when you don't collect coins for ads. Coins you have stay in your account. |
+| Hide Premium buttons | off | Hides the "Buy premium" button in the lists screen's top bar, the "Remove ads, Upgrade now!" card and the "Discover Premium benefits" section on the profile screen, and the PREMIUM section of the settings. A subscription is managed in Google Play. |
+| Hide Premium offers | on | Hides the Premium offers that show up by themselves: the sale campaigns (such as "Black Friday sale! -50%") on the lists screen and the Premium offer that opens after the first start. Premium itself, its features and the offers you open yourself stay. |
+| Hide rating prompts | on | Hides what asks you to rate the app on Google Play: the prompt after a while of use, the "Love Listonic?" card on the profile screen and the "Enjoying the app?" row below it. |
 | Hide update prompts | on | Stops the Google Play update-available and forced-update screens. Google Play can't update a patched app; update it by patching the new version. |
 
 </details>

@@ -28,8 +28,8 @@ version = str(data["version"]).lstrip("v")
 
 ORDER = ["Ads", "App", "Privacy"]
 INTRO = {
-    "Ads": "Banners, ads between list items and full-screen ads.",
-    "App": "Sale campaigns, prompts and Google sign-in.",
+    "Ads": "Banners, ads between list items, full-screen ads and partner leaflets.",
+    "App": "Premium offers and buttons, prompts, coins and Google sign-in.",
     "Privacy": "Trackers and permissions. They change nothing you see.",
 }
 
