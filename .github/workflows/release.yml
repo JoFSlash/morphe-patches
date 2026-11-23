@@ -131,9 +131,43 @@ jobs:
           echo "Apps: $apps"
           echo "apps=$apps" >> "$GITHUB_OUTPUT"
 
+  # The patches, built once for every app's emulator test (one build instead of one per emulator
+  # keeps GitHub Packages, where the Gradle plugin comes from, from being asked dozens of times at once).
+  bundle:
+    name: Build the patches
+    if: github.event_name != 'schedule'
+    permissions:
+      contents: read
+      packages: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GRADLE_ATTEMPTS: 5
+        run: bash .github/scripts/gradle-retry.sh :patches:buildAndroid --no-daemon
+
+      - name: Keep the bundle for the emulators
+        uses: actions/upload-artifact@v4
+        with:
+          name: patches-bundle
+          path: patches/build/libs/*.mpp
+          if-no-files-found: error
+          retention-days: 1
+
   emulator:
     name: Emulator test (${{ matrix.app }})
-    needs: apps
+    needs: [apps, bundle]
     if: github.event_name != 'schedule'
     strategy:
       fail-fast: false
@@ -146,6 +180,7 @@ jobs:
     secrets: inherit
     with:
       app: ${{ matrix.app }}
+      bundle: patches-bundle
 
   feed:
     name: Feed test

@@ -9,6 +9,9 @@ name: App emulator test
 # Each app's emulator-<app>.yml runs this for its own pull requests; the release runs it for every
 # app in .github/apps.
 #
+# The patches are built once per run, not on every emulator: the release builds them once for all
+# apps and passes the artifact in "bundle"; otherwise the build job below does it for this app.
+#
 # The APKs can't be in this public repository. They come from the private repository
 # JoFSlash/morphe-apks, read with the APKS_TOKEN secret (a fine-grained token with access to that
 # repository's contents only). Without the secret the test is skipped, except when the release runs
@@ -33,6 +36,10 @@ on:
         default: true
       cli-version:
         description: 'Morphe CLI release to use (empty: the one in .github/morphe-cli-version)'
+        type: string
+        default: ''
+      bundle:
+        description: 'Artifact of this run with the built patch bundle (empty: build it here)'
         type: string
         default: ''
 
@@ -66,9 +73,39 @@ jobs:
           echo "name=$(jq -r .name "$file")" >> "$GITHUB_OUTPUT"
           echo "android=$(jq -c ".android.$SET" "$file")" >> "$GITHUB_OUTPUT"
 
+  build:
+    name: Build the patches
+    if: inputs.bundle == ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GRADLE_ATTEMPTS: 5
+        run: bash .github/scripts/gradle-retry.sh :patches:buildAndroid --no-daemon
+
+      - name: Keep the bundle for the emulators
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-${{ inputs.app }}
+          path: patches/build/libs/*.mpp
+          if-no-files-found: error
+          retention-days: 1
+
   emulator:
     name: ${{ needs.config.outputs.name }} on Android ${{ matrix.android }}
-    needs: config
+    needs: [config, build]
+    if: ${{ !cancelled() && needs.config.result == 'success' && (needs.build.result == 'success' || needs.build.result == 'skipped') }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     strategy:
@@ -104,12 +141,12 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Build
+      - name: Get the patch bundle
         if: steps.token.outputs.skip != 'true'
-        env:
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash .github/scripts/gradle-retry.sh :patches:buildAndroid --no-daemon
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.bundle || format('bundle-{0}', inputs.app) }}
+          path: patches/build/libs
 
       - name: Download the app and the Morphe CLI
         if: steps.token.outputs.skip != 'true'
