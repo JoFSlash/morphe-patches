@@ -17,6 +17,7 @@ body:
         - Google Health (Fitbit)
         - Kalorické Tabulky
         - Speedtest
+        - Listonic
         - Another app
     validations:
       required: true

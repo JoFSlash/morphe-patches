@@ -18,3 +18,4 @@
 - [ ] Google Health: `python .github/scripts/check_google_health.py <apkm> --cli <morphe-cli.jar> --install` passes on a phone or emulator.
 - [ ] Kalorické Tabulky: `python .github/scripts/check_kaloricke_tabulky.py <apks> --cli <morphe-cli.jar> --install --expect-screen` passes on a phone or emulator.
 - [ ] Speedtest: `python .github/scripts/check_speedtest.py <speedtest.apk> --cli <morphe-cli.jar> --install --expect-screen` passes on a phone or emulator.
+- [ ] Listonic: `python .github/scripts/check_listonic.py <app.apks> --cli <morphe-cli.jar> --install --expect-screen` passes on a phone or emulator.
