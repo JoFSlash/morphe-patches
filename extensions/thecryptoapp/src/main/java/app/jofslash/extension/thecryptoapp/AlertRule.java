@@ -24,6 +24,11 @@ public final class AlertRule {
     public boolean enabled = true;
     /** Epoch millis of the last time this rule fired; 0 means armed. Used for the cooldown. */
     public long lastTriggeredAt = 0L;
+    /** Last observed price for this rule's symbol. Valid only when {@link #hasLastPrice}. */
+    public double lastPrice = 0d;
+    public boolean hasLastPrice = false;
+    /** Epoch millis the price was last checked; 0 means never. */
+    public long lastCheckedAt = 0L;
 
     public AlertRule() {
     }
@@ -56,6 +61,9 @@ public final class AlertRule {
         o.put("direction", direction);
         o.put("enabled", enabled);
         o.put("lastTriggeredAt", lastTriggeredAt);
+        o.put("lastPrice", lastPrice);
+        o.put("hasLastPrice", hasLastPrice);
+        o.put("lastCheckedAt", lastCheckedAt);
         return o;
     }
 
@@ -68,6 +76,9 @@ public final class AlertRule {
         r.direction = o.optString("direction", ABOVE);
         r.enabled = o.optBoolean("enabled", true);
         r.lastTriggeredAt = o.optLong("lastTriggeredAt", 0L);
+        r.lastPrice = o.optDouble("lastPrice", 0d);
+        r.hasLastPrice = o.optBoolean("hasLastPrice", false);
+        r.lastCheckedAt = o.optLong("lastCheckedAt", 0L);
         return r;
     }
 }

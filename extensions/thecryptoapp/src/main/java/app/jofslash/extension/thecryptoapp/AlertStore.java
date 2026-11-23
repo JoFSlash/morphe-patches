@@ -67,6 +67,26 @@ public final class AlertStore {
         return r;
     }
 
+    /** Edits an existing rule's symbol/name/target/direction, keeping its id and re-arming it. */
+    public static synchronized void update(Context ctx, String id, String symbol, String displayName,
+                                           double targetPrice, String direction) {
+        List<AlertRule> rules = load(ctx);
+        for (AlertRule r : rules) {
+            if (r.id.equals(id)) {
+                r.symbol = symbol;
+                r.displayName = displayName;
+                r.targetPrice = targetPrice;
+                r.direction = direction;
+                // Changing the rule invalidates the previous reading and re-arms it.
+                r.lastTriggeredAt = 0L;
+                r.hasLastPrice = false;
+                r.lastCheckedAt = 0L;
+            }
+        }
+        save(ctx, rules);
+        Log.i(TAG, "store: updated rule " + displayName + " " + direction + " $" + targetPrice);
+    }
+
     public static synchronized void delete(Context ctx, String id) {
         List<AlertRule> rules = load(ctx);
         List<AlertRule> kept = new ArrayList<>();

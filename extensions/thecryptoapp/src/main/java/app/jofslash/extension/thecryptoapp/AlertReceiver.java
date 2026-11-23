@@ -26,12 +26,17 @@ public final class AlertReceiver extends BroadcastReceiver {
                 return;
             }
 
-            // Alarm tick: run the check off the main thread.
+            // Alarm tick: run the check off the main thread, then re-arm the next one (the exact
+            // self-rescheduling chain; harmless in the inexact-repeating fallback mode).
             final PendingResult pending = goAsync();
             Thread t = new Thread(() -> {
                 try {
                     AlertChecker.checkNow(app);
                 } finally {
+                    try {
+                        AlertScheduler.scheduleNext(app);
+                    } catch (Throwable ignored) {
+                    }
                     try {
                         pending.finish();
                     } catch (Throwable ignored) {

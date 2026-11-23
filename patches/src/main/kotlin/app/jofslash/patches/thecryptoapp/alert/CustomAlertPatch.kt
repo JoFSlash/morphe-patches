@@ -16,15 +16,34 @@ private const val EXTENSION_CLASS = "Lapp/jofslash/extension/thecryptoapp/Custom
 private val customAlertResourcePatch = resourcePatch {
     execute {
         document("AndroidManifest.xml").use { document ->
+            val manifest = document.documentElement
             val application = document.getElementsByTagName("application").item(0) as Element
 
-            // Standalone config screen, shown as a second launcher icon "Crypto Alerts". A
-            // framework theme keeps it free of any host-app resource dependency.
+            // Exact alarms so the check fires through Doze. USE_EXACT_ALARM (API 33+) is auto-granted
+            // for an alarm-style app; SCHEDULE_EXACT_ALARM covers API 31-32. The extension falls back
+            // to inexact if neither is effective (canScheduleExactAlarms() == false).
+            fun addPermission(name: String) {
+                val exists = document.getElementsByTagName("uses-permission").let { list ->
+                    (0 until list.length).any {
+                        (list.item(it) as Element).getAttribute("android:name") == name
+                    }
+                }
+                if (!exists) manifest.insertBefore(
+                    document.createElement("uses-permission").apply { setAttribute("android:name", name) },
+                    application
+                )
+            }
+            addPermission("android.permission.USE_EXACT_ALARM")
+            addPermission("android.permission.SCHEDULE_EXACT_ALARM")
+
+            // Standalone config screen, shown as a second launcher icon "Crypto Alerts". A framework
+            // theme (DayNight) and a framework icon keep it free of any host-app resource dependency.
             val activity = document.createElement("activity").apply {
                 setAttribute("android:name", "$EXTENSION_PACKAGE.AlertsActivity")
                 setAttribute("android:exported", "true")
                 setAttribute("android:label", "Crypto Alerts")
-                setAttribute("android:theme", "@android:style/Theme.DeviceDefault.Light")
+                setAttribute("android:icon", "@android:drawable/ic_popup_reminder")
+                setAttribute("android:theme", "@android:style/Theme.DeviceDefault.DayNight")
                 setAttribute("android:taskAffinity", "$EXTENSION_PACKAGE.alerts")
                 appendChild(document.createElement("intent-filter").apply {
                     appendChild(document.createElement("action").apply {

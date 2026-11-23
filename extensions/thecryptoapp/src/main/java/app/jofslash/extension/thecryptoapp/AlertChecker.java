@@ -39,7 +39,7 @@ public final class AlertChecker {
             for (AlertRule r : rules) {
                 if (!r.enabled || r.symbol == null || r.symbol.isEmpty()) continue;
                 if (priceBySymbol.containsKey(r.symbol)) continue;
-                Double price = PriceFetcher.fetchPrice(r.symbol);
+                Double price = PriceFetcher.fetchPrice(app, r.symbol);
                 priceBySymbol.put(r.symbol, price);
                 Log.i(TAG, "check: " + r.symbol + " = " + (price == null ? "unavailable" : ("$" + price)));
             }
@@ -50,6 +50,12 @@ public final class AlertChecker {
                 if (!r.enabled) continue;
                 Double price = priceBySymbol.get(r.symbol);
                 if (price == null) continue;
+
+                // Record the latest reading for the UI, whether or not it fires.
+                r.lastPrice = price;
+                r.hasLastPrice = true;
+                r.lastCheckedAt = now;
+                changed = true;
 
                 if (r.conditionMet(price)) {
                     boolean cooled = r.lastTriggeredAt == 0L || (now - r.lastTriggeredAt) > COOLDOWN_MS;
