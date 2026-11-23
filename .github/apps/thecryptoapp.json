@@ -52,7 +52,13 @@
       }
     ]
   },
+  "checks": {
+    "error_tag": "E/JoFCryptoApp",
+    "grant": [
+      "android.permission.POST_NOTIFICATIONS"
+    ]
+  },
   "check": [
-    "python3 .github/scripts/check_thecryptoapp.py \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
+    "python3 .github/scripts/check_app.py thecryptoapp \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
   ]
 }

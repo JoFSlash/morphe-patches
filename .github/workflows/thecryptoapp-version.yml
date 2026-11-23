@@ -166,7 +166,7 @@ jobs:
           target: google_apis
           arch: x86_64
           disable-animations: true
-          script: python3 .github/scripts/check_thecryptoapp.py "$RUNNER_TEMP/thecryptoapp.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-screen --adb adb > "$RUNNER_TEMP/check.txt" 2>&1 || touch "$RUNNER_TEMP/check.failed"
+          script: python3 .github/scripts/check_app.py thecryptoapp "$RUNNER_TEMP/thecryptoapp.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-screen --adb adb > "$RUNNER_TEMP/check.txt" 2>&1 || touch "$RUNNER_TEMP/check.failed"
 
       - name: Open a pull request or an issue
         if: always() && steps.apkm.outputs.result != ''

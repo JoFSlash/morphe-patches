@@ -36,7 +36,8 @@ on:
       - 'extensions/quora/**'
       - '.github/workflows/feed-test.yml'
       - '.github/scripts/feed-test.mjs'
-      - '.github/scripts/check_quora_version.py'
+      - '.github/scripts/check_app.py'
+      - '.github/scripts/apps/quora.py'
   workflow_dispatch:
   workflow_call:
     outputs:
@@ -151,10 +152,10 @@ jobs:
           target: google_apis
           arch: x86_64
           disable-animations: true
-          script: python3 .github/scripts/check_quora_version.py "$RUNNER_TEMP/quora.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-login --exclude "Disable WebView debugging" --exclude "Start tab" --adb adb && node .github/scripts/feed-test.mjs
+          script: python3 .github/scripts/check_app.py quora "$RUNNER_TEMP/quora.apkm" --cli "$RUNNER_TEMP/morphe-cli.jar" --install --expect-screen --exclude "Disable WebView debugging" --exclude "Start tab" --adb adb && node .github/scripts/feed-test.mjs
 
       # passed / skipped / failed, from what feed-test.mjs wrote. No file: the app didn't patch,
-      # install or start (check_quora_version.py failed), or the run stopped early.
+      # install or start (check_app.py failed), or the run stopped early.
       - name: Outcome
         id: outcome
         if: always()

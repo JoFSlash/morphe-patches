@@ -22,7 +22,7 @@ on:
       - '.github/workflows/emulator-booking.yml'
       - '.github/workflows/emulator-app.yml'
       - '.github/apps/booking.json'
-      - '.github/scripts/check_booking.py'
+      - '.github/scripts/check_app.py'
       - '.github/actions/install-emulator/**'
       - '.github/morphe-cli-version'
       - 'gradle/**'

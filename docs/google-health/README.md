@@ -146,7 +146,7 @@ getting around the payment isn't something these patches do.
 
 Building needs a GitHub token with `read:packages` in `GITHUB_ACTOR` / `GITHUB_TOKEN` (or `gpr.user` /
 `gpr.key` in `~/.gradle/gradle.properties`), because the Morphe Gradle plugin comes from GitHub Packages.
-`.github/scripts/check_app.py` applies every patch to an APKM and, with `--install`, starts the patched app
+`.github/scripts/check_app.py google-health` applies every patch to an APKM and, with `--install`, starts the patched app
 on a connected phone or emulator. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Thanks

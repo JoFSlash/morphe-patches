@@ -4,7 +4,8 @@ Remembers which apps passed their emulator test with exactly the code they're bu
 isn't run twice for the same code and the release only tests what changed.
 
 An app's fingerprint is a hash of every file its emulator test depends on:
-- its own patches, extension, settings (.github/apps/<app>.json), check script and "test_inputs";
+- its own patches, extension, settings (.github/apps/<app>.json), check script (check_app.py and
+  its .github/scripts/apps/<app>.py) and "test_inputs";
 - the shared build and test: the rest of patches/ and extensions/ that belongs to no app, the
   Gradle files, the Morphe CLI version, emulator-app.yml, emulator_run.py and the emulator action.
 Docs, other apps and the release files don't count. gradle.properties is left out too: the release
@@ -43,7 +44,7 @@ SHARED = [
 # changed (the release runs twice a week).
 FEED_DAYS = 3
 FEED_FILES = [".github/workflows/feed-test.yml", ".github/scripts/feed-test.mjs",
-              ".github/scripts/check_quora_version.py"]
+              ".github/scripts/check_app.py", ".github/scripts/apps/quora.py"]
 
 
 def git(*args):
@@ -67,6 +68,9 @@ def own_paths(key, app):
         for word in command.split():
             if word.startswith(".github/scripts/") and word.endswith(".py"):
                 paths.append(word)
+    # The app's own part of check_app.py, when it has one.
+    if (ROOT / ".github" / "scripts" / "apps" / f"{key}.py").exists():
+        paths.append(f".github/scripts/apps/{key}.py")
     return paths
 
 

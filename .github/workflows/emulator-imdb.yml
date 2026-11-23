@@ -26,7 +26,7 @@ on:
       - '.github/workflows/emulator-imdb.yml'
       - '.github/workflows/emulator-app.yml'
       - '.github/apps/imdb.json'
-      - '.github/scripts/check_imdb.py'
+      - '.github/scripts/check_app.py'
       - '.github/actions/install-emulator/**'
       - '.github/morphe-cli-version'
       - 'gradle/**'

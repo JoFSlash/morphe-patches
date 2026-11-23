@@ -52,6 +52,6 @@
     ]
   },
   "check": [
-    "python3 .github/scripts/check_booking.py \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
+    "python3 .github/scripts/check_app.py booking \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
   ]
 }
