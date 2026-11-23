@@ -16,6 +16,7 @@ body:
         - Booking.com
         - Google Health (Fitbit)
         - Kalorické Tabulky
+        - Speedtest
         - Another app
     validations:
       required: true

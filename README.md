@@ -13,6 +13,7 @@ once in Morphe Manager and pick the app you want to patch. No root needed.
 | [Booking.com](https://play.google.com/store/apps/details?id=com.booking) | Compare the price with the hotel's own website, watch prices, check crossed-out prices and reviews, and take out scarcity messages, sponsored results and upsells. | [Booking.com patches](docs/booking/README.md) |
 | [Google Health](https://play.google.com/store/apps/details?id=com.fitbit.FitbitMobile) (Fitbit) | Sign in through MicroG-RE instead of Google Play services, no surveys or nags, a black theme, screenshots on every screen, and a clone next to the official app. | [Google Health patches](docs/google-health/README.md) |
 | [Kalorické Tabulky](https://play.google.com/store/apps/details?id=cz.psc.android.kaloricketabulky) | Remove ads, Premium pop-ups, rating prompts and trackers from the calorie and food diary, and sign in with Google through MicroG-RE. | [Kalorické Tabulky patches](docs/kaloricke-tabulky/README.md) |
+| [Speedtest](https://play.google.com/store/apps/details?id=org.zwanoo.android.speedtest) (Ookla) | Remove the ads from the internet speed test and stop its third-party trackers (Appvestor, CellRebel), without an account. | [Speedtest patches](docs/speedtest/README.md) |
 
 Each app's page lists its patches, the supported app versions and what to know before you install.
 
@@ -67,5 +68,5 @@ app only gets its own code. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-[GPL-3.0](LICENSE), see also [NOTICE](NOTICE). Not affiliated with Quora, Booking.com, Google, Fitbit or
-Kalorické Tabulky, or with the Morphe project.
+[GPL-3.0](LICENSE), see also [NOTICE](NOTICE). Not affiliated with Quora, Booking.com, Google, Fitbit,
+Kalorické Tabulky or Ookla, or with the Morphe project.

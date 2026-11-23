@@ -14,6 +14,11 @@ Thanks for helping. Each app is patched differently, so each has its own guide:
   It isn't on APKMirror: `python .github/scripts/check_kaloricke_tabulky.py <app.apks> --cli <morphe-cli.jar>
   --install --expect-screen` patches the split APKs Google Play installs (zipped into an .apks) and starts the
   app, as the emulator test does.
+- Speedtest (Ookla): an R8'd app whose own packages keep their names (classes and methods are renamed), so
+  patches hook the named managers (the ads, Appvestor, CellRebel and review managers) and fail loudly when one
+  is gone. It ships as a single arm64 APK on APKMirror:
+  `python .github/scripts/check_speedtest.py <speedtest.apk> --cli <morphe-cli.jar> --install --expect-screen`
+  patches it with every Speedtest patch and starts it on a phone or emulator, as the emulator test does.
 
 Please follow the [code of conduct](CODE_OF_CONDUCT.md), and report security problems privately as described in
 [SECURITY.md](SECURITY.md).
@@ -21,7 +26,7 @@ Please follow the [code of conduct](CODE_OF_CONDUCT.md), and report security pro
 ## Where things are
 
 - `patches/src/main/kotlin/app/jofslash/patches/<app>/`: the patches. `<app>` is `quora`, `booking`,
-  `googlehealth` or `kaloricketabulky`.
+  `googlehealth`, `kaloricketabulky` or `speedtest`.
 - `extensions/<app>/`: the code those patches call inside the app. Each app has its own extension, so a patched
   app gets only its own code. A patch loads it with `extendWith("extensions/<app>.mpe")`.
 - `docs/<app>/README.md`: the app's page. The patch tables in it are generated from the patches' descriptions
