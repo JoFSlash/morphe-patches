@@ -19,6 +19,11 @@ Thanks for helping. Each app is patched differently, so each has its own guide:
   is gone. It ships as a single arm64 APK on APKMirror:
   `python .github/scripts/check_speedtest.py <speedtest.apk> --cli <morphe-cli.jar> --install --expect-screen`
   patches it with every Speedtest patch and starts it on a phone or emulator, as the emulator test does.
+- Listonic: a heavily R8'd Kotlin app. Its own ad layer (`com.listonic.adcompanion`), triggers, update and
+  consent libraries keep their names, so most patches hook those by name; the rest find renamed classes
+  through text they keep and fail loudly when it is gone. It isn't on APKMirror:
+  `python .github/scripts/check_listonic.py <app.apks> --cli <morphe-cli.jar> --install --expect-screen`
+  patches the split APKs (zipped into an .apks, or an XAPK) and starts the app, as the emulator test does.
 
 Please follow the [code of conduct](CODE_OF_CONDUCT.md), and report security problems privately as described in
 [SECURITY.md](SECURITY.md).
@@ -26,7 +31,7 @@ Please follow the [code of conduct](CODE_OF_CONDUCT.md), and report security pro
 ## Where things are
 
 - `patches/src/main/kotlin/app/jofslash/patches/<app>/`: the patches. `<app>` is `quora`, `booking`,
-  `googlehealth`, `kaloricketabulky` or `speedtest`.
+  `googlehealth`, `kaloricketabulky`, `speedtest` or `listonic`.
 - `extensions/<app>/`: the code those patches call inside the app. Each app has its own extension, so a patched
   app gets only its own code. A patch loads it with `extendWith("extensions/<app>.mpe")`.
 - `docs/<app>/README.md`: the app's page. The patch tables in it are generated from the patches' descriptions
