@@ -15,7 +15,8 @@ name: Release
 # code (emulator-app.yml: every patch applies and the app starts on the Android versions in the app's
 # settings). emulator-tests.yml usually did that right after the merge into dev; the release tests
 # only the apps that didn't (see .github/scripts/tested.py). It also needs the feed test
-# (feed-test.yml: the page patches work on the signed-in feed and on an answer). A skipped feed test counts as not passed. When either
+# (feed-test.yml: the page patches work on the signed-in feed and on an answer), unless it passed for
+# the current Quora code in the last few days (it runs on dev when Quora's patches change). A skipped feed test counts as not passed. When either
 # doesn't pass, nothing is released and the issue "Weekly release stopped" says why; the next
 # release that goes through closes it. When the feed test can't run (for example while its saved
 # session is being renewed), an urgent fix can still go out by hand with "Skip the feed test".
@@ -121,6 +122,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       apps: ${{ steps.plan.outputs.apps }}
+      feed: ${{ steps.plan.outputs.feed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -131,6 +133,8 @@ jobs:
           apps=$(python3 .github/scripts/tested.py plan)
           echo "To test: $apps"
           echo "apps=$apps" >> "$GITHUB_OUTPUT"
+          # "passed" when the feed test passed for this code in the last few days.
+          echo "feed=$(python3 .github/scripts/tested.py feed-plan)" >> "$GITHUB_OUTPUT"
 
   # The patches, built once for every app's emulator test (one build instead of one per emulator
   # keeps GitHub Packages, where the Gradle plugin comes from, from being asked dozens of times at once).
@@ -151,6 +155,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: 'gradle'
 
       - name: Build
         env:
@@ -187,9 +192,10 @@ jobs:
 
   feed:
     name: Feed test
-    if: ${{ github.event_name != 'schedule' && !inputs.skip-feed-test }}
+    needs: apps
+    if: ${{ github.event_name != 'schedule' && !inputs.skip-feed-test && needs.apps.outputs.feed != 'passed' }}
     permissions:
-      contents: read
+      contents: write
       packages: read
       issues: write
     uses: ./.github/workflows/feed-test.yml
@@ -202,7 +208,7 @@ jobs:
       !cancelled()
       && needs.apps.result == 'success'
       && (needs.emulator.result == 'success' || (needs.emulator.result == 'skipped' && needs.apps.outputs.apps == '[]'))
-      && (needs.feed.outputs.result == 'passed' || (github.event_name == 'workflow_dispatch' && inputs.skip-feed-test))
+      && (needs.feed.outputs.result == 'passed' || needs.apps.outputs.feed == 'passed' || (github.event_name == 'workflow_dispatch' && inputs.skip-feed-test))
     permissions:
       contents: write
       packages: write
@@ -216,10 +222,12 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Java
+        id: java
         uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: 'gradle'
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -242,8 +250,10 @@ jobs:
 
       # Downloads the Gradle plugins and dependencies with retries, so the build semantic-release
       # runs below finds them in the cache instead of failing on a network hiccup. "clean" removes
-      # this build's .mpp again, so only the released one is uploaded.
+      # this build's .mpp again, so only the released one is uploaded. Not needed when setup-java
+      # restored the Gradle cache.
       - name: Download Gradle dependencies
+        if: steps.java.outputs.cache-hit != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash .github/scripts/gradle-retry.sh :patches:buildAndroid clean --no-daemon

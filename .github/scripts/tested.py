@@ -16,8 +16,15 @@ read from any branch, so a test on dev counts for the release on main when the c
 python3 tested.py plan [--all]       JSON list of the apps without a passed test (all with --all)
 python3 tested.py fingerprint <app>  the app's fingerprint
 python3 tested.py record <app>       records that the app passed at HEAD
+
+The Quora feed test (feed-test.yml) is remembered the same way, with the date: it checks Quora's
+own pages, which change without us, so a pass only counts for FEED_DAYS days.
+
+python3 tested.py feed-plan          "passed" when the feed test passed for this code lately, else "test"
+python3 tested.py feed-record        records that the feed test passed at HEAD today
 """
 
+import datetime
 import hashlib
 import json
 import subprocess
@@ -30,6 +37,13 @@ SHARED = [
     ".github/morphe-cli-version", ".github/workflows/emulator-app.yml",
     ".github/scripts/emulator_run.py", ".github/actions/install-emulator/",
 ]
+
+
+# The feed test signs in to a test account; it runs again after this many days even when nothing
+# changed (the release runs twice a week).
+FEED_DAYS = 3
+FEED_FILES = [".github/workflows/feed-test.yml", ".github/scripts/feed-test.mjs",
+              ".github/scripts/check_quora_version.py"]
 
 
 def git(*args):
@@ -72,6 +86,26 @@ def fingerprint(key, apps):
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()[:32]
 
 
+def feed_fingerprint(apps):
+    blobs = git("ls-files", "-s", "--", *FEED_FILES)
+    return hashlib.sha256((fingerprint("quora", apps) + blobs).encode()).hexdigest()[:32]
+
+
+def feed_passed(apps):
+    out = subprocess.run(["git", "ls-remote", "origin", f"refs/tested/quora-feed/{feed_fingerprint(apps)}/*"],
+                         cwd=ROOT, capture_output=True, text=True)
+    today = datetime.datetime.now(datetime.timezone.utc).date()
+    for line in out.stdout.splitlines():
+        day = line.rsplit("/", 1)[-1]
+        try:
+            when = datetime.datetime.strptime(day, "%Y%m%d").date()
+        except ValueError:
+            continue
+        if (today - when).days < FEED_DAYS:
+            return day
+    return None
+
+
 def ref(key, apps):
     return f"refs/tested/{key}/{fingerprint(key, apps)}"
 
@@ -94,6 +128,20 @@ def main():
             if not done:
                 todo.append(key)
         print(json.dumps(todo))
+    elif command == "feed-plan":
+        day = feed_passed(apps)
+        print(f"feed test: {'passed on ' + day if day else 'to run'}", file=sys.stderr)
+        print("passed" if day else "test")
+    elif command == "feed-record":
+        today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d")
+        name = f"refs/tested/quora-feed/{feed_fingerprint(apps)}/{today}"
+        head = git("rev-parse", "HEAD").strip()
+        result = subprocess.run(["git", "push", "origin", f"+{head}:{name}"], cwd=ROOT,
+                                capture_output=True, text=True)
+        if result.returncode != 0:
+            print(f"::warning::Couldn't record {name}: {result.stderr.strip()}")
+        else:
+            print(f"Recorded {name} at {head}")
     elif command == "fingerprint" and len(sys.argv) == 3:
         print(fingerprint(sys.argv[2], apps))
     elif command == "record" and len(sys.argv) == 3:
