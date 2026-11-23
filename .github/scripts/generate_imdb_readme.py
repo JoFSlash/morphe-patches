@@ -30,7 +30,7 @@ ORDER = ["Ads", "Privacy", "App"]
 INTRO = {
     "Ads": "IMDb's own Sponsored banners, video ads and the ad networks.",
     "Privacy": "Trackers, permissions and the Braze marketing SDK.",
-    "App": "Signing in with Google without Google Play services.",
+    "App": "Prompts the app shows by itself, and signing in with Google without Google Play services.",
 }
 
 versions = []

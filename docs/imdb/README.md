@@ -61,7 +61,7 @@ nothing you would otherwise pay for. These patches don't touch any account or pa
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.10.0, 5 patches. Supported IMDb versions: 9.3.7.109370600.
+Version 1.10.0, 6 patches. Supported IMDb versions: 9.3.7.109370600.
 
 <details>
 <summary><b>Ads</b> (1)</summary>
@@ -88,13 +88,14 @@ Trackers, permissions and the Braze marketing SDK.
 </details>
 
 <details>
-<summary><b>App</b> (1)</summary>
+<summary><b>App</b> (2)</summary>
 
-Signing in with Google without Google Play services.
+Prompts the app shows by itself, and signing in with Google without Google Play services.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
 | GmsCore support | on | Makes signing in with Google (and push notifications) work through MicroG-RE instead of Google Play services. A patched app can't use Play services, because it is no longer signed by IMDb. Needs MicroG-RE (app.revanced.android.gms) installed, with your Google account added to it; without it the app says once that MicroG-RE is missing. |
+| Hide rating prompt | on | Hides the "Like the IMDb app?" dialog that asks you to rate the app on Google Play. |
 
 </details>
 <!-- PATCHES_END -->
