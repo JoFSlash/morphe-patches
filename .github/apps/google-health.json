@@ -1,0 +1,69 @@
+{
+  "name": "Google Health",
+  "workflow": "emulator-google-health.yml",
+  "patches": "patches/src/main/kotlin/app/jofslash/patches/googlehealth",
+  "extension": "extensions/googlehealth",
+  "docs": "docs/google-health/README.md",
+  "store": "https://play.google.com/store/apps/details?id=com.fitbit.FitbitMobile",
+  "store_note": "(Fitbit)",
+  "summary": "Sign in through MicroG-RE instead of Google Play services, no surveys or nags, a black theme, screenshots on every screen, and a clone next to the official app.",
+  "apk": {
+    "release": "google-health",
+    "version": "newest",
+    "asset": "*.apkm",
+    "file": "google-health.apkm"
+  },
+  "android": {
+    "note": "Google Health needs Android 12L or newer: every version from there, and the next one, whose image is only in the SDK's canary channel so far.",
+    "pull_request": [
+      {
+        "api": "32",
+        "android": "12L",
+        "channel": "stable"
+      },
+      {
+        "api": "36",
+        "android": "16",
+        "channel": "stable",
+        "verify": true
+      }
+    ],
+    "full": [
+      {
+        "api": "32",
+        "android": "12L",
+        "channel": "stable"
+      },
+      {
+        "api": "33",
+        "android": "13",
+        "channel": "stable"
+      },
+      {
+        "api": "34",
+        "android": "14",
+        "channel": "stable"
+      },
+      {
+        "api": "35",
+        "android": "15",
+        "channel": "stable",
+        "verify": true
+      },
+      {
+        "api": "36",
+        "android": "16",
+        "channel": "stable"
+      },
+      {
+        "api": "37.0",
+        "android": "17",
+        "channel": "canary"
+      }
+    ]
+  },
+  "check": [
+    "python3 .github/scripts/check_google_health.py \"$APK\" --cli \"$CLI\" --install --expect-welcome --compare-original --adb adb ${DEXDUMP:+--dexdump \"$DEXDUMP\"}",
+    "python3 .github/scripts/check_google_health.py \"$APK\" --cli \"$CLI\" --install --expect-welcome --clone --adb adb"
+  ]
+}

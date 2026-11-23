@@ -1,0 +1,60 @@
+{
+  "name": "Booking.com",
+  "workflow": "emulator-booking.yml",
+  "patches": "patches/src/main/kotlin/app/jofslash/patches/booking",
+  "extension": "extensions/booking",
+  "docs": "docs/booking/README.md",
+  "store": "https://play.google.com/store/apps/details?id=com.booking",
+  "summary": "Compare the price with the hotel's own website, watch prices, check crossed-out prices and reviews, and take out scarcity messages, sponsored results and upsells.",
+  "apk": {
+    "release": "booking",
+    "version": "first",
+    "asset": "*.apkm",
+    "file": "booking.apkm"
+  },
+  "android": {
+    "note": "Booking.com 71.1 needs Android 12L or newer: a few versions from there, and the next one, whose image is only in the SDK's canary channel so far.",
+    "pull_request": [
+      {
+        "api": "32",
+        "android": "12L",
+        "channel": "stable"
+      },
+      {
+        "api": "36",
+        "android": "16",
+        "channel": "stable"
+      }
+    ],
+    "full": [
+      {
+        "api": "32",
+        "android": "12L",
+        "channel": "stable"
+      },
+      {
+        "api": "33",
+        "android": "13",
+        "channel": "stable"
+      },
+      {
+        "api": "35",
+        "android": "15",
+        "channel": "stable"
+      },
+      {
+        "api": "36",
+        "android": "16",
+        "channel": "stable"
+      },
+      {
+        "api": "37.0",
+        "android": "17",
+        "channel": "canary"
+      }
+    ]
+  },
+  "check": [
+    "python3 .github/scripts/check_booking.py \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
+  ]
+}

@@ -11,14 +11,9 @@ name: Release
 # Nothing new on dev: no pre-release. An urgent fix can be released right away by running this
 # workflow by hand on main (or on dev for a pre-release).
 #
-# Before releasing, the bundle has to pass the emulator tests (emulator.yml for Quora: every patch
-# applies and the app starts on Android 15, 16 and 17; emulator-google-health.yml for Google Health:
-# the same on Android 12L to 17, also for the clone; emulator-booking.yml for Booking.com and
-# emulator-kaloricke-tabulky.yml for Kalorické Tabulky: the same on Android 12L to 17;
-# emulator-speedtest.yml for Speedtest: the same on Android 11 to 17; emulator-listonic.yml for
-# Listonic: the same on Android 12L to 17; emulator-imdb.yml for IMDb: the same on Android 11 to
-# 17; emulator-thecryptoapp.yml for The Crypto App: the same on Android 10 to 17) and the feed test
-# (feed-test.yml: the page patches work
+# Before releasing, the bundle has to pass the emulator test of every app in .github/apps
+# (emulator-app.yml: every patch applies and the app starts on the Android versions in the app's
+# settings) and the feed test (feed-test.yml: the page patches work
 # on the signed-in feed and on an answer). A skipped feed test counts as not passed. When either
 # doesn't pass, nothing is released and the issue "Weekly release stopped" says why; the next
 # release that goes through closes it. When the feed test can't run (for example while its saved
@@ -79,14 +74,14 @@ jobs:
           if ! git merge --ff-only "$tag"; then
             # main has commits dev doesn't (an urgent fix released by hand this week). Both
             # releases rewrote the files semantic-release generates, so conflicts there are
-            # expected: keep main's (the stable release regenerates them; the READMEs in docs/ take
-            # dev's text, as their generated parts are regenerated too). A conflict anywhere else
+            # expected: keep main's (the stable release regenerates them; the READMEs in docs/ and the
+            # issue forms take dev's text, as their generated parts are regenerated too). A conflict anywhere else
             # stops here.
             if ! git merge --no-ff "$tag" -m "chore: Merge $tag into main for the stable release"; then
               for f in $(git diff --name-only --diff-filter=U); do
                 case "$f" in
                   CHANGELOG.md|gradle.properties|patches-bundle.json|patches-list.json) git checkout --ours -- "$f" ;;
-                  docs/*/README.md) git checkout --theirs -- "$f" ;;
+                  docs/*/README.md|.github/ISSUE_TEMPLATE/*.yml) git checkout --theirs -- "$f" ;;
                   *) echo "::error::$tag conflicts with main in $f: merge it into main by hand, then run this workflow on main."; exit 1 ;;
                 esac
                 git add -- "$f"
@@ -115,77 +110,77 @@ jobs:
             gh issue create --title "$title" --label bug --body "$body"
           fi
 
+  # The apps to test: one settings file each in .github/apps, so adding an app doesn't change this
+  # workflow.
+  apps:
+    name: List the apps
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.list.outputs.apps }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/apps
+
+      - name: List the apps
+        id: list
+        run: |
+          apps=$(ls .github/apps/*.json | xargs -n1 basename | sed 's/\.json$//' | jq -R . | jq -sc .)
+          echo "Apps: $apps"
+          echo "apps=$apps" >> "$GITHUB_OUTPUT"
+
+  # The patches, built once for every app's emulator test (one build instead of one per emulator
+  # keeps GitHub Packages, where the Gradle plugin comes from, from being asked dozens of times at once).
+  bundle:
+    name: Build the patches
+    if: github.event_name != 'schedule'
+    permissions:
+      contents: read
+      packages: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GRADLE_ATTEMPTS: 5
+        run: bash .github/scripts/gradle-retry.sh :patches:buildAndroid --no-daemon
+
+      - name: Keep the bundle for the emulators
+        uses: actions/upload-artifact@v4
+        with:
+          name: patches-bundle
+          path: patches/build/libs/*.mpp
+          if-no-files-found: error
+          retention-days: 1
+
   emulator:
-    name: Emulator test
+    name: Emulator test (${{ matrix.app }})
+    needs: [apps, bundle]
     if: github.event_name != 'schedule'
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJSON(needs.apps.outputs.apps) }}
     permissions:
       contents: read
       packages: read
-    uses: ./.github/workflows/emulator.yml
+    uses: ./.github/workflows/emulator-app.yml
     secrets: inherit
-
-  emulator-google-health:
-    name: Google Health emulator test
-    if: github.event_name != 'schedule'
-    permissions:
-      contents: read
-      packages: read
-    uses: ./.github/workflows/emulator-google-health.yml
-    secrets: inherit
-
-  emulator-booking:
-    name: Booking.com emulator test
-    if: github.event_name != 'schedule'
-    permissions:
-      contents: read
-      packages: read
-    uses: ./.github/workflows/emulator-booking.yml
-    secrets: inherit
-
-  emulator-kaloricke-tabulky:
-    name: Kalorické Tabulky emulator test
-    if: github.event_name != 'schedule'
-    permissions:
-      contents: read
-      packages: read
-    uses: ./.github/workflows/emulator-kaloricke-tabulky.yml
-    secrets: inherit
-
-  emulator-speedtest:
-    name: Speedtest emulator test
-    if: github.event_name != 'schedule'
-    permissions:
-      contents: read
-      packages: read
-    uses: ./.github/workflows/emulator-speedtest.yml
-    secrets: inherit
-
-  emulator-listonic:
-    name: Listonic emulator test
-    if: github.event_name != 'schedule'
-    permissions:
-      contents: read
-      packages: read
-    uses: ./.github/workflows/emulator-listonic.yml
-    secrets: inherit
-
-  emulator-imdb:
-    name: IMDb emulator test
-    if: github.event_name != 'schedule'
-    permissions:
-      contents: read
-      packages: read
-    uses: ./.github/workflows/emulator-imdb.yml
-    secrets: inherit
-
-  emulator-thecryptoapp:
-    name: The Crypto App emulator test
-    if: github.event_name != 'schedule'
-    permissions:
-      contents: read
-      packages: read
-    uses: ./.github/workflows/emulator-thecryptoapp.yml
-    secrets: inherit
+    with:
+      app: ${{ matrix.app }}
+      bundle: patches-bundle
 
   feed:
     name: Feed test
@@ -199,17 +194,10 @@ jobs:
 
   release:
     name: Release
-    needs: [emulator, emulator-google-health, emulator-booking, emulator-kaloricke-tabulky, emulator-speedtest, emulator-listonic, emulator-imdb, emulator-thecryptoapp, feed]
+    needs: [emulator, feed]
     if: >-
       !cancelled()
       && needs.emulator.result == 'success'
-      && needs.emulator-google-health.result == 'success'
-      && needs.emulator-booking.result == 'success'
-      && needs.emulator-kaloricke-tabulky.result == 'success'
-      && needs.emulator-speedtest.result == 'success'
-      && needs.emulator-listonic.result == 'success'
-      && needs.emulator-imdb.result == 'success'
-      && needs.emulator-thecryptoapp.result == 'success'
       && (needs.feed.outputs.result == 'passed' || (github.event_name == 'workflow_dispatch' && inputs.skip-feed-test))
     permissions:
       contents: write
@@ -295,7 +283,7 @@ jobs:
   # Says on GitHub when a release didn't go out, so a red run on a release morning isn't missed.
   report:
     name: Open or close the issue
-    needs: [emulator, emulator-google-health, emulator-booking, emulator-kaloricke-tabulky, emulator-speedtest, emulator-listonic, emulator-imdb, emulator-thecryptoapp, feed, release]
+    needs: [emulator, feed, release]
     if: ${{ !cancelled() && github.event_name != 'schedule' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
     permissions:
       issues: write
@@ -306,13 +294,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           EMULATOR: ${{ needs.emulator.result }}
-          EMULATOR_GOOGLE_HEALTH: ${{ needs.emulator-google-health.result }}
-          EMULATOR_BOOKING: ${{ needs.emulator-booking.result }}
-          EMULATOR_KALORICKE_TABULKY: ${{ needs.emulator-kaloricke-tabulky.result }}
-          EMULATOR_SPEEDTEST: ${{ needs.emulator-speedtest.result }}
-          EMULATOR_LISTONIC: ${{ needs.emulator-listonic.result }}
-          EMULATOR_IMDB: ${{ needs.emulator-imdb.result }}
-          EMULATOR_THECRYPTOAPP: ${{ needs.emulator-thecryptoapp.result }}
           FEED: ${{ needs.feed.outputs.result || needs.feed.result }}
           RELEASE: ${{ needs.release.result }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -326,21 +307,7 @@ jobs:
             exit 0
           fi
           if [ "$EMULATOR" != "success" ]; then
-            why="The Quora emulator test didn't pass ($EMULATOR): a patch doesn't apply, or the patched app doesn't start."
-          elif [ "$EMULATOR_GOOGLE_HEALTH" != "success" ]; then
-            why="The Google Health emulator test didn't pass ($EMULATOR_GOOGLE_HEALTH): a patch doesn't apply, or the patched app or the clone doesn't start."
-          elif [ "$EMULATOR_BOOKING" != "success" ]; then
-            why="The Booking.com emulator test didn't pass ($EMULATOR_BOOKING): a patch doesn't apply, or the patched app doesn't start."
-          elif [ "$EMULATOR_KALORICKE_TABULKY" != "success" ]; then
-            why="The Kalorické Tabulky emulator test didn't pass ($EMULATOR_KALORICKE_TABULKY): a patch doesn't apply, or the patched app doesn't start."
-          elif [ "$EMULATOR_SPEEDTEST" != "success" ]; then
-            why="The Speedtest emulator test didn't pass ($EMULATOR_SPEEDTEST): a patch doesn't apply, or the patched app doesn't start."
-          elif [ "$EMULATOR_LISTONIC" != "success" ]; then
-            why="The Listonic emulator test didn't pass ($EMULATOR_LISTONIC): a patch doesn't apply, or the patched app doesn't start."
-          elif [ "$EMULATOR_IMDB" != "success" ]; then
-            why="The IMDb emulator test didn't pass ($EMULATOR_IMDB): a patch doesn't apply, or the patched app doesn't start."
-          elif [ "$EMULATOR_THECRYPTOAPP" != "success" ]; then
-            why="The Crypto App emulator test didn't pass ($EMULATOR_THECRYPTOAPP): a patch doesn't apply, or the patched app doesn't start."
+            why="An emulator test didn't pass ($EMULATOR): a patch doesn't apply, or a patched app doesn't start. The run shows which app."
           elif [ "$RELEASE" = "skipped" ]; then
             why="The feed test didn't pass ($FEED). The issue \"Feed test needs attention\" says why."
           else
