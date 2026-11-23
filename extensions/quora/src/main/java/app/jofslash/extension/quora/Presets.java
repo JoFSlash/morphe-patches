@@ -36,6 +36,7 @@ final class Presets {
             "hideDismissedQuestions", "filterKeywords", "blockAuthors",
             "copyAnswerText", "shareAnswerText", "readingHistory", "bookmarks", "translateAnswerText", "readAloud",
             "wordCount", "enableTextSelection", "disableVideoAutoplay",
+            "readerView", "readingTime", "pickToHide",
             "disableTabPrefetching", "disableSignInPrompts", "blockPromotionalNotifications",
             "filterUpdates", "updateNotice"));
 

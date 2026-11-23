@@ -47,6 +47,11 @@ final class SettingsCatalog {
         add("hideAskBox", "Feed", "The \"What do you want to ask or share?\" box.");
         add("hideMoreStories", "Feed", "The red \"More Stories\" button over the feed.");
         add("hideDismissedQuestions", "Feed", "Answers to questions you marked \"Not interested\".");
+        add("hideLowVoted", "Feed", "Answers with fewer upvotes than set below.");
+        add("hideReshares", "Feed", "Answers and posts someone only shared again.");
+        add("hideMediaOnly", "Feed", "Posts that are only a picture or a video.");
+        add("hideTranslated", "Feed", "Answers marked as translated from another language.");
+        add("pickToHide", "Feed", "Boxes you picked under More > Pick something to hide.");
         add("hideCommentBox", "Reading", "The \"Add a comment…\" field under answers.");
 
         add("copyAnswerText", "Reading", "A Copy button next to Share under answers.");
@@ -56,6 +61,8 @@ final class SettingsCatalog {
         add("bookmarks", "Reading", "A bookmark button under open answers; saved ones read offline (see Bookmarks).");
         add("translateAnswerText", "Reading", "A Translate button next to Share under answers.");
         add("readAloud", "Reading", "A Read aloud button next to Share under answers.");
+        add("readerView", "Reading", "A Reader view button next to Share under answers.");
+        add("readingTime", "Reading", "\"4 min read\" above longer answers.");
         add("fullscreenReading", "Reading", "Bars hide while you scroll down.");
         add("expandAnswers", "Reading", "Shortened answers open in full.");
         add("comfortableReading", "Reading", "More space between lines and paragraphs.");

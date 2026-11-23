@@ -275,7 +275,7 @@ final class OfflineCopies {
         return true;
     }
 
-    private static boolean dataSaverBlocks(Context context) {
+    static boolean dataSaverBlocks(Context context) {
         if (!PatchSettings.isRegistered("dataSaver") || !PatchSettings.isOn("dataSaver")) return false;
         try {
             android.net.ConnectivityManager cm = (android.net.ConnectivityManager)
@@ -328,7 +328,7 @@ final class OfflineCopies {
     }
 
     /** Downloads one picture to a file. Returns its size, or 0 when it isn't a picture or too big. */
-    private static long fetch(String src, File out, long room) {
+    static long fetch(String src, File out, long room) {
         java.net.HttpURLConnection connection = null;
         try {
             connection = (java.net.HttpURLConnection) java.net.URI.create(src).toURL().openConnection();
