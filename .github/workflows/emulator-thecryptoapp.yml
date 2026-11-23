@@ -3,10 +3,8 @@ name: The Crypto App emulator test
 # Patches The Crypto App with every patch, installs it on Android 10 to 17 emulators and checks that
 # it starts without a crash or errors from the patches and shows its own screen, then opens the
 # patches' "Crypto Alerts" screen. When a check fails, the original app is tried the same way, to
-# tell a broken patch from an Android version the app itself doesn't work on (the original app
-# closes itself on a non-Play install because of its PairIP license check, so there it always
-# fails). Alerts firing, charts and the portfolio need live prices and a person, so they are tried
-# by hand on a phone.
+# tell a broken patch from an Android version the app itself doesn't work on. Alerts firing, charts
+# and the portfolio need live prices and a person, so they are tried by hand on a phone.
 #
 # The APKM is the bundle with arm64-v8a and x86_64 libraries, so the x86_64 emulator runs it
 # natively.
