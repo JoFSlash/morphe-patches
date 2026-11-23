@@ -25,7 +25,10 @@ ADB = "adb"
 EMULATOR_TROUBLE = re.compile(
     r"Can't find service|Failure calling service|Broken pipe|device offline|device not found"
     r"|no devices/emulators found|Unable to connect to adb daemon|cannot connect to daemon"
-    r"|error: closed|Is the system running\?|DeadSystemException|INSTALL_FAILED_INSUFFICIENT_STORAGE",
+    r"|error: closed|Is the system running\?|DeadSystemException|INSTALL_FAILED_INSUFFICIENT_STORAGE"
+    # The check tried the original app too and it failed the same way: the emulator is at fault
+    # (for example "Pixel Launcher isn't responding" covering the screen).
+    r"|The original app fails here too",
     re.I,
 )
 
