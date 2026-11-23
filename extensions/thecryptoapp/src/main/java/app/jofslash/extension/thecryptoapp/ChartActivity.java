@@ -13,8 +13,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.Locale;
-
 /**
  * Candlestick chart for a symbol, in a programmatic WebView (no XML). Primary source is the free
  * TradingView Advanced Chart embed (indicators included); a toggle switches to a self-contained
@@ -35,8 +33,14 @@ public final class ChartActivity extends Activity {
         super.onCreate(savedInstanceState);
         try {
             p = new Palette(this);
+            // Before any view: creating the WebView sets up the window, after which the
+            // no-title request in Palette.setUpWindow comes too late.
+            requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
             String s = getIntent() != null ? getIntent().getStringExtra("symbol") : null;
-            if (s != null && !s.trim().isEmpty()) symbol = s.trim().toUpperCase(Locale.US);
+            // Only letters and digits reach the HTML/JS below. Charts are Binance pairs, so a
+            // bare coin ("BTC") is shown as its USDT pair.
+            String clean = PriceFetcher.normalize(s);
+            if (clean != null) symbol = PriceFetcher.binancePair(clean);
 
             LinearLayout root = new LinearLayout(this);
             root.setOrientation(LinearLayout.VERTICAL);
@@ -51,11 +55,26 @@ public final class ChartActivity extends Activity {
             root.addView(web, new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
+            p.setUpWindow(this, root);
             setContentView(root);
             loadChart();
         } catch (Throwable t) {
             Log.e(TAG, "chart: onCreate failed", t);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        // A WebView left alive keeps the chart's JS and network running after the screen closes.
+        if (web != null) {
+            try {
+                web.stopLoading();
+                web.destroy();
+            } catch (Throwable ignored) {
+            }
+            web = null;
+        }
+        super.onDestroy();
     }
 
     private View buildBar() {

@@ -21,8 +21,12 @@ public final class AlertReceiver extends BroadcastReceiver {
             String action = intent != null ? intent.getAction() : null;
             Log.i(TAG, "receiver: onReceive action=" + action);
 
-            if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
+            if (Intent.ACTION_BOOT_COMPLETED.equals(action)
+                    || Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)) {
                 AlertScheduler.schedule(app);
+                return;
+            }
+            if (!AlertScheduler.ACTION_CHECK.equals(action)) {
                 return;
             }
 

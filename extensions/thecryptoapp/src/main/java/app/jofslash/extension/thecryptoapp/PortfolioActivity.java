@@ -43,8 +43,10 @@ public final class PortfolioActivity extends Activity {
         super.onCreate(savedInstanceState);
         try {
             p = new Palette(this);
-            setContentView(buildRoot());
-            refresh();
+            View root = buildRoot();
+            p.setUpWindow(this, root);
+            setContentView(root);
+            // onResume, which always follows, does the first refresh.
         } catch (Throwable t) {
             Log.e(TAG, "portfolio: onCreate failed", t);
         }
@@ -95,6 +97,9 @@ public final class PortfolioActivity extends Activity {
 
         amountInput = styledEdit("Amount held, e.g. 0.5");
         amountInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        // The plain decimal key listener silently drops a typed comma, so "0,05" became "005" (a
+        // target 100x too high). Accept both; the parser turns the comma into a dot.
+        amountInput.setKeyListener(android.text.method.DigitsKeyListener.getInstance("0123456789.,"));
         LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         alp.topMargin = p.dp(10);
@@ -142,10 +147,16 @@ public final class PortfolioActivity extends Activity {
     private void onAdd() {
         symbolInput.setError(null);
         amountInput.setError(null);
-        final String symbol = symbolInput.getText().toString().trim().toUpperCase(Locale.US);
-        String amtStr = amountInput.getText().toString().trim();
-        if (symbol.isEmpty()) {
+        final String typed = symbolInput.getText().toString().trim();
+        final String symbol = PriceFetcher.normalize(typed);
+        // Some keyboards (e.g. a Slovak one) type a decimal comma.
+        String amtStr = amountInput.getText().toString().trim().replace(',', '.');
+        if (typed.isEmpty()) {
             symbolInput.setError("Enter a symbol");
+            return;
+        }
+        if (symbol == null) {
+            symbolInput.setError("Letters and digits only, e.g. BTCUSDT or BTC");
             return;
         }
         if (amtStr.isEmpty()) {
@@ -159,18 +170,18 @@ public final class PortfolioActivity extends Activity {
             amountInput.setError("Not a number");
             return;
         }
-        if (amount <= 0) {
+        if (!(amount > 0) || Double.isInfinite(amount)) {
             amountInput.setError("Must be greater than 0");
             return;
         }
-        final String base = symbol.replaceAll("(USDT|BUSD|USDC|USD)$", "");
-        final String display = base.isEmpty() ? symbol : base;
+        final String display = PriceFetcher.baseOf(symbol);
 
         addButton.setEnabled(false);
         addButton.setText("Checking symbol...");
         new Thread(() -> {
             final Double price = PriceFetcher.fetchPrice(getApplicationContext(), symbol);
             runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
                 addButton.setEnabled(true);
                 addButton.setText("Add holding");
                 if (price == null) {
@@ -199,7 +210,9 @@ public final class PortfolioActivity extends Activity {
             for (Holding h : holdings) symbols.add(h.symbol);
             new Thread(() -> {
                 final PriceFetcher.PriceMap pm = PriceFetcher.fetchAll(getApplicationContext(), symbols);
-                runOnUiThread(() -> renderList(PortfolioStore.load(this), pm));
+                runOnUiThread(() -> {
+                    if (!isFinishing() && !isDestroyed()) renderList(PortfolioStore.load(this), pm);
+                });
             }, "CryptoPortfolio-refresh").start();
         } catch (Throwable t) {
             Log.e(TAG, "portfolio: refresh failed", t);

@@ -60,7 +60,13 @@ public final class PriceFetcher {
     private static final String COINGECKO_MARKETS =
             "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=";
 
-    private static final String PREFS = "jofslash_crypto_alerts";
+    /**
+     * The CoinGecko id maps are large (the coins list is ~16k entries), so they live in their own
+     * prefs file: in the rules file, every rule save rewrote them too. v1.3 and older kept them in
+     * the rules file; {@link #prefs} drops those old keys once (they are just re-downloaded).
+     */
+    private static final String PREFS = "jofslash_crypto_idmaps";
+    private static final String OLD_PREFS = "jofslash_crypto_alerts";
     private static final String KEY_MC_MAP = "coingecko_mc_map";
     private static final String KEY_MC_AT = "coingecko_mc_at";
     private static final String KEY_LIST_MAP = "coingecko_list_map";
@@ -95,10 +101,54 @@ public final class PriceFetcher {
     /** symbol -> {pctChange24h, fetchedAtMillis}. */
     private static final Map<String, double[]> PCT_CACHE = new ConcurrentHashMap<>();
 
+    /** Parsed copies of the cached id maps, so each lookup doesn't re-parse the JSON. */
+    private static Map<String, String> mcMapMem = null;
+    private static long mcMapMemAt = -1L;
+    private static Map<String, String> listMapMem = null;
+    private static long listMapMemAt = -1L;
+    private static volatile boolean oldKeysDropped = false;
+
     private static Map<String, Double> binanceAllCache = null;
     private static long binanceAllAt = 0L;
 
+    /** Quote assets whose price is (close enough to) US dollars. */
+    private static final String[] USD_QUOTES = {"FDUSD", "USDT", "USDC", "BUSD", "TUSD", "USD"};
+
     private PriceFetcher() {
+    }
+
+    /**
+     * The Binance pair to read a USD price from for [symbol]: the symbol itself when it already
+     * ends in a USD quote ("BTCUSDT"), else the USDT pair ("BTC" -> "BTCUSDT"). A pair against
+     * another coin ("ETHBTC") becomes "ETHBTCUSDT", which doesn't exist, instead of being read
+     * as a dollar price when it is really a price in BTC.
+     */
+    /** The coin part of [symbol] without a USD quote: "BTCUSDT" -> "BTC", "BTC" -> "BTC". */
+    static String baseOf(String symbol) {
+        String up = symbol.toUpperCase(Locale.US);
+        for (String q : USD_QUOTES) {
+            if (up.endsWith(q) && up.length() > q.length()) return up.substring(0, up.length() - q.length());
+        }
+        return up;
+    }
+
+    /**
+     * Cleans what the user typed into a symbol: upper case, no spaces, "/" or "-" ("btc/usdt" ->
+     * "BTCUSDT"). Returns null unless it is 2-20 letters and digits, so nothing else ever reaches
+     * a URL or the chart page.
+     */
+    static String normalize(String input) {
+        if (input == null) return null;
+        String s = input.trim().toUpperCase(Locale.US).replaceAll("[ /_-]", "");
+        return s.matches("[A-Z0-9]{2,20}") ? s : null;
+    }
+
+    static String binancePair(String symbol) {
+        String up = symbol.toUpperCase(Locale.US);
+        for (String q : USD_QUOTES) {
+            if (up.endsWith(q) && up.length() > q.length()) return up;
+        }
+        return up + "USDT";
     }
 
     /** Result of a batch fetch: prices (null = truly unavailable) and which came from stale cache. */
@@ -128,7 +178,7 @@ public final class PriceFetcher {
                 Map<String, Double> binance = binanceAll(now);
                 if (binance != null) {
                     for (String s : need) {
-                        Double p = binance.get(s.toUpperCase(Locale.US));
+                        Double p = binance.get(binancePair(s));
                         if (p != null) putCache(s, p, now);
                     }
                 }
@@ -199,20 +249,23 @@ public final class PriceFetcher {
 
             if (!need.isEmpty()) {
                 Map<String, Double> binanceAll = binanceAll(now); // to know which are Binance-listed
-                Set<String> binanceSyms = new LinkedHashSet<>();
+                // Binance pair -> the symbol the caller asked for ("BTCUSDT" -> "BTC").
+                Map<String, String> pairToSym = new HashMap<>();
                 Set<String> cgSyms = new LinkedHashSet<>();
                 for (String s : need) {
-                    if (binanceAll != null && binanceAll.containsKey(s.toUpperCase(Locale.US))) {
-                        binanceSyms.add(s.toUpperCase(Locale.US));
+                    String pair = binancePair(s);
+                    if (binanceAll != null && binanceAll.containsKey(pair)) {
+                        pairToSym.put(pair, s);
                     } else {
                         cgSyms.add(s);
                     }
                 }
 
-                if (!binanceSyms.isEmpty()) {
-                    Map<String, Double> b = binance24h(binanceSyms);
+                if (!pairToSym.isEmpty()) {
+                    Map<String, Double> b = binance24h(pairToSym.keySet());
                     if (b != null) for (Map.Entry<String, Double> e : b.entrySet()) {
-                        PCT_CACHE.put(e.getKey(), new double[]{e.getValue(), now});
+                        String sym = pairToSym.get(e.getKey());
+                        if (sym != null) PCT_CACHE.put(sym, new double[]{e.getValue(), now});
                     }
                 }
                 if (!cgSyms.isEmpty()) {
@@ -390,8 +443,7 @@ public final class PriceFetcher {
 
     /** Majors -> market-cap map -> coins-list map. */
     private static String coinGeckoId(Context ctx, String symbol) {
-        String base = symbol.toUpperCase(Locale.US).replaceAll("(USDT|BUSD|USDC|USD)$", "");
-        if (base.isEmpty()) base = symbol.toUpperCase(Locale.US);
+        String base = baseOf(symbol);
         String major = MAJORS.get(base);
         if (major != null) return major;
         String lower = base.toLowerCase(Locale.US);
@@ -406,7 +458,7 @@ public final class PriceFetcher {
     }
 
     /** lowercase-symbol -> id ranked by market cap (first = highest), daily cached. */
-    private static Map<String, String> marketCapMap(Context ctx) {
+    private static synchronized Map<String, String> marketCapMap(Context ctx) {
         SharedPreferences prefs = prefs(ctx);
         long at = prefs.getLong(KEY_MC_AT, 0L);
         String cached = prefs.getString(KEY_MC_MAP, null);
@@ -434,19 +486,23 @@ public final class PriceFetcher {
                 }
                 if (added > 0) {
                     cached = built.toString();
-                    prefs.edit().putString(KEY_MC_MAP, cached)
-                            .putLong(KEY_MC_AT, System.currentTimeMillis()).apply();
+                    at = System.currentTimeMillis();
+                    prefs.edit().putString(KEY_MC_MAP, cached).putLong(KEY_MC_AT, at).apply();
                     Log.i(TAG, "fetch: refreshed market-cap id map (" + added + " symbols)");
                 }
             } catch (Throwable t) {
                 Log.w(TAG, "fetch: coins/markets refresh failed: " + t);
             }
         }
-        return toMap(cached);
+        if (mcMapMem == null || mcMapMemAt != at) {
+            mcMapMem = toMap(cached);
+            mcMapMemAt = at;
+        }
+        return mcMapMem;
     }
 
     /** lowercase-symbol -> id from /coins/list (long tail), daily cached. First id per symbol. */
-    private static Map<String, String> coinsListMap(Context ctx) {
+    private static synchronized Map<String, String> coinsListMap(Context ctx) {
         SharedPreferences prefs = prefs(ctx);
         long at = prefs.getLong(KEY_LIST_AT, 0L);
         String cached = prefs.getString(KEY_LIST_MAP, null);
@@ -464,8 +520,8 @@ public final class PriceFetcher {
                         if (!sym.isEmpty() && id != null && !built.has(sym)) built.put(sym, id);
                     }
                     cached = built.toString();
-                    prefs.edit().putString(KEY_LIST_MAP, cached)
-                            .putLong(KEY_LIST_AT, System.currentTimeMillis()).apply();
+                    at = System.currentTimeMillis();
+                    prefs.edit().putString(KEY_LIST_MAP, cached).putLong(KEY_LIST_AT, at).apply();
                     Log.i(TAG, "fetch: refreshed coins/list id map (" + built.length() + " symbols)");
                 } else {
                     Log.w(TAG, "fetch: coins/list HTTP " + r.code);
@@ -474,7 +530,11 @@ public final class PriceFetcher {
                 Log.w(TAG, "fetch: coins/list refresh failed: " + t);
             }
         }
-        return toMap(cached);
+        if (listMapMem == null || listMapMemAt != at) {
+            listMapMem = toMap(cached);
+            listMapMemAt = at;
+        }
+        return listMapMem;
     }
 
     private static Map<String, String> toMap(String json) {
@@ -492,7 +552,19 @@ public final class PriceFetcher {
     }
 
     private static SharedPreferences prefs(Context ctx) {
-        return ctx.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        Context app = ctx.getApplicationContext();
+        if (!oldKeysDropped) {
+            oldKeysDropped = true;
+            try {
+                SharedPreferences old = app.getSharedPreferences(OLD_PREFS, Context.MODE_PRIVATE);
+                if (old.contains(KEY_LIST_MAP) || old.contains(KEY_MC_MAP)) {
+                    old.edit().remove(KEY_LIST_MAP).remove(KEY_LIST_AT)
+                            .remove(KEY_MC_MAP).remove(KEY_MC_AT).apply();
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+        return app.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
     private static final class HttpResult {

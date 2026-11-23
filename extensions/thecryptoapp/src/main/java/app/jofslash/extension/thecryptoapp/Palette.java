@@ -101,4 +101,47 @@ public final class Palette {
         g.setStroke(Math.max(1, dp(1)), cardBorder);
         return g;
     }
+
+    /**
+     * Sets up an Activity window for [root]. The host targets SDK 36, so on Android 15+ every
+     * window is edge-to-edge: the framework action bar and the status bar were drawn over the top
+     * of our screens (the header and the chart's "Switch source" bar were hidden). This drops the
+     * action bar (each screen has its own header), pads [root] by the system bars, cutout and
+     * keyboard, and picks status/navigation bar icon colours that show on our background.
+     * Call before setContentView.
+     */
+    public void setUpWindow(android.app.Activity activity, android.view.View root) {
+        try {
+            activity.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        } catch (Throwable ignored) {
+        }
+        final int l = root.getPaddingLeft(), t = root.getPaddingTop();
+        final int r = root.getPaddingRight(), b = root.getPaddingBottom();
+        root.setOnApplyWindowInsetsListener((v, insets) -> {
+            if (android.os.Build.VERSION.SDK_INT >= 30) {
+                android.graphics.Insets i = insets.getInsets(
+                        android.view.WindowInsets.Type.systemBars()
+                                | android.view.WindowInsets.Type.displayCutout()
+                                | android.view.WindowInsets.Type.ime());
+                v.setPadding(l + i.left, t + i.top, r + i.right, b + i.bottom);
+            } else {
+                v.setPadding(l + insets.getSystemWindowInsetLeft(), t + insets.getSystemWindowInsetTop(),
+                        r + insets.getSystemWindowInsetRight(), b + insets.getSystemWindowInsetBottom());
+            }
+            return insets;
+        });
+        try {
+            android.view.Window w = activity.getWindow();
+            w.getDecorView().setBackgroundColor(screenBg);
+            if (android.os.Build.VERSION.SDK_INT >= 30) {
+                android.view.WindowInsetsController c = w.getInsetsController();
+                if (c != null) {
+                    int light = android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                            | android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
+                    c.setSystemBarsAppearance(night ? 0 : light, light);
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+    }
 }

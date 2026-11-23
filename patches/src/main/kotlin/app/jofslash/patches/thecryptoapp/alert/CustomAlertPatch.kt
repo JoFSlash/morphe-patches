@@ -22,19 +22,25 @@ private val customAlertResourcePatch = resourcePatch {
             // Exact alarms so the check fires through Doze. USE_EXACT_ALARM (API 33+) is auto-granted
             // for an alarm-style app; SCHEDULE_EXACT_ALARM covers API 31-32. The extension falls back
             // to inexact if neither is effective (canScheduleExactAlarms() == false).
-            fun addPermission(name: String) {
+            fun addPermission(name: String, maxSdk: Int? = null) {
                 val exists = document.getElementsByTagName("uses-permission").let { list ->
                     (0 until list.length).any {
                         (list.item(it) as Element).getAttribute("android:name") == name
                     }
                 }
                 if (!exists) manifest.insertBefore(
-                    document.createElement("uses-permission").apply { setAttribute("android:name", name) },
+                    document.createElement("uses-permission").apply {
+                        setAttribute("android:name", name)
+                        if (maxSdk != null) setAttribute("android:maxSdkVersion", maxSdk.toString())
+                    },
                     application
                 )
             }
             addPermission("android.permission.USE_EXACT_ALARM")
-            addPermission("android.permission.SCHEDULE_EXACT_ALARM")
+            addPermission("android.permission.SCHEDULE_EXACT_ALARM", maxSdk = 32)
+            // The host already declares both; added only if a later version drops them.
+            addPermission("android.permission.RECEIVE_BOOT_COMPLETED")
+            addPermission("android.permission.POST_NOTIFICATIONS")
 
             // Standalone config screen, shown as a second launcher icon "Crypto Alerts". A framework
             // theme (DayNight) and a framework icon keep it free of any host-app resource dependency.
@@ -66,13 +72,18 @@ private val customAlertResourcePatch = resourcePatch {
             application.appendChild(internalActivity("$EXTENSION_PACKAGE.ChartActivity"))
             application.appendChild(internalActivity("$EXTENSION_PACKAGE.PortfolioActivity"))
 
-            // Receives the ~15 min alarm tick (explicit intent) and BOOT_COMPLETED (to reschedule).
+            // Receives the ~15 min alarm tick (our own PendingIntent), BOOT_COMPLETED and
+            // MY_PACKAGE_REPLACED (both re-arm the alarm). Not exported: the system still delivers
+            // its own broadcasts, but other apps can't send it fake ticks.
             val receiver = document.createElement("receiver").apply {
                 setAttribute("android:name", "$EXTENSION_PACKAGE.AlertReceiver")
-                setAttribute("android:exported", "true")
+                setAttribute("android:exported", "false")
                 appendChild(document.createElement("intent-filter").apply {
                     appendChild(document.createElement("action").apply {
                         setAttribute("android:name", "android.intent.action.BOOT_COMPLETED")
+                    })
+                    appendChild(document.createElement("action").apply {
+                        setAttribute("android:name", "android.intent.action.MY_PACKAGE_REPLACED")
                     })
                 })
             }

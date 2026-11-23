@@ -47,6 +47,7 @@ public final class AlertsActivity extends Activity {
     private Spinner directionSpinner;
     private Switch repeatSwitch;
     private Button addButton;
+    private Button cancelEditButton;
 
     private String editingId = null;
 
@@ -59,8 +60,11 @@ public final class AlertsActivity extends Activity {
         try {
             p = new Palette(this);
             AlertNotifier.ensureChannel(this);
-            setContentView(buildRoot());
+            View root = buildRoot();
+            p.setUpWindow(this, root);
+            setContentView(root);
             render();
+            askForNotifications();
         } catch (Throwable t) {
             Log.e(TAG, "ui: onCreate failed", t);
         }
@@ -140,6 +144,9 @@ public final class AlertsActivity extends Activity {
 
         targetInput = styledEdit("Target: price in USD, or percent for % rules");
         targetInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        // The plain decimal key listener silently drops a typed comma, so "0,05" became "005" (a
+        // target 100x too high). Accept both; the parser turns the comma into a dot.
+        targetInput.setKeyListener(android.text.method.DigitsKeyListener.getInstance("0123456789.,"));
         card.addView(targetInput, lp(p.dp(10)));
 
         directionSpinner = new Spinner(this);
@@ -161,6 +168,14 @@ public final class AlertsActivity extends Activity {
 
         addButton = primaryButton("Add rule", v -> onAddOrSave());
         card.addView(addButton, lp(p.dp(12)));
+
+        // Shown only while editing, so an edit can be left without saving.
+        cancelEditButton = secondaryButton("Cancel edit", v -> {
+            exitEditMode();
+            clearForm();
+        });
+        cancelEditButton.setVisibility(View.GONE);
+        card.addView(cancelEditButton, lp(p.dp(8)));
 
         return wrapCardMargins(card);
     }
@@ -242,15 +257,21 @@ public final class AlertsActivity extends Activity {
             symbolInput.setError(null);
             targetInput.setError(null);
 
-            final String symbol = symbolInput.getText().toString().trim().toUpperCase(Locale.US);
-            String targetStr = targetInput.getText().toString().trim();
+            final String typed = symbolInput.getText().toString().trim();
+            final String symbol = PriceFetcher.normalize(typed);
+            // Some keyboards (e.g. a Slovak one) type a decimal comma.
+            String targetStr = targetInput.getText().toString().trim().replace(',', '.');
             final String note = noteInput.getText().toString().trim();
             final boolean repeat = repeatSwitch.isChecked();
             final String direction = DIR_VALUES[directionSpinner.getSelectedItemPosition()];
             final boolean percent = AlertRule.PCT_UP.equals(direction) || AlertRule.PCT_DOWN.equals(direction);
 
-            if (symbol.isEmpty()) {
+            if (typed.isEmpty()) {
                 symbolInput.setError("Enter a symbol, e.g. BTCUSDT");
+                return;
+            }
+            if (symbol == null) {
+                symbolInput.setError("Letters and digits only, e.g. BTCUSDT or BTC");
                 return;
             }
             if (targetStr.isEmpty()) {
@@ -264,13 +285,17 @@ public final class AlertsActivity extends Activity {
                 targetInput.setError("Not a number");
                 return;
             }
-            if (target <= 0) {
+            if (!(target > 0) || Double.isInfinite(target)) {
                 targetInput.setError("Must be greater than 0");
                 return;
             }
+            if (AlertRule.PCT_DOWN.equals(direction) && target >= 100) {
+                // A coin can't lose 100% or more in 24h, so the rule could never fire.
+                targetInput.setError("A drop must be less than 100%");
+                return;
+            }
 
-            final String base = symbol.replaceAll("(USDT|BUSD|USDC|USD)$", "");
-            final String display = base.isEmpty() ? symbol : base;
+            final String display = PriceFetcher.baseOf(symbol);
             final String editing = editingId;
 
             addButton.setEnabled(false);
@@ -278,7 +303,13 @@ public final class AlertsActivity extends Activity {
             bg(() -> {
                 final Double price = PriceFetcher.fetchPrice(getApplicationContext(), symbol);
                 runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
                     addButton.setEnabled(true);
+                    // The rule may have been deleted while its symbol was checked.
+                    if (editing != null && !editing.equals(editingId)) {
+                        addButton.setText(editingId != null ? "Save" : "Add rule");
+                        return;
+                    }
                     addButton.setText(editing != null ? "Save" : "Add rule");
                     if (price == null) {
                         symbolInput.setError("Unknown or unavailable symbol");
@@ -321,6 +352,7 @@ public final class AlertsActivity extends Activity {
         for (int i = 0; i < DIR_VALUES.length; i++) if (DIR_VALUES[i].equals(r.direction)) idx = i;
         directionSpinner.setSelection(idx);
         addButton.setText("Save");
+        cancelEditButton.setVisibility(View.VISIBLE);
         scroll.smoothScrollTo(0, 0);
         toast("Editing " + r.displayName + " - change and Save");
     }
@@ -328,6 +360,7 @@ public final class AlertsActivity extends Activity {
     private void exitEditMode() {
         editingId = null;
         addButton.setText("Add rule");
+        cancelEditButton.setVisibility(View.GONE);
     }
 
     private void onCheckNow() {
@@ -468,7 +501,10 @@ public final class AlertsActivity extends Activity {
         ctrl.addView(chart, lp(p.dp(6)));
 
         Button del = secondaryButton("Delete", v -> {
-            if (r.id.equals(editingId)) exitEditMode();
+            if (r.id.equals(editingId)) {
+                exitEditMode();
+                clearForm();
+            }
             AlertStore.delete(AlertsActivity.this, r.id);
             render();
         });
@@ -478,6 +514,23 @@ public final class AlertsActivity extends Activity {
 
         card.addView(ctrl);
         return card;
+    }
+
+    /**
+     * Alerts are notifications, and on Android 13+ the app may post them only once the user allows
+     * it. The host app asks for this itself only in some flows, so ask here when it isn't granted
+     * yet (Android stops showing the prompt after the user says no twice).
+     */
+    private void askForNotifications() {
+        try {
+            if (android.os.Build.VERSION.SDK_INT < 33) return;
+            String perm = "android.permission.POST_NOTIFICATIONS";
+            if (checkSelfPermission(perm) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{perm}, 1);
+            }
+        } catch (Throwable t) {
+            Log.e(TAG, "ui: notification permission request failed", t);
+        }
     }
 
     private void bg(Runnable r) {

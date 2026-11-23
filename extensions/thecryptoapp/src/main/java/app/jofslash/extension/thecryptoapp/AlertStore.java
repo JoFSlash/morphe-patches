@@ -37,7 +37,12 @@ public final class AlertStore {
             JSONArray arr = new JSONArray(raw);
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject o = arr.optJSONObject(i);
-                if (o != null) rules.add(AlertRule.fromJson(o));
+                if (o == null) continue;
+                AlertRule r = AlertRule.fromJson(o);
+                // Every CRUD call matches by id, so a rule without one could never be edited
+                // or deleted (and would throw). Give it one; the next save keeps it.
+                if (r.id == null || r.id.isEmpty()) r.id = UUID.randomUUID().toString();
+                rules.add(r);
             }
         } catch (Throwable t) {
             Log.e(TAG, "store: load failed", t);
@@ -94,6 +99,13 @@ public final class AlertStore {
         Log.i(TAG, "store: updated rule " + displayName + " " + direction + " " + targetPrice);
     }
 
+    /** Loads the rules, lets [change] edit them in place, and saves, all under the store lock. */
+    public static synchronized void mutate(Context ctx, java.util.function.Consumer<List<AlertRule>> change) {
+        List<AlertRule> rules = load(ctx);
+        change.accept(rules);
+        save(ctx, rules);
+    }
+
     public static synchronized void delete(Context ctx, String id) {
         List<AlertRule> rules = load(ctx);
         List<AlertRule> kept = new ArrayList<>();
@@ -103,7 +115,13 @@ public final class AlertStore {
 
     public static synchronized void setEnabled(Context ctx, String id, boolean enabled) {
         List<AlertRule> rules = load(ctx);
-        for (AlertRule r : rules) if (r.id.equals(id)) r.enabled = enabled;
+        for (AlertRule r : rules) {
+            if (!r.id.equals(id)) continue;
+            r.enabled = enabled;
+            // Turning a rule back on re-arms it, so a one-time rule that already fired (or one
+            // still in its cooldown) can fire again straight away.
+            if (enabled) r.lastTriggeredAt = 0L;
+        }
         save(ctx, rules);
     }
 
