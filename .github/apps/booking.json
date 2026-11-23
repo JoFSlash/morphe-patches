@@ -6,6 +6,9 @@
   "docs": "docs/booking/README.md",
   "store": "https://play.google.com/store/apps/details?id=com.booking",
   "summary": "Compare the price with the hotel's own website, watch prices, check crossed-out prices and reviews, and take out scarcity messages, sponsored results and upsells.",
+  "owners": [
+    "Booking.com"
+  ],
   "apk": {
     "release": "booking",
     "version": "first",

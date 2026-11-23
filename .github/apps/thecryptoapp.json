@@ -7,6 +7,9 @@
   "store": "https://play.google.com/store/apps/details?id=com.crypter.cryptocyrrency",
   "store_note": "(TrustSwap)",
   "summary": "Hide the ads, and add your own price alerts (price or 24h change), a chart and a local portfolio, with free public prices and no account.",
+  "owners": [
+    "TrustSwap"
+  ],
   "apk": {
     "release": "thecryptoapp",
     "version": "first",

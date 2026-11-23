@@ -23,11 +23,11 @@ An app brings its own files and changes none of the shared ones, so pull request
 get in each other's way:
 
 - `.github/apps/<app>.json`: its name, Play Store link and one-line summary (for the README table and the
-  issue forms), where its APK is in `JoFSlash/morphe-apks`, the Android versions to test and the check
+  issue forms), its owners (for the README's "Not affiliated with" line), where its APK is in `JoFSlash/morphe-apks`, the Android versions to test and the check
   command (and `test_inputs`, other files the check uses). An app is tested on the emulators after a
   merge into dev changes its code (`emulator-tests.yml`), and the release tests whatever wasn't
-  (`.github/scripts/tested.py` keeps track). The release writes the README table and the issue forms' app
-  lists from these files (`.github/scripts/sync_apps.py`).
+  (`.github/scripts/tested.py` keeps track). The release writes the README table, its owners line and the issue
+  forms' app lists from these files (`.github/scripts/sync_apps.py`).
 - `.github/workflows/emulator-<app>.yml`: runs `emulator-app.yml` for the app's own pull requests.
 - `.github/scripts/check_<app>.py` and `generate_<app>_readme.py`, and the version workflow if it has one.
 - `docs/<app>/README.md` and `docs/<app>/CONTRIBUTING.md`.

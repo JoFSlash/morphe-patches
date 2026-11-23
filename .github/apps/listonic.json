@@ -6,6 +6,9 @@
   "docs": "docs/listonic/README.md",
   "store": "https://play.google.com/store/apps/details?id=com.l",
   "summary": "Remove the ads, sale campaigns, rating prompts and trackers from the grocery shopping list, and sign in with Google through MicroG-RE.",
+  "owners": [
+    "Listonic"
+  ],
   "apk": {
     "release": "listonic",
     "version": "first",

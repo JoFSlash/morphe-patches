@@ -5,6 +5,8 @@ only adds files and two pull requests that add apps don't both edit the same lin
 
 - each app's docs/<app>/README.md, through its generate_<app>_readme.py (patch table, versions);
 - the app table in README.md, between <!-- APPS_START --> and <!-- APPS_END -->;
+- the license line in README.md that names every app's owner ("owners"), between <!-- OWNERS_START -->
+  and <!-- OWNERS_END -->;
 - the app dropdowns in .github/ISSUE_TEMPLATE/*.yml, between "# APPS_START" and "# APPS_END".
 
 The release runs it (see .releaserc), so these files are brought up to date with every release.
@@ -63,6 +65,21 @@ def readme_table(all_apps):
     write(path, replace_between(text, "<!-- APPS_START -->", "<!-- APPS_END -->", "\n".join(rows) + "\n", path))
 
 
+def readme_owners(all_apps):
+    path = ROOT / "README.md"
+    owners = []
+    for app in all_apps:
+        if not app.get("owners"):
+            sys.exit(f"{app['key']}: no \"owners\" in .github/apps/{app['key']}.json")
+        owners += [owner for owner in app["owners"] if owner not in owners]
+    owners.sort(key=str.casefold)
+    names = owners[0] if len(owners) == 1 else ", ".join(owners[:-1]) + " or " + owners[-1]
+    line = (f"[GPL-3.0](LICENSE), see also [NOTICE](NOTICE). Not affiliated with {names}, "
+            "or with the Morphe project.\n")
+    text = path.read_text(encoding="utf-8").replace("\r\n", "\n")
+    write(path, replace_between(text, "<!-- OWNERS_START -->", "<!-- OWNERS_END -->", line, path))
+
+
 def dropdowns(all_apps):
     for path in sorted((ROOT / ".github" / "ISSUE_TEMPLATE").glob("*.yml")):
         text = path.read_text(encoding="utf-8").replace("\r\n", "\n")
@@ -94,6 +111,7 @@ def main():
     else:
         sys.exit(__doc__)
     readme_table(all_apps)
+    readme_owners(all_apps)
     dropdowns(all_apps)
 
 

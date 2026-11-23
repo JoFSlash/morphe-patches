@@ -6,6 +6,9 @@
   "store": "https://play.google.com/store/apps/details?id=org.zwanoo.android.speedtest",
   "store_note": "(Ookla)",
   "summary": "Remove the ads from the internet speed test and stop its third-party trackers (Appvestor, CellRebel), without an account.",
+  "owners": [
+    "Ookla"
+  ],
   "apk": {
     "release": "speedtest",
     "version": "first",
