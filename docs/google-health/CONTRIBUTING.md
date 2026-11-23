@@ -47,7 +47,7 @@ applies every patch and starts the app on an emulator. Then it opens a pull requ
 merging the pull request.
 
 By hand: run `check_google_health.py` on the new APKM. When every patch applies and the app starts, add the version
-with `python .github/scripts/add_google_health_version.py <version>` and upload the APKM to `JoFSlash/morphe-apks`
+with `python .github/scripts/add_version.py google-health <version>` and upload the APKM to `JoFSlash/morphe-apks`
 as a release named `google-health-<version>`, so the emulator test can use it.
 
 ## Continuous integration
