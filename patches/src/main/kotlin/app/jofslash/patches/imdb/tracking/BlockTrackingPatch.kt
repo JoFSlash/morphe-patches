@@ -24,9 +24,10 @@ private const val BRANCH_INJECTABLE = "Lcom/imdb/mobile/metrics/BranchInjectable
 private const val PINPOINT_EVENT_COORDINATOR = "Lcom/imdb/mobile/notifications/PinpointEventCoordinator;"
 private const val PINPOINT_COORDINATOR = "Lcom/imdb/mobile/notifications/PinpointCoordinator;"
 
-// Amazon clickstream: ClickstreamTimer.start() starts the periodic Timer that flushes the
-// clickstream buffer.
+// Amazon clickstream: the app adds every page view and event to ClickStreamBufferImpl, and
+// ClickstreamTimer.start() starts the periodic Timer that sends the buffer.
 private const val CLICKSTREAM_TIMER = "Lcom/imdb/mobile/imdbloggingsystem/tr/ClickstreamTimer;"
+private const val CLICKSTREAM_BUFFER = "Lcom/imdb/mobile/metrics/ClickStreamBufferImpl;"
 
 // Play install referrer -> clickstream: InstallReferrerRetriever.retrieve() connects to the install
 // referrer service and sends the referrer.
@@ -36,9 +37,8 @@ private const val INSTALL_REFERRER_RETRIEVER = "Lcom/imdb/mobile/metrics/Install
 val blockTrackingPatch = bytecodePatch(
     name = "Block tracking",
     description = "Stops the third-party trackers: comScore audience measurement, Branch attribution, the AWS " +
-            "Pinpoint analytics and endpoint SDK, the Amazon clickstream timer and the Play install-referrer " +
-            "lookup. Push notifications still work (they run over FCM and Braze, not Pinpoint, which AWS has " +
-            "discontinued). Browsing, search and your watchlist aren't touched.",
+            "Pinpoint analytics and endpoint SDK, the Amazon clickstream and the Play install-referrer lookup. " +
+            "Push notifications still come through Braze. Browsing, search and your watchlist aren't touched.",
     default = true
 ) {
     category("Privacy")
@@ -54,8 +54,8 @@ val blockTrackingPatch = bytecodePatch(
         // AWS Pinpoint: stop the SDK from ever initializing. isActive() -> false is the app's own
         // "Pinpoint disabled" switch, so the constructor coroutine skips awsMobileClient.get() and
         // updatePinpointUserId (no AWSMobileClient, no PinpointManager, no TargetingClient endpoint
-        // loop), and every public Pinpoint method becomes a no-op. AWS discontinued Pinpoint (every
-        // call 403s), so this loses nothing; FCM and Braze push are separate and untouched.
+        // loop), and every public Pinpoint method becomes a no-op. Push goes through Braze (over FCM),
+        // which is separate and untouched.
         methodOf(PINPOINT_COORDINATOR, "isActive").returnBoolean(false)
 
         // getDeviceToken() and getEndpointId() aren't behind isActive(); returning null from the
@@ -68,7 +68,9 @@ val blockTrackingPatch = bytecodePatch(
         methodOf(PINPOINT_EVENT_COORDINATOR, "firstLaunch").returnEarly()
         methodOf(PINPOINT_COORDINATOR, "reportSubscriptionMetrics").returnEarly()
 
-        // Amazon clickstream timer: the periodic flush never starts.
+        // Amazon clickstream: nothing is added to the buffer (it would grow for as long as the app
+        // runs, as nothing sends it), and the periodic send never starts.
+        methodOf(CLICKSTREAM_BUFFER, "add").returnEarly()
         methodOf(CLICKSTREAM_TIMER, "start").returnEarly()
 
         // Install referrer: the Play referrer is never read or sent to the clickstream.

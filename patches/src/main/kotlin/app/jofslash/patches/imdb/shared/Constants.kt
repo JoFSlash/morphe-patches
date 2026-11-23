@@ -9,8 +9,7 @@ object Constants {
 
     /**
      * SHA-1 of IMDb's original signing certificate (from the APKPure APK, matching APKMirror's
-     * "a773"). Kept for the APK checks in the fetch script and for any future Amazon login support;
-     * the app's core (browse and search) needs no account, so no patch uses it today.
+     * "a773"). GmsCore support spoofs it to MicroG-RE, and the fetch script checks APKs against it.
      */
     const val SIGNATURE = "a773ecf7e3304a9482d4c3df40b12a49b7b2a002"
 

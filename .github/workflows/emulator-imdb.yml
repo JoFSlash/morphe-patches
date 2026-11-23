@@ -22,6 +22,7 @@ on:
   pull_request:
     paths:
       - 'patches/src/main/kotlin/app/jofslash/patches/imdb/**'
+      - 'extensions/imdb/**'
       - '.github/workflows/emulator-imdb.yml'
       - '.github/scripts/check_imdb.py'
       - '.github/actions/install-emulator/**'

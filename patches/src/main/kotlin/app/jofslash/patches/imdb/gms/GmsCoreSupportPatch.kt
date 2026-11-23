@@ -105,7 +105,7 @@ val gmsCoreSupportPatch = bytecodePatch(
     description = "Makes signing in with Google (and push notifications) work through MicroG-RE instead of " +
             "Google Play services. A patched app can't use Play services, because it is no longer signed by " +
             "IMDb. Needs MicroG-RE (app.revanced.android.gms) installed, with your Google account added to it; " +
-            "without it the app says once that MicroG-RE is missing, and you can still sign in with Amazon or email.",
+            "without it the app says once that MicroG-RE is missing.",
     default = true
 ) {
     category("App")

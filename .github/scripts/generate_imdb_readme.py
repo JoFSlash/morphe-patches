@@ -2,7 +2,7 @@
 """
 Writes the patch list in README.md from patches-list.json, between the
 <!-- PATCHES_START --> and <!-- PATCHES_END --> markers, grouped by category,
-and the supported Speedtest versions between <!-- VERSIONS_START --> and <!-- VERSIONS_END -->.
+and the supported IMDb versions between <!-- VERSIONS_START --> and <!-- VERSIONS_END -->.
 
 python3 generate_imdb_readme.py <owner/repo> <branch> [patches-list.json] [README.md]
 """
@@ -28,9 +28,9 @@ version = str(data["version"]).lstrip("v")
 
 ORDER = ["Ads", "Privacy", "App"]
 INTRO = {
-    "Ads": "The banner and inline ads on IMDb's screens.",
-    "Privacy": "Trackers and permissions. They change nothing you see.",
-    "App": "Prompts the app shows by itself.",
+    "Ads": "IMDb's own Sponsored banners, video ads and the ad networks.",
+    "Privacy": "Trackers, permissions and the Braze marketing SDK.",
+    "App": "Signing in with Google without Google Play services.",
 }
 
 versions = []

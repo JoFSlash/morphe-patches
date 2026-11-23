@@ -23,6 +23,8 @@ val removeUnneededPermissionsPatch = resourcePatch(
                 setOf(
                     // The advertising ID and Android's ad-services APIs: ads and attribution only.
                     "com.google.android.gms.permission.AD_ID",
+                    // The same, as GmsCore support renames it when it runs first.
+                    "app.revanced.android.gms.permission.AD_ID",
                     "android.permission.ACCESS_ADSERVICES_AD_ID",
                     "android.permission.ACCESS_ADSERVICES_ATTRIBUTION",
                     "android.permission.ACCESS_ADSERVICES_TOPICS",
