@@ -15,21 +15,36 @@ Please follow the [code of conduct](CODE_OF_CONDUCT.md), and report security pro
 - `extensions/<app>/`: the code those patches call inside the app. Each app has its own extension, so a patched
   app gets only its own code. A patch loads it with `extendWith("extensions/<app>.mpe")`.
 - `docs/<app>/README.md`: the app's page. The patch tables in it are generated from the patches' descriptions
-  at release (`.github/scripts/generate_<app>_readme.py`).
+  at release (`.github/scripts/generate_readme.py`, set up by `"readme"` in the app's settings).
 
 ## Adding an app
 
 An app brings its own files and changes none of the shared ones, so pull requests for different apps don't
 get in each other's way:
 
-- `.github/apps/<app>.json`: its name, Play Store link and one-line summary (for the README table and the
-  issue forms), its owners (for the README's "Not affiliated with" line), where its APK is in `JoFSlash/morphe-apks`, the Android versions to test and the check
-  command (and `test_inputs`, other files the check uses). An app is tested on the emulators after a
-  merge into dev changes its code (`emulator-tests.yml`), and the release tests whatever wasn't
-  (`.github/scripts/tested.py` keeps track). The release writes the README table, its owners line and the issue
-  forms' app lists from these files (`.github/scripts/sync_apps.py`).
+- `.github/apps/<app>.json`: the app's settings, read by the shared scripts, so a new app needs no script
+  of its own:
+  - its name, Play Store link, package name and one-line summary (for the README table and the issue forms),
+    and its owners (for the README's "Not affiliated with" line);
+  - `readme`: how its page lists the patches, `generated` from the descriptions or `kept` hand-written rows
+    (`.github/scripts/generate_readme.py`);
+  - where its APK is in `JoFSlash/morphe-apks`, the Android versions to test and the check command (and
+    `test_inputs`, other files the check uses);
+  - `checks`, only for what is special about its emulator check: the log tag for the patches' errors, the
+    screen to wait for, permissions to grant, the clone patch. Every app is checked with
+    `.github/scripts/check_app.py <app> <apk>`; code only one app needs goes in `.github/scripts/apps/<app>.py`
+    (the docstring of `check_app.py` lists the hooks);
+  - `versions`: how the daily version workflow finds and checks new versions: the version pattern, where new
+    versions come from (`apkmirror`, `apkpure` or `hand`), the file kind, certificates and the pull request
+    texts (see `.github/scripts/app_versions.py`). `add_version.py`, `watch_version.py` and `fetch_apk.py`
+    take the app's name.
+
+  An app is tested on the emulators after a merge into dev changes its code (`emulator-tests.yml`), and the
+  release tests whatever wasn't (`.github/scripts/tested.py` keeps track). The release writes the README
+  table, its owners line and the issue forms' app lists from these files (`.github/scripts/sync_apps.py`).
 - `.github/workflows/emulator-<app>.yml`: runs `emulator-app.yml` for the app's own pull requests.
-- `.github/scripts/check_<app>.py` and `generate_<app>_readme.py`, and the version workflow if it has one.
+- `.github/workflows/<app>-version.yml`, if it has one: a short wrapper with its own schedule around
+  `app-version.yml`.
 - `docs/<app>/README.md` and `docs/<app>/CONTRIBUTING.md`.
 
 ## Building

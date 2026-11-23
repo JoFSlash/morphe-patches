@@ -1,5 +1,5 @@
 // Signs in to Quora with a test account in the patched app on an emulator and checks that the page
-// patches work on the feed and on an answer page. Run after check_quora_version.py --install, with a
+// patches work on the feed and on an answer page. Run after check_app.py quora --install, with a
 // bundle whose page scripts turn WebView debugging on (the feed test workflow builds one).
 //
 // Usage: QUORA_TEST_EMAIL=… QUORA_TEST_PASSWORD=… node .github/scripts/feed-test.mjs

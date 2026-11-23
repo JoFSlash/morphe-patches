@@ -4,7 +4,14 @@
   "patches": "patches/src/main/kotlin/app/jofslash/patches/booking",
   "extension": "extensions/booking",
   "docs": "docs/booking/README.md",
+  "readme": {
+    "style": "kept",
+    "sections": {
+      "Prices": "Price"
+    }
+  },
   "store": "https://play.google.com/store/apps/details?id=com.booking",
+  "package": "com.booking",
   "summary": "Compare the price with the hotel's own website, watch prices, check crossed-out prices and reviews, and take out scarcity messages, sponsored results and upsells.",
   "owners": [
     "Booking.com"
@@ -48,6 +55,15 @@
     ]
   },
   "check": [
-    "python3 .github/scripts/check_booking.py \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
-  ]
+    "python3 .github/scripts/check_app.py booking \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
+  ],
+  "versions": {
+    "pattern": "\\d+(\\.\\d+)+",
+    "example": "71.2",
+    "source": "apkmirror",
+    "apkmirror": "/apk/booking-com-hotel-reservations/booking-com-hotel-reservations/",
+    "file": "apkm",
+    "shows": "shows its own screen",
+    "phone_test": "try a search and a hotel page on a phone: the emulator test only starts the app."
+  }
 }

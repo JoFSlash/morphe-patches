@@ -25,7 +25,7 @@ on:
       - '.github/workflows/emulator-speedtest.yml'
       - '.github/workflows/emulator-app.yml'
       - '.github/apps/speedtest.json'
-      - '.github/scripts/check_speedtest.py'
+      - '.github/scripts/check_app.py'
       - '.github/actions/install-emulator/**'
       - '.github/morphe-cli-version'
       - 'gradle/**'

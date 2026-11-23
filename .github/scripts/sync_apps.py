@@ -3,7 +3,7 @@
 Writes everything that lists the apps from their settings in .github/apps/*.json, so adding an app
 only adds files and two pull requests that add apps don't both edit the same lines:
 
-- each app's docs/<app>/README.md, through its generate_<app>_readme.py (patch table, versions);
+- each app's docs/<app>/README.md, through generate_readme.py (patch table, versions);
 - the app table in README.md, between <!-- APPS_START --> and <!-- APPS_END -->;
 - the license line in README.md that names every app's owner ("owners"), between <!-- OWNERS_START -->
   and <!-- OWNERS_END -->;
@@ -92,10 +92,8 @@ def dropdowns(all_apps):
 
 def app_readmes(all_apps, repo, branch, patches_list):
     for app in all_apps:
-        script = ROOT / ".github" / "scripts" / f"generate_{app['key'].replace('-', '_')}_readme.py"
-        if not script.exists():
-            sys.exit(f"{app['key']}: there is no {script.relative_to(ROOT)}")
-        subprocess.run([sys.executable, str(script), repo, branch, patches_list, app["docs"]],
+        script = ROOT / ".github" / "scripts" / "generate_readme.py"
+        subprocess.run([sys.executable, str(script), app["key"], repo, branch, patches_list, app["docs"]],
                        cwd=ROOT, check=True)
 
 
