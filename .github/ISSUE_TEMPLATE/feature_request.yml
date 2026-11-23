@@ -18,6 +18,7 @@ body:
         - Kalorické Tabulky
         - Speedtest
         - Listonic
+        - The Crypto App
         - Another app
     validations:
       required: true

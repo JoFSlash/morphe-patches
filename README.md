@@ -16,6 +16,7 @@ once in Morphe Manager and pick the app you want to patch. No root needed.
 | [Speedtest](https://play.google.com/store/apps/details?id=org.zwanoo.android.speedtest) (Ookla) | Remove the ads from the internet speed test and stop its third-party trackers (Appvestor, CellRebel), without an account. | [Speedtest patches](docs/speedtest/README.md) |
 | [Listonic](https://play.google.com/store/apps/details?id=com.l) | Remove the ads, sale campaigns, rating prompts and trackers from the grocery shopping list, and sign in with Google through MicroG-RE. | [Listonic patches](docs/listonic/README.md) |
 | [IMDb](https://play.google.com/store/apps/details?id=com.imdb.mobile) | Remove the ads from the movie and TV database and stop its third-party trackers (comScore, Branch, Pinpoint, clickstream), without an account. | [IMDb patches](docs/imdb/README.md) |
+| [The Crypto App](https://play.google.com/store/apps/details?id=com.crypter.cryptocyrrency) (TrustSwap) | Hide the ads, and add your own price alerts (price or 24h change), a chart and a local portfolio, with free public prices and no account. | [The Crypto App patches](docs/thecryptoapp/README.md) |
 
 Each app's page lists its patches, the supported app versions and what to know before you install.
 

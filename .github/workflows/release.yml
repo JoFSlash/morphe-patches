@@ -17,7 +17,8 @@ name: Release
 # emulator-kaloricke-tabulky.yml for Kalorické Tabulky: the same on Android 12L to 17;
 # emulator-speedtest.yml for Speedtest: the same on Android 11 to 17; emulator-listonic.yml for
 # Listonic: the same on Android 12L to 17; emulator-imdb.yml for IMDb: the same on Android 11 to
-# 17) and the feed test (feed-test.yml: the page patches work
+# 17; emulator-thecryptoapp.yml for The Crypto App: the same on Android 10 to 17) and the feed test
+# (feed-test.yml: the page patches work
 # on the signed-in feed and on an answer). A skipped feed test counts as not passed. When either
 # doesn't pass, nothing is released and the issue "Weekly release stopped" says why; the next
 # release that goes through closes it. When the feed test can't run (for example while its saved
@@ -177,6 +178,15 @@ jobs:
     uses: ./.github/workflows/emulator-imdb.yml
     secrets: inherit
 
+  emulator-thecryptoapp:
+    name: The Crypto App emulator test
+    if: github.event_name != 'schedule'
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/emulator-thecryptoapp.yml
+    secrets: inherit
+
   feed:
     name: Feed test
     if: ${{ github.event_name != 'schedule' && !inputs.skip-feed-test }}
@@ -189,7 +199,7 @@ jobs:
 
   release:
     name: Release
-    needs: [emulator, emulator-google-health, emulator-booking, emulator-kaloricke-tabulky, emulator-speedtest, emulator-listonic, emulator-imdb, feed]
+    needs: [emulator, emulator-google-health, emulator-booking, emulator-kaloricke-tabulky, emulator-speedtest, emulator-listonic, emulator-imdb, emulator-thecryptoapp, feed]
     if: >-
       !cancelled()
       && needs.emulator.result == 'success'
@@ -199,6 +209,7 @@ jobs:
       && needs.emulator-speedtest.result == 'success'
       && needs.emulator-listonic.result == 'success'
       && needs.emulator-imdb.result == 'success'
+      && needs.emulator-thecryptoapp.result == 'success'
       && (needs.feed.outputs.result == 'passed' || (github.event_name == 'workflow_dispatch' && inputs.skip-feed-test))
     permissions:
       contents: write
@@ -284,7 +295,7 @@ jobs:
   # Says on GitHub when a release didn't go out, so a red run on a release morning isn't missed.
   report:
     name: Open or close the issue
-    needs: [emulator, emulator-google-health, emulator-booking, emulator-kaloricke-tabulky, emulator-speedtest, emulator-listonic, emulator-imdb, feed, release]
+    needs: [emulator, emulator-google-health, emulator-booking, emulator-kaloricke-tabulky, emulator-speedtest, emulator-listonic, emulator-imdb, emulator-thecryptoapp, feed, release]
     if: ${{ !cancelled() && github.event_name != 'schedule' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') }}
     permissions:
       issues: write
@@ -301,6 +312,7 @@ jobs:
           EMULATOR_SPEEDTEST: ${{ needs.emulator-speedtest.result }}
           EMULATOR_LISTONIC: ${{ needs.emulator-listonic.result }}
           EMULATOR_IMDB: ${{ needs.emulator-imdb.result }}
+          EMULATOR_THECRYPTOAPP: ${{ needs.emulator-thecryptoapp.result }}
           FEED: ${{ needs.feed.outputs.result || needs.feed.result }}
           RELEASE: ${{ needs.release.result }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -327,6 +339,8 @@ jobs:
             why="The Listonic emulator test didn't pass ($EMULATOR_LISTONIC): a patch doesn't apply, or the patched app doesn't start."
           elif [ "$EMULATOR_IMDB" != "success" ]; then
             why="The IMDb emulator test didn't pass ($EMULATOR_IMDB): a patch doesn't apply, or the patched app doesn't start."
+          elif [ "$EMULATOR_THECRYPTOAPP" != "success" ]; then
+            why="The Crypto App emulator test didn't pass ($EMULATOR_THECRYPTOAPP): a patch doesn't apply, or the patched app doesn't start."
           elif [ "$RELEASE" = "skipped" ]; then
             why="The feed test didn't pass ($FEED). The issue \"Feed test needs attention\" says why."
           else
