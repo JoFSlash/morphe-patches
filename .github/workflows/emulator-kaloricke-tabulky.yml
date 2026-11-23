@@ -46,6 +46,11 @@ permissions:
 
 jobs:
   test:
+    # emulator-app.yml has a job that records a pass and needs to write; it only runs when
+    # "record" is on, which it isn't here.
+    permissions:
+      contents: write
+      packages: read
     uses: ./.github/workflows/emulator-app.yml
     secrets: inherit
     with:

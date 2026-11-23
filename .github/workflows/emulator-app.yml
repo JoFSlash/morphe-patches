@@ -42,6 +42,10 @@ on:
         description: 'Artifact of this run with the built patch bundle (empty: build it here)'
         type: string
         default: ''
+      record:
+        description: 'Record a pass (refs/tested/<app>/<fingerprint>, see tested.py); the caller grants contents: write'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -176,12 +180,6 @@ jobs:
             -O "$RUNNER_TEMP/morphe-cli.jar"
           echo "APK=$apk" >> "$GITHUB_ENV"
           echo "CLI=$RUNNER_TEMP/morphe-cli.jar" >> "$GITHUB_ENV"
-          # The check commands, one per line, as the emulator runner runs them.
-          {
-            echo 'CHECK<<CHECK_EOF'
-            jq -r '.check[]' "$file"
-            echo 'CHECK_EOF'
-          } >> "$GITHUB_ENV"
           ls -l "$RUNNER_TEMP"
 
       # Matrix entries with "verify" also check the patched dex files with dexdump.
@@ -214,4 +212,25 @@ jobs:
           target: google_apis
           arch: x86_64
           disable-animations: true
-          script: ${{ env.CHECK }}
+          # Waits until Android has started, runs the app's check commands, and runs one again when
+          # the emulator (not the app) fails.
+          script: python3 .github/scripts/emulator_run.py "$APP"
+
+  # Remembers that this app passed with exactly this code, so the release and the next test runs
+  # skip it until its code changes (see .github/scripts/tested.py).
+  record:
+    name: Record the pass
+    needs: emulator
+    # Only when the test couldn't be skipped for a missing APKS_TOKEN. "!cancelled()" because the
+    # build job is skipped when the caller passes a bundle, and a skipped job further up would
+    # otherwise skip this one too.
+    if: ${{ !cancelled() && inputs.record && inputs.required && needs.emulator.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Record
+        run: python3 .github/scripts/tested.py record "${{ inputs.app }}"
