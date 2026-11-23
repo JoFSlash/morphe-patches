@@ -13,7 +13,7 @@
     "file": "booking.apkm"
   },
   "android": {
-    "note": "Booking.com 71.1 needs Android 12L or newer: a few versions from there, and the next one, whose image is only in the SDK's canary channel so far.",
+    "note": "Booking.com 71.1 needs Android 12L or newer: a few versions from there, and the next one, whose image is only in the SDK's canary channel so far. The release tries the oldest supported version, the newest stable one and the next one; a pull request the oldest and the newest stable.",
     "pull_request": [
       {
         "api": "32",
@@ -30,16 +30,6 @@
       {
         "api": "32",
         "android": "12L",
-        "channel": "stable"
-      },
-      {
-        "api": "33",
-        "android": "13",
-        "channel": "stable"
-      },
-      {
-        "api": "35",
-        "android": "15",
         "channel": "stable"
       },
       {

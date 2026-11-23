@@ -13,7 +13,7 @@
     "file": "speedtest.apk"
   },
   "android": {
-    "note": "Speedtest 7.1.5 needs Android 9 (minSdk 28), but the x86_64 emulator needs arm64 translation, which google_apis images have from API 30 on (not API 33).",
+    "note": "Speedtest 7.1.5 needs Android 9 (minSdk 28), but the x86_64 emulator needs arm64 translation, which google_apis images have from API 30 on (not API 33). The release tries the oldest supported version, the newest stable one and the next one; a pull request the oldest and the newest stable.",
     "pull_request": [
       {
         "api": "30",
@@ -30,16 +30,6 @@
       {
         "api": "30",
         "android": "11",
-        "channel": "stable"
-      },
-      {
-        "api": "34",
-        "android": "14",
-        "channel": "stable"
-      },
-      {
-        "api": "35",
-        "android": "15",
         "channel": "stable"
       },
       {
