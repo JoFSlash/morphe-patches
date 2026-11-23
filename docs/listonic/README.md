@@ -12,7 +12,8 @@ Works with Listonic <!-- VERSIONS_START -->9.25.1<!-- VERSIONS_END --> on Androi
 
 - **No ads:** no banners, no ads between your list items, no full-screen ads, and the ad networks aren't started
   when the app opens. The ads you choose to watch for Broccoli coins still work.
-- **No nagging:** no "Black Friday sale" campaigns, no rating prompts, no Google Play update screens.
+- **No nagging:** no "Black Friday sale" campaigns, no Premium offer at the end of the first start, no rating
+  prompts, no Google Play update screens. Optionally, no "Buy premium" button either.
 - **Less tracking:** no AdShift, TikTok, Gemius or Microsoft Clarity, no Firebase Analytics, Crashlytics or
   Performance, no Facebook app events, and no advertising ID.
 - **Sign in with Google without Google Play services:** through MicroG-RE.
@@ -27,8 +28,7 @@ still be unlocked with Broccoli coins), and the patches don't change what your s
   services (keep **GmsCore support** on). Install it and add your Google account to it (MicroG-RE settings >
   Accounts). Push notifications, for example when someone changes a shared list, come through MicroG-RE too.
   The lists work without an account as well.
-- **Signing in with Facebook may not work,** as Facebook can refuse an app that isn't signed by its maker. Sign
-  in with Google or your email instead.
+- **Signing in with Facebook** goes through Facebook's page in your browser and works with the patched app.
 - **The patched app replaces the Play Store version.** It is signed with a different key, so uninstall the Play
   Store version first. If you're signed in, your lists stay in your account; lists on a device without an account
   are lost when you uninstall, so sign in or share them first.
@@ -59,15 +59,10 @@ still be unlocked with Broccoli coins), and the patches don't change what your s
   take a few days. When a release of these patches lists the new version as supported, patch that version the
   same way.
 
-## Known issues
-
-- The Premium offer screen still opens at the end of the first start and the first time you open Profile, and
-  the **Buy premium** button stays in the top bar. Close the screen with Back.
-
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.10.0, 7 patches. Supported Listonic versions: 9.25.1.
+Version 1.10.0, 8 patches. Supported Listonic versions: 9.25.1.
 
 <details>
 <summary><b>Ads</b> (1)</summary>
@@ -81,14 +76,15 @@ Banners, ads between list items and full-screen ads.
 </details>
 
 <details>
-<summary><b>App</b> (4)</summary>
+<summary><b>App</b> (5)</summary>
 
 Sale campaigns, prompts and Google sign-in.
 
 | Patch | Default | What it does |
 | --- | --- | --- |
 | GmsCore support | on | Makes signing in with Google and push notifications work through MicroG-RE instead of Google Play services. A patched app can't sign in with Google through Play services, because it is no longer signed by its maker. Needs MicroG-RE installed, with your Google account added to it; without it, the lists work without an account or with an email sign-in, and the app says once that MicroG-RE is missing. |
-| Hide Premium offers | on | Hides the Premium sale campaigns (such as "Black Friday sale! -50%") that show up by themselves on the lists screen. Premium itself, its features and the offers you open yourself stay. |
+| Hide Premium buttons | off | Hides the "Buy premium" button in the lists screen's top bar and the "Remove ads, Upgrade now!" card on the profile screen. Premium stays in the settings. |
+| Hide Premium offers | on | Hides the Premium offers that show up by themselves: the sale campaigns (such as "Black Friday sale! -50%") on the lists screen and the Premium offer at the end of the first start. Premium itself, its features and the offers you open yourself stay. |
 | Hide rating prompts | on | Stops the prompt that asks you to rate the app on Google Play. |
 | Hide update prompts | on | Stops the Google Play update-available and forced-update screens. Google Play can't update a patched app; update it by patching the new version. |
 
