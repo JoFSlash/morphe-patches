@@ -56,6 +56,16 @@ private val customAlertResourcePatch = resourcePatch {
             }
             application.appendChild(activity)
 
+            // Internal screens launched from AlertsActivity (no launcher icon).
+            fun internalActivity(className: String) = document.createElement("activity").apply {
+                setAttribute("android:name", className)
+                setAttribute("android:exported", "false")
+                setAttribute("android:theme", "@android:style/Theme.DeviceDefault.DayNight")
+                setAttribute("android:taskAffinity", "$EXTENSION_PACKAGE.alerts")
+            }
+            application.appendChild(internalActivity("$EXTENSION_PACKAGE.ChartActivity"))
+            application.appendChild(internalActivity("$EXTENSION_PACKAGE.PortfolioActivity"))
+
             // Receives the ~15 min alarm tick (explicit intent) and BOOT_COMPLETED (to reschedule).
             val receiver = document.createElement("receiver").apply {
                 setAttribute("android:name", "$EXTENSION_PACKAGE.AlertReceiver")
