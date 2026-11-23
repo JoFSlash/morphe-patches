@@ -51,8 +51,8 @@ public final class AlertNotifier {
 
             String dir = rule.isAbove() ? "above" : "below";
             String title = rule.displayName + " alert";
-            String text = String.format(Locale.US, "%s is $%s (target %s $%s)",
-                    rule.displayName, trim(price), dir, trim(rule.targetPrice));
+            String text = String.format(Locale.US, "%s is %s (target %s %s)",
+                    rule.displayName, PriceFormat.money(price), dir, PriceFormat.money(rule.targetPrice));
 
             // Tapping opens our alerts screen.
             Intent open = new Intent(ctx, AlertsActivity.class)
@@ -86,13 +86,5 @@ public final class AlertNotifier {
         } catch (Throwable t) {
             Log.e(TAG, "notify: could not post for rule " + (rule != null ? rule.displayName : "?"), t);
         }
-    }
-
-    /** Drops a trailing ".0" so whole dollar amounts read cleanly. */
-    static String trim(double v) {
-        if (v == Math.floor(v) && !Double.isInfinite(v)) {
-            return String.format(Locale.US, "%d", (long) v);
-        }
-        return String.format(Locale.US, "%s", v);
     }
 }

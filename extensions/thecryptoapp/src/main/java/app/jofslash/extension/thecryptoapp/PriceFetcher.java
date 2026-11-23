@@ -14,33 +14,59 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.net.ssl.HttpsURLConnection;
 
 /**
- * Fetches a spot price from a free public API: Binance first, CoinGecko as a fallback. No API key,
- * no account. Self-contained. The CoinGecko fallback resolves a ticker to a CoinGecko coin id
- * using a small hardcoded map of majors (authoritative) plus a daily-cached copy of CoinGecko's
- * /coins/list for the long tail.
+ * Fetches USD spot prices from free public APIs: Binance first, CoinGecko as a fallback. No API
+ * key, no account.
+ *
+ * <p>v1.2 robustness:
+ * <ul>
+ *   <li><b>Batched</b>: one Binance call fetches all symbols (looked up locally); one CoinGecko
+ *       {@code /simple/price?ids=a,b,c} call resolves all fallback coins.</li>
+ *   <li><b>60s in-memory price cache</b>, so a Check-now + onResume + a near-simultaneous alarm
+ *       don't each hit the network.</li>
+ *   <li><b>HTTP 429 (rate limit)</b>: reuse the last cached price (served as "stale") instead of
+ *       dropping a coin to "unavailable".</li>
+ *   <li>Ticker&rarr;CoinGecko-id resolved by <b>highest market cap</b> (daily-cached
+ *       {@code /coins/markets}), with {@code /coins/list} for the long tail and the hardcoded
+ *       majors as authoritative overrides.</li>
+ * </ul>
  */
 public final class PriceFetcher {
 
     static final String TAG = CustomAlertPoc.TAG;
 
-    private static final String BINANCE = "https://api.binance.com/api/v3/ticker/price?symbol=";
+    private static final String BINANCE_ALL = "https://api.binance.com/api/v3/ticker/price";
     private static final String COINGECKO_PRICE =
             "https://api.coingecko.com/api/v3/simple/price?vs_currencies=usd&ids=";
     private static final String COINGECKO_LIST = "https://api.coingecko.com/api/v3/coins/list";
+    private static final String COINGECKO_MARKETS =
+            "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=";
 
     private static final String PREFS = "jofslash_crypto_alerts";
-    private static final String KEY_CG_MAP = "coingecko_map";
-    private static final String KEY_CG_MAP_AT = "coingecko_map_at";
-    private static final long CG_MAP_TTL_MS = 24L * 60L * 60L * 1000L;
+    private static final String KEY_MC_MAP = "coingecko_mc_map";
+    private static final String KEY_MC_AT = "coingecko_mc_at";
+    private static final String KEY_LIST_MAP = "coingecko_list_map";
+    private static final String KEY_LIST_AT = "coingecko_list_at";
+    private static final long MAP_TTL_MS = 24L * 60L * 60L * 1000L;
 
-    /** Authoritative ticker-base -> CoinGecko id for the majors (avoids /coins/list ambiguity). */
+    private static final long PRICE_TTL_MS = 60_000L;
+
+    /** Authoritative ticker-base -> CoinGecko id for the majors (avoids ambiguity). */
     private static final Map<String, String> MAJORS = new HashMap<>();
 
     static {
@@ -61,119 +87,297 @@ public final class PriceFetcher {
         MAJORS.put("USDC", "usd-coin");
     }
 
+    /** symbol -> {price, fetchedAtMillis}. */
+    private static final Map<String, double[]> PRICE_CACHE = new ConcurrentHashMap<>();
+
+    private static Map<String, Double> binanceAllCache = null;
+    private static long binanceAllAt = 0L;
+
     private PriceFetcher() {
     }
 
-    /** USD-ish price for a Binance symbol such as "BTCUSDT", or null if both sources fail. */
+    /** Result of a batch fetch: prices (null = truly unavailable) and which came from stale cache. */
+    public static final class PriceMap {
+        public final Map<String, Double> prices = new HashMap<>();
+        public final Set<String> stale = new HashSet<>();
+    }
+
+    /** Single-symbol convenience (add-time validation). Returns null if unavailable. */
     public static Double fetchPrice(Context ctx, String symbol) {
-        Double price = fetchBinance(symbol);
-        if (price == null) {
-            Log.w(TAG, "fetch: Binance unavailable for " + symbol + ", trying CoinGecko fallback");
-            price = fetchCoinGecko(ctx, symbol);
-        }
-        return price;
+        return fetchAll(ctx, Collections.singletonList(symbol)).prices.get(symbol);
     }
 
-    private static Double fetchBinance(String symbol) {
+    /** Batch fetch for a set of symbols, using the 60s cache and one call per source. */
+    public static PriceMap fetchAll(Context ctx, Collection<String> symbols) {
+        PriceMap out = new PriceMap();
         try {
-            String body = httpGet(BINANCE + symbol.toUpperCase(Locale.US));
-            if (body == null) return null;
-            String p = new JSONObject(body).optString("price", null);
-            return p == null ? null : Double.parseDouble(p);
+            long now = System.currentTimeMillis();
+            Set<String> wanted = new LinkedHashSet<>();
+            for (String s : symbols) if (s != null && !s.isEmpty()) wanted.add(s);
+
+            // What still needs a network value (missing or older than the TTL)?
+            Set<String> need = new LinkedHashSet<>();
+            for (String s : wanted) if (!isFresh(s, now)) need.add(s);
+
+            if (!need.isEmpty()) {
+                Map<String, Double> binance = binanceAll(now);
+                if (binance != null) {
+                    for (String s : need) {
+                        Double p = binance.get(s.toUpperCase(Locale.US));
+                        if (p != null) putCache(s, p, now);
+                    }
+                }
+
+                // Still missing after Binance -> CoinGecko batch.
+                Set<String> cgNeed = new LinkedHashSet<>();
+                for (String s : need) if (!isFresh(s, now)) cgNeed.add(s);
+                if (!cgNeed.isEmpty()) {
+                    Map<String, String> symToId = new HashMap<>();
+                    Set<String> ids = new LinkedHashSet<>();
+                    for (String s : cgNeed) {
+                        String id = coinGeckoId(ctx, s);
+                        if (id != null) {
+                            symToId.put(s, id);
+                            ids.add(id);
+                        } else {
+                            Log.w(TAG, "fetch: no CoinGecko id for " + s);
+                        }
+                    }
+                    if (!ids.isEmpty()) {
+                        Map<String, Double> byId = coinGeckoSimple(ids);
+                        if (byId != null) {
+                            for (Map.Entry<String, String> e : symToId.entrySet()) {
+                                Double p = byId.get(e.getValue());
+                                if (p != null) putCache(e.getKey(), p, now);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Build output; serve cached (possibly stale) prices rather than null on a transient fail.
+            for (String s : wanted) {
+                double[] cp = PRICE_CACHE.get(s);
+                if (cp != null) {
+                    out.prices.put(s, cp[0]);
+                    if ((now - (long) cp[1]) > PRICE_TTL_MS) {
+                        out.stale.add(s);
+                        Log.i(TAG, "fetch: served STALE cached price for " + s + " = $" + cp[0]);
+                    }
+                } else {
+                    out.prices.put(s, null);
+                }
+            }
         } catch (Throwable t) {
-            Log.w(TAG, "fetch: Binance fetch failed for " + symbol + ": " + t);
-            return null;
+            Log.e(TAG, "fetch: fetchAll failed", t);
+        }
+        return out;
+    }
+
+    private static boolean isFresh(String symbol, long now) {
+        double[] cp = PRICE_CACHE.get(symbol);
+        return cp != null && (now - (long) cp[1]) <= PRICE_TTL_MS;
+    }
+
+    private static void putCache(String symbol, double price, long at) {
+        PRICE_CACHE.put(symbol, new double[]{price, at});
+    }
+
+    /** All Binance symbol prices in one call, cached 60s. Returns null on error/429. */
+    private static synchronized Map<String, Double> binanceAll(long now) {
+        if (binanceAllCache != null && (now - binanceAllAt) <= PRICE_TTL_MS) {
+            return binanceAllCache;
+        }
+        try {
+            HttpResult r = get(BINANCE_ALL);
+            if (r.code == 429) {
+                Log.w(TAG, "fetch: Binance 429 (rate limited), reusing cache if any");
+                return binanceAllCache; // may be null
+            }
+            if (r.code != 200 || r.body == null) {
+                Log.w(TAG, "fetch: Binance all HTTP " + r.code);
+                return binanceAllCache;
+            }
+            JSONArray arr = new JSONArray(r.body);
+            Map<String, Double> map = new HashMap<>(arr.length() * 2);
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject o = arr.optJSONObject(i);
+                if (o == null) continue;
+                String sym = o.optString("symbol", null);
+                String p = o.optString("price", null);
+                if (sym != null && p != null) {
+                    try {
+                        map.put(sym, Double.parseDouble(p));
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            }
+            binanceAllCache = map;
+            binanceAllAt = now;
+            Log.i(TAG, "fetch: Binance all refreshed (" + map.size() + " symbols)");
+            return map;
+        } catch (Throwable t) {
+            Log.w(TAG, "fetch: Binance all failed: " + t);
+            return binanceAllCache;
         }
     }
 
-    private static Double fetchCoinGecko(Context ctx, String symbol) {
+    /** One CoinGecko /simple/price call for a set of ids. Returns id->price, or null on error/429. */
+    private static Map<String, Double> coinGeckoSimple(Set<String> ids) {
         try {
-            String id = coinGeckoId(ctx, symbol);
-            if (id == null) {
-                Log.w(TAG, "fetch: no CoinGecko id for " + symbol);
+            StringBuilder joined = new StringBuilder();
+            for (String id : ids) {
+                if (joined.length() > 0) joined.append(',');
+                joined.append(id);
+            }
+            HttpResult r = get(COINGECKO_PRICE + URLEncoder.encode(joined.toString(), "UTF-8"));
+            if (r.code == 429) {
+                Log.w(TAG, "fetch: CoinGecko price 429 (rate limited), keeping cached prices");
                 return null;
             }
-            String body = httpGet(COINGECKO_PRICE + URLEncoder.encode(id, "UTF-8"));
-            if (body == null) return null;
-            JSONObject coin = new JSONObject(body).optJSONObject(id);
-            if (coin == null || !coin.has("usd")) return null;
-            return coin.getDouble("usd");
+            if (r.code != 200 || r.body == null) {
+                Log.w(TAG, "fetch: CoinGecko price HTTP " + r.code);
+                return null;
+            }
+            JSONObject obj = new JSONObject(r.body);
+            Map<String, Double> byId = new HashMap<>();
+            for (Iterator<String> it = obj.keys(); it.hasNext(); ) {
+                String id = it.next();
+                JSONObject coin = obj.optJSONObject(id);
+                if (coin != null && coin.has("usd")) byId.put(id, coin.getDouble("usd"));
+            }
+            return byId;
         } catch (Throwable t) {
-            Log.w(TAG, "fetch: CoinGecko fetch failed for " + symbol + ": " + t);
+            Log.w(TAG, "fetch: CoinGecko price failed: " + t);
             return null;
         }
     }
 
-    /** Resolves a Binance ticker to a CoinGecko coin id. Majors first, then the cached list. */
+    /** Majors -> market-cap map -> coins-list map. */
     private static String coinGeckoId(Context ctx, String symbol) {
         String base = symbol.toUpperCase(Locale.US).replaceAll("(USDT|BUSD|USDC|USD)$", "");
         if (base.isEmpty()) base = symbol.toUpperCase(Locale.US);
         String major = MAJORS.get(base);
         if (major != null) return major;
+        String lower = base.toLowerCase(Locale.US);
         try {
-            Map<String, String> map = coinGeckoMap(ctx);
-            return map.get(base.toLowerCase(Locale.US));
+            String fromMc = marketCapMap(ctx).get(lower);
+            if (fromMc != null) return fromMc;
+            return coinsListMap(ctx).get(lower);
         } catch (Throwable t) {
-            Log.w(TAG, "fetch: CoinGecko map lookup failed: " + t);
+            Log.w(TAG, "fetch: id resolve failed for " + symbol + ": " + t);
             return null;
         }
     }
 
-    /** Lowercase-symbol -> coin id, cached in prefs and refreshed at most daily. */
-    private static Map<String, String> coinGeckoMap(Context ctx) {
-        Map<String, String> map = new HashMap<>();
-        if (ctx == null) return map;
-        SharedPreferences prefs = ctx.getApplicationContext()
-                .getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-        long at = prefs.getLong(KEY_CG_MAP_AT, 0L);
-        String cached = prefs.getString(KEY_CG_MAP, null);
-        boolean fresh = cached != null && (System.currentTimeMillis() - at) < CG_MAP_TTL_MS;
-
-        if (!fresh) {
+    /** lowercase-symbol -> id ranked by market cap (first = highest), daily cached. */
+    private static Map<String, String> marketCapMap(Context ctx) {
+        SharedPreferences prefs = prefs(ctx);
+        long at = prefs.getLong(KEY_MC_AT, 0L);
+        String cached = prefs.getString(KEY_MC_MAP, null);
+        if (cached == null || (System.currentTimeMillis() - at) >= MAP_TTL_MS) {
             try {
-                String body = httpGet(COINGECKO_LIST);
-                if (body != null) {
-                    JSONArray arr = new JSONArray(body);
+                JSONObject built = new JSONObject();
+                int added = 0;
+                for (int page = 1; page <= 2; page++) {
+                    HttpResult r = get(COINGECKO_MARKETS + page);
+                    if (r.code != 200 || r.body == null) {
+                        Log.w(TAG, "fetch: coins/markets page " + page + " HTTP " + r.code);
+                        break; // keep whatever we have; don't hammer on failure/429
+                    }
+                    JSONArray arr = new JSONArray(r.body);
+                    for (int i = 0; i < arr.length(); i++) {
+                        JSONObject c = arr.optJSONObject(i);
+                        if (c == null) continue;
+                        String sym = c.optString("symbol", "").toLowerCase(Locale.US);
+                        String id = c.optString("id", null);
+                        if (!sym.isEmpty() && id != null && !built.has(sym)) {
+                            built.put(sym, id); // first = highest market cap
+                            added++;
+                        }
+                    }
+                }
+                if (added > 0) {
+                    cached = built.toString();
+                    prefs.edit().putString(KEY_MC_MAP, cached)
+                            .putLong(KEY_MC_AT, System.currentTimeMillis()).apply();
+                    Log.i(TAG, "fetch: refreshed market-cap id map (" + added + " symbols)");
+                }
+            } catch (Throwable t) {
+                Log.w(TAG, "fetch: coins/markets refresh failed: " + t);
+            }
+        }
+        return toMap(cached);
+    }
+
+    /** lowercase-symbol -> id from /coins/list (long tail), daily cached. First id per symbol. */
+    private static Map<String, String> coinsListMap(Context ctx) {
+        SharedPreferences prefs = prefs(ctx);
+        long at = prefs.getLong(KEY_LIST_AT, 0L);
+        String cached = prefs.getString(KEY_LIST_MAP, null);
+        if (cached == null || (System.currentTimeMillis() - at) >= MAP_TTL_MS) {
+            try {
+                HttpResult r = get(COINGECKO_LIST);
+                if (r.code == 200 && r.body != null) {
+                    JSONArray arr = new JSONArray(r.body);
                     JSONObject built = new JSONObject();
                     for (int i = 0; i < arr.length(); i++) {
                         JSONObject c = arr.optJSONObject(i);
                         if (c == null) continue;
                         String sym = c.optString("symbol", "").toLowerCase(Locale.US);
                         String id = c.optString("id", null);
-                        // First id for a symbol wins; keep existing to stay stable.
                         if (!sym.isEmpty() && id != null && !built.has(sym)) built.put(sym, id);
                     }
                     cached = built.toString();
-                    prefs.edit().putString(KEY_CG_MAP, cached)
-                            .putLong(KEY_CG_MAP_AT, System.currentTimeMillis()).apply();
-                    Log.i(TAG, "fetch: refreshed CoinGecko id map (" + built.length() + " symbols)");
+                    prefs.edit().putString(KEY_LIST_MAP, cached)
+                            .putLong(KEY_LIST_AT, System.currentTimeMillis()).apply();
+                    Log.i(TAG, "fetch: refreshed coins/list id map (" + built.length() + " symbols)");
+                } else {
+                    Log.w(TAG, "fetch: coins/list HTTP " + r.code);
                 }
             } catch (Throwable t) {
-                Log.w(TAG, "fetch: could not refresh CoinGecko list: " + t);
+                Log.w(TAG, "fetch: coins/list refresh failed: " + t);
             }
         }
+        return toMap(cached);
+    }
 
-        if (cached != null) {
-            try {
-                JSONObject o = new JSONObject(cached);
-                for (java.util.Iterator<String> it = o.keys(); it.hasNext(); ) {
-                    String k = it.next();
-                    map.put(k, o.optString(k, null));
-                }
-            } catch (Throwable ignored) {
+    private static Map<String, String> toMap(String json) {
+        Map<String, String> map = new HashMap<>();
+        if (json == null) return map;
+        try {
+            JSONObject o = new JSONObject(json);
+            for (Iterator<String> it = o.keys(); it.hasNext(); ) {
+                String k = it.next();
+                map.put(k, o.optString(k, null));
             }
+        } catch (Throwable ignored) {
         }
         return map;
     }
 
-    private static String httpGet(String urlString) throws Exception {
+    private static SharedPreferences prefs(Context ctx) {
+        return ctx.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+    }
+
+    private static final class HttpResult {
+        final int code;
+        final String body; // only set when code == 200
+
+        HttpResult(int code, String body) {
+            this.code = code;
+            this.body = body;
+        }
+    }
+
+    private static HttpResult get(String urlString) throws Exception {
         HttpURLConnection conn = null;
         try {
             URL url = new URL(urlString);
             conn = (HttpURLConnection) url.openConnection();
             if (!(conn instanceof HttpsURLConnection)) {
                 Log.w(TAG, "fetch: refusing non-HTTPS URL " + urlString);
-                return null;
+                return new HttpResult(-1, null);
             }
             conn.setRequestMethod("GET");
             conn.setConnectTimeout(10000);
@@ -181,8 +385,7 @@ public final class PriceFetcher {
             conn.setRequestProperty("Accept", "application/json");
             int code = conn.getResponseCode();
             if (code != 200) {
-                Log.w(TAG, "fetch: HTTP " + code + " from " + urlString);
-                return null;
+                return new HttpResult(code, null);
             }
             InputStream in = conn.getInputStream();
             StringBuilder sb = new StringBuilder();
@@ -191,7 +394,7 @@ public final class PriceFetcher {
                 String line;
                 while ((line = reader.readLine()) != null) sb.append(line);
             }
-            return sb.toString();
+            return new HttpResult(200, sb.toString());
         } finally {
             if (conn != null) conn.disconnect();
         }

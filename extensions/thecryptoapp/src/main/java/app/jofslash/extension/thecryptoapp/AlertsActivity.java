@@ -42,6 +42,10 @@ public final class AlertsActivity extends Activity {
     /** Non-null when editing an existing rule; its id. */
     private String editingId = null;
 
+    /** Throttle for the on-open auto-check, so reopening quickly doesn't re-hit the API. */
+    private static long lastOpenCheckAt = 0L;
+    private static final long OPEN_CHECK_MIN_GAP_MS = 30_000L;
+
     // Theme-resolved colors.
     private int accentColor;
     private int secondaryColor;
@@ -64,7 +68,14 @@ public final class AlertsActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh prices/met-state on open, off the main thread, then re-render.
+        // Show stored values instantly.
+        render();
+        // Throttle the on-open network refresh.
+        long now = System.currentTimeMillis();
+        if (now - lastOpenCheckAt < OPEN_CHECK_MIN_GAP_MS) {
+            return;
+        }
+        lastOpenCheckAt = now;
         Thread t = new Thread(() -> {
             try {
                 AlertChecker.checkNow(getApplicationContext());
@@ -251,7 +262,7 @@ public final class AlertsActivity extends Activity {
         symbolInput.setError(null);
         targetInput.setError(null);
         symbolInput.setText(r.symbol);
-        targetInput.setText(money(r.targetPrice));
+        targetInput.setText(PriceFormat.editable(r.targetPrice));
         directionToggle.setChecked(r.isAbove());
         addButton.setText("Save");
         scroll.smoothScrollTo(0, 0);
@@ -304,8 +315,9 @@ public final class AlertsActivity extends Activity {
                 ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
         TextView title = new TextView(this);
-        title.setText(String.format(Locale.US, "%s %s $%s",
-                r.displayName, r.isAbove() ? "↑ above" : "↓ below", money(r.targetPrice)));
+        title.setText(String.format(Locale.US, "%s %s %s",
+                r.displayName, r.isAbove() ? "↑ above" : "↓ below",
+                PriceFormat.money(r.targetPrice)));
         title.setTextSize(15);
         textCol.addView(title);
 
@@ -313,8 +325,8 @@ public final class AlertsActivity extends Activity {
         status.setTextSize(13);
         if (r.hasLastPrice) {
             boolean met = r.conditionMet(r.lastPrice);
-            status.setText(String.format(Locale.US, "now $%s  %s",
-                    money(r.lastPrice), met ? "✓ met" : "✗ not met"));
+            status.setText(String.format(Locale.US, "now %s  %s",
+                    PriceFormat.money(r.lastPrice), met ? "✓ met" : "✗ not met"));
             status.setTextColor(met ? metColor : unmetColor);
         } else {
             status.setText("not checked yet");
@@ -342,14 +354,6 @@ public final class AlertsActivity extends Activity {
         row.addView(del);
 
         return row;
-    }
-
-    /** "$1" for whole amounts, grouped with up to 2 decimals otherwise. */
-    private String money(double v) {
-        if (v == Math.floor(v) && !Double.isInfinite(v)) {
-            return String.format(Locale.US, "%,d", (long) v);
-        }
-        return String.format(Locale.US, "%,.2f", v);
     }
 
     private void toast(String s) {
