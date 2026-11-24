@@ -1,3 +1,9 @@
+## [1.12.0-dev.2](https://github.com/JoFSlash/morphe-patches/compare/v1.12.0-dev.1...v1.12.0-dev.2) (2026-11-24)
+
+### Bug fixes
+
+* Remove Cronometer ([#96](https://github.com/JoFSlash/morphe-patches/issues/96)) ([e5a4524](https://github.com/JoFSlash/morphe-patches/commit/e5a4524f13e93bed59668edad6c8a6e7e9ba7be6))
+
 ## [1.12.0-dev.1](https://github.com/JoFSlash/morphe-patches/compare/v1.11.0...v1.12.0-dev.1) (2026-11-24)
 
 ### New features
