@@ -27,13 +27,8 @@
     "file": "cronometer.apks"
   },
   "android": {
-    "note": "Cronometer 4.57.2 needs Android 8 (minSdk 26), but it ships arm64-v8a libraries only, so the x86_64 emulator needs arm64 translation, which google_apis images have from API 30 on (not API 33). The release tries the oldest supported version, the newest stable one and the next one; a pull request the oldest and the newest stable.",
+    "note": "Cronometer 4.57.2 needs Android 8 (minSdk 26) but ships arm64-v8a libraries only. On the x86_64 emulator with Android 11 the arm64 translation of the Flutter engine is too slow to reach the welcome screen, so CI tests Android 16 (and 17 for a release); try older Android versions on a phone.",
     "pull_request": [
-      {
-        "api": "30",
-        "android": "11",
-        "channel": "stable"
-      },
       {
         "api": "36",
         "android": "16",
@@ -41,11 +36,6 @@
       }
     ],
     "full": [
-      {
-        "api": "30",
-        "android": "11",
-        "channel": "stable"
-      },
       {
         "api": "36",
         "android": "16",
