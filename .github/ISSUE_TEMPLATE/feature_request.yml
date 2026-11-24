@@ -14,7 +14,6 @@ body:
       options:
         # APPS_START (written by .github/scripts/sync_apps.py from .github/apps)
         - Booking.com
-        - Cronometer
         - Google Health (Fitbit)
         - IMDb
         - Kalorické Tabulky
