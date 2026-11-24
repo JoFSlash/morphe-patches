@@ -1,3 +1,19 @@
+## [1.12.0](https://github.com/JoFSlash/morphe-patches/compare/v1.11.0...v1.12.0) (2026-11-24)
+
+### New features
+
+* Cronometer patches ([#94](https://github.com/JoFSlash/morphe-patches/issues/94)) ([3497d6c](https://github.com/JoFSlash/morphe-patches/commit/3497d6c37bfb697becd884950430cad6c93a491c))
+* Wikipedia patches ([#98](https://github.com/JoFSlash/morphe-patches/issues/98)) ([87f98fa](https://github.com/JoFSlash/morphe-patches/commit/87f98fa3b6cdc7f223a7a9a9486d485a969c5e6b))
+
+### Bug fixes
+
+* Remove Cronometer ([#96](https://github.com/JoFSlash/morphe-patches/issues/96)) ([e5a4524](https://github.com/JoFSlash/morphe-patches/commit/e5a4524f13e93bed59668edad6c8a6e7e9ba7be6))
+* Support Listonic 9.25.2 ([#99](https://github.com/JoFSlash/morphe-patches/issues/99)) ([e2b3898](https://github.com/JoFSlash/morphe-patches/commit/e2b389899fe87fc407b31e8c895382318e62f2e7)), closes [#97](https://github.com/JoFSlash/morphe-patches/issues/97)
+
+### Documentation
+
+* The README names every app's owner, written from the app settings ([#92](https://github.com/JoFSlash/morphe-patches/issues/92)) ([ebca4d7](https://github.com/JoFSlash/morphe-patches/commit/ebca4d7edaa71ae348aaa68047bf2f172c120277))
+
 ## [1.12.0-dev.3](https://github.com/JoFSlash/morphe-patches/compare/v1.12.0-dev.2...v1.12.0-dev.3) (2026-11-24)
 
 ### New features
