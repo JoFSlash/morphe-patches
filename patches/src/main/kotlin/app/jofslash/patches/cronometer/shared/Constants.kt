@@ -2,6 +2,7 @@ package app.jofslash.patches.cronometer.shared
 
 import app.morphe.patcher.patch.AppTarget
 import app.morphe.patcher.patch.Compatibility
+import app.jofslash.patches.cronometer.shared.COMPATIBILITY_CRONOMETER
 
 object Constants {
     const val PACKAGE_NAME = "com.cronometer.android.gold"
