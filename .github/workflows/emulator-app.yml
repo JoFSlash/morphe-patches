@@ -149,7 +149,7 @@ jobs:
 
       - name: Get the patch bundle
         if: steps.token.outputs.skip != 'true'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.bundle || format('bundle-{0}', inputs.app) }}
           path: patches/build/libs
