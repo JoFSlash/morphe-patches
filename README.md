@@ -18,6 +18,7 @@ once in Morphe Manager and pick the app you want to patch. No root needed.
 | [Quora](https://play.google.com/store/apps/details?id=com.quora.android) | Remove ads and tracking, and hide what you don't use: AI answers, Quora+ paywalls, suggestions, counts, old answers. | [Quora patches](docs/quora/README.md) |
 | [Speedtest](https://play.google.com/store/apps/details?id=org.zwanoo.android.speedtest) (Ookla) | Remove the ads from the internet speed test and stop its third-party trackers (Appvestor, CellRebel), without an account. | [Speedtest patches](docs/speedtest/README.md) |
 | [The Crypto App](https://play.google.com/store/apps/details?id=com.crypter.cryptocyrrency) (TrustSwap) | Hide the ads, and add your own price alerts (price or 24h change), a chart and a local portfolio, with free public prices and no account. | [The Crypto App patches](docs/thecryptoapp/README.md) |
+| [Wikipedia](https://play.google.com/store/apps/details?id=org.wikipedia) (Wikimedia Foundation) | Hide the fundraising banners and pop-up prompts, and stop the usage analytics and the install ID sent with every request, without an account. | [Wikipedia patches](docs/wikipedia/README.md) |
 <!-- APPS_END -->
 
 Each app's page lists its patches, the supported app versions and what to know before you install.
@@ -74,5 +75,5 @@ app only gets its own code. See [CONTRIBUTING.md](CONTRIBUTING.md).
 ## License
 
 <!-- OWNERS_START -->
-[GPL-3.0](LICENSE), see also [NOTICE](NOTICE). Not affiliated with Amazon, Booking.com, Fitbit, Google, IMDb, Kalorické Tabulky, Listonic, Ookla, Quora or TrustSwap, or with the Morphe project.
+[GPL-3.0](LICENSE), see also [NOTICE](NOTICE). Not affiliated with Amazon, Booking.com, Fitbit, Google, IMDb, Kalorické Tabulky, Listonic, Ookla, Quora, TrustSwap or Wikimedia Foundation, or with the Morphe project.
 <!-- OWNERS_END -->

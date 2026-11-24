@@ -21,6 +21,7 @@ body:
         - Quora
         - Speedtest (Ookla)
         - The Crypto App (TrustSwap)
+        - Wikipedia (Wikimedia Foundation)
         # APPS_END
         - Another app
     validations:
