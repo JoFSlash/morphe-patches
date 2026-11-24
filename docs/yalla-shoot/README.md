@@ -16,7 +16,7 @@ root needed.
 - **Less tracking:** Firebase Analytics and Crashlytics stay off, and the advertising ID, install-referrer and other
   ad-only permissions are removed.
 
-These patches don't unlock the subscription or any paid feature. The patches don't change what your subscription
+These patches don't unlock Gold Membership (the subscription) or any paid feature. The patches don't change what your subscription
 gives you.
 
 ## Before you install
@@ -53,6 +53,30 @@ gives you.
 ## Patches
 
 <!-- PATCHES_START -->
+Version 1.12.0, 3 patches. Supported Yalla Shoot versions: 6.0.15.
+
+<details>
+<summary><b>Ads</b> (1)</summary>
+
+Banners, native ads, full-screen and rewarded ads.
+
+| Patch | Default | What it does |
+| --- | --- | --- |
+| Hide ads | on | Hides the banners, the native ads, the full-screen ads and the rewarded video ads, and never starts the ad networks (Google AdMob with AppLovin, Meta, Pangle, Liftoff and DT Exchange). The subscription and any paid feature aren't touched. |
+
+</details>
+
+<details>
+<summary><b>Privacy</b> (2)</summary>
+
+Trackers and permissions. They change nothing you see.
+
+| Patch | Default | What it does |
+| --- | --- | --- |
+| Block tracking | on | Keeps Firebase Analytics and Crashlytics off for good: the app ships them off and turns them on by itself after it starts. Scores, news and notifications aren't touched. |
+| Remove unneeded permissions | on | Removes the permissions that only serve advertising and install tracking: the advertising ID, Android's ad services (ad ID and attribution), the Google Play install referrer, the basic phone state and the ad attestation permission the ad SDK asks for. With the ad patch on, nothing in the app uses them. |
+
+</details>
 <!-- PATCHES_END -->
 
 ## FAQ
