@@ -273,7 +273,9 @@ def start_and_check(check, apks, expect_screen, patched):
     """Installs, starts and checks the app; prints what went wrong. Returns whether it passed."""
     adb, target = check.adb, check.target
     # The patched and the original app are signed differently, so one can't replace the other.
+    print("  Uninstalling the old copy ...")
     run([adb, "uninstall", target])
+    print("  Installing ...")
     command = [adb, "install-multiple", "-r", *apks] if len(apks) > 1 else [adb, "install", "-r", apks[0]]
     install = run(command, timeout=300, text=True)
     output = (install.stdout + install.stderr).strip()
@@ -286,6 +288,7 @@ def start_and_check(check, apks, expect_screen, patched):
     for permission in check.checks.get("grant", []):
         run([adb, "shell", "pm", "grant", target, permission])
     run([adb, "logcat", "-c"])
+    print("  Starting the app ...")
     launch = [adb, "shell", "monkey", "-p", target, "-c", "android.intent.category.LAUNCHER", "1"]
     run(launch)
     # A busy emulator can take a while, or miss the first launch: wait, and launch once more.

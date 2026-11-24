@@ -58,6 +58,14 @@ def wait_until_ready(limit=300):
     return False
 
 
+def no_install_checks():
+    """Turns off Play Protect's check of apps installed over adb. On a Google APIs image it can stop
+    an install with a dialog nobody answers (for example an app with a Google package name and our
+    signature), and adb install then waits until the job's time limit."""
+    for setting in ("verifier_verify_adb_installs", "package_verifier_enable"):
+        adb("shell", "settings", "put", "global", setting, "0")
+
+
 def run(command):
     """Runs one check command, shows its output as it comes, and returns (code, output)."""
     process = subprocess.Popen(command, shell=True, cwd=ROOT, stdout=subprocess.PIPE,
@@ -75,6 +83,7 @@ def main():
     settings = json.loads((ROOT / ".github" / "apps" / f"{sys.argv[1]}.json").read_text(encoding="utf-8"))
     for command in settings["check"]:
         wait_until_ready()
+        no_install_checks()
         print(f"$ {command}", flush=True)
         code, output = run(command)
         if code != 0 and EMULATOR_TROUBLE.search(output):
