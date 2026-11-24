@@ -40,7 +40,8 @@
       {
         "api": "36",
         "android": "16",
-        "channel": "stable"
+        "channel": "stable",
+        "gpu": "swangle_indirect"
       }
     ],
     "full": [
@@ -52,12 +53,14 @@
       {
         "api": "36",
         "android": "16",
-        "channel": "stable"
+        "channel": "stable",
+        "gpu": "swangle_indirect"
       },
       {
         "api": "37.0",
         "android": "17",
-        "channel": "canary"
+        "channel": "canary",
+        "gpu": "swangle_indirect"
       }
     ]
   },
