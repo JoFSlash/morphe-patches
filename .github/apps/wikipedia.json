@@ -1,6 +1,5 @@
 {
   "name": "Wikipedia",
-  "workflow": "emulator-wikipedia.yml",
   "patches": "patches/src/main/kotlin/app/jofslash/patches/wikipedia",
   "docs": "docs/wikipedia/README.md",
   "readme": {

@@ -51,7 +51,7 @@ for a crash at start.
 python .github/scripts/check_app.py quora com.quora.android_X.Y.Z.apkm --cli morphe-cli.jar --install
 ```
 
-This mostly runs on its own. `.github/workflows/quora-version.yml` (with the shared
+This mostly runs on its own. `.github/workflows/versions.yml` (with the shared
 `app-version.yml` and the settings in `.github/apps/quora.json`) checks APKMirror and Google Play
 every day. For a new version it downloads the APKM, checks that every split is signed by Quora,
 keeps it as a release in the private repository `JoFSlash/morphe-apks`, patches it, starts it on an
@@ -67,8 +67,9 @@ page no longer has the class names some patches rely on, it names those patches.
 - `.github/page-scripts/run.sh` writes every script the page patches inject, checks that each one
   parses, and runs the DOM checks in `dom-test.js` on trimmed copies of Quora's markup. Add a check
   there when you change what a script hides.
-- `emulator.yml` patches the newest supported version on every pull request, installs it on an
-  emulator and checks that it starts and loads the sign-in page.
+- `emulator-pr.yml` patches the newest supported version on every pull request that changes Quora's
+  patches or the shared build, installs it on emulators and checks that it starts and loads the
+  sign-in page.
 - `feed-test.yml` signs in with a test account and checks the page patches on the real feed and on
   an answer (`.github/scripts/feed-test.mjs`). It leaves out "Start tab", so the app opens on the
   Home feed.
