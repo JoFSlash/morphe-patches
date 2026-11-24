@@ -12,7 +12,8 @@ Docs, other apps and the release files don't count. gradle.properties is left ou
 changes only its version.
 
 When an app passes, emulator-app.yml records the ref refs/tested/<app>/<fingerprint>. A ref can be
-read from any branch, so a test on dev counts for the release on main when the code is the same.
+read from any branch and any run, so the test after a merge into main counts for the release when
+the code is the same.
 
 python3 tested.py plan [--all]       JSON list of the apps without a passed test (all with --all)
 python3 tested.py changed <base>     JSON list of the apps whose test depends on a file changed

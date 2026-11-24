@@ -70,9 +70,9 @@ jobs:
       emulator_api: ${{ steps.read.outputs.emulator_api }}
       pr_base: ${{ steps.read.outputs.pr_base }}
       bump_title: ${{ steps.read.outputs.bump_title }}
-      # Pull requests to dev start from dev (or from the branch a test run is on); the others from
-      # the branch the workflow runs on.
-      ref: ${{ steps.read.outputs.pr_base == 'dev' && (github.ref_name == 'main' && 'dev' || github.ref_name) || '' }}
+      # Pull requests to main start from the branch the workflow runs on (main, or a branch a test
+      # run is on); pull requests to another branch start from that branch.
+      ref: ${{ steps.read.outputs.pr_base != 'main' && steps.read.outputs.pr_base || '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7

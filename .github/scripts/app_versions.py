@@ -37,8 +37,8 @@ Optional:
                       when only Google Play has a newer one; "play_note" is added to that issue.
   check_flags         what the emulator check expects to see (--expect-screen).
   emulator_api        the Android API level of the emulator (35).
-  pr_base             the branch pull requests go to (main). With dev, the workflow also starts
-                      from dev.
+  pr_base             the branch pull requests go to (main). With another branch, the workflow
+                      also starts from it.
   bump_title          false: the pull request title is "Support <app> <version>" without "bump: "
                       in front (the commit has it either way).
 
