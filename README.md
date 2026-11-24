@@ -39,9 +39,8 @@ Each app's page lists its patches, the supported app versions and what to know b
 ## Updating
 
 - **New patches:** a new version of these patches comes out every Saturday when something changed. An urgent fix
-  can come out sooner. To get new patches on Wednesday already, turn
-  on **Pre-release patches** for this source in Morphe Manager; pre-releases are less tested. Morphe Manager then
-  marks the patched app with an Update badge: patch the same app file again and install it over the patched app.
+  can come out sooner. There are no pre-releases: "Pre-release patches" in Morphe Manager gets the same versions.
+  Morphe Manager then marks the patched app with an Update badge: patch the same app file again and install it over the patched app.
   No need to uninstall, and your settings stay.
 - **New app version:** a patched app doesn't update from the Play Store. Wait until a release of these patches
   lists the new version as supported, then patch that version the same way.
