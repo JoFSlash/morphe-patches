@@ -1,6 +1,5 @@
 {
   "name": "Quora",
-  "workflow": "emulator.yml",
   "patches": "patches/src/main/kotlin/app/jofslash/patches/quora",
   "extension": "extensions/quora",
   "docs": "docs/quora/README.md",

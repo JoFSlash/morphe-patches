@@ -1,6 +1,6 @@
 name: Morphe CLI
 
-# The emulator, feed and Quora version workflows patch Quora with the Morphe CLI release named in
+# The emulator, feed and version workflows patch the apps with the Morphe CLI release named in
 # .github/morphe-cli-version. Dependabot can't see that file, so this workflow looks once a week for
 # a newer stable release (pre-releases are left out). For a newer one it runs the emulator test
 # with it and then opens a pull request that changes the file, or an issue when the test fails.
@@ -57,9 +57,10 @@ jobs:
     permissions:
       contents: write
       packages: read
-    uses: ./.github/workflows/emulator.yml
+    uses: ./.github/workflows/emulator-app.yml
     secrets: inherit
     with:
+      app: quora
       cli-version: ${{ needs.check.outputs.version }}
 
   report:

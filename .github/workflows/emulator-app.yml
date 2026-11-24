@@ -6,7 +6,7 @@ name: App emulator test
 # on. What each app needs (its APK in JoFSlash/morphe-apks, the Android versions, the check script)
 # is in .github/apps/<app>.json, so adding an app adds files and changes none of the shared ones.
 #
-# Each app's emulator-<app>.yml runs this for its own pull requests; the release runs it for every
+# emulator-pr.yml runs this for the apps a pull request changes; the release runs it for every
 # app in .github/apps.
 #
 # The patches are built once per run, not on every emulator: the release builds them once for all

@@ -14,7 +14,7 @@ name: Feed test
 # A run on main that doesn't pass (a failed check, or a skip because the session no longer works)
 # opens the issue "Feed test needs attention", or comments on it; the next run that passes closes it.
 # It needs these secrets:
-#   APKS_TOKEN     read access to JoFSlash/morphe-apks (see emulator.yml)
+#   APKS_TOKEN     read access to JoFSlash/morphe-apks (see emulator-app.yml)
 #   QUORA_TEST_EMAIL     a Quora account made only for this test
 #   QUORA_TEST_PASSWORD  its password
 #   QUORA_TEST_COOKIES   a signed-in session of that account (m-b=…; m-b_lax=…; …), used instead of
