@@ -1,3 +1,13 @@
+## [1.12.0-dev.3](https://github.com/JoFSlash/morphe-patches/compare/v1.12.0-dev.2...v1.12.0-dev.3) (2026-11-24)
+
+### New features
+
+* Wikipedia patches ([#98](https://github.com/JoFSlash/morphe-patches/issues/98)) ([87f98fa](https://github.com/JoFSlash/morphe-patches/commit/87f98fa3b6cdc7f223a7a9a9486d485a969c5e6b))
+
+### Bug fixes
+
+* Support Listonic 9.25.2 ([#99](https://github.com/JoFSlash/morphe-patches/issues/99)) ([e2b3898](https://github.com/JoFSlash/morphe-patches/commit/e2b389899fe87fc407b31e8c895382318e62f2e7)), closes [#97](https://github.com/JoFSlash/morphe-patches/issues/97)
+
 ## [1.12.0-dev.2](https://github.com/JoFSlash/morphe-patches/compare/v1.12.0-dev.1...v1.12.0-dev.2) (2026-11-24)
 
 ### Bug fixes

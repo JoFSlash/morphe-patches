@@ -56,7 +56,7 @@ subscription.
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.12.0-dev.2, 12 patches. Supported Google Health versions: 5.13.health-mobile-1104148438-1023845615.
+Version 1.12.0-dev.3, 12 patches. Supported Google Health versions: 5.13.health-mobile-1104148438-1023845615.
 
 <details>
 <summary><b>Privacy</b> (2)</summary>
