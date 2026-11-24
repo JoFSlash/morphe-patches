@@ -6,15 +6,19 @@
   "readme": {
     "style": "generated",
     "order": [
+      "Ads",
+      "Privacy",
       "App"
     ],
     "intro": {
-      "App": "What the patched app needs to play videos without Google Play services."
+      "Ads": "The ads YouTube Kids plays before and during videos.",
+      "Privacy": "Statistics, tracking pings and permissions. Apart from the voice search button, they change nothing you see.",
+      "App": "What the app needs to play videos without Google Play services, prompts it shows by itself, and the Sign in tab."
     }
   },
   "store": "https://play.google.com/store/apps/details?id=com.google.android.apps.youtube.kids",
   "package": "com.google.android.apps.youtube.kids",
-  "summary": "Play YouTube Kids patched with Morphe, through MicroG-RE, without an account.",
+  "summary": "Play YouTube Kids through MicroG-RE without its video ads, watch statistics and tracking pings, without an account.",
   "owners": [
     "YouTube",
     "Google"
@@ -64,5 +68,14 @@
   },
   "check": [
     "python3 .github/scripts/check_app.py youtubekids \"$APK\" --cli \"$CLI\" --install --expect-screen --compare-original --adb adb"
-  ]
+  ],
+  "versions": {
+    "pattern": "\\d+(\\.\\d+)+",
+    "example": "11.47.541",
+    "source": "apkpure",
+    "apkpure": "https://apkpure.com/youtube-kids/com.google.android.apps.youtube.kids",
+    "file": "apk",
+    "shows": "shows its start screen",
+    "phone_test": "set it up signed out and play a few videos on a phone with MicroG-RE: the emulator test only starts the app."
+  }
 }
