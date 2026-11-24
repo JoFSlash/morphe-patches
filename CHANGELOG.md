@@ -1,3 +1,13 @@
+## [1.12.0-dev.1](https://github.com/JoFSlash/morphe-patches/compare/v1.11.0...v1.12.0-dev.1) (2026-11-24)
+
+### New features
+
+* Cronometer patches ([#94](https://github.com/JoFSlash/morphe-patches/issues/94)) ([3497d6c](https://github.com/JoFSlash/morphe-patches/commit/3497d6c37bfb697becd884950430cad6c93a491c))
+
+### Documentation
+
+* The README names every app's owner, written from the app settings ([#92](https://github.com/JoFSlash/morphe-patches/issues/92)) ([ebca4d7](https://github.com/JoFSlash/morphe-patches/commit/ebca4d7edaa71ae348aaa68047bf2f172c120277))
+
 ## [1.11.0](https://github.com/JoFSlash/morphe-patches/compare/v1.10.0...v1.11.0) (2026-11-23)
 
 ### New features

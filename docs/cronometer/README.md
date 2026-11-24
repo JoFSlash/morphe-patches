@@ -60,7 +60,7 @@ subscription; the patches don't change what your subscription gives you.
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.11.0, 2 patches. Supported Cronometer versions: 4.57.2.
+Version 1.12.0-dev.1, 3 patches. Supported Cronometer versions: 4.57.2.
 
 <details>
 <summary><b>Ads</b> (1)</summary>
@@ -81,6 +81,15 @@ Analytics and tracking calls. They change nothing you see.
 | Patch | Default | What it does |
 | --- | --- | --- |
 | Block tracking | on | Stops the usage analytics and crash reports: Firebase Analytics, Crashlytics, Adjust install tracking and Amplitude events, and the Braze calls that log what you do or store details about you. Your diary, sync and Braze messages from Cronometer keep working. |
+
+</details>
+
+<details>
+<summary><b>Other</b> (1)</summary>
+
+| Patch | Default | What it does |
+| --- | --- | --- |
+| Unlock Gold | on | Unlocks Cronometer Gold without a subscription, like custom charts, advanced reports, the fasting tracker, custom biometrics, an ad-free view, and more. Anything Cronometer works out on its own servers still needs Gold. |
 
 </details>
 <!-- PATCHES_END -->
