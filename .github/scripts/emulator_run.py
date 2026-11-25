@@ -64,6 +64,9 @@ def no_install_checks():
     signature), and adb install then waits until the job's time limit."""
     for setting in ("verifier_verify_adb_installs", "package_verifier_enable"):
         adb("shell", "settings", "put", "global", setting, "0")
+    # The one-time "Viewing full screen ... Got it" hint over an app that hides the system bars (YouTube
+    # Kids does) would cover the screen the check looks for.
+    adb("shell", "settings", "put", "secure", "immersive_mode_confirmations", "confirmed")
 
 
 def why_emulator_failed():
