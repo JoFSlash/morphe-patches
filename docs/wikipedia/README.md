@@ -58,7 +58,7 @@ consider [donating](https://donate.wikimedia.org) another way.
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.12.0, 11 patches. Supported Wikipedia versions: 50619-r-2026-11-18.
+Version 1.13.0, 11 patches. Supported Wikipedia versions: 50619-r-2026-11-18.
 
 <details>
 <summary><b>Donations</b> (2)</summary>

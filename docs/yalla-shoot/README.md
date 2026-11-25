@@ -53,7 +53,7 @@ gives you.
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.12.0, 3 patches. Supported Yalla Shoot versions: 6.0.15.
+Version 1.13.0, 3 patches. Supported Yalla Shoot versions: 6.0.15.
 
 <details>
 <summary><b>Ads</b> (1)</summary>

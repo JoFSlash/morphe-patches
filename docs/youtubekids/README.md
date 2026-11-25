@@ -45,7 +45,7 @@ YouTube Premium features (background play, downloads) are not part of these patc
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.12.0, 7 patches. Supported YouTube Kids versions: 11.47.541.
+Version 1.13.0, 7 patches. Supported YouTube Kids versions: 11.47.541.
 
 <details>
 <summary><b>Ads</b> (1)</summary>

@@ -68,7 +68,7 @@ still be unlocked with Broccoli coins), and the patches don't change what your s
 ## Patches
 
 <!-- PATCHES_START -->
-Version 1.12.0, 14 patches. Supported Listonic versions: 9.25.2, 9.25.1.
+Version 1.13.0, 14 patches. Supported Listonic versions: 9.25.2, 9.25.1.
 
 <details>
 <summary><b>Ads</b> (2)</summary>

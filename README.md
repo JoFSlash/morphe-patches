@@ -19,6 +19,8 @@ once in Morphe Manager and pick the app you want to patch. No root needed.
 | [Speedtest](https://play.google.com/store/apps/details?id=org.zwanoo.android.speedtest) (Ookla) | Remove the ads from the internet speed test and stop its third-party trackers (Appvestor, CellRebel), without an account. | [Speedtest patches](docs/speedtest/README.md) |
 | [The Crypto App](https://play.google.com/store/apps/details?id=com.crypter.cryptocyrrency) (TrustSwap) | Hide the ads, and add your own price alerts (price or 24h change), a chart and a local portfolio, with free public prices and no account. | [The Crypto App patches](docs/thecryptoapp/README.md) |
 | [Wikipedia](https://play.google.com/store/apps/details?id=org.wikipedia) (Wikimedia Foundation) | Hide the fundraising banners and pop-up prompts, and stop the usage analytics and the install ID sent with every request, without an account. | [Wikipedia patches](docs/wikipedia/README.md) |
+| [Yalla Shoot](https://play.google.com/store/apps/details?id=com.yallagroup.yallashoot) (Yalla Group) | Remove the ads from the live football scores app and keep its Firebase tracking off, without an account. | [Yalla Shoot patches](docs/yalla-shoot/README.md) |
+| [YouTube Kids](https://play.google.com/store/apps/details?id=com.google.android.apps.youtube.kids) | Play YouTube Kids through MicroG-RE without its video ads, watch statistics and tracking pings, without an account. | [YouTube Kids patches](docs/youtubekids/README.md) |
 <!-- APPS_END -->
 
 Each app's page lists its patches, the supported app versions and what to know before you install.
@@ -74,5 +76,5 @@ app only gets its own code. See [CONTRIBUTING.md](CONTRIBUTING.md).
 ## License
 
 <!-- OWNERS_START -->
-[GPL-3.0](LICENSE), see also [NOTICE](NOTICE). Not affiliated with Amazon, Booking.com, Fitbit, Google, IMDb, Kalorické Tabulky, Listonic, Ookla, Quora, TrustSwap or Wikimedia Foundation, or with the Morphe project.
+[GPL-3.0](LICENSE), see also [NOTICE](NOTICE). Not affiliated with Amazon, Booking.com, Fitbit, Google, IMDb, Kalorické Tabulky, Listonic, Ookla, Quora, TrustSwap, Wikimedia Foundation, Yalla Group or YouTube, or with the Morphe project.
 <!-- OWNERS_END -->

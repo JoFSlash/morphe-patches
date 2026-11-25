@@ -1,3 +1,10 @@
+## [1.13.0](https://github.com/JoFSlash/morphe-patches/compare/v1.12.0...v1.13.0) (2026-11-25)
+
+### New features
+
+* Yalla Shoot patches ([#109](https://github.com/JoFSlash/morphe-patches/issues/109)) ([20467a7](https://github.com/JoFSlash/morphe-patches/commit/20467a79a173d0c3f35678203d1def12418f0ba3)), closes [MobileAds#initialize](https://github.com/JoFSlash/MobileAds/issues/initialize)
+* YouTube Kids patches ([#108](https://github.com/JoFSlash/morphe-patches/issues/108)) ([0efc6f5](https://github.com/JoFSlash/morphe-patches/commit/0efc6f5ff4eedab6ed05dc381d173a00d9202c43))
+
 ## [1.12.0](https://github.com/JoFSlash/morphe-patches/compare/v1.11.0...v1.12.0) (2026-11-24)
 
 ### New features

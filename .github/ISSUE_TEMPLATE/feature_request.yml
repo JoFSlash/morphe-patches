@@ -21,6 +21,8 @@ body:
         - Speedtest (Ookla)
         - The Crypto App (TrustSwap)
         - Wikipedia (Wikimedia Foundation)
+        - Yalla Shoot (Yalla Group)
+        - YouTube Kids
         # APPS_END
         - Another app
     validations:
