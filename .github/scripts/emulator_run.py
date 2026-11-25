@@ -66,6 +66,18 @@ def no_install_checks():
         adb("shell", "settings", "put", "global", setting, "0")
 
 
+def why_emulator_failed():
+    """What the runner says about an emulator that went away: its memory, and the kernel's lines
+    about killed processes (an emulator the out-of-memory killer stops leaves no message itself)."""
+    for command in ("free -m", "sudo dmesg | grep -iE 'killed process|out of memory|oom|qemu|emulator' | tail -20",
+                    "ps -eo pid,rss,etime,comm --sort=-rss | head -8"):
+        print(f"$ {command}", flush=True)
+        try:
+            print(subprocess.run(command, shell=True, capture_output=True, text=True, timeout=30).stdout, flush=True)
+        except subprocess.TimeoutExpired:
+            print("(no answer)", flush=True)
+
+
 def run(command):
     """Runs one check command, shows its output as it comes, and returns (code, output)."""
     process = subprocess.Popen(command, shell=True, cwd=ROOT, stdout=subprocess.PIPE,
@@ -88,6 +100,7 @@ def main():
         code, output = run(command)
         if code != 0 and EMULATOR_TROUBLE.search(output):
             print("::warning::The emulator failed, not the app: waiting for it and trying once more.", flush=True)
+            why_emulator_failed()
             adb("reconnect")
             wait_until_ready()
             code, output = run(command)
