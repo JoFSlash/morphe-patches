@@ -94,10 +94,66 @@ public final class ReadingPatch {
 
     // ---------------------------------------------------------------- filters
 
+    /** The boxes a comment box can't reach up into: the answer or post it belongs to, and the comment field. */
+    private static final String COMMENT_STOP = "[class*=\"dom_annotate_answer_action_bar\"]," + ANSWER_TEXT
+            + ",textarea,[contenteditable=\"true\"]," + UNITS;
+
+    /**
+     * comments(): the comments on the page, each the largest box around one Reply button that holds no
+     * other Reply button, marked with data-jofslash-comment. Comments have no class of their own; their
+     * Reply button is the one thing every comment has. commenter(box): the link to the commenter's
+     * profile. thread(box): the comment with the replies under it, when it starts a thread.
+     * ownText(u): the text of an item without the text of its open comments.
+     */
+    static final String COMMENTS_JS = ""
+            + "var CSTOP='" + COMMENT_STOP + "';"
+            + "function isReply(b){return /^Reply$/.test((b.textContent||'').trim());}"
+            + "function replies(e){var n=0,l=e.querySelectorAll('button');for(var i=0;i<l.length;i++)if(isReply(l[i]))n++;return n;}"
+            + "function comments(){var out=[],l=document.querySelectorAll('button');"
+            + "for(var i=0;i<l.length;i++){var b=l[i];if(!isReply(b))continue;"
+            + "var done=b.closest('[data-jofslash-comment]');if(done){if(out.indexOf(done)<0)out.push(done);continue;}"
+            + "var box=null;for(var e=b.parentElement;e&&e!==document.body;e=e.parentElement){"
+            + "if(e.matches(CSTOP)||e.querySelector(CSTOP)||replies(e)>1)break;box=e;}"
+            + "if(box){box.setAttribute('data-jofslash-comment','');out.push(box);}}return out;}"
+            + "function commenter(box){var l=box.querySelectorAll('a[href*=\"/profile/\"]');"
+            + "for(var i=0;i<l.length;i++)if((l[i].textContent||'').trim())return l[i];return null;}"
+            // The comment and its replies sit side by side in a box of their own.
+            + "function thread(box){var p=box.parentElement;"
+            + "return p&&p.firstElementChild===box&&p.children.length===2&&replies(p.lastElementChild)>0"
+            + "&&p.parentElement&&p.parentElement.children.length===1?p:box;}"
+            + "function inComment(e,u){if(!e.closest)return false;var c=e.closest('[data-jofslash-comment]');return !!c&&c!==u&&u.contains(c);}"
+            + "function ownText(u){var t=u.innerText||'';u.querySelectorAll('[data-jofslash-comment]').forEach(function(c){"
+            + "var x=c.innerText;if(x)t=t.split(x).join(' ');});return t;}"
+            + "function hide(e,k){e.setAttribute('data-jofslash-filtered',k);e.style.setProperty('display','none','important');}";
+
+    /**
+     * Matching people and Spaces against a lookup table of names: norm(s), slug(a) (a profile link's
+     * name, without the number Quora adds to names taken before), space(a) (a Space link's name),
+     * upvoter(a,u) (a name in an "Upvoted by" line, who didn't write the item), named(a,names) and
+     * byAuthor(u,names): whether an item is by, or mentions, one of them. Comments in the item don't
+     * count, so a commenter doesn't hide the answer. Uses inComment from COMMENTS_JS.
+     */
+    static final String AUTHORS_JS = ""
+            + "var norm=function(s){return (s||'').toLowerCase().replace(/[-_]+/g,' ').replace(/\\s+/g,' ').trim();};"
+            + "function slug(a){var m=(a.getAttribute('href')||'').match(/\\/profile\\/([^/?#]+)/);"
+            + "if(!m)return '';try{return norm(decodeURIComponent(m[1]).replace(/-\\d+$/,''));}catch(e){return '';}}"
+            + "function space(a){try{var h=new URL(a.href).hostname.split('.');"
+            + "return h.length>2&&h[h.length-2]==='quora'&&!/^(www|[a-z]{2})$/.test(h[0])?norm(h[0]):'';}catch(e){return '';}}"
+            + "function upvoter(a,u){for(var e=a.parentElement,i=0;e&&e!==u&&i<3;e=e.parentElement,i++){"
+            + "if(/^Upvoted by /.test((e.textContent||'').trim()))return true;}return false;}"
+            + "function named(a,names){var c=[norm(a.textContent),slug(a),space(a)];"
+            + "for(var j=0;j<c.length;j++)if(c[j]&&names.hasOwnProperty(c[j]))return true;return false;}"
+            + "function byAuthor(u,names){var links=u.querySelectorAll('a[href]');for(var i=0;i<links.length;i++){var a=links[i];"
+            + "if(upvoter(a,u)||inComment(a,u))continue;if(named(a,names))return true;}"
+            + "var t=u.querySelectorAll('.puppeteer_test_tribe_name');for(var k=0;k<t.length;k++)"
+            + "if(!inComment(t[k],u)&&names.hasOwnProperty(norm(t[k].textContent)))return true;"
+            + "return false;}";
+
     /**
      * Injection point: start of QWebViewClient.onPageFinished.
      *
      * @param words Comma separated words or phrases. Feed items and answers containing one are hidden.
+     *              The text of their open comments doesn't count.
      */
     public static void filterKeywords(WebView webView, String words) {
         if (!PatchSettings.active(webView, "filterKeywords", "Filter keywords")) return;
@@ -106,15 +162,16 @@ public final class ReadingPatch {
         if (list.equals("[]")) return;
         evaluate(webView, "(function(){"
                 + "if(window.__jofslashKeywords)return;window.__jofslashKeywords=1;"
-                + "var words=" + list + ";"
+                + "var UNITS='" + UNITS + "',words=" + list + ";"
+                + COMMENTS_JS
                 // Whole words only; a * at the end of a word also matches longer words (art* finds artist).
                 + "var esc=function(w){var star=/\\*$/.test(w);w=w.replace(/\\*+$/,'');"
                 + "return w.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&').replace(/\\s+/g,'\\\\s+')+(star?'[\\\\p{L}\\\\p{N}]*':'');};"
                 + "words=words.filter(function(w){return w.replace(/\\*+$/,'').trim();});if(!words.length)return;"
                 + "var re=new RegExp('(^|[^\\\\p{L}\\\\p{N}])('+words.map(esc).join('|')+')(?=$|[^\\\\p{L}\\\\p{N}])','iu');"
-                + "function run(){document.querySelectorAll('" + UNITS + "').forEach(function(u){"
+                + "function run(){comments();document.querySelectorAll(UNITS).forEach(function(u){"
                 + "if(u.hasAttribute('data-jofslash-filtered'))return;"
-                + "if(re.test(u.innerText||'')){u.setAttribute('data-jofslash-filtered','');u.style.setProperty('display','none','important');}"
+                + "if(re.test(ownText(u)))hide(u,'');"
                 + "});}"
                 + observe("run")
                 + "})();", "keyword filter");
@@ -171,25 +228,16 @@ public final class ReadingPatch {
         String list = jsonList(names);
         evaluate(webView, "(function(){"
                 + "if(window.__jofslashAuthors)return;window.__jofslashAuthors=1;"
-                + "var norm=function(s){return (s||'').toLowerCase().replace(/[-_]+/g,' ').replace(/\\s+/g,' ').trim();};"
+                + "var UNITS='" + UNITS + "';"
+                + COMMENTS_JS + AUTHORS_JS
                 // A lookup table: the lists you follow can hold thousands of names.
                 + "var names={},count=0;" + list + ".forEach(function(n){n=norm(n);if(n&&!names[n]){names[n]=1;count++;}});"
                 // Patch settings adds a name picked with a long press, without loading the page again.
                 + "window.__jofslashAuthorsAdd=function(n){n=norm(n);if(n&&!names[n]){names[n]=1;count++;}run();};"
                 + LONG_PRESS_AUTHOR
-                + "function slug(a){var m=(a.getAttribute('href')||'').match(/\\/profile\\/([^/?#]+)/);return m?norm(decodeURIComponent(m[1]).replace(/-\\d+$/,'')):'';}"
-                + "function space(a){try{var h=new URL(a.href).hostname.split('.');return h.length>2&&h[h.length-2]==='quora'&&!/^(www|[a-z]{2})$/.test(h[0])?norm(h[0]):'';}catch(e){return '';}}"
-                // People in "Upvoted by …" lines didn't write the item.
-                + "function upvoter(a,u){for(var e=a.parentElement,i=0;e&&e!==u&&i<3;e=e.parentElement,i++){"
-                + "if(/^Upvoted by /.test((e.textContent||'').trim()))return true;}return false;}"
-                + "function hit(u){var links=u.querySelectorAll('a[href]');for(var i=0;i<links.length;i++){var a=links[i];"
-                + "if(upvoter(a,u))continue;"
-                + "var c=[norm(a.textContent),slug(a),space(a)];for(var j=0;j<c.length;j++)if(c[j]&&names.hasOwnProperty(c[j]))return true;}"
-                + "var t=u.querySelectorAll('.puppeteer_test_tribe_name');for(var k=0;k<t.length;k++)if(names.hasOwnProperty(norm(t[k].textContent)))return true;"
-                + "return false;}"
-                + "function run(){if(!count)return;document.querySelectorAll('" + UNITS + "').forEach(function(u){"
+                + "function run(){if(!count)return;comments();document.querySelectorAll(UNITS).forEach(function(u){"
                 + "if(u.hasAttribute('data-jofslash-filtered'))return;"
-                + "if(hit(u)){u.setAttribute('data-jofslash-filtered','');u.style.setProperty('display','none','important');}"
+                + "if(byAuthor(u,names))hide(u,'');"
                 + "});}"
                 + observe("run")
                 + "})();", "author filter");

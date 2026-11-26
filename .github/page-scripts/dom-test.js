@@ -11,10 +11,11 @@ let failures = 0;
 let checks = 0;
 const fail = (msg) => { failures++; console.error('FAIL ' + msg); };
 
-function run(script, html) {
+function run(script, html, url = 'https://www.quora.com/') {
   const dom = new JSDOM(`<!doctype html><html><head></head><body>${html}</body></html>`, {
     runScripts: 'outside-only',
     pretendToBeVisual: true,
+    url,
   });
   // jsdom has no innerText; the page scripts read the text with it.
   Object.defineProperty(dom.window.HTMLElement.prototype, 'innerText', {
@@ -33,8 +34,8 @@ function hidden(doc, selector) {
   return false;
 }
 
-function expect(script, html, cases) {
-  const doc = run(script, html);
+function expect(script, html, cases, url) {
+  const doc = run(script, html, url);
   for (const [selector, shouldHide] of cases) {
     checks++;
     if (hidden(doc, selector) !== shouldHide) {
@@ -207,6 +208,30 @@ expect('blockAuthors-0.js', `
   ['#hers', true], ['#upvoted', false],
 ]);
 
+// Comments, trimmed from an answer's open comments: no classes of their own, each has one Reply
+// button; a comment that starts a thread sits next to the box with its replies.
+const comment = (id, name, slug, text, replies = '') => `
+  <div class="q-box" id="${id}-wrap"><div class="q-box" id="${id}-thread">
+    <div class="q-box" id="${id}"><a class="puppeteer_test_link" href="https://www.quora.com/profile/${slug}"></a>
+      <span class="q-text qu-bold"><a class="puppeteer_test_link" href="https://www.quora.com/profile/${slug}">${name}</a></span>
+      <div class="q-text">${text}</div>
+      <div class="q-flex"><button class="q-click-wrapper"><div class="q-text">Reply</div></button></div></div>
+    ${replies ? `<div class="q-box" id="${id}-replies">${replies}</div>` : ''}
+  </div></div>`;
+const reply = (id, name, slug, text) => `
+  <div class="q-box" id="${id}"><a class="puppeteer_test_link" href="https://www.quora.com/profile/${slug}">${name}</a>
+    <div class="q-text">${text}</div><button class="q-click-wrapper"><div class="q-text">Reply</div></button></div>`;
+const withComments = (id, author, list) => `
+  <div class="q-box dom_annotate_question_answer_item_0" id="${id}">
+    <a class="puppeteer_test_link" href="https://www.quora.com/profile/${author.replace(/ /g, '-')}">${author}</a>
+    <div class="puppeteer_test_answer_content"><p class="q-text">An answer about cooking.</p></div>
+    <div class="dom_annotate_answer_action_bar_upvote"><button>Upvote</button></div>
+    <div class="q-box" id="${id}-comments">${list}</div></div>`;
+
+// A comment by someone in the author filter doesn't hide the answer it is under.
+expect('blockAuthors-0.js', withComments('answer', 'John Roe', comment('jane', 'Jane Doe', 'Jane-Doe-12', 'I disagree.')
+  + comment('carl', 'Carl Sagan', 'Carl-Sagan', 'Stars.')), [['#answer', false]]);
+
 // Hide anonymous answers. Markup trimmed from a question page: the author is the first bold
 // q-text; an anonymous one is plain text, a named one a profile link. An anonymous commenter
 // further down doesn't hide the named author's answer.
@@ -235,6 +260,10 @@ expect('filterKeywords-0.js', [unit('artist', '1y', 'An artist painted this.'), 
   unit('crypto', '1y', 'I lost money on crypto.'), unit('cryptography', '1y', 'Cryptography is maths.')].join(''), [
   ['#artist', true], ['#start', false], ['#crypto', true], ['#cryptography', false],
 ]);
+
+// A keyword in the open comments doesn't hide the answer they are under.
+expect('filterKeywords-0.js', withComments('answer', 'John Roe', comment('kw', 'Bob Smith', 'Bob-Smith', 'Buy crypto now.')),
+  [['#answer', false]]);
 
 // Hide low-voted answers (fewer than 10): the count is read from the Upvote button; an item
 // without one, such as a question, stays.
