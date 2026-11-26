@@ -91,11 +91,11 @@ private fun readingOptionPatch(
 val filterKeywordsPatch = readingOptionPatch(
     name = "Filter keywords",
     patchCategory = "Feed",
-    description = "Hides answers, posts and questions that mention words you pick.",
+    description = "Hides answers, posts, questions and comments that mention words you pick. A keyword starting with @ hides everything by that person or Space. Patch settings shows how many it hid in the last 24 hours and in all, and lets you pick where it works.",
     extensionMethod = "filterKeywords",
     optionKey = "keywords",
     optionTitle = "Keywords",
-    optionDescription = "Words or phrases, separated by commas. Matching ignores case and finds whole words; end a word with * to also find longer ones. Example: crypto, horoscope*, Elon Musk",
+    optionDescription = "Words or phrases, separated by commas. Matching ignores case and finds whole words; end a word with * to also find longer ones; start with @ for a person or Space. Example: crypto, horoscope*, Elon Musk, @Jane Doe",
     optionDefault = "",
 )
 
@@ -103,7 +103,7 @@ val filterKeywordsPatch = readingOptionPatch(
 val blockAuthorsPatch = readingOptionPatch(
     name = "Block authors and Spaces",
     patchCategory = "Feed",
-    description = "Hides answers and posts by the people and Spaces you pick. Long-press a name in the feed to add it.",
+    description = "Hides everything by the people and Spaces you pick: their answers and posts, their comments with the replies under them, their rows in people search, and their profile pages behind a Show anyway note. Long-press a name in the feed, in comments or on a profile to add it. Patch settings lets you pick where it works.",
     extensionMethod = "blockAuthors",
     optionKey = "authors",
     optionTitle = "Authors and Spaces",

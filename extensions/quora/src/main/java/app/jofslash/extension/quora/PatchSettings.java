@@ -514,7 +514,7 @@ public final class PatchSettings {
                     ? android.R.style.Theme_DeviceDefault_Dialog_Alert
                     : android.R.style.Theme_DeviceDefault_Light_Dialog_Alert)
                     .setTitle(Texts.t("Hide everything by ") + name + "?")
-                    .setMessage(Texts.t("Their answers and posts won't show in the feed or on question pages. You can remove the name again in Patch settings > More > Filters."))
+                    .setMessage(Texts.t("Their answers, posts and comments won't show, and their profile gets covered (Patch settings > Block authors and Spaces > Where). You can remove the name again in Patch settings > More > Filters."))
                     .setPositiveButton(Texts.t("Hide"), (d, w) -> {
                         addAuthor(prefs, name);
                         view.evaluateJavascript("window.__jofslashAuthorsAdd&&window.__jofslashAuthorsAdd("

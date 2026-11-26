@@ -11,10 +11,11 @@ let failures = 0;
 let checks = 0;
 const fail = (msg) => { failures++; console.error('FAIL ' + msg); };
 
-function run(script, html) {
+function run(script, html, url = 'https://www.quora.com/') {
   const dom = new JSDOM(`<!doctype html><html><head></head><body>${html}</body></html>`, {
     runScripts: 'outside-only',
     pretendToBeVisual: true,
+    url,
   });
   // jsdom has no innerText; the page scripts read the text with it.
   Object.defineProperty(dom.window.HTMLElement.prototype, 'innerText', {
@@ -33,8 +34,8 @@ function hidden(doc, selector) {
   return false;
 }
 
-function expect(script, html, cases) {
-  const doc = run(script, html);
+function expect(script, html, cases, url) {
+  const doc = run(script, html, url);
   for (const [selector, shouldHide] of cases) {
     checks++;
     if (hidden(doc, selector) !== shouldHide) {
@@ -207,6 +208,63 @@ expect('blockAuthors-0.js', `
   ['#hers', true], ['#upvoted', false],
 ]);
 
+// Comments, trimmed from an answer's open comments: no classes of their own, each has one Reply
+// button; a comment that starts a thread sits next to the box with its replies.
+const comment = (id, name, slug, text, replies = '') => `
+  <div class="q-box" id="${id}-wrap"><div class="q-box" id="${id}-thread">
+    <div class="q-box" id="${id}"><a class="puppeteer_test_link" href="https://www.quora.com/profile/${slug}"></a>
+      <span class="q-text qu-bold"><a class="puppeteer_test_link" href="https://www.quora.com/profile/${slug}">${name}</a></span>
+      <div class="q-text">${text}</div>
+      <div class="q-flex"><button class="q-click-wrapper"><div class="q-text">Reply</div></button></div></div>
+    ${replies ? `<div class="q-box" id="${id}-replies">${replies}</div>` : ''}
+  </div></div>`;
+const reply = (id, name, slug, text) => `
+  <div class="q-box" id="${id}"><a class="puppeteer_test_link" href="https://www.quora.com/profile/${slug}">${name}</a>
+    <div class="q-text">${text}</div><button class="q-click-wrapper"><div class="q-text">Reply</div></button></div>`;
+const withComments = (id, author, list) => `
+  <div class="q-box dom_annotate_question_answer_item_0" id="${id}">
+    <a class="puppeteer_test_link" href="https://www.quora.com/profile/${author.replace(/ /g, '-')}">${author}</a>
+    <div class="puppeteer_test_answer_content"><p class="q-text">An answer about cooking.</p></div>
+    <div class="dom_annotate_answer_action_bar_upvote"><button>Upvote</button></div>
+    <div class="q-box" id="${id}-comments">${list}</div></div>`;
+
+// Block authors in comments: Jane Doe's comment goes with the replies under it, the answer she
+// commented on stays, and so do the other comments, also a reply under someone else's comment.
+expect('blockAuthors-0.js', withComments('answer', 'John Roe', [
+  comment('jane', 'Jane Doe', 'Jane-Doe-12', 'I disagree.', reply('reply-to-jane', 'Max Power', 'Max-Power', 'Me too.')),
+  comment('bob', 'Bob Smith', 'Bob-Smith', 'Nice.', reply('jane-reply', 'Jane Doe', 'Jane-Doe-12', 'Thanks.') + reply('al', 'Al Bundy', 'Al-Bundy', 'Yes.')),
+  comment('carl', 'Carl Sagan', 'Carl-Sagan', 'Stars.'),
+].join('')), [
+  ['#answer', false], ['#jane', true], ['#reply-to-jane', true], ['#bob', false], ['#jane-reply', true], ['#al', false],
+  ['#carl', false],
+]);
+
+// Block authors in people search: Jane Doe's row goes, John Roe's stays.
+const person = (id, name, slug) => `
+  <div class="q-box qu-borderBottom qu-tap" id="${id}"><a class="puppeteer_test_link" href="https://www.quora.com/profile/${slug}"></a>
+    <span class="q-text qu-bold"><a class="puppeteer_test_link" href="https://www.quora.com/profile/${slug}">${name}</a></span>
+    <div class="q-text">Writer</div></div>`;
+expect('blockAuthors-0.js', person('p-jane', 'Jane Doe', 'Jane-Doe-12') + person('p-john', 'John Roe', 'John-Roe'),
+  [['#p-jane', true], ['#p-john', false]], 'https://www.quora.com/search?q=doe&type=profile');
+
+// Block authors on a profile page: covered, with a Show anyway button that takes the cover away.
+{
+  const doc = run('blockAuthors-0.js', '<h1 class="q-text">Jane Doe</h1><div id="content">Her profile</div>',
+    'https://www.quora.com/profile/Jane-Doe-12');
+  const cover = doc.getElementById('jofslash-blocked-cover');
+  checks++;
+  if (!cover || !/Jane Doe/.test(cover.textContent)) fail('blockAuthors-0.js: a blocked profile should be covered');
+  else {
+    const show = [...cover.querySelectorAll('button')].find((b) => b.textContent === 'Show anyway');
+    show.click();
+    checks++;
+    if (doc.getElementById('jofslash-blocked-cover')) fail('blockAuthors-0.js: Show anyway should take the cover away');
+  }
+  const other = run('blockAuthors-0.js', '<h1 class="q-text">John Roe</h1>', 'https://www.quora.com/profile/John-Roe');
+  checks++;
+  if (other.getElementById('jofslash-blocked-cover')) fail('blockAuthors-0.js: a profile not blocked should not be covered');
+}
+
 // Hide anonymous answers. Markup trimmed from a question page: the author is the first bold
 // q-text; an anonymous one is plain text, a named one a profile link. An anonymous commenter
 // further down doesn't hide the named author's answer.
@@ -234,6 +292,16 @@ expect('hideAnonymousAnswers-0.js', `
 expect('filterKeywords-0.js', [unit('artist', '1y', 'An artist painted this.'), unit('start', '1y', 'A fresh start for all.'),
   unit('crypto', '1y', 'I lost money on crypto.'), unit('cryptography', '1y', 'Cryptography is maths.')].join(''), [
   ['#artist', true], ['#start', false], ['#crypto', true], ['#cryptography', false],
+]);
+
+// Filter keywords in comments: a comment with a keyword goes, the answer stays (a keyword in its
+// comments doesn't count for it); "@Max Power" hides his answer and his comment with its replies.
+expect('filterKeywords-0.js', withComments('answer', 'John Roe', [
+  comment('kw', 'Bob Smith', 'Bob-Smith', 'Buy crypto now.'),
+  comment('ok', 'Carl Sagan', 'Carl-Sagan', 'Stars.'),
+  comment('max', 'Max Power', 'Max-Power', 'Hi.', reply('max-reply', 'Al Bundy', 'Al-Bundy', 'Hello.')),
+].join('')) + withComments('by-max', 'Max Power', comment('x', 'Al Bundy', 'Al-Bundy', 'Hm.')), [
+  ['#answer', false], ['#kw', true], ['#ok', false], ['#max', true], ['#max-reply', true], ['#by-max', true],
 ]);
 
 // Hide low-voted answers (fewer than 10): the count is read from the Upvote button; an item
@@ -394,7 +462,8 @@ async function bookmarkCheck() {
   w.close();
 }
 
-// Hidden counts: an ad the ads stylesheet hides and a feed item a filter hid count once each; the
+// Hidden counts: an ad the ads stylesheet hides, a feed item a filter hid and a comment the author
+// filter hid (counted as its own kind) count once each; the
 // ad's inner parts and a shown item don't count.
 async function statsCheck() {
   const dom = new JSDOM(`<!doctype html><html><head>
@@ -402,6 +471,7 @@ async function statsCheck() {
     <div class="q-box dom_annotate_multifeed_bundle_AdBundle"><div class="dom_annotate_multifeed_bundle_AdBundle">inner</div></div>
     <div class="q-box dom_annotate_multifeed_bundle_AnswersBundle" data-jofslash-filtered style="display:none">filtered</div>
     <div class="q-box dom_annotate_multifeed_bundle_AnswersBundle" id="shown">shown</div>
+    <div class="q-box" data-jofslash-filtered="authors" style="display:none">a blocked person's comment</div>
     </body></html>`, { runScripts: 'outside-only', pretendToBeVisual: true });
   const w = dom.window;
   const sent = [];
@@ -409,7 +479,9 @@ async function statsCheck() {
   w.eval(fs.readFileSync(path.join(dir, 'onPageFinished-0.js'), 'utf8'));
   const total = (kind) => sent.reduce((n, s) => n + (s[kind] || 0), 0);
   checks++;
-  if (total('ads') !== 1 || total('filters') !== 1) fail(`onPageFinished-0.js (hidden counts): sent ${JSON.stringify(sent)}, want ads 1 and filters 1`);
+  if (total('ads') !== 1 || total('filters') !== 1 || total('authors') !== 1) {
+    fail(`onPageFinished-0.js (hidden counts): sent ${JSON.stringify(sent)}, want ads 1, filters 1 and authors 1`);
+  }
   // A filter hides another item later: it counts once more, the old ones don't count again.
   w.document.getElementById('shown').setAttribute('data-jofslash-filtered', '');
   await new Promise((r) => setTimeout(r, 1800));

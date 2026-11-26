@@ -305,8 +305,8 @@ final class TextsSk {
         m.put("Items from the people and Spaces in Filters. Long-press a name to add it.",
                 "Príspevky ľudí a Priestorov z Filtrov. Meno pridáš dlhým podržaním.");
         m.put("Hide everything by ", "Skryť všetko od ");
-        m.put("Their answers and posts won't show in the feed or on question pages. You can remove the name again in Patch settings > More > Filters.",
-                "Ich odpovede a príspevky sa nezobrazia vo feede ani na stránkach otázok. Meno môžeš znova odstrániť v Patch settings > Ďalšie > Filtre.");
+        m.put("Their answers, posts and comments won't show, and their profile gets covered (Patch settings > Block authors and Spaces > Where). You can remove the name again in Patch settings > More > Filters.",
+                "Ich odpovede, príspevky a komentáre sa nezobrazia a ich profil sa zakryje (Patch settings > Block authors and Spaces > Kde). Meno môžeš znova odobrať v Patch settings > Ďalšie > Filtre.");
         m.put("hidden.", "skryté.");
         // Hidden counts.
         m.put("Hidden in the last 7 days: ", "Skryté za posledných 7 dní: ");
@@ -339,8 +339,8 @@ final class TextsSk {
         m.put("Hide the marked box?", "Skryť označenú časť?");
         m.put("Links to text files with names, one per line. They are downloaded once a day.",
                 "Odkazy na textové súbory s menami, jedno na riadok. Sťahujú sa raz denne.");
-        m.put("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). Saved when you go back.",
-                "Veľkosť písmen nehrá rolu a hľadajú sa celé slová; slovo s * na konci nájde aj dlhšie (art* nájde artist). Uloží sa, keď sa vrátiš.");
+        m.put("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). A keyword starting with @, such as @Jane Doe, hides everything by that person or Space. Saved when you go back.",
+                "Veľkosť písmen nehrá rolu a hľadajú sa celé slová; slovo s * na konci nájde aj dlhšie (art* nájde artist). Kľúčové slovo začínajúce @, napríklad @Jane Doe, skryje všetko od toho človeka alebo Space. Uloží sa, keď sa vrátiš.");
         m.put("Names from the lists: ", "Mená zo zoznamov: ");
         m.put("Not downloaded yet.", "Ešte nestiahnuté.");
         m.put("Nothing here can be hidden this way. Try a bigger part of the page.",
@@ -363,5 +363,16 @@ final class TextsSk {
                 "S uloženými textami je to na zdieľanie príliš dlhé: zdieľajú sa názvy a odkazy. Uložiť do Stiahnutých zachová všetko.");
         m.put("You can show it again under Filters.", "Znova to ukážeš vo Filtroch.");
         m.put("min read", "min čítania");
+        m.put("Comments", "Komentáre");
+        m.put("Feed, answers and search", "Feed, odpovede a hľadanie");
+        m.put("Go back", "Späť");
+        m.put("Hidden by your filters", "Skryté tvojimi filtrami");
+        m.put("People search", "Hľadanie ľudí");
+        m.put("Profile pages", "Profily");
+        m.put("Show anyway", "Aj tak ukázať");
+        m.put("Where", "Kde");
+        m.put("in all", "celkovo");
+        m.put("in the last 24 hours", "za posledných 24 hodín");
+        m.put("you blocked them in Quora patches.", "zablokované v Quora patchoch.");
     }
 }

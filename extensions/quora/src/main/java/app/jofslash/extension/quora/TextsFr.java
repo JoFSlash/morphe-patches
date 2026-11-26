@@ -305,8 +305,8 @@ final class TextsFr {
         m.put("Items from the people and Spaces in Filters. Long-press a name to add it.",
                 "Les contenus des personnes et Espaces des Filtres. Appui long sur un nom pour l'ajouter.");
         m.put("Hide everything by ", "Tout masquer de ");
-        m.put("Their answers and posts won't show in the feed or on question pages. You can remove the name again in Patch settings > More > Filters.",
-                "Ses réponses et publications n'apparaîtront plus dans le fil ni sur les pages de questions. Tu peux retirer le nom dans Patch settings > Plus > Filtres.");
+        m.put("Their answers, posts and comments won't show, and their profile gets covered (Patch settings > Block authors and Spaces > Where). You can remove the name again in Patch settings > More > Filters.",
+                "Ses réponses, publications et commentaires ne s’afficheront plus, et son profil sera masqué (Patch settings > Block authors and Spaces > Où). Tu peux retirer le nom dans Patch settings > Plus > Filtres.");
         m.put("hidden.", "masqué.");
         // Hidden counts.
         m.put("Hidden in the last 7 days: ", "Masqué ces 7 derniers jours : ");
@@ -344,8 +344,8 @@ final class TextsFr {
         m.put("Hide the marked box?", "Masquer la partie marquée ?");
         m.put("Links to text files with names, one per line. They are downloaded once a day.",
                 "Liens vers des fichiers texte de noms, un par ligne. Ils sont téléchargés une fois par jour.");
-        m.put("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). Saved when you go back.",
-                "Sans tenir compte des majuscules, mots entiers uniquement ; un mot terminé par * trouve aussi des mots plus longs (art* trouve artist). Enregistré au retour.");
+        m.put("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). A keyword starting with @, such as @Jane Doe, hides everything by that person or Space. Saved when you go back.",
+                "Sans tenir compte des majuscules, mots entiers uniquement ; un mot terminé par * trouve aussi des mots plus longs (art* trouve artist). Un mot-clé commençant par @, comme @Jane Doe, masque tout ce qui vient de cette personne ou de ce Space. Enregistré au retour.");
         m.put("Names from the lists: ", "Noms des listes : ");
         m.put("Not downloaded yet.", "Pas encore téléchargé.");
         m.put("Nothing here can be hidden this way. Try a bigger part of the page.",
@@ -368,5 +368,16 @@ final class TextsFr {
                 "Trop long à partager avec les textes enregistrés : seuls les titres et les liens sont partagés. Enregistrer dans Téléchargements garde tout.");
         m.put("You can show it again under Filters.", "Vous pouvez le réafficher dans Filtres.");
         m.put("min read", "min de lecture");
+        m.put("Comments", "Commentaires");
+        m.put("Feed, answers and search", "Fil, réponses et recherche");
+        m.put("Go back", "Retour");
+        m.put("Hidden by your filters", "Masqué par tes filtres");
+        m.put("People search", "Recherche de personnes");
+        m.put("Profile pages", "Pages de profil");
+        m.put("Show anyway", "Afficher quand même");
+        m.put("Where", "Où");
+        m.put("in all", "au total");
+        m.put("in the last 24 hours", "ces dernières 24 heures");
+        m.put("you blocked them in Quora patches.", "bloqué dans les patchs Quora.");
     }
 }

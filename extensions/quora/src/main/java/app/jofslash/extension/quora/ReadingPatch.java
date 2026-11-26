@@ -94,41 +94,129 @@ public final class ReadingPatch {
 
     // ---------------------------------------------------------------- filters
 
+    /** What a filter hides, by place: "feed" (feed items, answers, search results), "comments", "people", "profiles". */
+    private static final String[] AUTHOR_PLACES = {"feed", "comments", "people", "profiles"};
+    private static final String[] AUTHOR_PLACE_LABELS = {"Feed, answers and search", "Comments", "People search", "Profile pages"};
+    private static final String[] KEYWORD_PLACES = {"feed", "comments"};
+    private static final String[] KEYWORD_PLACE_LABELS = {"Feed, answers and search", "Comments"};
+
+    /** The boxes a comment box can't reach up into: the answer or post it belongs to, and the comment field. */
+    private static final String COMMENT_STOP = "[class*=\"dom_annotate_answer_action_bar\"]," + ANSWER_TEXT
+            + ",textarea,[contenteditable=\"true\"]," + UNITS;
+
+    /**
+     * comments(): the comments on the page, each the largest box around one Reply button that holds no
+     * other Reply button, marked with data-jofslash-comment. Comments have no class of their own; their
+     * Reply button is the one thing every comment has. commenter(box): the link to the commenter's
+     * profile. thread(box): the comment with the replies under it, when it starts a thread.
+     * ownText(u): the text of an item without the text of its open comments.
+     */
+    static final String COMMENTS_JS = ""
+            + "var CSTOP='" + COMMENT_STOP + "';"
+            + "function isReply(b){return /^Reply$/.test((b.textContent||'').trim());}"
+            + "function replies(e){var n=0,l=e.querySelectorAll('button');for(var i=0;i<l.length;i++)if(isReply(l[i]))n++;return n;}"
+            + "function comments(){var out=[],l=document.querySelectorAll('button');"
+            + "for(var i=0;i<l.length;i++){var b=l[i];if(!isReply(b))continue;"
+            + "var done=b.closest('[data-jofslash-comment]');if(done){if(out.indexOf(done)<0)out.push(done);continue;}"
+            + "var box=null;for(var e=b.parentElement;e&&e!==document.body;e=e.parentElement){"
+            + "if(e.matches(CSTOP)||e.querySelector(CSTOP)||replies(e)>1)break;box=e;}"
+            + "if(box){box.setAttribute('data-jofslash-comment','');out.push(box);}}return out;}"
+            + "function commenter(box){var l=box.querySelectorAll('a[href*=\"/profile/\"]');"
+            + "for(var i=0;i<l.length;i++)if((l[i].textContent||'').trim())return l[i];return null;}"
+            // The comment and its replies sit side by side in a box of their own.
+            + "function thread(box){var p=box.parentElement;"
+            + "return p&&p.firstElementChild===box&&p.children.length===2&&replies(p.lastElementChild)>0"
+            + "&&p.parentElement&&p.parentElement.children.length===1?p:box;}"
+            + "function inComment(e,u){if(!e.closest)return false;var c=e.closest('[data-jofslash-comment]');return !!c&&c!==u&&u.contains(c);}"
+            + "function ownText(u){var t=u.innerText||'';u.querySelectorAll('[data-jofslash-comment]').forEach(function(c){"
+            + "var x=c.innerText;if(x)t=t.split(x).join(' ');});return t;}"
+            + "function hide(e,k){e.setAttribute('data-jofslash-filtered',k);e.style.setProperty('display','none','important');}";
+
+    /**
+     * Matching people and Spaces against a lookup table of names: norm(s), slug(a) (a profile link's
+     * name, without the number Quora adds to names taken before), space(a) (a Space link's name),
+     * upvoter(a,u) (a name in an "Upvoted by" line, who didn't write the item), named(a,names) and
+     * byAuthor(u,names): whether an item is by, or mentions, one of them. Comments in the item don't
+     * count, so a commenter doesn't hide the answer. Uses inComment from COMMENTS_JS.
+     */
+    static final String AUTHORS_JS = ""
+            + "var norm=function(s){return (s||'').toLowerCase().replace(/[-_]+/g,' ').replace(/\\s+/g,' ').trim();};"
+            + "function slug(a){var m=(a.getAttribute('href')||'').match(/\\/profile\\/([^/?#]+)/);"
+            + "if(!m)return '';try{return norm(decodeURIComponent(m[1]).replace(/-\\d+$/,''));}catch(e){return '';}}"
+            + "function space(a){try{var h=new URL(a.href).hostname.split('.');"
+            + "return h.length>2&&h[h.length-2]==='quora'&&!/^(www|[a-z]{2})$/.test(h[0])?norm(h[0]):'';}catch(e){return '';}}"
+            + "function upvoter(a,u){for(var e=a.parentElement,i=0;e&&e!==u&&i<3;e=e.parentElement,i++){"
+            + "if(/^Upvoted by /.test((e.textContent||'').trim()))return true;}return false;}"
+            + "function named(a,names){var c=[norm(a.textContent),slug(a),space(a)];"
+            + "for(var j=0;j<c.length;j++)if(c[j]&&names.hasOwnProperty(c[j]))return true;return false;}"
+            + "function byAuthor(u,names){var links=u.querySelectorAll('a[href]');for(var i=0;i<links.length;i++){var a=links[i];"
+            + "if(upvoter(a,u)||inComment(a,u))continue;if(named(a,names))return true;}"
+            + "var t=u.querySelectorAll('.puppeteer_test_tribe_name');for(var k=0;k<t.length;k++)"
+            + "if(!inComment(t[k],u)&&names.hasOwnProperty(norm(t[k].textContent)))return true;"
+            + "return false;}";
+
+    /** The places picked for a filter, as a JavaScript object such as {feed:1,comments:1}. */
+    private static String places(String picked, String[] values) {
+        StringBuilder out = new StringBuilder("{");
+        for (String value : values) {
+            if (!("," + (picked == null ? "" : picked) + ",").contains("," + value + ",")) continue;
+            if (out.length() > 1) out.append(',');
+            out.append(value).append(":1");
+        }
+        return out.append('}').toString();
+    }
+
     /**
      * Injection point: start of QWebViewClient.onPageFinished.
      *
-     * @param words Comma separated words or phrases. Feed items and answers containing one are hidden.
+     * @param words Comma separated words or phrases. Feed items, answers and comments containing one
+     *              are hidden. An entry starting with @, such as @Jane Doe, hides everything by that
+     *              person or Space instead, also with Block authors and Spaces switched off.
      */
     public static void filterKeywords(WebView webView, String words) {
         if (!PatchSettings.active(webView, "filterKeywords", "Filter keywords")) return;
         words = PatchSettings.text(webView, "keywords", "Keywords", words);
         String list = jsonList(words);
         if (list.equals("[]")) return;
+        String where = places(PatchSettings.choice("filterKeywords", "keywordPlaces", "Where",
+                String.join(",", KEYWORD_PLACES), KEYWORD_PLACE_LABELS, KEYWORD_PLACES, true), KEYWORD_PLACES);
         evaluate(webView, "(function(){"
                 + "if(window.__jofslashKeywords)return;window.__jofslashKeywords=1;"
-                + "var words=" + list + ";"
+                + "var UNITS='" + UNITS + "',P=" + where + ",all=" + list + ";"
+                + COMMENTS_JS + AUTHORS_JS
+                // @Name entries are people and Spaces; the rest are words.
+                + "var names={},people=0,words=[];all.forEach(function(w){"
+                + "if(/^@/.test(w)){var n=norm(w.slice(1));if(n&&!names[n]){names[n]=1;people++;}}else words.push(w);});"
                 // Whole words only; a * at the end of a word also matches longer words (art* finds artist).
                 + "var esc=function(w){var star=/\\*$/.test(w);w=w.replace(/\\*+$/,'');"
                 + "return w.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&').replace(/\\s+/g,'\\\\s+')+(star?'[\\\\p{L}\\\\p{N}]*':'');};"
-                + "words=words.filter(function(w){return w.replace(/\\*+$/,'').trim();});if(!words.length)return;"
-                + "var re=new RegExp('(^|[^\\\\p{L}\\\\p{N}])('+words.map(esc).join('|')+')(?=$|[^\\\\p{L}\\\\p{N}])','iu');"
-                + "function run(){document.querySelectorAll('" + UNITS + "').forEach(function(u){"
+                + "words=words.filter(function(w){return w.replace(/\\*+$/,'').trim();});"
+                + "if(!words.length&&!people)return;"
+                + "var re=words.length?new RegExp('(^|[^\\\\p{L}\\\\p{N}])('+words.map(esc).join('|')+')(?=$|[^\\\\p{L}\\\\p{N}])','iu'):null;"
+                + "function run(){var cs=comments();"
+                + "if(P.feed)document.querySelectorAll(UNITS).forEach(function(u){"
                 + "if(u.hasAttribute('data-jofslash-filtered'))return;"
-                + "if(re.test(u.innerText||'')){u.setAttribute('data-jofslash-filtered','');u.style.setProperty('display','none','important');}"
-                + "});}"
+                + "if((re&&re.test(ownText(u)))||(people&&byAuthor(u,names)))hide(u,'keywords');});"
+                + "if(P.comments)cs.forEach(function(c){if(c.hasAttribute('data-jofslash-filtered'))return;"
+                + "var a=people?commenter(c):null;"
+                + "if(a&&named(a,names)){hide(thread(c),'keywords');return;}"
+                + "if(re&&re.test(c.innerText||''))hide(c,'keywords');});}"
                 + observe("run")
                 + "})();", "keyword filter");
     }
 
     /**
-     * Part of the author filter's script: a long press on an author's or a Space's name in a feed item
-     * or an answer asks the app whether to hide everything by them (PatchSettings' blockAuthor). The
-     * tap that ends the long press doesn't open the profile. Names in "Upvoted by" lines don't count:
-     * those people didn't write the item. Uses norm, upvoter and UNITS from the script around it.
+     * Part of the author filter's script: a long press on an author's or a Space's name in a feed item,
+     * an answer or a comment, or on the name at the top of a profile page, asks the app whether to
+     * hide everything by them (PatchSettings' blockAuthor). The tap that ends the long press doesn't
+     * open the profile. Names in "Upvoted by" lines don't count: those people didn't write the item.
+     * Uses norm, upvoter and UNITS from the script around it.
      */
     private static final String LONG_PRESS_AUTHOR = ""
             + "var J=window.JoFSlashPatches,timer=0,sx=0,sy=0,eat=0;"
             + "function who(t){if(!t||!t.closest)return null;"
+            + "if(/^\\/profile\\//.test(location.pathname)){var h1=t.closest('h1');"
+            + "if(h1){var hn=(h1.textContent||'').replace(/\\s+/g,' ').trim();return hn&&hn.length<=80?hn:null;}}"
             + "var a=t.closest('a[href],.puppeteer_test_tribe_name');if(!a)return null;"
             + "var u=a.closest('" + UNITS + "');if(!u||upvoter(a,u))return null;"
             + "var name=(a.textContent||'').replace(/\\s+/g,' ').trim();"
@@ -158,6 +246,34 @@ public final class ReadingPatch {
             + "if(Date.now()-eat<1200){ev.preventDefault();ev.stopPropagation();eat=0;}},true);";
 
     /**
+     * Part of the author filter's script: the profile page of someone you blocked is covered by a
+     * note with a Show button, which shows that profile until the app is closed. Uses norm, names and
+     * the text constants from the script around it.
+     */
+    private static final String PROFILE_COVER = ""
+            + "var COVER='jofslash-blocked-cover';"
+            + "function profileName(){var m=(location.pathname||'').match(/^\\/profile\\/([^/?#]+)\\/?$|^\\/profile\\/([^/?#]+)\\//);"
+            + "if(!m)return null;var s='';try{s=norm(decodeURIComponent(m[1]||m[2]).replace(/-\\d+$/,''));}catch(e){}"
+            + "var h1=document.querySelector('h1'),t=h1?(h1.textContent||'').replace(/\\s+/g,' ').trim():'';"
+            + "if((s&&names.hasOwnProperty(s))||(t&&names.hasOwnProperty(norm(t))))return t||s;return null;}"
+            + "function cover(){var old=document.getElementById(COVER),path=(location.pathname||'').replace(/\\/(answers|questions|posts|followers|following|spaces|log).*$/,'');"
+            + "if(old&&old.getAttribute('data-path')!==path){old.remove();old=null;}"
+            + "if(old)return;var shown=false;try{shown=sessionStorage.getItem('jofslash-shown:'+path)==='1';}catch(e){}"
+            + "if(shown)return;var who=profileName();if(!who)return;"
+            + "var cs=getComputedStyle(document.body),bg=cs.backgroundColor,fg=cs.color;"
+            + "if(!bg||/rgba\\(0, 0, 0, 0\\)|transparent/.test(bg))bg=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'#181818':'#fff';"
+            + "var d=document.createElement('div');d.id=COVER;d.setAttribute('data-path',path);d.setAttribute('data-jofslash-filtered','authors');"
+            + "d.style.cssText='position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;align-items:center;"
+            + "justify-content:center;gap:16px;padding:32px;text-align:center;font:16px/1.4 sans-serif;background:'+bg+';color:'+fg;"
+            + "var p=document.createElement('div');p.textContent=who+': '+BLOCKED;"
+            + "var b=document.createElement('button');b.textContent=SHOW;"
+            + "b.style.cssText='font:inherit;padding:10px 20px;border-radius:20px;border:1px solid currentColor;background:none;color:inherit';"
+            + "b.addEventListener('click',function(){try{sessionStorage.setItem('jofslash-shown:'+path,'1');}catch(e){}d.remove();});"
+            + "var back=document.createElement('button');back.textContent=BACK;back.style.cssText=b.style.cssText;"
+            + "back.addEventListener('click',function(){history.back();});"
+            + "d.appendChild(p);d.appendChild(back);d.appendChild(b);document.documentElement.appendChild(d);}";
+
+    /**
      * Injection point: start of QWebViewClient.onPageFinished.
      *
      * @param names Comma separated author names or Space names, as Quora shows them.
@@ -169,29 +285,42 @@ public final class ReadingPatch {
         String followed = AuthorLists.namesText(webView.getContext());
         if (!followed.isEmpty()) names = (names == null ? "" : names) + "," + followed;
         String list = jsonList(names);
+        String where = places(PatchSettings.choice("blockAuthors", "authorPlaces", "Where",
+                String.join(",", AUTHOR_PLACES), AUTHOR_PLACE_LABELS, AUTHOR_PLACES, true), AUTHOR_PLACES);
         evaluate(webView, "(function(){"
                 + "if(window.__jofslashAuthors)return;window.__jofslashAuthors=1;"
-                + "var norm=function(s){return (s||'').toLowerCase().replace(/[-_]+/g,' ').replace(/\\s+/g,' ').trim();};"
+                + "var UNITS='" + UNITS + "',P=" + where + ";"
+                + "var BLOCKED=" + HideContentPatch.jsString(Texts.t("you blocked them in Quora patches.")) + ","
+                + "SHOW=" + HideContentPatch.jsString(Texts.t("Show anyway")) + ","
+                + "BACK=" + HideContentPatch.jsString(Texts.t("Go back")) + ";"
+                + COMMENTS_JS + AUTHORS_JS
                 // A lookup table: the lists you follow can hold thousands of names.
                 + "var names={},count=0;" + list + ".forEach(function(n){n=norm(n);if(n&&!names[n]){names[n]=1;count++;}});"
                 // Patch settings adds a name picked with a long press, without loading the page again.
                 + "window.__jofslashAuthorsAdd=function(n){n=norm(n);if(n&&!names[n]){names[n]=1;count++;}run();};"
-                + LONG_PRESS_AUTHOR
-                + "function slug(a){var m=(a.getAttribute('href')||'').match(/\\/profile\\/([^/?#]+)/);return m?norm(decodeURIComponent(m[1]).replace(/-\\d+$/,'')):'';}"
-                + "function space(a){try{var h=new URL(a.href).hostname.split('.');return h.length>2&&h[h.length-2]==='quora'&&!/^(www|[a-z]{2})$/.test(h[0])?norm(h[0]):'';}catch(e){return '';}}"
-                // People in "Upvoted by …" lines didn't write the item.
-                + "function upvoter(a,u){for(var e=a.parentElement,i=0;e&&e!==u&&i<3;e=e.parentElement,i++){"
-                + "if(/^Upvoted by /.test((e.textContent||'').trim()))return true;}return false;}"
-                + "function hit(u){var links=u.querySelectorAll('a[href]');for(var i=0;i<links.length;i++){var a=links[i];"
-                + "if(upvoter(a,u))continue;"
-                + "var c=[norm(a.textContent),slug(a),space(a)];for(var j=0;j<c.length;j++)if(c[j]&&names.hasOwnProperty(c[j]))return true;}"
-                + "var t=u.querySelectorAll('.puppeteer_test_tribe_name');for(var k=0;k<t.length;k++)if(names.hasOwnProperty(norm(t[k].textContent)))return true;"
-                + "return false;}"
-                + "function run(){if(!count)return;document.querySelectorAll('" + UNITS + "').forEach(function(u){"
+                + LONG_PRESS_AUTHOR + PROFILE_COVER
+                // A row in the people search results: the largest box around the name that links to
+                // no other profile (people with the same name have their own). The rows have no class of their own.
+                + "function id(a){var m=(a.getAttribute('href')||'').match(/\\/profile\\/([^/?#]+)/);return m?m[1]:'';}"
+                + "function only(e,s){var l=e.querySelectorAll('a[href*=\"/profile/\"]');"
+                + "for(var i=0;i<l.length;i++)if(id(l[i])!==s)return false;return true;}"
+                + "function person(a){if(a.closest(UNITS))return null;var s=id(a),r=null;"
+                + "for(var e=a.parentElement,i=0;e&&e!==document.body&&i<14;e=e.parentElement,i++){"
+                + "if(!only(e,s)||e.querySelector('input,textarea,h1'))break;r=e;}return r;}"
+                + "function run(){if(!count)return;var cs=comments();"
+                + "if(P.feed)document.querySelectorAll(UNITS).forEach(function(u){"
                 + "if(u.hasAttribute('data-jofslash-filtered'))return;"
-                + "if(hit(u)){u.setAttribute('data-jofslash-filtered','');u.style.setProperty('display','none','important');}"
-                + "});}"
+                + "if(byAuthor(u,names))hide(u,'authors');});"
+                + "if(P.comments)cs.forEach(function(c){if(c.hasAttribute('data-jofslash-filtered'))return;"
+                + "var a=commenter(c);if(a&&named(a,names))hide(thread(c),'authors');});"
+                + "if(P.people&&/^\\/search/.test(location.pathname||''))"
+                + "document.querySelectorAll('a[href*=\"/profile/\"]').forEach(function(a){"
+                + "if(!(a.textContent||'').trim()||!named(a,names))return;var r=person(a);"
+                + "if(r&&!r.hasAttribute('data-jofslash-filtered'))hide(r,'authors');});"
+                + "if(P.profiles)cover();}"
                 + observe("run")
+                // Quora changes pages without loading them: check the profile cover when the address changes.
+                + "var last=location.href;(function tick(){if(location.href!==last){last=location.href;run();}setTimeout(tick,700);})();"
                 + "})();", "author filter");
     }
 

@@ -34,6 +34,14 @@ public final class HiddenStats {
     /** The kinds, in the order the settings line shows them. */
     static final String[] KINDS = {"ads", "ai", "plus", "suggestions", "filters"};
 
+    /**
+     * The filters with counts of their own, for the Filters page: the last 24 hours (per hour) and
+     * all time. They also count as "filters" in the 7-day line.
+     */
+    static final String[] FILTER_KINDS = {"keywords", "authors"};
+    private static final String HOURS = "stats_hours";
+    private static final String TOTAL = "stats_total";
+
     private static final String UNITS = "[class*=\"dom_annotate_question_answer_item\"],"
             + "[class*=\"dom_annotate_multifeed_bundle_\"],.puppeteer_test_question_component_base";
 
@@ -61,8 +69,11 @@ public final class HiddenStats {
             + "e.setAttribute('data-jofslash-counted',c);wait[c]=(wait[c]||0)+1;n++;}"
             + "function run(){rules().forEach(function(p){var l;try{l=document.querySelectorAll(p[0]);}catch(e){return;}"
             + "for(var i=0;i<l.length;i++)hit(l[i],p[1]);});"
+            // Keywords and authors count wherever they hid something (also comments and people);
+            // the other filters count feed items and answers.
             + "document.querySelectorAll('[data-jofslash-filtered],[data-jofslash-hidden]').forEach(function(e){"
-            + "if(e.matches(UNITS))hit(e,'filters');});"
+            + "var k=e.getAttribute('data-jofslash-filtered');"
+            + "if(k==='keywords'||k==='authors')hit(e,k);else if(e.matches(UNITS))hit(e,'filters');});"
             + "if(n&&J&&J.ready()){try{J.countHidden(JSON.stringify(wait));wait={};n=0;}catch(e){}}}"
             + "run();var p=false;"
             + "new MutationObserver(function(){if(p)return;p=true;setTimeout(function(){p=false;run();},1500);})"
@@ -86,6 +97,10 @@ public final class HiddenStats {
         return new SimpleDateFormat("yyyyMMdd", Locale.ROOT).format(new Date(time));
     }
 
+    private static String hour(long time) {
+        return new SimpleDateFormat("yyyyMMddHH", Locale.ROOT).format(new Date(time));
+    }
+
     /** Adds the counts a page sent, as {"ads":2,…}. Unknown kinds and odd numbers are left out. */
     static synchronized void add(Context context, String json) {
         if (context == null || json == null || json.length() > 500) return;
@@ -103,14 +118,39 @@ public final class HiddenStats {
                 now.put(kind, now.optInt(kind, 0) + n);
                 changed = true;
             }
+            long time = System.currentTimeMillis();
+            JSONObject hours = new JSONObject(prefs.getString(HOURS, "{}"));
+            JSONObject total = new JSONObject(prefs.getString(TOTAL, "{}"));
+            String thisHour = hour(time);
+            JSONObject hourCounts = hours.optJSONObject(thisHour);
+            if (hourCounts == null) hourCounts = new JSONObject();
+            boolean filtered = false;
+            for (String kind : FILTER_KINDS) {
+                int n = counts.optInt(kind, 0);
+                if (n <= 0 || n > 1000) continue;
+                now.put("filters", now.optInt("filters", 0) + n);
+                hourCounts.put(kind, hourCounts.optInt(kind, 0) + n);
+                total.put(kind, total.optLong(kind, 0) + n);
+                changed = filtered = true;
+            }
             if (!changed) return;
             days.put(today, now);
             // Only the last KEEP_DAYS days.
-            String oldest = day(System.currentTimeMillis() - KEEP_DAYS * 24L * 60 * 60 * 1000);
+            String oldest = day(time - KEEP_DAYS * 24L * 60 * 60 * 1000);
             for (Iterator<String> it = days.keys(); it.hasNext(); ) {
                 if (it.next().compareTo(oldest) < 0) it.remove();
             }
-            prefs.edit().putString(KEY, days.toString()).apply();
+            SharedPreferences.Editor editor = prefs.edit().putString(KEY, days.toString());
+            if (filtered) {
+                hours.put(thisHour, hourCounts);
+                // Only the last 24 hours.
+                String oldestHour = hour(time - 23L * 60 * 60 * 1000);
+                for (Iterator<String> it = hours.keys(); it.hasNext(); ) {
+                    if (it.next().compareTo(oldestHour) < 0) it.remove();
+                }
+                editor.putString(HOURS, hours.toString()).putString(TOTAL, total.toString());
+            }
+            editor.apply();
         } catch (Exception ex) {
             Log.e(TAG, "Failed to add the hidden counts", ex);
         }
@@ -143,6 +183,37 @@ public final class HiddenStats {
             case "suggestions": return Texts.t("Suggestions");
             default: return Texts.t("Your filters");
         }
+    }
+
+    /** What a filter hid: {last 24 hours, all time}. */
+    static long[] filterCounts(SharedPreferences prefs, String kind) {
+        long[] out = new long[2];
+        try {
+            JSONObject hours = new JSONObject(prefs.getString(HOURS, "{}"));
+            String oldestHour = hour(System.currentTimeMillis() - 23L * 60 * 60 * 1000);
+            for (Iterator<String> it = hours.keys(); it.hasNext(); ) {
+                String key = it.next();
+                JSONObject one = hours.optJSONObject(key);
+                if (one != null && key.compareTo(oldestHour) >= 0) out[0] += one.optInt(kind, 0);
+            }
+            out[1] = new JSONObject(prefs.getString(TOTAL, "{}")).optLong(kind, 0);
+        } catch (Exception ex) {
+            Log.e(TAG, "Failed to read the filter counts", ex);
+        }
+        return out;
+    }
+
+    /** For the Filters page: what the keyword and author filters hid, such as "Keywords: 3 in the last 24 hours, 120 in all". */
+    static String filterStatus(SharedPreferences prefs) {
+        StringBuilder text = new StringBuilder();
+        for (String kind : FILTER_KINDS) {
+            long[] n = filterCounts(prefs, kind);
+            if (text.length() > 0) text.append('\n');
+            text.append(Texts.t(kind.equals("keywords") ? "Keywords" : "Authors and Spaces")).append(": ")
+                    .append(n[0]).append(' ').append(Texts.t("in the last 24 hours")).append(", ")
+                    .append(n[1]).append(' ').append(Texts.t("in all"));
+        }
+        return Texts.t("Hidden by your filters") + "\n" + text;
     }
 
     /** One line for the settings page, or null when nothing was hidden in the last days. */
