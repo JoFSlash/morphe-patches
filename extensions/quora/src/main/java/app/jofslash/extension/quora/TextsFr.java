@@ -344,8 +344,8 @@ final class TextsFr {
         m.put("Hide the marked box?", "Masquer la partie marquée ?");
         m.put("Links to text files with names, one per line. They are downloaded once a day.",
                 "Liens vers des fichiers texte de noms, un par ligne. Ils sont téléchargés une fois par jour.");
-        m.put("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). Saved when you go back.",
-                "Sans tenir compte des majuscules, mots entiers uniquement ; un mot terminé par * trouve aussi des mots plus longs (art* trouve artist). Enregistré au retour.");
+        m.put("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). A keyword starting with @, such as @Jane Doe, hides everything by that person or Space. Saved when you go back.",
+                "Sans tenir compte des majuscules, mots entiers uniquement ; un mot terminé par * trouve aussi des mots plus longs (art* trouve artist). Un mot-clé commençant par @, comme @Jane Doe, masque tout ce qui vient de cette personne ou de ce Space. Enregistré au retour.");
         m.put("Names from the lists: ", "Noms des listes : ");
         m.put("Not downloaded yet.", "Pas encore téléchargé.");
         m.put("Nothing here can be hidden this way. Try a bigger part of the page.",
@@ -371,10 +371,13 @@ final class TextsFr {
         m.put("Comments", "Commentaires");
         m.put("Feed, answers and search", "Fil, réponses et recherche");
         m.put("Go back", "Retour");
+        m.put("Hidden by your filters", "Masqué par tes filtres");
         m.put("People search", "Recherche de personnes");
         m.put("Profile pages", "Pages de profil");
         m.put("Show anyway", "Afficher quand même");
         m.put("Where", "Où");
+        m.put("in all", "au total");
+        m.put("in the last 24 hours", "ces dernières 24 heures");
         m.put("you blocked them in Quora patches.", "bloqué dans les patchs Quora.");
     }
 }

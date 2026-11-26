@@ -340,8 +340,8 @@ final class TextsCs {
         m.put("Hide the marked box?", "Skrýt označenou část?");
         m.put("Links to text files with names, one per line. They are downloaded once a day.",
                 "Odkazy na textové soubory se jmény, jedno na řádek. Stahují se jednou denně.");
-        m.put("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). Saved when you go back.",
-                "Velikost písmen nehraje roli a hledají se celá slova; slovo s * na konci najde i delší (art* najde artist). Uloží se, když se vrátíš.");
+        m.put("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). A keyword starting with @, such as @Jane Doe, hides everything by that person or Space. Saved when you go back.",
+                "Velikost písmen nehraje roli a hledají se celá slova; slovo s * na konci najde i delší (art* najde artist). Klíčové slovo začínající @, například @Jane Doe, skryje vše od toho člověka nebo Space. Uloží se, když se vrátíš.");
         m.put("Names from the lists: ", "Jména ze seznamů: ");
         m.put("Not downloaded yet.", "Zatím nestaženo.");
         m.put("Nothing here can be hidden this way. Try a bigger part of the page.",
@@ -367,10 +367,13 @@ final class TextsCs {
         m.put("Comments", "Komentáře");
         m.put("Feed, answers and search", "Feed, odpovědi a hledání");
         m.put("Go back", "Zpět");
+        m.put("Hidden by your filters", "Skryto tvými filtry");
         m.put("People search", "Hledání lidí");
         m.put("Profile pages", "Profily");
         m.put("Show anyway", "Přesto ukázat");
         m.put("Where", "Kde");
+        m.put("in all", "celkem");
+        m.put("in the last 24 hours", "za posledních 24 hodin");
         m.put("you blocked them in Quora patches.", "zablokováno v Quora patchích.");
     }
 }

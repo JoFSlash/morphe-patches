@@ -344,8 +344,8 @@ final class TextsDe {
         m.put("Hide the marked box?", "Den markierten Bereich ausblenden?");
         m.put("Links to text files with names, one per line. They are downloaded once a day.",
                 "Links zu Textdateien mit Namen, einer pro Zeile. Sie werden einmal am Tag geladen.");
-        m.put("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). Saved when you go back.",
-                "Groß- und Kleinschreibung zählt nicht, gesucht werden ganze Wörter; ein Wort mit * am Ende findet auch längere (art* findet artist). Wird beim Zurückgehen gespeichert.");
+        m.put("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). A keyword starting with @, such as @Jane Doe, hides everything by that person or Space. Saved when you go back.",
+                "Groß- und Kleinschreibung zählt nicht, gesucht werden ganze Wörter; ein Wort mit * am Ende findet auch längere (art* findet artist). Ein Stichwort mit @ am Anfang, etwa @Jane Doe, blendet alles von dieser Person oder diesem Space aus. Wird beim Zurückgehen gespeichert.");
         m.put("Names from the lists: ", "Namen aus den Listen: ");
         m.put("Not downloaded yet.", "Noch nicht geladen.");
         m.put("Nothing here can be hidden this way. Try a bigger part of the page.",
@@ -371,10 +371,13 @@ final class TextsDe {
         m.put("Comments", "Kommentare");
         m.put("Feed, answers and search", "Feed, Antworten und Suche");
         m.put("Go back", "Zurück");
+        m.put("Hidden by your filters", "Von deinen Filtern ausgeblendet");
         m.put("People search", "Personensuche");
         m.put("Profile pages", "Profilseiten");
         m.put("Show anyway", "Trotzdem zeigen");
         m.put("Where", "Wo");
+        m.put("in all", "insgesamt");
+        m.put("in the last 24 hours", "in den letzten 24 Stunden");
         m.put("you blocked them in Quora patches.", "in den Quora-Patches blockiert.");
     }
 }

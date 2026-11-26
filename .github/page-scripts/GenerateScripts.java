@@ -50,7 +50,7 @@ public final class GenerateScripts {
     private static String sample(String method) {
         switch (method) {
             case "filterKeywords":
-                return "crypto, \"quoted\" word, Elon Musk, c++, art*";
+                return "crypto, \"quoted\" word, Elon Musk, c++, art*, @Max Power";
             case "blockAuthors":
                 return "Jane Doe, Cats of Quora";
             case "answerFont":

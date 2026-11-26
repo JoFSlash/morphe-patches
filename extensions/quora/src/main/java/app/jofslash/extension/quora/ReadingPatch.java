@@ -97,6 +97,8 @@ public final class ReadingPatch {
     /** What a filter hides, by place: "feed" (feed items, answers, search results), "comments", "people", "profiles". */
     private static final String[] AUTHOR_PLACES = {"feed", "comments", "people", "profiles"};
     private static final String[] AUTHOR_PLACE_LABELS = {"Feed, answers and search", "Comments", "People search", "Profile pages"};
+    private static final String[] KEYWORD_PLACES = {"feed", "comments"};
+    private static final String[] KEYWORD_PLACE_LABELS = {"Feed, answers and search", "Comments"};
 
     /** The boxes a comment box can't reach up into: the answer or post it belongs to, and the comment field. */
     private static final String COMMENT_STOP = "[class*=\"dom_annotate_answer_action_bar\"]," + ANSWER_TEXT
@@ -167,27 +169,38 @@ public final class ReadingPatch {
     /**
      * Injection point: start of QWebViewClient.onPageFinished.
      *
-     * @param words Comma separated words or phrases. Feed items and answers containing one are hidden.
-     *              The text of their open comments doesn't count.
+     * @param words Comma separated words or phrases. Feed items, answers and comments containing one
+     *              are hidden. An entry starting with @, such as @Jane Doe, hides everything by that
+     *              person or Space instead, also with Block authors and Spaces switched off.
      */
     public static void filterKeywords(WebView webView, String words) {
         if (!PatchSettings.active(webView, "filterKeywords", "Filter keywords")) return;
         words = PatchSettings.text(webView, "keywords", "Keywords", words);
         String list = jsonList(words);
         if (list.equals("[]")) return;
+        String where = places(PatchSettings.choice("filterKeywords", "keywordPlaces", "Where",
+                String.join(",", KEYWORD_PLACES), KEYWORD_PLACE_LABELS, KEYWORD_PLACES, true), KEYWORD_PLACES);
         evaluate(webView, "(function(){"
                 + "if(window.__jofslashKeywords)return;window.__jofslashKeywords=1;"
-                + "var UNITS='" + UNITS + "',words=" + list + ";"
-                + COMMENTS_JS
+                + "var UNITS='" + UNITS + "',P=" + where + ",all=" + list + ";"
+                + COMMENTS_JS + AUTHORS_JS
+                // @Name entries are people and Spaces; the rest are words.
+                + "var names={},people=0,words=[];all.forEach(function(w){"
+                + "if(/^@/.test(w)){var n=norm(w.slice(1));if(n&&!names[n]){names[n]=1;people++;}}else words.push(w);});"
                 // Whole words only; a * at the end of a word also matches longer words (art* finds artist).
                 + "var esc=function(w){var star=/\\*$/.test(w);w=w.replace(/\\*+$/,'');"
                 + "return w.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&').replace(/\\s+/g,'\\\\s+')+(star?'[\\\\p{L}\\\\p{N}]*':'');};"
-                + "words=words.filter(function(w){return w.replace(/\\*+$/,'').trim();});if(!words.length)return;"
-                + "var re=new RegExp('(^|[^\\\\p{L}\\\\p{N}])('+words.map(esc).join('|')+')(?=$|[^\\\\p{L}\\\\p{N}])','iu');"
-                + "function run(){comments();document.querySelectorAll(UNITS).forEach(function(u){"
+                + "words=words.filter(function(w){return w.replace(/\\*+$/,'').trim();});"
+                + "if(!words.length&&!people)return;"
+                + "var re=words.length?new RegExp('(^|[^\\\\p{L}\\\\p{N}])('+words.map(esc).join('|')+')(?=$|[^\\\\p{L}\\\\p{N}])','iu'):null;"
+                + "function run(){var cs=comments();"
+                + "if(P.feed)document.querySelectorAll(UNITS).forEach(function(u){"
                 + "if(u.hasAttribute('data-jofslash-filtered'))return;"
-                + "if(re.test(ownText(u)))hide(u,'');"
-                + "});}"
+                + "if((re&&re.test(ownText(u)))||(people&&byAuthor(u,names)))hide(u,'keywords');});"
+                + "if(P.comments)cs.forEach(function(c){if(c.hasAttribute('data-jofslash-filtered'))return;"
+                + "var a=people?commenter(c):null;"
+                + "if(a&&named(a,names)){hide(thread(c),'keywords');return;}"
+                + "if(re&&re.test(c.innerText||''))hide(c,'keywords');});}"
                 + observe("run")
                 + "})();", "keyword filter");
     }

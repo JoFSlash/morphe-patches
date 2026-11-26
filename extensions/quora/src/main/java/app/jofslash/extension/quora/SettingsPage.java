@@ -176,6 +176,11 @@ final class SettingsPage {
 
     private void filters(SharedPreferences prefs, Map<String, String[]> texts) {
         LinearLayout content = column();
+        if (texts.containsKey("keywords") || texts.containsKey("authors")) {
+            LinearLayout counts = section(null);
+            counts.addView(note(HiddenStats.filterStatus(prefs)));
+            content.addView(counts);
+        }
         Map<String, EditText> fields = new LinkedHashMap<>();
         for (Map.Entry<String, String[]> entry : texts.entrySet()) {
             LinearLayout box = section(entry.getValue()[0]);
@@ -210,7 +215,7 @@ final class SettingsPage {
             content.addView(box);
         }
         LinearLayout help = section(null);
-        help.addView(note("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). Saved when you go back."));
+        help.addView(note("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). A keyword starting with @, such as @Jane Doe, hides everything by that person or Space. Saved when you go back."));
         content.addView(help);
 
         EditText listsField = lists;

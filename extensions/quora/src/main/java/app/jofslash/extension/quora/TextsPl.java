@@ -341,8 +341,8 @@ final class TextsPl {
         m.put("Hide the marked box?", "Ukryć zaznaczoną część?");
         m.put("Links to text files with names, one per line. They are downloaded once a day.",
                 "Linki do plików tekstowych z nazwami, jedna w wierszu. Pobierane raz dziennie.");
-        m.put("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). Saved when you go back.",
-                "Wielkość liter nie ma znaczenia, szukane są całe słowa; słowo zakończone * znajdzie też dłuższe (art* znajdzie artist). Zapisuje się po powrocie.");
+        m.put("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). A keyword starting with @, such as @Jane Doe, hides everything by that person or Space. Saved when you go back.",
+                "Wielkość liter nie ma znaczenia, szukane są całe słowa; słowo zakończone * znajdzie też dłuższe (art* znajdzie artist). Słowo kluczowe zaczynające się od @, np. @Jane Doe, ukrywa wszystko od tej osoby lub Space. Zapisuje się po powrocie.");
         m.put("Names from the lists: ", "Nazwy z list: ");
         m.put("Not downloaded yet.", "Jeszcze nie pobrano.");
         m.put("Nothing here can be hidden this way. Try a bigger part of the page.",
@@ -368,10 +368,13 @@ final class TextsPl {
         m.put("Comments", "Komentarze");
         m.put("Feed, answers and search", "Feed, odpowiedzi i wyszukiwanie");
         m.put("Go back", "Wróć");
+        m.put("Hidden by your filters", "Ukryte przez twoje filtry");
         m.put("People search", "Wyszukiwanie osób");
         m.put("Profile pages", "Strony profilu");
         m.put("Show anyway", "Pokaż mimo to");
         m.put("Where", "Gdzie");
+        m.put("in all", "łącznie");
+        m.put("in the last 24 hours", "w ciągu ostatnich 24 godzin");
         m.put("you blocked them in Quora patches.", "zablokowano w patchach Quora.");
     }
 }

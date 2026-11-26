@@ -341,8 +341,8 @@ final class TextsIt {
         m.put("Hide the marked box?", "Nascondere la parte evidenziata?");
         m.put("Links to text files with names, one per line. They are downloaded once a day.",
                 "Link a file di testo con nomi, uno per riga. Vengono scaricati una volta al giorno.");
-        m.put("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). Saved when you go back.",
-                "Maiuscole e minuscole non contano e si cercano parole intere; una parola che finisce con * trova anche parole più lunghe (art* trova artist). Si salva quando torni indietro.");
+        m.put("Matching ignores case and finds whole words; end a word with * to also find longer ones (art* finds artist). A keyword starting with @, such as @Jane Doe, hides everything by that person or Space. Saved when you go back.",
+                "Maiuscole e minuscole non contano e si cercano parole intere; una parola che finisce con * trova anche parole più lunghe (art* trova artist). Una parola chiave che inizia con @, come @Jane Doe, nasconde tutto ciò che viene da quella persona o da quello Space. Si salva quando torni indietro.");
         m.put("Names from the lists: ", "Nomi dagli elenchi: ");
         m.put("Not downloaded yet.", "Non ancora scaricato.");
         m.put("Nothing here can be hidden this way. Try a bigger part of the page.",
@@ -368,10 +368,13 @@ final class TextsIt {
         m.put("Comments", "Commenti");
         m.put("Feed, answers and search", "Feed, risposte e ricerca");
         m.put("Go back", "Indietro");
+        m.put("Hidden by your filters", "Nascosti dai tuoi filtri");
         m.put("People search", "Ricerca di persone");
         m.put("Profile pages", "Pagine del profilo");
         m.put("Show anyway", "Mostra comunque");
         m.put("Where", "Dove");
+        m.put("in all", "in tutto");
+        m.put("in the last 24 hours", "nelle ultime 24 ore");
         m.put("you blocked them in Quora patches.", "bloccato nelle patch di Quora.");
     }
 }
