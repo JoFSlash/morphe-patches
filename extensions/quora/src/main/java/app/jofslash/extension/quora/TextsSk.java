@@ -305,8 +305,8 @@ final class TextsSk {
         m.put("Items from the people and Spaces in Filters. Long-press a name to add it.",
                 "Príspevky ľudí a Priestorov z Filtrov. Meno pridáš dlhým podržaním.");
         m.put("Hide everything by ", "Skryť všetko od ");
-        m.put("Their answers and posts won't show in the feed or on question pages. You can remove the name again in Patch settings > More > Filters.",
-                "Ich odpovede a príspevky sa nezobrazia vo feede ani na stránkach otázok. Meno môžeš znova odstrániť v Patch settings > Ďalšie > Filtre.");
+        m.put("Their answers, posts and comments won't show, and their profile gets covered (Patch settings > Block authors and Spaces > Where). You can remove the name again in Patch settings > More > Filters.",
+                "Ich odpovede, príspevky a komentáre sa nezobrazia a ich profil sa zakryje (Patch settings > Block authors and Spaces > Kde). Meno môžeš znova odobrať v Patch settings > Ďalšie > Filtre.");
         m.put("hidden.", "skryté.");
         // Hidden counts.
         m.put("Hidden in the last 7 days: ", "Skryté za posledných 7 dní: ");
@@ -363,5 +363,13 @@ final class TextsSk {
                 "S uloženými textami je to na zdieľanie príliš dlhé: zdieľajú sa názvy a odkazy. Uložiť do Stiahnutých zachová všetko.");
         m.put("You can show it again under Filters.", "Znova to ukážeš vo Filtroch.");
         m.put("min read", "min čítania");
+        m.put("Comments", "Komentáre");
+        m.put("Feed, answers and search", "Feed, odpovede a hľadanie");
+        m.put("Go back", "Späť");
+        m.put("People search", "Hľadanie ľudí");
+        m.put("Profile pages", "Profily");
+        m.put("Show anyway", "Aj tak ukázať");
+        m.put("Where", "Kde");
+        m.put("you blocked them in Quora patches.", "zablokované v Quora patchoch.");
     }
 }

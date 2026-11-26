@@ -228,9 +228,42 @@ const withComments = (id, author, list) => `
     <div class="dom_annotate_answer_action_bar_upvote"><button>Upvote</button></div>
     <div class="q-box" id="${id}-comments">${list}</div></div>`;
 
-// A comment by someone in the author filter doesn't hide the answer it is under.
-expect('blockAuthors-0.js', withComments('answer', 'John Roe', comment('jane', 'Jane Doe', 'Jane-Doe-12', 'I disagree.')
-  + comment('carl', 'Carl Sagan', 'Carl-Sagan', 'Stars.')), [['#answer', false]]);
+// Block authors in comments: Jane Doe's comment goes with the replies under it, the answer she
+// commented on stays, and so do the other comments, also a reply under someone else's comment.
+expect('blockAuthors-0.js', withComments('answer', 'John Roe', [
+  comment('jane', 'Jane Doe', 'Jane-Doe-12', 'I disagree.', reply('reply-to-jane', 'Max Power', 'Max-Power', 'Me too.')),
+  comment('bob', 'Bob Smith', 'Bob-Smith', 'Nice.', reply('jane-reply', 'Jane Doe', 'Jane-Doe-12', 'Thanks.') + reply('al', 'Al Bundy', 'Al-Bundy', 'Yes.')),
+  comment('carl', 'Carl Sagan', 'Carl-Sagan', 'Stars.'),
+].join('')), [
+  ['#answer', false], ['#jane', true], ['#reply-to-jane', true], ['#bob', false], ['#jane-reply', true], ['#al', false],
+  ['#carl', false],
+]);
+
+// Block authors in people search: Jane Doe's row goes, John Roe's stays.
+const person = (id, name, slug) => `
+  <div class="q-box qu-borderBottom qu-tap" id="${id}"><a class="puppeteer_test_link" href="https://www.quora.com/profile/${slug}"></a>
+    <span class="q-text qu-bold"><a class="puppeteer_test_link" href="https://www.quora.com/profile/${slug}">${name}</a></span>
+    <div class="q-text">Writer</div></div>`;
+expect('blockAuthors-0.js', person('p-jane', 'Jane Doe', 'Jane-Doe-12') + person('p-john', 'John Roe', 'John-Roe'),
+  [['#p-jane', true], ['#p-john', false]], 'https://www.quora.com/search?q=doe&type=profile');
+
+// Block authors on a profile page: covered, with a Show anyway button that takes the cover away.
+{
+  const doc = run('blockAuthors-0.js', '<h1 class="q-text">Jane Doe</h1><div id="content">Her profile</div>',
+    'https://www.quora.com/profile/Jane-Doe-12');
+  const cover = doc.getElementById('jofslash-blocked-cover');
+  checks++;
+  if (!cover || !/Jane Doe/.test(cover.textContent)) fail('blockAuthors-0.js: a blocked profile should be covered');
+  else {
+    const show = [...cover.querySelectorAll('button')].find((b) => b.textContent === 'Show anyway');
+    show.click();
+    checks++;
+    if (doc.getElementById('jofslash-blocked-cover')) fail('blockAuthors-0.js: Show anyway should take the cover away');
+  }
+  const other = run('blockAuthors-0.js', '<h1 class="q-text">John Roe</h1>', 'https://www.quora.com/profile/John-Roe');
+  checks++;
+  if (other.getElementById('jofslash-blocked-cover')) fail('blockAuthors-0.js: a profile not blocked should not be covered');
+}
 
 // Hide anonymous answers. Markup trimmed from a question page: the author is the first bold
 // q-text; an anonymous one is plain text, a named one a profile link. An anonymous commenter

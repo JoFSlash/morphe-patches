@@ -305,8 +305,8 @@ final class TextsPt {
         m.put("Items from the people and Spaces in Filters. Long-press a name to add it.",
                 "Publicações das pessoas e Espaços dos Filtros. Mantém premido um nome para o adicionar.");
         m.put("Hide everything by ", "Ocultar tudo de ");
-        m.put("Their answers and posts won't show in the feed or on question pages. You can remove the name again in Patch settings > More > Filters.",
-                "As suas respostas e publicações não vão aparecer no feed nem nas páginas de perguntas. Podes remover o nome em Patch settings > Mais > Filtros.");
+        m.put("Their answers, posts and comments won't show, and their profile gets covered (Patch settings > Block authors and Spaces > Where). You can remove the name again in Patch settings > More > Filters.",
+                "As respostas, publicações e comentários dessa pessoa não aparecem e o perfil fica tapado (Patch settings > Block authors and Spaces > Onde). Pode remover o nome em Patch settings > Mais > Filtros.");
         m.put("hidden.", "oculto.");
         // Hidden counts.
         m.put("Hidden in the last 7 days: ", "Ocultado nos últimos 7 dias: ");
@@ -366,5 +366,13 @@ final class TextsPt {
                 "Com os textos guardados é demasiado longo para partilhar: partilham-se títulos e links. Guardar em Transferências mantém tudo.");
         m.put("You can show it again under Filters.", "Podes voltar a mostrá-lo em Filtros.");
         m.put("min read", "min de leitura");
+        m.put("Comments", "Comentários");
+        m.put("Feed, answers and search", "Feed, respostas e pesquisa");
+        m.put("Go back", "Voltar");
+        m.put("People search", "Pesquisa de pessoas");
+        m.put("Profile pages", "Páginas de perfil");
+        m.put("Show anyway", "Mostrar mesmo assim");
+        m.put("Where", "Onde");
+        m.put("you blocked them in Quora patches.", "bloqueado nos patches do Quora.");
     }
 }

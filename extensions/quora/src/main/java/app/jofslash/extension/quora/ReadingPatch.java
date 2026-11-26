@@ -94,6 +94,10 @@ public final class ReadingPatch {
 
     // ---------------------------------------------------------------- filters
 
+    /** What a filter hides, by place: "feed" (feed items, answers, search results), "comments", "people", "profiles". */
+    private static final String[] AUTHOR_PLACES = {"feed", "comments", "people", "profiles"};
+    private static final String[] AUTHOR_PLACE_LABELS = {"Feed, answers and search", "Comments", "People search", "Profile pages"};
+
     /** The boxes a comment box can't reach up into: the answer or post it belongs to, and the comment field. */
     private static final String COMMENT_STOP = "[class*=\"dom_annotate_answer_action_bar\"]," + ANSWER_TEXT
             + ",textarea,[contenteditable=\"true\"]," + UNITS;
@@ -149,6 +153,17 @@ public final class ReadingPatch {
             + "if(!inComment(t[k],u)&&names.hasOwnProperty(norm(t[k].textContent)))return true;"
             + "return false;}";
 
+    /** The places picked for a filter, as a JavaScript object such as {feed:1,comments:1}. */
+    private static String places(String picked, String[] values) {
+        StringBuilder out = new StringBuilder("{");
+        for (String value : values) {
+            if (!("," + (picked == null ? "" : picked) + ",").contains("," + value + ",")) continue;
+            if (out.length() > 1) out.append(',');
+            out.append(value).append(":1");
+        }
+        return out.append('}').toString();
+    }
+
     /**
      * Injection point: start of QWebViewClient.onPageFinished.
      *
@@ -178,14 +193,17 @@ public final class ReadingPatch {
     }
 
     /**
-     * Part of the author filter's script: a long press on an author's or a Space's name in a feed item
-     * or an answer asks the app whether to hide everything by them (PatchSettings' blockAuthor). The
-     * tap that ends the long press doesn't open the profile. Names in "Upvoted by" lines don't count:
-     * those people didn't write the item. Uses norm, upvoter and UNITS from the script around it.
+     * Part of the author filter's script: a long press on an author's or a Space's name in a feed item,
+     * an answer or a comment, or on the name at the top of a profile page, asks the app whether to
+     * hide everything by them (PatchSettings' blockAuthor). The tap that ends the long press doesn't
+     * open the profile. Names in "Upvoted by" lines don't count: those people didn't write the item.
+     * Uses norm, upvoter and UNITS from the script around it.
      */
     private static final String LONG_PRESS_AUTHOR = ""
             + "var J=window.JoFSlashPatches,timer=0,sx=0,sy=0,eat=0;"
             + "function who(t){if(!t||!t.closest)return null;"
+            + "if(/^\\/profile\\//.test(location.pathname)){var h1=t.closest('h1');"
+            + "if(h1){var hn=(h1.textContent||'').replace(/\\s+/g,' ').trim();return hn&&hn.length<=80?hn:null;}}"
             + "var a=t.closest('a[href],.puppeteer_test_tribe_name');if(!a)return null;"
             + "var u=a.closest('" + UNITS + "');if(!u||upvoter(a,u))return null;"
             + "var name=(a.textContent||'').replace(/\\s+/g,' ').trim();"
@@ -215,6 +233,34 @@ public final class ReadingPatch {
             + "if(Date.now()-eat<1200){ev.preventDefault();ev.stopPropagation();eat=0;}},true);";
 
     /**
+     * Part of the author filter's script: the profile page of someone you blocked is covered by a
+     * note with a Show button, which shows that profile until the app is closed. Uses norm, names and
+     * the text constants from the script around it.
+     */
+    private static final String PROFILE_COVER = ""
+            + "var COVER='jofslash-blocked-cover';"
+            + "function profileName(){var m=(location.pathname||'').match(/^\\/profile\\/([^/?#]+)\\/?$|^\\/profile\\/([^/?#]+)\\//);"
+            + "if(!m)return null;var s='';try{s=norm(decodeURIComponent(m[1]||m[2]).replace(/-\\d+$/,''));}catch(e){}"
+            + "var h1=document.querySelector('h1'),t=h1?(h1.textContent||'').replace(/\\s+/g,' ').trim():'';"
+            + "if((s&&names.hasOwnProperty(s))||(t&&names.hasOwnProperty(norm(t))))return t||s;return null;}"
+            + "function cover(){var old=document.getElementById(COVER),path=(location.pathname||'').replace(/\\/(answers|questions|posts|followers|following|spaces|log).*$/,'');"
+            + "if(old&&old.getAttribute('data-path')!==path){old.remove();old=null;}"
+            + "if(old)return;var shown=false;try{shown=sessionStorage.getItem('jofslash-shown:'+path)==='1';}catch(e){}"
+            + "if(shown)return;var who=profileName();if(!who)return;"
+            + "var cs=getComputedStyle(document.body),bg=cs.backgroundColor,fg=cs.color;"
+            + "if(!bg||/rgba\\(0, 0, 0, 0\\)|transparent/.test(bg))bg=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'#181818':'#fff';"
+            + "var d=document.createElement('div');d.id=COVER;d.setAttribute('data-path',path);d.setAttribute('data-jofslash-filtered','authors');"
+            + "d.style.cssText='position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;align-items:center;"
+            + "justify-content:center;gap:16px;padding:32px;text-align:center;font:16px/1.4 sans-serif;background:'+bg+';color:'+fg;"
+            + "var p=document.createElement('div');p.textContent=who+': '+BLOCKED;"
+            + "var b=document.createElement('button');b.textContent=SHOW;"
+            + "b.style.cssText='font:inherit;padding:10px 20px;border-radius:20px;border:1px solid currentColor;background:none;color:inherit';"
+            + "b.addEventListener('click',function(){try{sessionStorage.setItem('jofslash-shown:'+path,'1');}catch(e){}d.remove();});"
+            + "var back=document.createElement('button');back.textContent=BACK;back.style.cssText=b.style.cssText;"
+            + "back.addEventListener('click',function(){history.back();});"
+            + "d.appendChild(p);d.appendChild(back);d.appendChild(b);document.documentElement.appendChild(d);}";
+
+    /**
      * Injection point: start of QWebViewClient.onPageFinished.
      *
      * @param names Comma separated author names or Space names, as Quora shows them.
@@ -226,20 +272,42 @@ public final class ReadingPatch {
         String followed = AuthorLists.namesText(webView.getContext());
         if (!followed.isEmpty()) names = (names == null ? "" : names) + "," + followed;
         String list = jsonList(names);
+        String where = places(PatchSettings.choice("blockAuthors", "authorPlaces", "Where",
+                String.join(",", AUTHOR_PLACES), AUTHOR_PLACE_LABELS, AUTHOR_PLACES, true), AUTHOR_PLACES);
         evaluate(webView, "(function(){"
                 + "if(window.__jofslashAuthors)return;window.__jofslashAuthors=1;"
-                + "var UNITS='" + UNITS + "';"
+                + "var UNITS='" + UNITS + "',P=" + where + ";"
+                + "var BLOCKED=" + HideContentPatch.jsString(Texts.t("you blocked them in Quora patches.")) + ","
+                + "SHOW=" + HideContentPatch.jsString(Texts.t("Show anyway")) + ","
+                + "BACK=" + HideContentPatch.jsString(Texts.t("Go back")) + ";"
                 + COMMENTS_JS + AUTHORS_JS
                 // A lookup table: the lists you follow can hold thousands of names.
                 + "var names={},count=0;" + list + ".forEach(function(n){n=norm(n);if(n&&!names[n]){names[n]=1;count++;}});"
                 // Patch settings adds a name picked with a long press, without loading the page again.
                 + "window.__jofslashAuthorsAdd=function(n){n=norm(n);if(n&&!names[n]){names[n]=1;count++;}run();};"
-                + LONG_PRESS_AUTHOR
-                + "function run(){if(!count)return;comments();document.querySelectorAll(UNITS).forEach(function(u){"
+                + LONG_PRESS_AUTHOR + PROFILE_COVER
+                // A row in the people search results: the largest box around the name that links to
+                // no other profile (people with the same name have their own). The rows have no class of their own.
+                + "function id(a){var m=(a.getAttribute('href')||'').match(/\\/profile\\/([^/?#]+)/);return m?m[1]:'';}"
+                + "function only(e,s){var l=e.querySelectorAll('a[href*=\"/profile/\"]');"
+                + "for(var i=0;i<l.length;i++)if(id(l[i])!==s)return false;return true;}"
+                + "function person(a){if(a.closest(UNITS))return null;var s=id(a),r=null;"
+                + "for(var e=a.parentElement,i=0;e&&e!==document.body&&i<14;e=e.parentElement,i++){"
+                + "if(!only(e,s)||e.querySelector('input,textarea,h1'))break;r=e;}return r;}"
+                + "function run(){if(!count)return;var cs=comments();"
+                + "if(P.feed)document.querySelectorAll(UNITS).forEach(function(u){"
                 + "if(u.hasAttribute('data-jofslash-filtered'))return;"
-                + "if(byAuthor(u,names))hide(u,'');"
-                + "});}"
+                + "if(byAuthor(u,names))hide(u,'authors');});"
+                + "if(P.comments)cs.forEach(function(c){if(c.hasAttribute('data-jofslash-filtered'))return;"
+                + "var a=commenter(c);if(a&&named(a,names))hide(thread(c),'authors');});"
+                + "if(P.people&&/^\\/search/.test(location.pathname||''))"
+                + "document.querySelectorAll('a[href*=\"/profile/\"]').forEach(function(a){"
+                + "if(!(a.textContent||'').trim()||!named(a,names))return;var r=person(a);"
+                + "if(r&&!r.hasAttribute('data-jofslash-filtered'))hide(r,'authors');});"
+                + "if(P.profiles)cover();}"
                 + observe("run")
+                // Quora changes pages without loading them: check the profile cover when the address changes.
+                + "var last=location.href;(function tick(){if(location.href!==last){last=location.href;run();}setTimeout(tick,700);})();"
                 + "})();", "author filter");
     }
 
