@@ -7,11 +7,13 @@
     "style": "generated",
     "order": [
       "Ads",
+      "Food",
       "App",
       "Privacy"
     ],
     "intro": {
       "Ads": "Ad banners and full-screen ads.",
+      "Food": "Extra information about foods, from open data.",
       "App": "Premium offers, prompts and pop-ups.",
       "Privacy": "Trackers and permissions. Apart from the location patch, they change nothing you see."
     }
