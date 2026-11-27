@@ -20,6 +20,7 @@ object Constants {
         apkFileType = ApkFileType.APKM,
         appIconColor = 0x3084FF,
         targets = listOf(
+            AppTarget(version = "5.13.1.health-mobile-1104148453-1030731843"),
             AppTarget(version = "5.13.health-mobile-1104148438-1023845615"),
             AppTarget(version = null, isExperimental = true),
         )
